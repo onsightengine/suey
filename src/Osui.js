@@ -73,10 +73,12 @@ export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
 
 ///// Utils
 
-import { tooltipper } from './Tooltipper.js';
-export { tooltipper } from './Tooltipper.js';
+export { Css } from './utils/Css.js';
+export { Html } from './utils/Html.js';
+export { Popper } from './utils/Popper.js';
 
-export { Html } from './Html.js';
+import { tooltipper } from './utils/Tooltipper.js';
+export { tooltipper } from './utils/Tooltipper.js';
 
 //////////////////// Widgets
 

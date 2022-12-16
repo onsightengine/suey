@@ -16,11 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
+import { Div } from '../core/Div.js';
+
 import { Css } from './Css.js';
 import { Popper } from './Popper.js';
 
 import { ALIGN } from './Popper.js';
-import { TOOLTIP_Y_OFFSET } from './constants.js';
+import { TOOLTIP_Y_OFFSET } from '../constants.js';
 
 ///// Enumerations
 
@@ -42,7 +44,7 @@ class Tooltipper {
     constructor() {
 
         // Tooltip
-        const tooltip = new OSUI.Div().setClass('Tooltip').setInnerHtml('');
+        const tooltip = new Div().setClass('Tooltip').setInnerHtml('');
         document.body.appendChild(tooltip.dom);
 
         // Device Type

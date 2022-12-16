@@ -11,6 +11,8 @@
 import { Element } from '../core/Element.js';
 import { Popper } from '../utils/Popper.js';
 
+import { ALIGN, OVERFLOW, POSITION } from '../utils/Popper.js';
+
 class Button extends Element {
 
     constructor(innerHtml) {
@@ -23,8 +25,8 @@ class Button extends Element {
         this.attachedMenu = undefined;
         this.menuOffsetX = 0;
         this.menuOffsetY = 0;
-        this.alignMenu = Popper.ALIGN.LEFT;
-        this.overflowMenu = Popper.OVERFLOW.RIGHT;
+        this.alignMenu = ALIGN.LEFT;
+        this.overflowMenu = OVERFLOW.RIGHT;
 
         Object.defineProperty(this, 'disabled', {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
@@ -93,7 +95,7 @@ class Button extends Element {
                 self.menuOffsetY,
                 self.overflowMenu
             );
-            if (popped === Popper.POSITION.UNDER) {
+            if (popped === POSITION.UNDER) {
                 osuiMenu.removeClass('SlideUp');
                 osuiMenu.addClass('SlideDown');
             } else {

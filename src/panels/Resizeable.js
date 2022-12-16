@@ -55,7 +55,7 @@ class Resizeable extends Panel {
 
     changeWidth(width) {
         if (width !== null && width !== undefined && Number.isNaN(width) === false) {
-            width = Math.min(Math.max(height, this.minWidth), this.maxWidth).toFixed(1);
+            width = Math.min(Math.max(width, this.minWidth), this.maxWidth).toFixed(1);
             this.setWidth(Css.toEm(width));
         }
     }

@@ -20,30 +20,37 @@ class Image extends Element {
         imageDom.onerror = () => imageDom.style.visibility = 'hidden';
 
         // If imageUrl is SVG string, convert to image
-        const isString = (typeof imageUrl === 'string' || imageUrl instanceof String);
-        if (isString && (imageUrl.includes('<svg') || imageUrl.includes('<SVG'))) {
-            const blob = new Blob([imageUrl], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            imageDom.src = url;
-            imageDom.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
-
-        // Filename or Image was passed
-        } else {
-            imageDom.src = imageUrl;
+        function setImage(fromImage) {
+            const isString = (typeof fromImage === 'string' || fromImage instanceof String);
+            // SVG
+            if (isString && (fromImage.includes('<svg') || fromImage.includes('<SVG'))) {
+                const blob = new Blob([ fromImage ], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                imageDom.src = url;
+                imageDom.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
+            // Filename or Image
+            } else {
+                imageDom.src = imageUrl;
+            }
         }
+        setImage(imageUrl)
 
+        // Style
         if (! draggable) imageDom.ondragstart = () => { return false };
         if (width != undefined) imageDom.style.width = Css.parseSize(width);
         if (height != undefined) imageDom.style.height = Css.parseSize(height);
 
-        //
+        ///// Base
 
         super(imageDom);
         this.setClass('Image');
-    }
 
-    setImage(imageUrl) {
-        this.dom.src = imageUrl;
+        ///// Methods
+
+        this.setImage = function(imageUrl) {
+            setImage(imageUrl);
+        }
+
     }
 
 }

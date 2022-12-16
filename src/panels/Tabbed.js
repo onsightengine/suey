@@ -217,18 +217,60 @@ class TabButton extends Div {
         ///// Background Color
 
         if (bgColor !== undefined && bgColor !== null) {
-            hexColor = Math.floor(hexColor);
-            hexColor = Math.min(Math.max(hexColor, 0), 0xffffff);
+            let m, r, g, b;
 
-            const rLight = (bgColor & 0xff0000) >> 16;
-            const gLight = (bgColor & 0x00ff00) >> 8;
-            const bLight = (bgColor & 0x0000ff);
+            // Css String: rgb(255, 0, 0)
+            if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(bgColor)) {
+                let color;
+                const name = m[1];
+                const components = m[2];
+                switch (name) {
+                    case 'rgb':
+                    case 'rgba':
+                        if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+                            // rgb(255,0,0) rgba(255,0,0,0.5)
+                            r = Math.min(255, parseInt(color[1], 10));
+                            g = Math.min(255, parseInt(color[2], 10));
+                            b = Math.min(255, parseInt(color[3], 10));
+                        }
+                        if (color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+                            // rgb(100%,0%,0%) rgba(100%,0%,0%,0.5)
+                            r = (Math.min(100, parseInt(color[1], 10)) / 100);
+                            g = (Math.min(100, parseInt(color[2], 10)) / 100);
+                            b = (Math.min(100, parseInt(color[3], 10)) / 100);
+                        }
+                        break;
+                }
 
-            const rDark = rLight * 0.75;
-            const gDark = gLight * 0.75;
-            const bDark = bLight * 0.75;
+            // String Color: #ff0000
+            } else if (m = /^\#([A-Fa-f\d]+)$/.exec(bgColor)) {
+                const hex = m[1];
+                const size = hex.length;
+                // #FF0
+                if (size === 3) {
+                    r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+                    g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+                    b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+                // #FF0000
+                } else if (size === 6) {
+                    r = parseInt(hex.charAt(0) + hex.charAt(1), 16);
+                    g = parseInt(hex.charAt(2) + hex.charAt(3), 16);
+                    b = parseInt(hex.charAt(4) + hex.charAt(5), 16);
+                }
 
-            const light = `rgb(${rLight}, ${gLight}, ${bLight})`;
+            // Hex Color: 0xff0000
+            } else {
+                const hexColor = Math.min(Math.max(Math.floor(bgColor), 0), 0xffffff);
+                r = (hexColor & 0xff0000) >> 16;
+                g = (hexColor & 0x00ff00) >> 8;
+                b = (hexColor & 0x0000ff);
+            }
+
+            const rDark = parseInt(r * 0.75);
+            const gDark = parseInt(g * 0.75);
+            const bDark = parseInt(b * 0.75);
+
+            const light = `rgb(${r}, ${g}, ${b})`;
             const dark = `rgb(${rDark}, ${gDark}, ${bDark})`;
 
             const bgImage = `linear-gradient(to bottom left, ${light}, ${dark})`;
