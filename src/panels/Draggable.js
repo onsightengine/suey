@@ -17,8 +17,9 @@ import { CLOSE_SIDES } from './Panel.js';
 class Draggable extends Panel {
 
     constructor(style) {
-        super(style, CLOSE_SIDES.LEFT);
+        super(style);
         this.addClass('Draggable');
+        this.makeClosable(CLOSE_SIDES.RIGHT, 1.3 /* sizeScale */, -1.9 /* offsetScale */);
 
         // function onPointerDown(event) {
         //     if (event.isPrimary === false) return;

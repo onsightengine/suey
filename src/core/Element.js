@@ -63,20 +63,29 @@ class Element {
     /** Removes (via dom.removeChild) any number of Elements passed as arguments */
     remove(/* any number of Elements to remove */) {
         for (let i = 0; i < arguments.length; i++) {
-            const argument = arguments[i];
-            if (argument instanceof Element && argument.isElement) {
-                // Find element within children array, remove entry
+            const osuiElement = arguments[i];
+
+            // Find element within children array, remove entry
+            if (osuiElement instanceof Element && osuiElement.isElement) {
+                // Remove Element
                 for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(argument.dom)) {
+                    const childElement = this.contents().children[j];
+                    if (childElement.dom.isSameNode(osuiElement.dom)) {
+                        childElement.clear();
                         this.contents().children.splice(j, 1);
                         break;
                     }
                 }
+            }
 
-                // Remove node
-                this.contents().dom.removeChild(argument.dom);
-            } else {
-                console.error('Element.remove:', argument, 'is not an instance of Osui Element.');
+            // Remove Dom Node
+            if (osuiElement.dom) {
+                if (osuiElement.dom.dispose && typeof osuiElement.dom.dispose === 'function') osuiElement.dom.dispose();
+                try {
+                    this.contents().dom.removeChild(osuiElement.dom);
+                } catch (exception) {
+                    console.log(`Element.remove: Could not remove child!`);
+                }
             }
         }
         return this;
@@ -86,19 +95,21 @@ class Element {
     clearContents() {
         // Recursively remove all known Osui children
         for (let i = 0; i < this.contents().children.length; i++) {
-            this.contents().children[i].clear();
+            const childElement = this.contents().children[i];
+            childElement.clear();
         }
         this.contents().children.length = 0;
 
-        // Additionally removed any html elements that were not of Osui type
+        // Additionally removed any Dom Nodes that were not of Osui Element type
         if (this.contents().dom) {
             for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
-                let child = this.contents().dom.children[i];
-                if (child.dispose && typeof child.dispose === 'function') child.dispose();
+                const domChild = this.contents().dom.children[i];
+
+                if (domChild.dispose && typeof domChild.dispose === 'function') domChild.dispose();
                 try {
-                    this.contents().dom.removeChild(child);
+                    this.contents().dom.removeChild(domChild);
                 } catch (exception) {
-                    console.log(`Element.clear: Could not remove child!`);
+                    console.log(`Element.clearContents: Could not remove child!`);
                 }
             }
         }

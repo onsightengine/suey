@@ -32,7 +32,7 @@ export const CLOSE_SIDES = {
 
 class Panel extends Div {
 
-    constructor(style = PANEL_STYLES.NONE, closeSide = CLOSE_SIDES.NONE) {
+    constructor(style = PANEL_STYLES.NONE) {
         super();
         this.setPointerEvents('auto');
         this.setClass('Panel');
@@ -55,9 +55,6 @@ class Panel extends Div {
             this.contents = function() { return insideBox; };               // Accessor for the inside panel
         }
 
-        // Closable?
-        if (closeSide && closeSide !== CLOSE_SIDES.NONE) this.makeClosable();
-
         ///// Events
 
         // Disable Context Menu
@@ -65,70 +62,81 @@ class Panel extends Div {
 
     }
 
-    makeClosable(closeSide = CLOSE_SIDES.LEFT) {
-        if (this.isClosable) return;
+    makeClosable(closeSide = CLOSE_SIDES.LEFT, sizeScale = 1.1, offsetScale = 1.0) {
         const self = this;
 
-        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
-        closeImageBox.setStyle(
-            'width', '105%',
-            'height', '105%',
-            'transition', 'filter var(--menu-timing) ease-in-out',
-        );
+        // Remove Close Button (if one was added)
+        if (closeSide === CLOSE_SIDES.NONE) {
+            if (! this.closeButton) return;
+            this.dom.removeChild(this.closeButton.dom);
+            this.closeButton = undefined;
+            return;
 
-        const closeButton = new Button();
-        closeButton.dom.setAttribute('tooltip', 'Close Panel');
-        closeButton.add(closeImageBox);
+        // Add Close Button
+        } else if (closeSide === CLOSE_SIDES.LEFT || closeSide === CLOSE_SIDES.RIGHT) {
 
-        closeButton.setStyle(
-            'background', 'rgb(var(--background-dark))',
-            'box-shadow', 'none',
-            'border', 'none',
-            'border-radius', '100%',
-            'outline', 'none',
-            'min-height', '1.1em',
-            'min-width', '1.1em',
-            'position', 'absolute',
-            'opacity', '0',
-            'overflow', 'visible',
-            'transition', 'opacity var(--menu-timing) ease-in-out',
-            'z-index', '1001', /* Close Button */
-        );
+            const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
+            closeImageBox.setStyle(
+                'width', '105%',
+                'height', '105%',
+                'transition', 'filter var(--menu-timing) ease-in-out',
+            );
 
-        if (closeSide === CLOSE_SIDES.RIGHT) {
-            closeButton.setStyle('right', '0.1em');
-            closeButton.setStyle('top', '0.1em');
-        } else {
-            closeButton.setStyle('left', '0.1em');
-            closeButton.setStyle('top', '0.1em');
+            this.closeButton = new Button();
+            this.closeButton.dom.setAttribute('tooltip', 'Close Panel');
+            this.closeButton.add(closeImageBox);
+
+            this.closeButton.setStyle(
+                'background', 'rgb(var(--background-dark))',
+                'box-shadow', 'none',
+                'border', 'none',
+                'border-radius', '100%',
+                'outline', 'none',
+                'min-height', `${sizeScale}em`,
+                'min-width', `${sizeScale}em`,
+                'position', 'absolute',
+                'opacity', '0',
+                'overflow', 'visible',
+                'transition', 'opacity var(--menu-timing) ease-in-out',
+                'z-index', '1001', /* Close Button */
+            );
+
+            if (closeSide === CLOSE_SIDES.RIGHT) {
+                this.closeButton.setStyle('right', `${sizeScale * offsetScale * 0.1}em`);
+                this.closeButton.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
+            } else {
+                this.closeButton.setStyle('left', `${sizeScale * offsetScale * 0.1}em`);
+                this.closeButton.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
+            }
+
+            function opacityTransparent() {
+                self.closeButton.setStyle('opacity', '0');
+            }
+
+            function opacityGhost() {
+                self.closeButton.setStyle('opacity', '1.0');
+                closeImageBox.setStyle('filter', 'brightness(100%)');
+            }
+
+            function opacityOpaque() {
+                self.closeButton.setStyle('opacity', '1.0');
+                closeImageBox.setStyle('filter', 'brightness(125%)');
+            }
+
+            this.closeButton.onPointerEnter(opacityOpaque);
+            this.closeButton.onPointerLeave(opacityGhost);
+            this.onPointerEnter(opacityGhost);
+            this.onPointerLeave(opacityTransparent);
+
+            this.closeButton.onClick(function() {
+                self.setDisplay('none');
+                self.dom.dispatchEvent(new Event('closed'));
+            });
+
+            this.dom.appendChild(this.closeButton.dom);
+
+            return;
         }
-
-        function opacityTransparent() {
-            closeButton.setStyle('opacity', '0');
-        }
-
-        function opacityGhost() {
-            closeButton.setStyle('opacity', '1.0');
-            closeImageBox.setStyle('filter', 'brightness(100%)');
-        }
-
-        function opacityOpaque() {
-            closeButton.setStyle('opacity', '1.0');
-            closeImageBox.setStyle('filter', 'brightness(125%)');
-        }
-
-        closeButton.onPointerEnter(opacityOpaque);
-        closeButton.onPointerLeave(opacityGhost);
-        self.onPointerEnter(opacityGhost);
-        self.onPointerLeave(opacityTransparent);
-
-        closeButton.onClick(function() {
-            self.setDisplay('none');
-            self.dom.dispatchEvent(new Event('closed'));
-        });
-
-        this.dom.appendChild(closeButton.dom);
-        this.isClosable = true;
     }
 
 }
