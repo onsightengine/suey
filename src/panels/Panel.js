@@ -8,11 +8,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import * as EDITOR from 'editor';
-
 import { Button } from '../input/Button.js';
 import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
+
+import { IMAGE_CLOSE } from '../constants.js';
 
 ///// Enumerations
 
@@ -69,7 +69,7 @@ class Panel extends Div {
         if (this.isClosable) return;
         const self = this;
 
-        const closeImageBox = new ShadowBox(`${EDITOR.FOLDER_MENU}close.svg`).noShadow();
+        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
         closeImageBox.setStyle(
             'width', '105%',
             'height', '105%',

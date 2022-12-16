@@ -8,12 +8,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import * as EDITOR from 'editor';
-
 import { Div } from '../core/Div.js';
 import { MenuShortcut } from './MenuShortcut.js';
 import { Row } from '../layout/Row.js';
 import { VectorBox } from '../layout/VectorBox.js';
+
+import { IMAGE_CHECK, IMAGE_EMPTY } from '../constants.js';
 
 /** Menu item, hook into 'click' event (dispatched by OSUI.Menu) to process menu item user interaction */
 class MenuItem extends Div {
@@ -76,7 +76,7 @@ class MenuItem extends Div {
     }
 
     setChecked(checked) {
-        let imageUrl = (checked) ? `${EDITOR.FOLDER_MENU}check.svg` : `${EDITOR.FOLDER_MENU}empty.svg`;
+        const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
         if (checked) this.divIcon.addClass('IconColorize'); else this.divIcon.removeClass('IconColorize');
         this.setImage(imageUrl);
         this.checked = checked;
@@ -129,7 +129,7 @@ class MenuItem extends Div {
      */
     removeSubMenu() {
         this.removeClass('SubMenuItem');
-        let osuiMenu = this.subMenu;
+        const osuiMenu = this.subMenu;
         this.subMenu = undefined;
         for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
             let child = this.contents().dom.children[i];

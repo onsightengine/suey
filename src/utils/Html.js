@@ -20,7 +20,7 @@
 
 import { Css } from './Css.js';
 
-class HtmlUtils {
+class Html {
 
     /** Check if 'element' is a descendant of 'possibleParent' */
     static isChildOf(element, possibleParent) {
@@ -62,13 +62,13 @@ class HtmlUtils {
         if (element.scrollHeight > element.clientHeight) {
             return element;
         } else {
-            return HtmlUtils.parentScroller(element.parentElement);
+            return Html.parentScroller(element.parentElement);
         }
     }
 
     /** If element has a scorllable parent, scrolls element into view */
     static scrollIntoView(element) {
-        const parent = HtmlUtils.parentScroller(element);
+        const parent = Html.parentScroller(element);
         if (parent) {
             const onePixel = parseInt(Css.toPx('0.2em'));
 
@@ -88,10 +88,10 @@ class HtmlUtils {
         if (element.isElement && element.dom) element = element.dom;
         if (applyToSelf) applyFunction(element);
         for (let i = 0; i < element.children.length; i++) {
-            HtmlUtils.traverse(element.children[i], applyFunction, true);
+            Html.traverse(element.children[i], applyFunction, true);
         }
     }
 
 }
 
-export { HtmlUtils };
+export { Html };

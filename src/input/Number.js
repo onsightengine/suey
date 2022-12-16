@@ -8,8 +8,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import * as ONE from 'onsight';
-
 import { Element } from '../core/Element.js';
 
 ///// Local Variables
@@ -119,7 +117,12 @@ class NumberBox extends Element {
         if (valueAsFloat > this.max) valueAsFloat = this.max;
         valueAsFloat = parseFloat(valueAsFloat.toFixed(this.precision));
 
-        let decimals = Math.min(this.precision, ONE.MathUtils.countDecimals(valueAsFloat));
+        function countDecimals(number) {
+            if (Math.floor(number.valueOf()) === number.valueOf()) return 0;
+            return number.toString().split('.')[1].length || 0;
+        }
+
+        let decimals = Math.min(this.precision, countDecimals(valueAsFloat));
         //if ((this.precision >= 1) && (decimals < 1)) decimals = 1; 	// Keeps one decimal no matter what
         valueAsFloat = valueAsFloat.toFixed(decimals);
 

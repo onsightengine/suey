@@ -74,7 +74,7 @@ export * from './constants.js';
 import { tooltipper } from './Tooltipper.js';
 export { tooltipper } from './Tooltipper.js';
 
-export { HtmlUtils as Utils } from './HtmlUtils.js';
+export { Html } from './Html.js';
 
 //////////////////// Widgets
 

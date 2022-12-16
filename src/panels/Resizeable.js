@@ -8,10 +8,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import * as ONE from 'onsight';
-
-import { Css } from '../Css.js';
 import { Config } from '../../config/Config.js';
+
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
 
@@ -73,7 +72,7 @@ class Resizeable extends Panel {
 
     changeWidth(width) {
         if (width !== null && width !== undefined && Number.isNaN(width) === false) {
-            width = ONE.MathUtils.clamp(width, this.minWidth, this.maxWidth).toFixed(1);
+            width = Math.min(Math.max(height, this.minWidth), this.maxWidth).toFixed(1);
             this.setWidth(Css.toEm(width));
             Config.setKey(`resizeX/${this.getName()}`, (width / Css.guiScale()).toFixed(3));
         }
@@ -81,7 +80,7 @@ class Resizeable extends Panel {
 
     changeHeight(height) {
         if (height !== null && height !== undefined && Number.isNaN(height) === false) {
-            height = ONE.MathUtils.clamp(height, this.minHeight, this.maxHeight).toFixed(1);
+            height = Math.min(Math.max(height, this.minHeight), this.maxHeight).toFixed(1);
             this.setHeight(Css.toEm(height));
             Config.setKey(`resizeY/${this.getName()}`, (height / Css.guiScale()).toFixed(3));
         }

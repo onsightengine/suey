@@ -8,11 +8,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import * as ONE from 'onsight';
-
 import { Config } from '../../config/Config.js';
 
-import { Css } from '../Css.js';
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
 import { Resizeable } from './Resizeable.js';
@@ -52,17 +50,23 @@ class Tabbed extends Resizeable {
 
         /** Add Tab */
         this.addTab = function(id, items, icon, bgColor = undefined) {
-            let numTabsWithId = (function countIds() {
-                let count = 0;
-                for (let i = 0; i < self.tabs.length; i++) {
-                    let tab = self.tabs[i];
-                    if (tab.dom.id === id) count++;
+            // Count Id's
+            let numTabsWithId = 0;
+            for (let i = 0; i < self.tabs.length; i++) {
+                const tab = self.tabs[i];
+                if (tab.dom.id === id) numTabsWithId++;
+            }
+
+            function capitalize(string) {
+                const words = String(string).split(' ');
+                for (let i = 0; i < words.length; i++) {
+                    words[i] = words[i][0].toUpperCase() + words[i].substring(1);
                 }
-                return count;
-            })();
+                return words.join(' ');
+            }
 
             // Create tab
-            const label = ONE.Strings.capitalize(id);
+            const label = capitalize(id);
             const tab = new TabButton(self, label, icon, bgColor);
             tab.setId(id);
             tab.count = numTabsWithId;
@@ -236,9 +240,21 @@ class TabButton extends Div {
 
         ///// Background Color
         if (bgColor !== undefined && bgColor !== null) {
-            let light = new ONE.Iris(bgColor);
-            let dark = new ONE.Iris(bgColor).darken(0.75);
-            let bgImage = `linear-gradient(to bottom left, ${light.cssString()}, ${dark.cssString()})`;
+            hexColor = Math.floor(hexColor);
+            hexColor = Math.min(Math.max(hexColor, 0), 0xffffff);
+
+            const rLight = (bgColor & 0xff0000) >> 16;
+            const gLight = (bgColor & 0x00ff00) >> 8;
+            const bLight = (bgColor & 0x0000ff);
+
+            const rDark = rLight * 0.75;
+            const gDark = gLight * 0.75;
+            const bDark = bLight * 0.75;
+
+            const light = `rgb(${rLight}, ${gLight}, ${bLight})`;
+            const dark = `rgb(${rDark}, ${gDark}, ${bDark})`;
+
+            const bgImage = `linear-gradient(to bottom left, ${light}, ${dark})`;
             this.iconVector.setStyle('background-image', bgImage);
         }
 

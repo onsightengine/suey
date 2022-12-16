@@ -13,9 +13,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-import { Css } from '../Css.js';
 import { Div } from '../core/Div.js';
-import { HtmlUtils } from '../HtmlUtils.js';
+
+import { Css } from '../utils/Css.js';
+import { Html } from '../utils/Html.js';
 
 ///// Class
 
@@ -191,7 +192,7 @@ class TreeList extends Div {
         }
 
         // Scroll Into View
-        if (lastElement && scrollTo) setTimeout(() => HtmlUtils.scrollIntoView(lastElement), 0);
+        if (lastElement && scrollTo) setTimeout(() => Html.scrollIntoView(lastElement), 0);
 
         // Set Value, Return
         this.selectedValue = value;
@@ -241,7 +242,7 @@ class TreeList extends Div {
         }
 
         // Scroll Into View
-        if (lastElement && scrollTo) setTimeout(() => HtmlUtils.scrollIntoView(lastElement), 0);
+        if (lastElement && scrollTo) setTimeout(() => Html.scrollIntoView(lastElement), 0);
 
         // Set Values, Return
         this.selectedValues = [...valueArray];

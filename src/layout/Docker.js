@@ -8,7 +8,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import { Css } from '../Css.js';
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { FlexBreak } from './FlexBreak.js';
 import { RESIZERS } from '../panels/Resizeable.js';

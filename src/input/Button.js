@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 import { Element } from '../core/Element.js';
-import { Popper } from '../Popper.js';
+import { Popper } from '../utils/Popper.js';
 
 class Button extends Element {
 

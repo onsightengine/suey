@@ -8,7 +8,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import { Css } from '../Css.js';
+import { Css } from '../utils/Css.js';
 import { Element } from './Element.js';
 
 class Image extends Element {

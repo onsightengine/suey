@@ -8,8 +8,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import * as ONE from 'onsight';
-
 import { Element } from '../core/Element.js';
 import { Div } from '../core/Div.js';
 
@@ -107,7 +105,12 @@ class Slider extends Div {
         if (valueAsFloat > this.max) valueAsFloat = this.max;
         valueAsFloat = parseFloat(valueAsFloat.toFixed(this.precision));
 
-        let decimals = Math.min(this.precision, ONE.MathUtils.countDecimals(valueAsFloat));
+        function countDecimals(number) {
+            if (Math.floor(number.valueOf()) === number.valueOf()) return 0;
+            return number.toString().split('.')[1].length || 0;
+        }
+
+        let decimals = Math.min(this.precision, countDecimals(valueAsFloat));
         valueAsFloat = valueAsFloat.toFixed(decimals);
 
         if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {

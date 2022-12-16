@@ -16,10 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-import * as OSUI from 'osui';
-import * as EDITOR from 'editor';
 import { Css } from './Css.js';
 import { Popper } from './Popper.js';
+
+import { TOOLTIP_Y_OFFSET } from './constants.js';
 
 ///// Enumerations
 
@@ -71,7 +71,7 @@ class Tooltipper {
 
             _showTimer = setTimeout(() => {
                 tooltip.setInnerHtml(text);
-                Popper.popUnder(tooltip.dom, element, Popper.ALIGN.CENTER, null, EDITOR.TOOLTIP_Y_OFFSET);
+                Popper.popUnder(tooltip.dom, element, Popper.ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
                 tooltip.addClass('Updated');
             }, parseInt(Css.getVariable('--tooltip-delay')));
         }
