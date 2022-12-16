@@ -69,6 +69,8 @@
 
 export * from './constants.js';
 
+export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
+
 ///// Utils
 
 import { tooltipper } from './Tooltipper.js';

@@ -31,22 +31,19 @@ const EDGE_SPACE = 4;
 
 ///// Enumerations
 
-/* Available as: Popper.ALIGN */
-const ALIGN = {
+export const ALIGN = {
     LEFT:       'left',
     CENTER:     'center',
     MIDDLE:     'center',
     RIGHT:      'right',
 }
 
-/* Available as: Popper.OVERFLOW */
-const OVERFLOW = {
+export const OVERFLOW = {
     LEFT:       'left',
     RIGHT:      'right',
 }
 
-/* Available as: Popper.POSITION */
-const POSITION = {
+export const POSITION = {
     OVER:       'over',
     UNDER:      'under',
 }
@@ -57,12 +54,6 @@ const POSITION = {
 
 /** Determines proper layout within browser window to place pop up div */
 class Popper {
-
-    //////////////////// Enums
-
-    static get ALIGN() { return ALIGN; }
-    static get OVERFLOW() { return OVERFLOW; }
-    static get POSITION() { return POSITION; }
 
     //////////////////// Size
 

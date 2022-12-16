@@ -8,8 +8,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import { Config } from '../../config/Config.js';
-
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
@@ -91,39 +89,9 @@ class Tabbed extends Resizeable {
             return tab;
         };
 
-        /** Select last known tab */
-        this.selectLastKnownTab = function() {
-            let tabArray = Config.getKey(`tabs/${self.getName()}`);
-            if (Array.isArray(tabArray) !== true) tabArray = [];
+    } // end ctor
 
-            let tabSelected = false;
-            for (let i = 0; i < tabArray.length; i++) {
-                let tabId = tabArray[i];
-                if (self.selectTab(tabId) === true) {
-                    tabSelected = true;
-                    break;
-                }
-            }
-            if (tabSelected === false) self.selectFirst();
-        }
-
-        /** Tab Changed */
-        this.dom.addEventListener('tab-changed', function(event) {
-            let tabId = event.value;
-
-            // Get existing tab array from settings
-            let tabArray = Config.getKey(`tabs/${self.getName()}`);
-            if (Array.isArray(tabArray) !== true) tabArray = [];
-
-            // Remove tab if found, set at front
-            let tabIndex = tabArray.indexOf(tabId);
-            if (tabIndex !== -1) tabArray.splice(tabIndex, 1);
-            tabArray.unshift(tabId);
-
-            // Update settings
-            Config.setKey(`tabs/${self.getName()}`, tabArray);
-        });
-    }
+    //////////////////// Methods
 
     /** Select first tab */
     selectFirst() {
@@ -131,6 +99,13 @@ class Tabbed extends Resizeable {
             return this.selectTab(this.tabs[0].getId());
         }
         return false;
+    }
+
+    /** Select last known tab */
+    selectLastKnownTab() {
+
+        // TO BE IMPLEMENTED IN APP
+
     }
 
     /** Select Tab */
@@ -229,6 +204,7 @@ class TabButton extends Div {
         this.setCursor('default');
 
         ///// Icon / Label
+
         this.iconVector = new VectorBox(icon);
         this.iconBorder = new Div().setClass('TabIcon');
         this.add(this.iconVector, this.iconBorder);
@@ -239,6 +215,7 @@ class TabButton extends Div {
         this.setLabel(label);
 
         ///// Background Color
+
         if (bgColor !== undefined && bgColor !== null) {
             hexColor = Math.floor(hexColor);
             hexColor = Math.min(Math.max(hexColor, 0), 0xffffff);
@@ -259,11 +236,13 @@ class TabButton extends Div {
         }
 
         ///// Click Handler
+
         this.dom.addEventListener('click', function() {
             parent.selectTab(self.dom.id, self.count, true);
             if (window.signals) signals.windowResize.dispatch();
         });
-    }
+
+    } // end ctor
 
 }
 

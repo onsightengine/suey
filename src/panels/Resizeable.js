@@ -8,8 +8,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
-import { Config } from '../../config/Config.js';
-
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
@@ -51,30 +49,14 @@ class Resizeable extends Panel {
         ///// Init Sizes
         this.setXSizes();
         this.setYSizes();
-
-        ///// Refresh
-        function windowRefreshCallback() {
-            let width = parseFloat(Config.getKey(`resizeX/${self.getName()}`)) * Css.guiScale();
-            let height = parseFloat(Config.getKey(`resizeY/${self.getName()}`)) * Css.guiScale();
-            if (width === null || width === undefined || Number.isNaN(width)) width = self.defaultWidth;
-            if (height === null || height === undefined || Number.isNaN(height)) height = self.defaultHeight;
-            self.changeWidth(width);
-            self.changeHeight(height);
-            if (Config.getKey(`panels/show${self.getName()}`)) {
-                if (self.isEmpty !== true || self.getName() === 'Inspector') self.setDisplay('');
-            } else {
-                self.setDisplay('none');
-            }
-        }
-        signals.windowRefresh.add(windowRefreshCallback);
-        this.dispose = () => { signals.windowRefresh.remove(windowRefreshCallback); }
     }
+
+    //////////////////// Methods
 
     changeWidth(width) {
         if (width !== null && width !== undefined && Number.isNaN(width) === false) {
             width = Math.min(Math.max(height, this.minWidth), this.maxWidth).toFixed(1);
             this.setWidth(Css.toEm(width));
-            Config.setKey(`resizeX/${this.getName()}`, (width / Css.guiScale()).toFixed(3));
         }
     }
 
@@ -82,7 +64,6 @@ class Resizeable extends Panel {
         if (height !== null && height !== undefined && Number.isNaN(height) === false) {
             height = Math.min(Math.max(height, this.minHeight), this.maxHeight).toFixed(1);
             this.setHeight(Css.toEm(height));
-            Config.setKey(`resizeY/${this.getName()}`, (height / Css.guiScale()).toFixed(3));
         }
     }
 
