@@ -1,0 +1,435 @@
+/** /////////////////////////////////////////////////////////////////////////////////
+//		ELEMENT: Input (number, text, etc)
+///////////////////////////////////////////////////////////////////////////////////*/
+
+input {
+    color: rgba(var(--text), 1);
+    background-color: rgba(var(--background-dark), 0.35);
+    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.25);
+
+	border: var(--border-micro) solid rgba(var(--shadow), 0.5);
+    border-radius: var(--box-radius);
+    outline: var(--border-micro) solid rgba(var(--shadow), 0.0);
+    padding: var(--pad-x-small) var(--pad-smallish);
+	vertical-align: middle;
+    min-width: 1em;
+}
+
+input:hover {
+    color: rgba(var(--highlight), 1);
+    background-color: rgba(var(--button-dark), 0.5);
+}
+
+input:focus {
+    color: rgba(var(--highlight), 1);
+    background: rgba(var(--darklight), 1);
+    border: var(--border-micro) solid rgb(var(--icon));
+    outline: var(--border-micro) solid rgba(var(--shadow), 1.0);
+    border-radius: 0;
+}
+
+input.YesDrop {
+    color: rgb(0, 255, 0);
+    background: rgba(var(--darklight), 1);
+    border: var(--border-micro) solid rgb(0, 255, 0);
+    outline: var(--border-micro) solid rgb(0, 255, 0);
+    border-radius: 0;
+}
+
+input.NoDrop {
+    color: red;
+    background: rgba(var(--darklight), 1);
+    border: var(--border-micro) solid red;
+    outline: var(--border-micro) solid red;
+    border-radius: 0;
+}
+
+/** Hide Arrow Spinners - Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/** Hide Arrow Spinners - Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		ELEMENT: Button
+///////////////////////////////////////////////////////////////////////////////////*/
+
+button {
+    display: flex;
+    position: relative;
+
+    cursor: pointer;
+    pointer-events: all;
+
+    color: rgba(var(--text-light), 1);
+
+    border: var(--border-micro) solid rgba(var(--shadow), 0.75);
+    border-radius: var(--box-radius);
+    outline: var(--border-small) solid rgba(var(--darklight), 0.0);
+
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5)),
+        linear-gradient(to bottom, rgba(var(--button-dark), 0.75), rgba(var(--button-dark), 0.75));
+
+    /* pop-out-shadow */
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+
+    font-size: var(--font-size);
+    margin: 0;
+    padding: var(--pad-x-small) var(--pad-medium);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+button:not(.Selected):enabled:hover {
+    color: rgba(var(--highlight), 1);
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7)),
+        linear-gradient(to bottom, rgba(var(--highlight), 0.1), rgba(var(--highlight), 0.1));
+}
+
+button:not(.Selected):enabled:active {
+    color: rgba(var(--icon), 1);
+    background-color: rgba(var(--background-dark), 0.5);
+    background-image: none;
+    box-shadow: var(--sunk-in-shadow);
+}
+
+button.Selected {
+    background-image:
+		linear-gradient(to bottom left, rgba(var(--icon-light), 0.20), rgba(var(--icon), 0.20)),
+		linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    box-shadow: var(--sunk-in-shadow);
+}
+
+button:disabled {
+    pointer-events: none;
+}
+
+button:disabled {
+	filter: contrast(75%) grayscale(100%) brightness(50%);
+}
+
+/* Little borderless buttons */
+.BorderlessButton {
+    border: none;
+    border-radius: var(--box-radius);
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+
+    min-height: 1.6em;
+    min-width: 1.75em;
+}
+
+.BorderlessButton:not(.Selected):enabled:hover {
+    background-image: linear-gradient(to bottom, rgba(var(--white), 0.1), rgba(var(--white), 0.2));
+    /* pop-out-shadow */
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) 0 rgba(var(--white), 0.25),
+        inset var(--pixel) var(--negative) var(--pixel) 0 rgba(var(--black), 0.25);
+}
+
+.BorderlessButton:not(.Selected):enabled:active {
+    background-image: linear-gradient(to bottom, rgba(var(--black), 0.2), rgba(var(--black), 0.1));
+    /* pop-out-shadow */
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) 0 rgba(var(--black), 0.5),
+        inset var(--pixel) var(--negative) var(--pixel) 0 rgba(var(--black), 0.5);
+}
+
+/** ////////////////
+//		ELEMENT: Input.Checkbox
+//////////////////*/
+/* Container */
+.Checkbox {
+    background: transparent;
+    display: inline-block;
+    position: relative;
+    justify-content: left;
+    cursor: pointer;
+    margin-left: 0.1em;
+}
+
+/* Native Element (holds checkbox value) */
+.CheckboxInput {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Visible Background: Unchecked */
+.CheckboxButton {
+    flex-grow: 0;
+    flex-shrink: 0;
+    position: absolute;
+    color: rgba(var(--text), 1);
+    background-image: none;
+    background-color: rgba(var(--background-dark), 0.5);
+    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.35); /* sunk-in-shadow */
+    left: 0;
+    top: 50%;
+    width: 2.0em;
+    height: 1.20em;
+    border-radius: 1.0em;
+    border: var(--border-micro) solid rgba(var(--shadow), 1.0);
+    transform: translateY(-50%);
+    transition: transform 0.25s;
+}
+
+/* Visible Background: Checked */
+.CheckboxInput:checked + .CheckboxButton {
+    background-color: transparent;
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7)),
+        linear-gradient(to bottom, rgba(var(--highlight), 0.2), rgba(var(--highlight), 0.2));
+    border: var(--border-micro) solid rgba(var(--shadow), 1.0);
+}
+
+/* Visible Background: Checked & Hover */
+.CheckboxInput:checked:hover + .CheckboxButton {
+    background-color: transparent;
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7)),
+        linear-gradient(to bottom, rgba(var(--highlight), 0.5), rgba(var(--highlight), 0.5));
+    border: var(--border-micro) solid rgba(var(--shadow), 1.0);
+}
+
+/* Button: Unchecked */
+.CheckboxButton:before {
+    content: '';
+    flex-grow: 0;
+    flex-shrink: 0;
+    position: absolute;
+    left: 0.2em;
+    top: 50%;
+    width: 0.7em;
+    height: 0.7em;
+    background-color: rgba(var(--text-light), 0.8);
+    border-radius: 1em;
+    transform: translate(0, -50%);
+    transition: transform 0.25s;
+}
+
+/* Button: Checked */
+.CheckboxInput:checked + .CheckboxButton:before {
+    /* background-color: rgba(var(--highlight), 0.7); */
+    box-shadow: 0px 0px 3px 2px rgba(var(--shadow), 0.5); /* drop shadow */
+    transform: translate(0.7em, -50%);
+    transition: transform 0.25s;
+}
+
+/* Button: Hover, Unchecked */
+.CheckboxInput:hover + .CheckboxButton:before {
+    background-color: rgba(var(--highlight), 0.9);
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: Drop down buttons and menus
+///////////////////////////////////////////////////////////////////////////////////*/
+
+/** Buttons that drop down a 'select' option list  */
+.Dropdown.Selected, .Dropdown:not(.Selected):enabled:active {
+    background-color: rgba(var(--darklight), 1);
+    background-image: none;
+    border: var(--border-micro) solid rgb(var(--icon));
+    outline: var(--border-small) solid rgb(var(--darklight));
+    border-radius: 0;
+}
+
+/** Color input attached to Button */
+.ColorInputButton {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.0;
+}
+
+/** Div used for a Dropdown Color Button */
+.DropColor {
+    background-color: #ff0000;
+    width: calc(100% - 0.5em);
+    height: 1.1em;
+    border: var(--border-micro) solid rgba(var(--shadow), 0.75);
+    border-radius: var(--border-radius-small);
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .DropArrow (adds a little down arrow on right side of element)
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.DropArrow {
+    padding-right: 1.4em;
+}
+.DropArrow::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    right: 0.65em;
+    top: 50%;
+    transform: translateY(-25%);
+    z-index: 101; /* DropArrow */
+    border: var(--arrow-size) solid transparent;
+    border-color: rgba(var(--text-light)) transparent transparent transparent;
+    transition: all 0.2s;
+}
+.DropArrow:hover::after, .DropArrow.Selected::after {
+    border-color: rgba(var(--highlight)) transparent transparent transparent;
+}
+.DropArrow.Selected::after {
+    transform: translateY(-75%) scale(1.0, -1.0);
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Number (Number Box)
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Number {
+    font-size: 100%;
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		ELEMENT: Slider
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.SlideContainer {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.TickMarks {
+    --divides: 10; /* (max - min) / step */
+
+    position: absolute;
+    pointer-events: none;
+
+    width: calc(100% - (var(--pad-large) * 2));
+    height: 0.2em;
+    left: var(--pad-large);
+    top: 1.2em;
+    padding: 0;
+    margin: 0;
+
+    background-image: repeating-linear-gradient(to right,
+        rgba(var(--icon), 0.75) 0 1px, transparent 1px calc((100% - var(--pad-micro)) / var(--divides)));
+}
+
+.Slider {
+    --middle: 0.5; /* (value - min) / (max - min) */
+
+    -webkit-appearance: none;
+    position: absolute;
+    width: 98%;
+    padding: 0;
+    height: 0.375em;
+    top: calc(50% - 0.375em);
+
+    background: linear-gradient(to right,
+        rgba(var(--icon), 0.65) 0%, rgba(var(--icon), 0.65) calc(var(--middle) * 100%),
+        rgba(var(--background-dark), 0.5) calc(var(--middle) * 100%), rgba(var(--background-dark), 0.5) 100%);
+    border: var(--border-micro) solid transparent;
+    border: var(--border-micro) solid rgba(var(--shadow), 1.0);
+    border-radius: var(--border-radius-inner);
+    outline: var(--border-micro) solid transparent;
+
+    cursor: pointer;
+}
+
+.Slider:hover, .Slider:focus, .Slider:active {
+    background: linear-gradient(to right,
+        rgba(var(--icon-light), 0.65) 0%, rgba(var(--icon-light), 0.65) calc(var(--middle) * 100%),
+        rgba(var(--darklight), 0.5) calc(var(--middle) * 100%), rgba(var(--darklight), 0.5) 100%);
+    border: var(--border-micro) solid transparent;
+    border: var(--border-micro) solid rgba(var(--shadow), 1.0);
+    border-radius: var(--border-radius-inner);
+    outline: var(--border-micro) solid transparent;
+}
+.Slider:active { cursor: ew-resize; }
+
+/* Safari / Chrome Thumb */
+.Slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.1em;
+    height: 1.1em;
+    border: var(--border-micro) solid rgba(var(--background-dark), 1.0);
+    border-radius: 50%;
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 0.8), rgba(var(--icon-dark), 0.8)),
+        linear-gradient(to bottom, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    /* pop-out-shadow */
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+}
+.Slider::-webkit-slider-thumb:hover, .Slider::-webkit-slider-thumb:active {
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 1.0), rgba(var(--icon-dark), 1.0)),
+        linear-gradient(to bottom, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+}
+.Slider::-webkit-slider-thumb:active { cursor: ew-resize; }
+
+/* Firefox thumb */
+.Slider::-moz-range-thumb {
+    width: 1.1em;
+    height: 1.1em;
+    border: var(--border-micro) solid rgba(var(--background-dark), 1.0);
+    border-radius: 50%;
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 0.8), rgba(var(--icon-dark), 0.8)),
+        linear-gradient(to bottom, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    /* pop-out-shadow */
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+}
+.Slider::-moz-range-thumb:hover, .Slider::-moz-range-thumb:active {
+    background-image:
+        linear-gradient(to bottom, rgba(var(--icon-light), 1.0), rgba(var(--icon-dark), 1.0)),
+        linear-gradient(to bottom, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+}
+.Slider::-moz-range-thumb:active { cursor: ew-resize; }
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		ELEMENT: Text Area
+///////////////////////////////////////////////////////////////////////////////////*/
+
+textarea {
+    color: rgba(var(--text), 1);
+	background-color: #222;
+    border: var(--pixel) solid rgba(var(--shadow), 1);
+    border-radius: var(--box-radius);
+    outline: none; /* for macos */
+	padding: var(--border-size) var(--pad-large);
+    tab-size: 4;
+	white-space: pre;
+	word-wrap: normal;
+	vertical-align: top;
+}
+
+textarea.success {
+    border-color: #8b8 !important;
+}
+
+textarea.fail {
+    border-color: #f00 !important;
+    background-color: rgba(255, 0, 0, 0.05);
+}

@@ -1,0 +1,98 @@
+/** /////////////////////////////////////////////////////////////////////////////////
+//
+// @description Osui
+// @about       Lightweight JavaScript UI library.
+// @author      Stephens Nunnally <@stevinz>
+// @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
+// @source      https://github.com/scidian/osui
+//
+///////////////////////////////////////////////////////////////////////////////////*/
+//
+//  Tooltipper
+//      Singleton used to add tooltips to HTML elements
+//
+//  Additional Source(s)
+//      MIT     https://github.com/codewithkyle/tooltipper - v1.1.4, Feb 9, 2022
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+import * as OSUI from 'osui';
+import * as EDITOR from 'editor';
+import { Css } from './Css.js';
+import { Popper } from './Popper.js';
+
+///// Enumerations
+
+const DEVICE_TYPE = {
+    POINTER: 1,
+    TOUCH: 2,
+}
+
+///// Local Variables
+
+let _showTimer;
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////   Tooltipper
+/////////////////////////////////////////////////////////////////////////////////////
+
+class Tooltipper {
+
+    constructor() {
+
+        // Tooltip
+        const tooltip = new OSUI.Div().setClass('Tooltip').setInnerHtml('');
+        document.body.appendChild(tooltip.dom);
+
+        // Device Type
+        let deviceType = DEVICE_TYPE.POINTER;
+        document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
+        document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
+
+        // Standard events
+        document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
+        // document.addEventListener('focus', showTooltip, { capture: true, passive: true });
+        document.addEventListener('hidetooltip', hideTooltip, { capture: true, passive: true }); /* custom */
+        document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
+
+        function showTooltip(event) {
+            const element = event.target;
+            if (! element || ! (element instanceof HTMLElement)) return;
+            if (! element.getAttribute('tooltip')) return;
+            if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
+            if (('TouchEvent' in window) && event instanceof TouchEvent) return;
+
+            let text = element.getAttribute('tooltip');
+            if (! text.length) return;
+
+            clearTimeout(_showTimer);
+            tooltip.removeClass('Updated')
+
+            _showTimer = setTimeout(() => {
+                tooltip.setInnerHtml(text);
+                Popper.popUnder(tooltip.dom, element, Popper.ALIGN.CENTER, null, EDITOR.TOOLTIP_Y_OFFSET);
+                tooltip.addClass('Updated');
+            }, parseInt(Css.getVariable('--tooltip-delay')));
+        }
+
+        function hideTooltip(event) {
+            const element = event.target;
+            if (! element || ! (element instanceof HTMLElement)) return;
+            if (! element.getAttribute('tooltip')) return;
+
+            clearTimeout(_showTimer);
+            tooltip.removeClass('Updated')
+        }
+
+    } // end ctor
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////   Export as Singleton
+/////////////////////////////////////////////////////////////////////////////////////
+
+const tooltipper = new Tooltipper();
+
+export { tooltipper };

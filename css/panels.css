@@ -1,0 +1,461 @@
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Draggable
+///////////////////////////////////////////////////////////////////////////////////*/
+
+/* .Scripter, .Player, .Shaper, etc. */
+
+.Draggable {
+	position: absolute;
+	opacity: calc(90% + (10% * var(--panel-transparency)));
+
+	width: 90%;
+	left: 50%;
+    height: calc(100% - 12.0em);
+	top: 5.3em;
+
+    transform: translate(-50%, 0%);
+	z-index: 200; /* OverlayPanel */
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Panel / .SimplePanel / .FancyPanel(s)
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Panel {
+    position: relative;
+    overflow: visible;
+}
+
+.SimplePanel {
+    background-color: rgba(var(--background-light), var(--panel-transparency));
+    border: var(--border-small) solid rgb(var(--icon));
+    border-radius: var(--border-radius-inner);
+    margin: calc(var(--edge-thickness) + var(--pad-x-small));
+}
+
+.FancyPanelOuter {
+    height: 100%;/*calc(100% - ((var(--edge-thickness) * 20)));*/
+
+    background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));
+    border-radius: var(--border-radius-outer);
+    box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);
+    padding: var(--edge-thickness);     /* outside of border padding */
+    overflow: hidden;
+
+    /* Need for scroll bars to appear on proper layer */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.FancyPanelBorder {
+    height: 100%;/*calc(100% - ((var(--border-small) * 2) + (var(--pad-medium) * 2)));*/
+
+    background-color: rgba(var(--background-light), var(--panel-transparency));
+    border: var(--border-small) solid rgb(var(--icon));
+    border-radius: var(--border-radius-inner);
+    padding: var(--pad-small);
+    overflow: hidden;
+
+    /* Need for scroll bars to appear on proper layer */
+    display: flex;
+    flex-direction: column;
+}
+
+.FancyPanelInside {
+    height: 100%;/*calc(100% - ((var(--pad-small) * 2)));*/
+    width: 100%;
+    background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));
+    border-radius: var(--border-radius-small);
+    margin: 0;
+    padding: var(--pad-x-small) 0;
+    overflow: hidden;
+
+    /* Need for scroll bars to appear on proper layer */
+    display: flex;
+    flex-direction: column;
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Resizeable / Resizers
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Resizeable {
+    position: relative;
+    max-height: 100%;
+}
+
+.Resizer {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.0;                           /* NOTE: increase to see Resizers */
+}
+
+.ResizerLeft {
+    background-color: rgb(255, 0, 0);
+    left: 0;
+    width: var(--resize-size);
+    height: calc(100% - (var(--resize-size) * 2));
+    margin-top: 0;
+    cursor: col-resize;
+}
+
+.ResizerTopLeft {
+    background-color: rgb(255, 255, 0);
+    left: 0;
+    width: var(--resize-size);
+    height: var(--resize-size);
+    margin-top: calc(var(--resize-size) * -1);
+    cursor: nwse-resize;
+}
+
+.ResizerTop {
+    background-color: rgb(0, 255, 0);
+    left: var(--resize-size);
+    width: calc(100% - (var(--resize-size) * 2));
+    height: var(--resize-size);
+    margin-top: calc(var(--resize-size) * -1);
+    cursor: row-resize;
+}
+
+.ResizerTopRight {
+    background-color: rgb(0, 255, 255);
+    left: calc(100% - (var(--resize-size)));
+    width: var(--resize-size);
+    height: var(--resize-size);
+    margin-top: calc(var(--resize-size) * -1);
+    cursor: nesw-resize;
+}
+
+.ResizerRight {
+    background-color: rgb(0, 0, 255);
+    left: calc(100% - (var(--resize-size)));
+    width: var(--resize-size);
+    height: calc(100% - (var(--resize-size) * 2));
+    margin-top: 0;
+    cursor: col-resize;
+}
+
+.ResizerBottomRight {
+    background-color: rgb(255, 0, 255);
+    left: calc(100% - (var(--resize-size)));
+    width: var(--resize-size);
+    height: var(--resize-size);
+    top: calc(100% - (var(--resize-size)));
+    cursor: nwse-resize;
+}
+
+.ResizerBottom {
+    background-color: rgb(255, 255, 255);
+    left: var(--resize-size);
+    width: calc(100% - (var(--resize-size) * 2));
+    height: var(--resize-size);
+    top: calc(100% - (var(--resize-size)));
+    cursor: row-resize;
+}
+
+.ResizerBottomLeft {
+    background-color: rgb(0, 0, 0);
+    left: 0;
+    width: var(--resize-size);
+    height: var(--resize-size);
+    top: calc(100% - (var(--resize-size)));
+    cursor: nesw-resize;
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Scroller
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Scroller {
+    overflow: auto;
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Shrinkable
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Shrinkable {
+    border: solid var(--border-small) rgba(var(--shadow), 0.25);
+    border-radius: var(--border-radius-inner);
+    margin-left: var(--pad-x-small);
+    margin-right: var(--pad-small);
+    margin-bottom: var(--pad-small);
+    box-shadow: var(--pop-out-shadow);
+    overflow: hidden;
+}
+
+.ShrinkTitle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+
+    font-size: 110%;
+
+    cursor: pointer;
+    color: rgba(var(--text-light), 1.0);
+    background-color: rgba(var(--icon), 0.35);
+    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+
+    border-top-left-radius: var(--border-radius-small);
+    border-top-right-radius: var(--border-radius-small);
+    padding: var(--pad-small);
+    padding-left: 0.5em;
+    padding-right: var(--pad-large);
+}
+.ShrinkTitle:hover {
+    color: rgba(var(--highlight), 1.0)
+}
+.Shrinkable:not(.Expanded) .ShrinkTitle {
+    border-bottom: 0;
+}
+.Shrinkable.Expanded .ShrinkTitle {
+    border-bottom: solid var(--border-small) rgba(var(--shadow), 0.4);
+}
+
+.ShrinkIcon > * {
+    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));
+}
+
+.ShrinkIcon {
+    flex-grow: 0;
+    flex-shrink: 0;
+    font-size: 110%;
+    position: relative; /* anchor to children with 'posiiton: absolute' */
+    display: flex;
+    width: calc(var(--arrow-size) * 3);
+    height: calc(var(--arrow-size) * 3);
+    min-width: calc(var(--arrow-size) * 3);
+    min-height: calc(var(--arrow-size) * 3);
+}
+
+.ShrinkText {
+    flex-grow: 1;
+    flex-shrink: 2;
+
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    padding-left: 0.5em;
+}
+
+.ShrinkArrow {
+    flex-grow: 0;
+    flex-shrink: 1;
+
+    content: '';
+    font-size: var(--font-size);
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    transform: translateY(25%);
+    z-index: 101; /* ShrinkArrow */
+    border: var(--arrow-size) solid transparent;
+    border-color: rgba(var(--text)) transparent transparent transparent;
+    transition: transform 0.2s;
+}
+.Shrinkable.Expanded .ShrinkTitle .ShrinkArrow {
+    transform: translateY(-25%) scale(1.0, -1.0);
+}
+.ShrinkTitle:hover .ShrinkArrow {
+    border-color: rgba(var(--highlight)) transparent transparent transparent;
+}
+
+.ShrinkBody {
+    border-bottom-left-radius: var(--border-radius-small);
+    border-bottom-right-radius: var(--border-radius-small);
+    padding: var(--pad-small);
+    overflow: hidden;
+}
+.Shrinkable:not(.Expanded) .ShrinkBody {
+    display: none;
+    pointer-events: none;
+}
+.Shrinkable.Expanded .ShrinkBody {
+    /* display: block; */
+    display: flex;
+    flex-wrap: wrap;
+    pointer-events: auto;
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Tabbed
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Tabbed {
+    padding: var(--pad-small);
+}
+
+/* Collection of Panels */
+.TabPanels {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+
+    /* Need for scroll bars to appear on proper layer */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Interior panel of a Tabbed Panel */
+.TabPanels .Panel.Hidden {
+    display: none;
+    pointer-events: none;
+}
+
+.TabPanels .Panel:not(.Hidden) {
+    display: block;
+    pointer-events: auto;
+}
+
+/* Collection of Tabs */
+.Tabs {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    margin-top: calc(-1 * var(--pad-x-small));
+    z-index: 101; /* Tabs */
+}
+
+.Tabs.LeftSide {
+    left: calc((var(--tab-size)/-2.0) + 0.3em);
+}
+
+.Tabs.RightSide {
+    left: calc(100% - ((var(--tab-size)/2.0) + 0.65em));
+}
+
+.Tabs .Tab {
+    width: var(--tab-size);
+    height: var(--tab-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--tab-size);
+    color: rgba(var(--text), 1.0);
+    margin-left: var(--pad-x-small);
+    margin-right: var(--pad-x-small);
+    margin-top: -0.2em;
+    margin-bottom: -0.2em;
+    transform: scale(70%);
+
+    /* transition: margin 0 ease-in-out, transform 0 ease-in-out; */
+    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
+}
+
+.Tabs .Tab.Selected {
+    color: rgba(var(--highlight), 1.0);
+    margin-top: var(--pad-x-small);
+    margin-bottom: var(--pad-x-small);
+    transform: scale(100%);
+}
+
+.Tabs .Tab > .VectorBox {
+    filter: contrast(75%) grayscale(100%) brightness(75%);
+}
+
+.Tabs .Tab:hover > * {
+    filter: brightness(120%);
+}
+
+.Tabs .Tab.Selected:hover > * {
+    filter: brightness(120%);
+}
+
+.Tabs .Tab.Selected > * {
+    filter: none;
+}
+
+/* On Click */
+.Tabs .Tab:active > .TabIcon {
+    box-shadow:
+        0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */
+        inset -1px  1px 1px 1px rgba(var(--black), 0.5),
+        inset  1px -1px 1px 1px rgba(var(--black), 0.25);
+}
+.Tabs .Tab:active > .VectorBox {
+    transform: translate(-1px, 1px);
+}
+
+/* Border, shadow holder */
+.TabIcon {
+    box-shadow:
+        0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */
+        inset -1px  1px 1px 1px rgba(var(--white), 0.25),
+        inset  1px -1px 1px 1px rgba(var(--black), 0.5);
+    cursor: pointer;
+    position: absolute;
+    width: var(--tab-size);
+    height: var(--tab-size);
+    border: 0.21em solid rgb(var(--icon));
+    border-radius: var(--tab-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Tabs .Tab.Selected .TabIcon {
+    border: 0.15em solid rgb(var(--icon));
+}
+
+/* Tab Image */
+.Tabs .Tab .VectorBox {
+    position: absolute;
+    border-radius: var(--tab-size);
+    background-image:
+        linear-gradient(to bottom left, rgba(var(--icon-light), 0.7), rgba(var(--icon), 0.5)),
+        linear-gradient(to bottom left, rgba(var(--darklight), 1.0), rgba(var(--darklight), 1.0));
+    width: 95%;
+    height: 95%;
+    overflow: hidden;
+}
+
+/* Tab Image SVG Shadow */
+.Tabs .Tab .VectorBox > * {
+    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));
+}
+
+/* Title Bar Class for top of Tabbed Panel */
+.TabTitle {
+    position: relative;
+    display: block;
+    flex-shrink: 0; /* don't allow title to shrink */
+    color: rgba(var(--highlight), 0.75);
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
+    border: 0;
+    border-radius: var(--border-radius-micro);
+    outline: solid var(--border-small) rgba(var(--shadow), 0.25);
+    /* pop-out-shadow */
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);
+    text-align: center;
+    overflow: hidden;
+
+    font-size: 130%;
+    margin: var(--pad-small);
+    margin-top: 0;
+    margin-bottom: var(--pad-smallish);
+    padding-top: var(--pad-medium);
+    padding-bottom: var(--pad-medium);
+}
+
+/** /////////////////////////////////////////////////////////////////////////////////
+//		CLASS: .Titled
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Titled {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+
+    /* Need for scroll bars to appear on proper layer */
+    display: flex;
+    flex-direction: column;
+}

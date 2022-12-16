@@ -1,0 +1,58 @@
+/** /////////////////////////////////////////////////////////////////////////////////
+//  	Tooltips
+///////////////////////////////////////////////////////////////////////////////////*/
+
+.Tooltip, .InfoBox {
+	display: inline-block;
+	color: rgba(var(--highlight), 1);
+
+	/* NEW: Dark, Flat Box */
+	background: rgba(var(--background-dark), 1.0);
+	border: solid var(--border-small) rgba(var(--icon), 1);
+
+	/* OLD: Raised Icon Color Button
+	background-image:
+		linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));
+	border-radius: var(--box-radius);
+	*/
+
+	border-radius: var(--box-radius);
+	box-shadow:
+		0px 0px 3px 2px rgba(var(--shadow), 0.75),
+		inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+		inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+	text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+	padding: 0.3em 1.1em;
+    pointer-events: none;
+
+	white-space: nowrap;
+}
+
+.Tooltip {
+	position: absolute;
+	z-index: 1001; /* Tooltip */
+	opacity: 0;
+	transform: scale(0.25);
+	transform-origin: center;
+	transition: opacity 0.2s, transform 0.2s;
+	transition-delay: 0ms;
+}
+
+.Tooltip.Updated {
+	opacity: 1.0;
+	transform: scale(1.0);
+	transition-delay: var(--tooltip-delay);
+}
+
+.InfoBox {
+	margin: 0;
+	position: absolute;
+	z-index: 1001; /* InfoBox */
+	opacity: 0;
+	transition: opacity 1.0s ease-in;
+}
+
+.InfoBox.Updated {
+	opacity: 1.0;
+	transition: opacity 0.0s ease-in;
+}
