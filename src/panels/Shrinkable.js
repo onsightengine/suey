@@ -24,14 +24,15 @@ class Shrinkable extends Panel {
         this.titleDiv = undefined;
         this.bodyDiv = undefined;
 
-        // Building
-        let title = new Div().setClass('ShrinkTitle');
-        {
-            let iconHolder = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
-            let textHolder = new Span().setClass('ShrinkText').setInnerHtml(text);
-            title.add(iconHolder, textHolder, new Span().setClass('ShrinkArrow'));
-        }
-        let body = new Div().setClass('ShrinkBody');
+        // Build
+        const iconHolder = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
+        const textHolder = new Span().setClass('ShrinkText').setInnerHtml(text);
+
+        const title = new Div().setClass('ShrinkTitle');
+        title.add(iconHolder, textHolder, new Span().setClass('ShrinkArrow'));
+
+        const body = new Div().setClass('ShrinkBody');
+
         this.add(title, body);
 
         // Setup
@@ -57,7 +58,7 @@ class Shrinkable extends Panel {
     }
 
     sort() {
-        let items = this.contents().children;
+        const items = this.contents().children;
         items.sort((a, b) => {
             if (a.name < b.name) return -1;
             if (a.name > b.name) return  1;

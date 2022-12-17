@@ -105,10 +105,10 @@ class Resizeable extends Panel {
             let diffY = event.clientY - this.downY;
 
             // Handle resizing
-            if (this.hasClassSubstring('Left')) newWidth = this.downW - diffX;
-            if (this.hasClassSubstring('Right')) newWidth = this.downW + diffX;
-            if (this.hasClassSubstring('Top')) newHeight = this.downH - diffY;
-            if (this.hasClassSubstring('Bottom')) newHeight = this.downH + diffY;
+            if (this.hasClassWithString('Left')) newWidth = this.downW - diffX;
+            if (this.hasClassWithString('Right')) newWidth = this.downW + diffX;
+            if (this.hasClassWithString('Top')) newHeight = this.downH - diffY;
+            if (this.hasClassWithString('Bottom')) newHeight = this.downH + diffY;
 
             // Check Min / Max Sizes
             if (newWidth < this.parent.minWidth * Css.guiScale()) newWidth = this.parent.minWidth * Css.guiScale();

@@ -28,23 +28,23 @@ class Tabbed extends Resizeable {
     constructor(style, tabSide = TAB_SIDES.RIGHT) {
         super(style);
         const self = this;
-        self.setName('Tabbed');
-        self.addClass('Tabbed');
+        this.setName('Tabbed');
+        this.addClass('Tabbed');
 
         // Public Properties
-        self.tabs = [];
-        self.panels = [];
-        self.selectedId = '';
-        self.selectedCount = 0;
+        this.tabs = [];
+        this.panels = [];
+        this.selectedId = '';
+        this.selectedCount = 0;
 
         // Children Elements
-        self.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
-        self.panelsDiv = new Div().setClass('TabPanels');
-        self.add(self.tabsDiv);
-        self.add(self.panelsDiv);
+        this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
+        this.panelsDiv = new Div().setClass('TabPanels');
+        this.add(this.tabsDiv);
+        this.add(this.panelsDiv);
 
         // Set side (LEFT / RIGHT) that tabs should appear
-        self.setTabSide(tabSide);
+        this.setTabSide(tabSide);
 
         /** Add Tab */
         this.addTab = function(id, items, icon, bgColor = undefined) {

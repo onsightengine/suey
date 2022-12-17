@@ -65,18 +65,33 @@ class Panel extends Div {
     makeClosable(closeSide = CLOSE_SIDES.LEFT, sizeScale = 1.1, offsetScale = 1.0) {
         const self = this;
 
-        // Remove Close Button (if one was added)
-        if (closeSide === CLOSE_SIDES.NONE) {
-            if (! this.closeButton) return;
-            this.dom.removeChild(this.closeButton.dom);
-            this.closeButton = undefined;
-            return;
+        function opacityTransparent() {
+            if (! self.closeButton) return;
+            self.closeButton.setStyle('opacity', '0');
+        }
+
+        function opacityGhost() {
+            if (! self.closeButton || ! self.closeImageBox) return;
+            self.closeButton.setStyle('opacity', '1.0');
+            self.closeImageBox.setStyle('filter', 'brightness(100%)');
+        }
+
+        function opacityOpaque() {
+            if (! self.closeButton || ! self.closeImageBox) return;
+            self.closeButton.setStyle('opacity', '1.0');
+            self.closeImageBox.setStyle('filter', 'brightness(125%)');
+        }
+
+        function clickedClose() {
+            self.setDisplay('none');
+            self.dom.dispatchEvent(new Event('closed'));
+        }
 
         // Add Close Button
-        } else if (closeSide === CLOSE_SIDES.LEFT || closeSide === CLOSE_SIDES.RIGHT) {
+        if (closeSide === CLOSE_SIDES.LEFT || closeSide === CLOSE_SIDES.RIGHT) {
 
-            const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
-            closeImageBox.setStyle(
+            this.closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
+            this.closeImageBox.setStyle(
                 'width', '105%',
                 'height', '105%',
                 'transition', 'filter var(--menu-timing) ease-in-out',
@@ -84,7 +99,7 @@ class Panel extends Div {
 
             this.closeButton = new Button();
             this.closeButton.dom.setAttribute('tooltip', 'Close Panel');
-            this.closeButton.add(closeImageBox);
+            this.closeButton.add(self.closeImageBox);
 
             this.closeButton.setStyle(
                 'background', 'rgb(var(--background-dark))',
@@ -109,32 +124,28 @@ class Panel extends Div {
                 this.closeButton.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
             }
 
-            function opacityTransparent() {
-                self.closeButton.setStyle('opacity', '0');
-            }
-
-            function opacityGhost() {
-                self.closeButton.setStyle('opacity', '1.0');
-                closeImageBox.setStyle('filter', 'brightness(100%)');
-            }
-
-            function opacityOpaque() {
-                self.closeButton.setStyle('opacity', '1.0');
-                closeImageBox.setStyle('filter', 'brightness(125%)');
-            }
-
-            this.closeButton.onPointerEnter(opacityOpaque);
-            this.closeButton.onPointerLeave(opacityGhost);
-            this.onPointerEnter(opacityGhost);
-            this.onPointerLeave(opacityTransparent);
-
-            this.closeButton.onClick(function() {
-                self.setDisplay('none');
-                self.dom.dispatchEvent(new Event('closed'));
-            });
+            this.closeButton.dom.addEventListener('pointerenter', opacityOpaque);
+            this.closeButton.dom.addEventListener('pointerleave', opacityGhost);
+            this.closeButton.dom.addEventListener('click', clickedClose);
+            this.dom.addEventListener('pointerenter', opacityGhost);
+            this.dom.addEventListener('pointerleave', opacityTransparent);
 
             this.dom.appendChild(this.closeButton.dom);
+            return;
 
+        // Remove Close Button (if one was added)
+        } else if (closeSide === CLOSE_SIDES.NONE) {
+            if (! this.closeButton) return;
+
+            this.closeButton.dom.removeEventListener('pointerenter', opacityOpaque);
+            this.closeButton.dom.removeEventListener('pointerleave', opacityGhost);
+            this.closeButton.dom.removeEventListener('click', clickedClose);
+            this.dom.removeEventListener('pointerenter', opacityGhost);
+            this.dom.removeEventListener('pointerleave', opacityTransparent);
+
+            this.remove(this.closeButton);
+            this.closeButton = undefined;
+            this.closeImageBox = undefined;
             return;
         }
     }

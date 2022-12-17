@@ -17,12 +17,14 @@
 class Element {
 
     constructor(dom) {
+        const self = this;
+
         this.isElement = true;
 
         this.dom = dom;                                 // HTML Element
         this.name = undefined;                          // Object Name
 
-        this.contents = function() { return this; }     // Inner Osui Element to be filled with other elements
+        this.contents = function() { return self; }     // Inner Osui Element to be filled with other elements
         this.children = [];                             // Holds Osui Children (.add / .remove / .clearContents)
     }
 
@@ -30,64 +32,91 @@ class Element {
     /////   Children
     ////////////////////
 
-    /** Adds (via dom.appendChild) any number of Osui Elements passed as arguments */
-    add(/* any number of Osui Elements to add */) {
-        let args = arguments;
-        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
+    /** Adds to contents() any number of Osui Elements passed as arguments */
+    add(/* any number of Elements to remove */) {
+        for (let i = 0; i < arguments.length; i++) {
+            const osuiElement = arguments[i];
 
-        for (let i = 0; i < args.length; i++) {
-            const argument = args[i];
-            if (argument instanceof Element && argument.isElement) {
+            if (osuiElement instanceof Element && osuiElement.isElement) {
                 // Add node
-                this.contents().dom.appendChild(argument.dom);
+                this.contents().dom.appendChild(osuiElement.dom);
 
                 // Add to child array if not already there
                 let hasIt = false;
                 for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(argument.dom)) {
+                    if (this.contents().children[j].dom.isSameNode(osuiElement.dom)) {
                         hasIt = true;
                         break;
                     }
                 }
-                if (! hasIt) this.contents().children.push(argument);
+                if (! hasIt) this.contents().children.push(osuiElement);
 
                 // Set child to have this Element as parent
-                argument.parent = this;
+                osuiElement.parent = this;
             } else {
-                console.error('Element.add:', argument, 'is not an instance of Osui Element.');
+                console.error('Element.add:', osuiElement, 'is not an instance of Osui Element.');
             }
         }
         return this;
     }
 
-    /** Removes (via dom.removeChild) any number of Elements passed as arguments */
+    /** Removes any number of Elements or Dom Nodes passed as arguments from contents() or base Element */
     remove(/* any number of Elements to remove */) {
         for (let i = 0; i < arguments.length; i++) {
             const osuiElement = arguments[i];
+            let removed = false;
 
-            // Find element within children array, remove entry
-            if (osuiElement instanceof Element && osuiElement.isElement) {
-                // Remove Element
-                for (let j = 0; j < this.contents().children.length; j++) {
-                    const childElement = this.contents().children[j];
-                    if (childElement.dom.isSameNode(osuiElement.dom)) {
-                        childElement.clear();
-                        this.contents().children.splice(j, 1);
-                        break;
+            // Attempt to remove Element from contents()
+            if (! removed) {
+                // Element
+                if (osuiElement instanceof Element && osuiElement.isElement) {
+                    for (let j = 0; j < this.contents().children.length; j++) {
+                        const childElement = this.contents().children[j];
+                        if (childElement.dom.isSameNode(osuiElement.dom)) {
+                            childElement.clear();
+                            this.contents().children.splice(j, 1);
+                            removed = true;
+                            break;
+                        }
+                    }
+                }
+                // Dom Node
+                if (osuiElement.dom) {
+                    if (osuiElement.dom.dispose && typeof osuiElement.dom.dispose === 'function') osuiElement.dom.dispose();
+                    try {
+                        this.contents().dom.removeChild(osuiElement.dom);
+                        removed = true;
+                    } catch (exception) {
+                        // console.log(`Element.remove: Could not remove child from contents!`);
                     }
                 }
             }
 
-            // Remove Dom Node
-            if (osuiElement.dom) {
-                if (osuiElement.dom.dispose && typeof osuiElement.dom.dispose === 'function') osuiElement.dom.dispose();
-                try {
-                    this.contents().dom.removeChild(osuiElement.dom);
-                } catch (exception) {
-                    console.log(`Element.remove: Could not remove child!`);
+            // Didn't find in contents, attempt removal from base
+            if (! removed) {
+                // Element
+                if (osuiElement instanceof Element && osuiElement.isElement) {
+                    for (let j = 0; j < this.children.length; j++) {
+                        const childElement = this.children[j];
+                        if (childElement.dom.isSameNode(osuiElement.dom)) {
+                            childElement.clear();
+                            this.children.splice(j, 1);
+                            break;
+                        }
+                    }
+                }
+                // Dom Node
+                if (osuiElement.dom) {
+                    if (osuiElement.dom.dispose && typeof osuiElement.dom.dispose === 'function') osuiElement.dom.dispose();
+                    try {
+                        this.dom.removeChild(osuiElement.dom);
+                    } catch (exception) {
+                        console.log(`Element.remove: Could not remove child!`);
+                    }
                 }
             }
         }
+
         return this;
     }
 
@@ -131,7 +160,7 @@ class Element {
         // Additionally removed any html elements that were not of Osui type
         if (this.dom) {
             for (let i = this.dom.children.length - 1; i >= 0; i--) {
-                let child = this.dom.children[i];
+                const child = this.dom.children[i];
                 if (child.dispose && typeof child.dispose === 'function') child.dispose();
                 try {
                     this.dom.removeChild(child);
@@ -145,18 +174,8 @@ class Element {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
-    /////   ID / Class / Name
+    /////   Classes / ID / Name
     ////////////////////
-
-    setId(id) {
-        this.dom.id = id;
-        if (this.name === undefined) this.name = id;
-        return this;
-    }
-
-    getId() {
-        return this.dom.id;
-    }
 
     setClass(className) {
         this.dom.className = className;
@@ -172,7 +191,7 @@ class Element {
         return this.dom.classList.contains(className);
     }
 
-    hasClassSubstring(substring) {
+    hasClassWithString(substring) {
         substring = String(substring).toLowerCase();
         const classArray = [...this.dom.classList]
         for (let i = 0; i < classArray.length; i++) {
@@ -188,6 +207,16 @@ class Element {
             this.dom.classList.remove(argument);
         }
         return this;
+    }
+
+    setId(id) {
+        this.dom.id = id;
+        if (this.name === undefined) this.name = id;
+        return this;
+    }
+
+    getId() {
+        return this.dom.id;
     }
 
     setName(name) {
@@ -209,6 +238,16 @@ class Element {
 
     setDisabled(value) {
         this.dom.disabled = value;
+        return this;
+    }
+
+    /**  Makes this Element Selectable / Unselectable */
+    selectable(allowSelection) {
+        if (allowSelection) {
+            this.removeClass('Unselectable');
+        } else {
+            this.addClass('Unselectable');
+        }
         return this;
     }
 
@@ -254,7 +293,6 @@ class Element {
         return this.contents().dom.textContent;
     }
 
-
     /////////////////////////////////////////////////////////////////////////////////////
     /////   CSS
     ////////////////////
@@ -273,20 +311,6 @@ class Element {
             const style = arguments[i];
             const value = arguments[i + 1];
             this.contents().dom.style[style] = value;
-        }
-        return this;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Pointers
-    ////////////////////
-
-    /**  Makes this Element Selectable / Unselectable */
-    selectable(allowSelection) {
-        if (allowSelection) {
-            this.removeClass('Unselectable');
-        } else {
-            this.addClass('Unselectable');
         }
         return this;
     }
