@@ -25,13 +25,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scidian/osui.git"
+    "url": "git+https://github.com/onsightengine/osui.git"
   },
   "author": "Stephens Nunnally <stephens@scidian.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/scidian/osui/issues"
+    "url": "https://github.com/onsightengine/osui/issues"
   },
-  "homepage": "https://github.com/scidian/osui",
+  "homepage": "https://github.com/onsightengine/osui",
   "private": false
 }
