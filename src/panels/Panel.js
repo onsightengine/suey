@@ -73,13 +73,13 @@ class Panel extends Div {
         function opacityGhost() {
             if (! self.closeButton || ! self.closeImageBox) return;
             self.closeButton.setStyle('opacity', '1.0');
-            self.closeImageBox.setStyle('filter', 'brightness(100%)');
+            self.closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(100%)');
         }
 
         function opacityOpaque() {
             if (! self.closeButton || ! self.closeImageBox) return;
             self.closeButton.setStyle('opacity', '1.0');
-            self.closeImageBox.setStyle('filter', 'brightness(125%)');
+            self.closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(125%)');
         }
 
         function clickedClose() {
