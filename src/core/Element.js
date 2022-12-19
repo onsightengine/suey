@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Onui
+// @description Osui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/onui
+// @source      https://github.com/onsightengine/osui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 //
@@ -13,7 +13,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-/** Base Class of Onui, the Onsight Gui Library */
+/** Base Class of Osui, the Onsight Gui Library */
 class Element {
 
     constructor(dom) {
@@ -24,37 +24,37 @@ class Element {
         this.dom = dom;                                 // HTML Element
         this.name = undefined;                          // Object Name
 
-        this.contents = function() { return self; }     // Inner Onui Element to be filled with other elements
-        this.children = [];                             // Holds Onui Children (.add / .remove / .clearContents)
+        this.contents = function() { return self; }     // Inner Osui Element to be filled with other elements
+        this.children = [];                             // Holds Osui Children (.add / .remove / .clearContents)
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////   Children
     ////////////////////
 
-    /** Adds to contents() any number of Onui Elements passed as arguments */
+    /** Adds to contents() any number of Osui Elements passed as arguments */
     add(/* any number of Elements to remove */) {
         for (let i = 0; i < arguments.length; i++) {
-            const onuiElement = arguments[i];
+            const osuiElement = arguments[i];
 
-            if (onuiElement instanceof Element && onuiElement.isElement) {
+            if (osuiElement instanceof Element && osuiElement.isElement) {
                 // Add node
-                this.contents().dom.appendChild(onuiElement.dom);
+                this.contents().dom.appendChild(osuiElement.dom);
 
                 // Add to child array if not already there
                 let hasIt = false;
                 for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(onuiElement.dom)) {
+                    if (this.contents().children[j].dom.isSameNode(osuiElement.dom)) {
                         hasIt = true;
                         break;
                     }
                 }
-                if (! hasIt) this.contents().children.push(onuiElement);
+                if (! hasIt) this.contents().children.push(osuiElement);
 
                 // Set child to have this Element as parent
-                onuiElement.parent = this;
+                osuiElement.parent = this;
             } else {
-                console.error('Element.add:', onuiElement, 'is not an instance of Onui Element.');
+                console.error('Element.add:', osuiElement, 'is not an instance of Osui Element.');
             }
         }
         return this;
@@ -63,7 +63,7 @@ class Element {
     /** Returns true if element was removed */
     static remove(parent, element) {
 
-        // Onui Element
+        // Osui Element
         if (element && element.isElement) {
             for (let i = 0; i < parent.children.length; i++) {
                 const child = parent.children[i];
@@ -118,9 +118,9 @@ class Element {
             }
         }
 
-        // Onui Element
+        // Osui Element
         if (element.isElement) {
-            // Recursively remove all known Onui Children
+            // Recursively remove all known Osui Children
             for (let i = 0; i < element.children.length; i++) {
                 const child = element.children[i];
                 Element.clear(child);

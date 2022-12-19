@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Onui
+// @description Osui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/onui
+// @source      https://github.com/onsightengine/osui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
@@ -18,7 +18,7 @@ class ShadowBox extends Div {
         super();
         this.setClass('ShadowBox');
 
-        // Parse Arguments, Add Onui Elements / ImageUrls
+        // Parse Arguments, Add Osui Elements / ImageUrls
         let args = arguments;
         if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
         for (let i = 0; i < args.length; i++) {

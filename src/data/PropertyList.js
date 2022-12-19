@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Onui
+// @description Osui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/onui
+// @source      https://github.com/onsightengine/osui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
@@ -82,7 +82,7 @@ class PropertyList extends Div {
     }
 
     /** Creates a zero margin Row to hold right side controls of a Property Row */
-    createControls(/* any number of Onui Elements */) {
+    createControls(/* any number of Osui Elements */) {
         const rightRow = new Row().setStyle('margin', '0', 'padding', '0').addClass('PropertyRight');
         let args = arguments;
         if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
@@ -92,7 +92,7 @@ class PropertyList extends Div {
                 rightRow.add(argument);
                 if (i < args.length - 1) rightRow.add(new Span().addClass('PropertySpace'));
             } else {
-                console.error('PropertyList.createRight():', argument, 'is not an instance of Onui Element.');
+                console.error('PropertyList.createRight():', argument, 'is not an instance of Osui Element.');
             }
         }
         // rightRow.add(new FlexSpacer());

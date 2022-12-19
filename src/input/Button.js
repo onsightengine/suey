@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Onui
+// @description Osui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/onui
+// @source      https://github.com/onsightengine/osui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
@@ -41,16 +41,16 @@ class Button extends Element {
     }
 
     /** Attaches a PopUp menu to Button */
-    attachMenu(onuiMenu) {
+    attachMenu(osuiMenu) {
         const self = this;
 
         ///// Verify element is a .Menu, apply MenuButton class, store for later
-        if (onuiMenu.hasClass('Menu') === false) return this;
+        if (osuiMenu.hasClass('Menu') === false) return this;
         this.addClass('MenuButton');
-        this.attachedMenu = onuiMenu;
+        this.attachedMenu = osuiMenu;
 
         ///// Add menu to document, add event handler
-        document.body.appendChild(onuiMenu.dom);
+        document.body.appendChild(osuiMenu.dom);
         this.dom.addEventListener('pointerdown', onPointerDown, false);
 
         ////////////////////
@@ -88,7 +88,7 @@ class Button extends Element {
         ///// Pop this menu (calculate proper positioning)
         function popMenu() {
             const popped = Popper.popUnder(
-                onuiMenu.dom,
+                osuiMenu.dom,
                 self.dom,
                 self.alignMenu,
                 self.menuOffsetX,
@@ -96,11 +96,11 @@ class Button extends Element {
                 self.overflowMenu
             );
             if (popped === POSITION.UNDER) {
-                onuiMenu.removeClass('SlideUp');
-                onuiMenu.addClass('SlideDown');
+                osuiMenu.removeClass('SlideUp');
+                osuiMenu.addClass('SlideDown');
             } else {
-                onuiMenu.removeClass('SlideDown');
-                onuiMenu.addClass('SlideUp');
+                osuiMenu.removeClass('SlideDown');
+                osuiMenu.addClass('SlideUp');
             }
         }
 
@@ -113,7 +113,7 @@ class Button extends Element {
                 popMenu();
 
                 // Apply class to show menu, CSS will handle the transition
-                if (self.dom) onuiMenu.showMenu(self.dom);
+                if (self.dom) osuiMenu.showMenu(self.dom);
             }
         };
 

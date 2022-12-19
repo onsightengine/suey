@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Onui
+// @description Osui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/onui
+// @source      https://github.com/onsightengine/osui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
@@ -77,24 +77,24 @@ class Docker extends Div {
         this.dispose = () => { signals.windowResize.remove(windowResizeCallback); }
 
         ///// METHOD: Add Dock
-        this.addDock = function(onuiElement, cornerName = CORNERS.TOP_LEFT) {
-            cornerDivs[cornerName].add(onuiElement);
+        this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
+            cornerDivs[cornerName].add(osuiElement);
 
-            if (onuiElement.isElement && onuiElement.hasClass('Tabbed')) {
-                if (cornerName.includes('Right')) onuiElement.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('Left')) onuiElement.setTabSide(TAB_SIDES.RIGHT);
+            if (osuiElement.isElement && osuiElement.hasClass('Tabbed')) {
+                if (cornerName.includes('Right')) osuiElement.setTabSide(TAB_SIDES.LEFT);
+                if (cornerName.includes('Left')) osuiElement.setTabSide(TAB_SIDES.RIGHT);
             }
 
-            if (onuiElement.isElement && onuiElement.hasClass('Resizeable')) {
-                onuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
-                onuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
+            if (osuiElement.isElement && osuiElement.hasClass('Resizeable')) {
+                osuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
+                osuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
                 // // TEMP: No vertical resizing for now...
-                // onuiElement.toggleResize(RESIZERS.TOP, cornerName.includes('Bottom'));
-                // onuiElement.toggleResize(RESIZERS.BOTTOM, cornerName.includes('Top'));
-                onuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
-                onuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
-                onuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
-                onuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
+                // osuiElement.toggleResize(RESIZERS.TOP, cornerName.includes('Bottom'));
+                // osuiElement.toggleResize(RESIZERS.BOTTOM, cornerName.includes('Top'));
+                osuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
+                osuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
+                osuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
+                osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
             }
         }
 
