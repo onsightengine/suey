@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./files/logo/eye256.png" alt="Onsight UI Library"/>
+<img src="./files/logo/onui256.png" alt="Onsight UI Library"/>
 
 <br>
 
