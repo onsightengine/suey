@@ -1,6 +1,6 @@
 {
-  "name": "osui",
-  "version": "0.1.0",
+  "name": "@scidian/osui",
+  "version": "0.1.1",
   "description": "Lightweight JavaScript UI library.",
   "module": "src/Osui.js",
   "main": "build/osui.module.js",

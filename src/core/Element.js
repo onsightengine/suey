@@ -29,127 +29,52 @@ class Element {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
+    /////   Clean Up
+    ////////////////////
+
+    /** Removes all children DOM elements from this element */
+    destroy() {
+        clearChildren(this, true /* destroy event */);
+        return this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
     /////   Children
     ////////////////////
 
     /** Adds to contents() any number of Osui Elements passed as arguments */
     add(/* any number of Elements to remove */) {
         for (let i = 0; i < arguments.length; i++) {
-            const osuiElement = arguments[i];
-
-            if (osuiElement instanceof Element && osuiElement.isElement) {
-                // Add node
-                this.contents().dom.appendChild(osuiElement.dom);
-
-                // Add to child array if not already there
-                let hasIt = false;
-                for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(osuiElement.dom)) {
-                        hasIt = true;
-                        break;
-                    }
-                }
-                if (! hasIt) this.contents().children.push(osuiElement);
-
-                // Set child to have this Element as parent
-                osuiElement.parent = this;
-            } else {
-                console.error('Element.add:', osuiElement, 'is not an instance of Osui Element.');
-            }
+            const element = arguments[i];
+            addToParent(this.contents(), element);
         }
         return this;
     }
 
-    /** Returns true if element was removed */
-    static remove(parent, element) {
-
-        // Osui Element
-        if (element && element.isElement) {
-            for (let i = 0; i < parent.children.length; i++) {
-                const child = parent.children[i];
-
-                if (element.dom.isSameNode(child.dom)) {
-                    Element.clear(element);
-                    parent.children.splice(j, 1);
-                    return true;
-                }
-            }
-        }
-
-        // Dom Node
-        try {
-            parent.dom.removeChild(element);
-            Element.clear(element);
-            return true;
-        } catch (exception) {
-            // REMOVE FAILED
-        }
-
-        return false;
-    }
-
-    /** Removes any number of Elements or Dom Nodes passed as arguments from contents() or base children */
-    remove(/* any number of Elements to remove */) {
+    addToSelf(/* any number of Elements to remove */) {
         for (let i = 0; i < arguments.length; i++) {
             const element = arguments[i];
-
-            // Attempt to remove Element from contents()
-            let removed = Element.remove(this.contents(), element);
-
-            // Didn't find in contents, attempt removal from base
-            if (! removed) removed = Element.remove(this, element);
-
-            // Could not remove
-            if (! removed) console.log(`Element.remove: Could not remove child!`);
+            addToParent(this, element);
         }
         return this;
-    }
-
-    static clear(element, dispose = true) {
-        if (! element) return;
-
-        // Clears Dom Element children
-        function clearDomChildren(dom) {
-            if (! dom.children) return;
-            for (let i = dom.children.length - 1; i >= 0; i--) {
-                const child = dom.children[i];
-                Element.clear(child);
-                try { dom.removeChild(child); } catch (e) { /* FAILED TO REMOVE */ }
-            }
-        }
-
-        // Osui Element
-        if (element.isElement) {
-            // Recursively remove all known Osui Children
-            for (let i = 0; i < element.children.length; i++) {
-                const child = element.children[i];
-                Element.clear(child);
-            }
-            element.children.length = 0;
-
-            // Recursively remove all known Html Elements
-            clearDomChildren(element.dom);
-
-        // Html Node
-        } else {
-            clearDomChildren(element);
-        }
-
-        // Call 'dispose' if implemented
-        if (! dispose) return;
-        if (element.dispose && typeof element.dispose === 'function') element.dispose();
-        if (element.dom && element.dom.dispose && typeof element.dom.dispose === 'function') element.dom.dispose();
     }
 
     /** Removes all children DOM elements from element's 'contents' only */
     clearContents() {
-        Element.clear(this.contents(), false /* dipose */);
+        clearChildren(this.contents(), false /* destroy event */);
         return this;
     }
 
-    /** Removes all children DOM elements from this element */
-    clear() {
-        Element.clear(this);
+    /** Removes any number of Elements or Dom Nodes passed as arguments from contents() or self children */
+    remove(/* any number of Elements to remove */) {
+        for (let i = 0; i < arguments.length; i++) {
+            const element = arguments[i];
+
+            // Attempt to remove element from contents(), then try to remove from self.dom
+            let removed = removeFromParent(this.contents(), element);
+            if (! removed) removed = removeFromParent(this, element);
+            if (! removed) console.log(`Element.removeFromParent: Could not remove child!`);
+        }
         return this;
     }
 
@@ -336,6 +261,121 @@ class Element {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+/////	Add / Remove / Clear
+/////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////// Add
+
+function addToParent(parent, element) {
+    if (! element) return;
+
+    // Osui Element
+    if (element.isElement) {
+        // Add node
+        parent.dom.appendChild(element.dom);
+
+        // Add to child array if not already there
+        let hasIt = false;
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i];
+            if (child.dom.isSameNode(element.dom)) {
+                hasIt = true;
+                break;
+            }
+        }
+        if (! hasIt) parent.children.push(element);
+
+        // Set child to have this Element as parent
+        element.parent = this;
+
+    // Html Node?
+    } else {
+        try {
+            parent.dom.appendChild(element);
+        } catch (exception) {
+            // REMOVE FAILED
+        }
+    }
+}
+
+//////////////////// Clear
+
+// Clears Element Children
+function clearElementChildren(osui) {
+    for (let i = 0; i < osui.children.length; i++) {
+        const child = osui.children[i];
+        clearChildren(child, true /* destroy event */);
+    }
+    osui.children.length = 0;
+}
+
+// Clears Dom Element Children
+function clearDomChildren(dom) {
+    if (! dom.children) return;
+    for (let i = dom.children.length - 1; i >= 0; i--) {
+        const child = dom.children[i];
+        clearChildren(child, true /* destroy event */);
+        try { dom.removeChild(child); } catch (e) { /* FAILED TO REMOVE */ }
+    }
+}
+
+/* Clears all osui children / dom children from element */
+function clearChildren(element, destroy = true) {
+    if (! element) return;
+
+    // Osui Element
+    if (element.isElement) {
+        clearElementChildren(element);
+        clearDomChildren(element.dom);
+
+        // 'destroy' event
+        if (destroy && element.dom && element.dom.dispatchEvent) {
+            element.dom.dispatchEvent(new Event('destroy'));
+        }
+
+    // Html Node?
+    } else {
+        clearDomChildren(element);
+
+        // 'destroy' event
+        if (destroy && element && element.dispatchEvent) {
+            element.dispatchEvent(new Event('destroy'));
+        }
+    }
+}
+
+//////////////////// Remove
+
+/** Returns true if element was removed */
+function removeFromParent(parent, element) {
+    if (! element) return;
+
+    // Osui Element
+    if (element.isElement) {
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i];
+            if (child.dom.isSameNode(element.dom)) {
+                clearChildren(element);
+                parent.children.splice(j, 1);
+                element.parent = undefined;
+                return true;
+            }
+        }
+    }
+
+    // Html Node?
+    clearChildren(element);
+    try {
+        parent.dom.removeChild(element);
+        return true;
+    } catch (exception) {
+        // REMOVE FAILED
+    }
+
+    return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 /////	Properties
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -397,7 +437,7 @@ events.forEach(function(event) {
 // 'focus'          Fires when element has received focus (does not bubble, 'focusin' follows and does bubble)
 
 // 'input'          Fires constantly as <input> <select> <textarea> value's are being changed.
-// 'change'         Fired when <input> <select> <textarea> value's are done being modified.
+// 'change'         Fires when <input> <select> <textarea> value's are done being modified.
 
 // 'contextmenu'    Fires when user attempts to open context menu (typically right clicking mouse)
 

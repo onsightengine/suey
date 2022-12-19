@@ -92,13 +92,13 @@ class NumberBox extends Element {
         this.dom.addEventListener('wheel', onWheel);
         this.dom.addEventListener('change', onChange);
 
-        // Remove Listeners
-        this.dispose = function() {
+        // Remove Event Listeners
+        this.dom.addEventListener('destroy', function() {
             self.dom.removeEventListener('keydown', onKeyDown);
             self.dom.removeEventListener('keyup', onKeyUp);
             self.dom.removeEventListener('wheel', onWheel);
             self.dom.removeEventListener('change', onChange);
-        }
+        }, { once: true });
 
     } // end ctor
 
@@ -268,29 +268,27 @@ class NumberScroll extends NumberBox {
             if (self.dom) self.dom.style.cursor = 'ns-resize';
         }
 
+        // Add Event Listeners
         this.dom.addEventListener('mousedown', onMouseDown);
         this.dom.addEventListener('mousemove', onMouseMove);
         this.dom.addEventListener('mouseup', onMouseUp);
-
         this.dom.addEventListener('touchstart', onTouchStart);
         this.dom.addEventListener('touchmove', onTouchMove);
         this.dom.addEventListener('touchend', onTouchEnd);
-
         this.dom.addEventListener('focus', onFocus);
         this.dom.addEventListener('blur', onBlur);
 
-        this.dispose = function() {
-            this.dom.removeEventListener('mousedown', onMouseDown);
-            this.dom.removeEventListener('mousemove', onMouseMove);
-            this.dom.removeEventListener('mouseup', onMouseUp);
-
-            this.dom.removeEventListener('touchstart', onTouchStart);
-            this.dom.removeEventListener('touchmove', onTouchMove);
-            this.dom.removeEventListener('touchend', onTouchEnd);
-
-            this.dom.removeEventListener('focus', onFocus);
-            this.dom.removeEventListener('blur', onBlur);
-        }
+        // Remove Event Listeners
+        this.dom.addEventListener('destroy', function() {
+            self.dom.removeEventListener('mousedown', onMouseDown);
+            self.dom.removeEventListener('mousemove', onMouseMove);
+            self.dom.removeEventListener('mouseup', onMouseUp);
+            self.dom.removeEventListener('touchstart', onTouchStart);
+            self.dom.removeEventListener('touchmove', onTouchMove);
+            self.dom.removeEventListener('touchend', onTouchEnd);
+            self.dom.removeEventListener('focus', onFocus);
+            self.dom.removeEventListener('blur', onBlur);
+        }, { once: true });
 
     }
 

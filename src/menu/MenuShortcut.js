@@ -24,7 +24,7 @@ class MenuShortcut extends Div {
         this.text = text;
 
         // Remove previous characters
-        this.clear();
+        this.clearContents();
 
         // Insert new shorcut as series of centered same-spaced divs for each character
         for (let i = 0; i < text.length; i++) {

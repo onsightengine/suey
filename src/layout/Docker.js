@@ -64,19 +64,8 @@ class Docker extends Div {
             this.add(corner);
         }
 
-        ///// WINDOW RESIZE
-        function windowResizeCallback() {
-            let bottomLeftHeight = 0;
-            for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {
-                bottomLeftHeight += cornerDivs[CORNERS.BOTTOM_LEFT].children[i].getHeight();
-            }
-            let newHeightEm = parseFloat(Css.toEm(bottomLeftHeight)) - 0.175;
-            cornerDivs[CORNERS.TOP_LEFT].setStyle('bottom', `${newHeightEm}em`);
-        }
-        signals.windowResize.add(windowResizeCallback);
-        this.dispose = () => { signals.windowResize.remove(windowResizeCallback); }
+        ///// Add Dock
 
-        ///// METHOD: Add Dock
         this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
             cornerDivs[cornerName].add(osuiElement);
 
@@ -97,6 +86,23 @@ class Docker extends Div {
                 osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
             }
         }
+
+        ///// Signals
+
+        function windowResizeCallback() {
+            let bottomLeftHeight = 0;
+            for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {
+                bottomLeftHeight += cornerDivs[CORNERS.BOTTOM_LEFT].children[i].getHeight();
+            }
+            let newHeightEm = parseFloat(Css.toEm(bottomLeftHeight)) - 0.175;
+            cornerDivs[CORNERS.TOP_LEFT].setStyle('bottom', `${newHeightEm}em`);
+        }
+
+        signals.windowResize.add(windowResizeCallback);
+
+        this.dom.addEventListener('destroy', function() {
+            signals.windowResize.remove(windowResizeCallback);
+        }, { once: true });
 
     } // end ctor
 

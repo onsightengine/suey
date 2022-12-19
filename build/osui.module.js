@@ -1,9 +1,9 @@
 /**
- * @description Onui
+ * @description Osui
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
- * @source      https://github.com/onsightengine/onui
+ * @source      https://github.com/onsightengine/osui
  */
 const IMAGE_CHECK = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="100%" height="100%" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path d="M373.189,648.684c-0,-0 -237.09,-138.996 -258.087,-117.999c-20.997,20.997 212.331,288.419 212.331,288.419c1.975,3.009 4.284,5.857 6.926,8.499c10.698,10.698 24.796,15.945 38.83,15.71c14.035,0.235 28.132,-5.012 38.831,-15.71c2.641,-2.642 4.95,-5.49 6.926,-8.499c-0,-0 423.255,-489.7 496.91,-611.246c9.004,-14.859 -15.991,-40.415 -34.446,-27.458c-108.024,75.837 -508.221,468.284 -508.221,468.284Z" style="fill:#ebebeb;"/></svg>';
 const IMAGE_CLOSE = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><circle cx="256" cy="256" r="256" style="fill:#e24c4b;"/><path d="M354.658,492.268c-30.37,12.709 -63.7,19.732 -98.659,19.732c-141.29,-0 -255.999,-114.71 -255.999,-256c-0,-29.773 5.092,-58.365 14.455,-84.951c-0.306,5.601 -0.022,11.26 -0.461,16.921c-13.988,180.322 123.333,317.446 306.218,306.217c11.622,-0.713 23.138,-0.652 34.446,-1.919Z" style="fill-opacity:0.25;"/><path d="M386.574,400.264c-12.566,12.566 -33.512,12.566 -46.079,0l-84.496,-84.496l-84.496,84.496c-12.567,12.566 -33.513,12.566 -46.079,0c-12.566,-12.567 -12.566,-33.513 -0,-46.079l84.496,-84.496l-84.496,-84.496c-12.566,-12.567 -12.566,-33.513 -0,-46.079c12.566,-12.567 261.15,215.071 261.15,215.071c12.566,12.566 12.566,33.511 -0,46.079Z" style="fill-opacity:0.25;"/><path d="M386.575,386.834c-12.567,12.568 -33.513,12.568 -46.079,0.002l-84.496,-84.498l-84.497,84.498c-12.566,12.566 -33.512,12.566 -46.079,-0c-12.566,-12.568 -12.566,-33.513 -0,-46.079l84.497,-84.496l-84.497,-84.498c-12.566,-12.566 -12.566,-33.511 -0,-46.079c12.567,-12.565 33.513,-12.565 46.079,0l84.496,84.498l84.497,-84.498c12.566,-12.565 33.512,-12.565 46.079,0c12.566,12.568 12.566,33.513 -0,46.079l-84.497,84.496l84.497,84.498c12.566,12.566 12.566,33.51 -0,46.077Z" style="fill:#fff;"/></svg>';
@@ -212,20 +212,20 @@ class Element {
     }
     add() {
         for (let i = 0; i < arguments.length; i++) {
-            const onuiElement = arguments[i];
-            if (onuiElement instanceof Element && onuiElement.isElement) {
-                this.contents().dom.appendChild(onuiElement.dom);
+            const osuiElement = arguments[i];
+            if (osuiElement instanceof Element && osuiElement.isElement) {
+                this.contents().dom.appendChild(osuiElement.dom);
                 let hasIt = false;
                 for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(onuiElement.dom)) {
+                    if (this.contents().children[j].dom.isSameNode(osuiElement.dom)) {
                         hasIt = true;
                         break;
                     }
                 }
-                if (! hasIt) this.contents().children.push(onuiElement);
-                onuiElement.parent = this;
+                if (! hasIt) this.contents().children.push(osuiElement);
+                osuiElement.parent = this;
             } else {
-                console.error('Element.add:', onuiElement, 'is not an instance of Onui Element.');
+                console.error('Element.add:', osuiElement, 'is not an instance of Osui Element.');
             }
         }
         return this;
@@ -638,7 +638,7 @@ class PropertyList extends Div {
                 rightRow.add(argument);
                 if (i < args.length - 1) rightRow.add(new Span().addClass('PropertySpace'));
             } else {
-                console.error('PropertyList.createRight():', argument, 'is not an instance of Onui Element.');
+                console.error('PropertyList.createRight():', argument, 'is not an instance of Osui Element.');
             }
         }
         return rightRow;
@@ -918,12 +918,12 @@ class Button extends Element {
             self.dom.dispatchEvent(hideEvent);
         }, false);
     }
-    attachMenu(onuiMenu) {
+    attachMenu(osuiMenu) {
         const self = this;
-        if (onuiMenu.hasClass('Menu') === false) return this;
+        if (osuiMenu.hasClass('Menu') === false) return this;
         this.addClass('MenuButton');
-        this.attachedMenu = onuiMenu;
-        document.body.appendChild(onuiMenu.dom);
+        this.attachedMenu = osuiMenu;
+        document.body.appendChild(osuiMenu.dom);
         this.dom.addEventListener('pointerdown', onPointerDown, false);
         const observer = new MutationObserver((mutations, observer) => {
             if (document.contains(this.dom)) {
@@ -935,7 +935,7 @@ class Button extends Element {
         window.addEventListener('resize', popMenu, false);
         function popMenu() {
             const popped = Popper.popUnder(
-                onuiMenu.dom,
+                osuiMenu.dom,
                 self.dom,
                 self.alignMenu,
                 self.menuOffsetX,
@@ -943,18 +943,18 @@ class Button extends Element {
                 self.overflowMenu
             );
             if (popped === POSITION.UNDER) {
-                onuiMenu.removeClass('SlideUp');
-                onuiMenu.addClass('SlideDown');
+                osuiMenu.removeClass('SlideUp');
+                osuiMenu.addClass('SlideDown');
             } else {
-                onuiMenu.removeClass('SlideDown');
-                onuiMenu.addClass('SlideUp');
+                osuiMenu.removeClass('SlideDown');
+                osuiMenu.addClass('SlideUp');
             }
         }
         function onPointerDown(event) {
             if (self.hasClass('Selected') === false) {
                 self.addClass('Selected');
                 popMenu();
-                if (self.dom) onuiMenu.showMenu(self.dom);
+                if (self.dom) osuiMenu.showMenu(self.dom);
             }
         };
         this.detachMenu = function() {
@@ -1248,13 +1248,13 @@ class MenuItem extends Div {
         this.divText.dom.innerHTML = newText;
         return this;
     }
-    attachSubMenu(onuiMenu) {
-        if (onuiMenu.hasClass('Menu') === false) return this;
-        onuiMenu.addClass('SlideDown');
+    attachSubMenu(osuiMenu) {
+        if (osuiMenu.hasClass('Menu') === false) return this;
+        osuiMenu.addClass('SlideDown');
         this.removeSubMenu();
         this.addClass('SubMenuItem');
-        this.add(onuiMenu);
-        this.subMenu = onuiMenu;
+        this.add(osuiMenu);
+        this.subMenu = osuiMenu;
         return this;
     }
     hasSubMenu() {
@@ -1262,13 +1262,13 @@ class MenuItem extends Div {
     }
     removeSubMenu() {
         this.removeClass('SubMenuItem');
-        const onuiMenu = this.subMenu;
+        const osuiMenu = this.subMenu;
         this.subMenu = undefined;
         for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
             let child = this.contents().dom.children[i];
             if (child.classList.contains('Menu')) this.remove(child);
         }
-        return onuiMenu;
+        return osuiMenu;
     }
 }
 
@@ -2221,19 +2221,19 @@ class Docker extends Div {
         }
         signals.windowResize.add(windowResizeCallback);
         this.dispose = () => { signals.windowResize.remove(windowResizeCallback); };
-        this.addDock = function(onuiElement, cornerName = CORNERS.TOP_LEFT) {
-            cornerDivs[cornerName].add(onuiElement);
-            if (onuiElement.isElement && onuiElement.hasClass('Tabbed')) {
-                if (cornerName.includes('Right')) onuiElement.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('Left')) onuiElement.setTabSide(TAB_SIDES.RIGHT);
+        this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
+            cornerDivs[cornerName].add(osuiElement);
+            if (osuiElement.isElement && osuiElement.hasClass('Tabbed')) {
+                if (cornerName.includes('Right')) osuiElement.setTabSide(TAB_SIDES.LEFT);
+                if (cornerName.includes('Left')) osuiElement.setTabSide(TAB_SIDES.RIGHT);
             }
-            if (onuiElement.isElement && onuiElement.hasClass('Resizeable')) {
-                onuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
-                onuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
-                onuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
-                onuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
-                onuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
-                onuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
+            if (osuiElement.isElement && osuiElement.hasClass('Resizeable')) {
+                osuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
+                osuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
+                osuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
+                osuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
+                osuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
+                osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
             }
         };
     }

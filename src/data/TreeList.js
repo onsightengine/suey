@@ -148,10 +148,10 @@ class TreeList extends Div {
         this.dom.addEventListener('keyup', onKeyUp);
 
         // Remove Events
-        this.dispose = function() {
-            this.dom.removeEventListener('keydown', onKeyDown);
-            this.dom.addEventListener('keydown', onKeyUp);
-        }
+        this.dom.addEventListener('destroy', function() {
+            self.dom.removeEventListener('keydown', onKeyDown);
+            self.dom.addEventListener('keydown', onKeyUp);
+        }, { once: true });
 
     }
 
@@ -380,18 +380,15 @@ class TreeList extends Div {
                 div.addEventListener('drop', onDrop);
             }
 
-            if (! div.dispose) {
-                div.dispose = function() {
-                    div.removeEventListener('pointerdown', onPointerDown);
-                    if (div.draggable === true) {
-                        div.removeEventListener('drag', onDrag);
-                        div.removeEventListener('dragstart', onDragStart);
-                        div.removeEventListener('dragover', onDragOver);
-                        div.removeEventListener('dragleave', onDragLeave);
-                        div.removeEventListener('drop', onDrop);
-                    }
-                }
-            }
+            div.addEventListener('destroy', function() {
+                div.removeEventListener('pointerdown', onPointerDown);
+                if (! div.draggable) return;
+                div.removeEventListener('drag', onDrag);
+                div.removeEventListener('dragstart', onDragStart);
+                div.removeEventListener('dragover', onDragOver);
+                div.removeEventListener('dragleave', onDragLeave);
+                div.removeEventListener('drop', onDrop);
+            }, { once: true });
         }
 
         return this;

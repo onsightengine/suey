@@ -84,15 +84,13 @@ class Color extends Button {
 
         this.setHexValue(0xffffff);
 
-        ///// Dispose
+        ///// Destroy
 
-        this.dispose = function() {
-
+        this.dom.addEventListener('destroy', function() {
             colorBox.dom.removeEventListener('pointerdown', colorBoxPointerDown);
             colorBox.dom.removeEventListener('input', colorBoxInput);
             colorBox.dom.removeEventListener('blur', colorBoxBlur);
-
-        }
+        }, { once: true });
 
     }
 

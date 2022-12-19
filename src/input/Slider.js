@@ -81,10 +81,10 @@ class Slider extends Div {
         slider.dom.addEventListener('wheel', sliderWheel);
 
         // Remove Events
-        this.dispose = function() {
+        this.dom.addEventListener('destroy', function() {
             slider.dom.addEventListener('input', sliderInput);
             slider.dom.removeEventListener('wheel', sliderWheel);
-        }
+        }, { once: true });
 
     }
 

@@ -119,14 +119,14 @@ class Tabbed extends Resizeable {
         }
 
         // Find tab / panel by id
-        let tab = this.tabs.find(function(item) { return (item.dom.id === id && item.count === count); });
-        let panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
+        const tab = this.tabs.find(function(item) { return (item.dom.id === id && item.count === count); });
+        const panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
         if (tab && panel) {
             // Deselect current selection
-            let currentTab = this.tabs.find(function(item) {
+            const currentTab = this.tabs.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
             });
-            let currentPanel = this.panels.find(function(item) {
+            const currentPanel = this.panels.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
             });
             if (currentTab) currentTab.removeClass('Selected');
@@ -158,15 +158,20 @@ class Tabbed extends Resizeable {
         return false;
     }
 
+    destroy() {
+        this.clearTabs();
+        super.destroy();
+    }
+
     clearTabs() {
-        if (this.tabsDiv) this.tabsDiv.clear();
-        if (this.panelsDiv) this.panelsDiv.clear();
+        if (this.tabsDiv) this.tabsDiv.clearContents();
+        if (this.panelsDiv) this.panelsDiv.clearContents();
         if (this.tabs) {
-            for (let i = 0; i < this.tabs.length; i++) this.tabs[i].clear();
+            for (let i = 0; i < this.tabs.length; i++) this.tabs[i].destroy();
             this.tabs.length = 0;
         }
         if (this.panels) {
-            for (let i = 0; i < this.panels.length; i++) this.panels[i].clear();
+            for (let i = 0; i < this.panels.length; i++) this.panels[i].destroy();
             this.panels.length = 0;
         }
         this.setStyle('minHeight', '');

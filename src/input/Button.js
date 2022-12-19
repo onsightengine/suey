@@ -38,6 +38,13 @@ class Button extends Element {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
         }, false);
+
+        this.dom.addEventListener('destroy', function() {
+            if (self.attachedMenu) {
+                self.detachMenu();
+            }
+        }, { once: true });
+
     }
 
     /** Attaches a PopUp menu to Button */
@@ -123,15 +130,9 @@ class Button extends Element {
             self.removeClass('MenuButton');
             window.removeEventListener('resize', popMenu, false);
             self.dom.removeEventListener('pointerdown', onPointerDown, false);
-            self.attachedMenu.clear();
+            self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
-        }
-    }
-
-    dispose() {
-        if (this.attachedMenu) {
-            this.detachMenu();
         }
     }
 

@@ -130,7 +130,7 @@ class Panel extends Div {
             this.dom.addEventListener('pointerenter', opacityGhost);
             this.dom.addEventListener('pointerleave', opacityTransparent);
 
-            this.dom.appendChild(this.closeButton.dom);
+            this.addToSelf(this.closeButton);
             return;
 
         // Remove Close Button (if one was added)
