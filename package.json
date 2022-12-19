@@ -1,9 +1,9 @@
 {
-  "name": "osui",
+  "name": "onui",
   "version": "0.1.0",
   "description": "Lightweight JavaScript UI library.",
-  "module": "src/Osui.js",
-  "main": "build/osui.module.js",
+  "module": "src/Onui.js",
+  "main": "build/onui.module.js",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
@@ -25,13 +25,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/onsightengine/osui.git"
+    "url": "git+https://github.com/onsightengine/onui.git"
   },
   "author": "Stephens Nunnally <stephens@scidian.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/onsightengine/osui/issues"
+    "url": "https://github.com/onsightengine/onui/issues"
   },
-  "homepage": "https://github.com/onsightengine/osui",
+  "homepage": "https://github.com/onsightengine/onui",
   "private": false
 }

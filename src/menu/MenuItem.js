@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Osui
+// @description Onui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/osui
+// @source      https://github.com/onsightengine/onui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
@@ -15,7 +15,7 @@ import { VectorBox } from '../layout/VectorBox.js';
 
 import { IMAGE_CHECK, IMAGE_EMPTY } from '../constants.js';
 
-/** Menu item, hook into 'click' event (dispatched by OSUI.Menu) to process menu item user interaction */
+/** Menu item, hook into 'click' event (dispatched by ONUI.Menu) to process menu item user interaction */
 class MenuItem extends Div {
 
     constructor(text = undefined, icon = undefined, shortcutText = undefined) {
@@ -105,18 +105,18 @@ class MenuItem extends Div {
     ////////////////////
 
     /** Attaches a sub menu, first removes any previously attached sub menu */
-    attachSubMenu(osuiMenu) {
+    attachSubMenu(onuiMenu) {
         // Verify element is a .Menu
-        if (osuiMenu.hasClass('Menu') === false) return this;
+        if (onuiMenu.hasClass('Menu') === false) return this;
 
         // Add Animation
-        osuiMenu.addClass('SlideDown');
+        onuiMenu.addClass('SlideDown');
 
         // Remove any existing sub menu, add new sub menu
         this.removeSubMenu();
         this.addClass('SubMenuItem');
-        this.add(osuiMenu);
-        this.subMenu = osuiMenu;
+        this.add(onuiMenu);
+        this.subMenu = onuiMenu;
         return this;
     }
 
@@ -125,17 +125,17 @@ class MenuItem extends Div {
     }
 
     /**
-     * Remove any attached sub menu, returns osuiMenu that was attached
+     * Remove any attached sub menu, returns onuiMenu that was attached
      */
     removeSubMenu() {
         this.removeClass('SubMenuItem');
-        const osuiMenu = this.subMenu;
+        const onuiMenu = this.subMenu;
         this.subMenu = undefined;
         for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
             let child = this.contents().dom.children[i];
             if (child.classList.contains('Menu')) this.remove(child);
         }
-        return osuiMenu;
+        return onuiMenu;
     }
 
 }

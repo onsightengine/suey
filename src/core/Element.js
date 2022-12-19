@@ -1,10 +1,10 @@
 /** /////////////////////////////////////////////////////////////////////////////////
 //
-// @description Osui
+// @description Onui
 // @about       Lightweight JavaScript UI library.
 // @author      Stephens Nunnally <@stevinz>
 // @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/osui
+// @source      https://github.com/onsightengine/onui
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 //
@@ -13,7 +13,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-/** Base Class of Osui, the Onsight Gui Library */
+/** Base Class of Onui, the Onsight Gui Library */
 class Element {
 
     constructor(dom) {
@@ -24,152 +24,132 @@ class Element {
         this.dom = dom;                                 // HTML Element
         this.name = undefined;                          // Object Name
 
-        this.contents = function() { return self; }     // Inner Osui Element to be filled with other elements
-        this.children = [];                             // Holds Osui Children (.add / .remove / .clearContents)
+        this.contents = function() { return self; }     // Inner Onui Element to be filled with other elements
+        this.children = [];                             // Holds Onui Children (.add / .remove / .clearContents)
     }
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////   Children
     ////////////////////
 
-    /** Adds to contents() any number of Osui Elements passed as arguments */
+    /** Adds to contents() any number of Onui Elements passed as arguments */
     add(/* any number of Elements to remove */) {
         for (let i = 0; i < arguments.length; i++) {
-            const osuiElement = arguments[i];
+            const onuiElement = arguments[i];
 
-            if (osuiElement instanceof Element && osuiElement.isElement) {
+            if (onuiElement instanceof Element && onuiElement.isElement) {
                 // Add node
-                this.contents().dom.appendChild(osuiElement.dom);
+                this.contents().dom.appendChild(onuiElement.dom);
 
                 // Add to child array if not already there
                 let hasIt = false;
                 for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(osuiElement.dom)) {
+                    if (this.contents().children[j].dom.isSameNode(onuiElement.dom)) {
                         hasIt = true;
                         break;
                     }
                 }
-                if (! hasIt) this.contents().children.push(osuiElement);
+                if (! hasIt) this.contents().children.push(onuiElement);
 
                 // Set child to have this Element as parent
-                osuiElement.parent = this;
+                onuiElement.parent = this;
             } else {
-                console.error('Element.add:', osuiElement, 'is not an instance of Osui Element.');
+                console.error('Element.add:', onuiElement, 'is not an instance of Onui Element.');
             }
         }
         return this;
     }
 
-    /** Removes any number of Elements or Dom Nodes passed as arguments from contents() or base Element */
-    remove(/* any number of Elements to remove */) {
-        for (let i = 0; i < arguments.length; i++) {
-            const osuiElement = arguments[i];
-            let removed = false;
+    /** Returns true if element was removed */
+    static remove(parent, element) {
 
-            // Attempt to remove Element from contents()
-            if (! removed) {
-                // Element
-                if (osuiElement instanceof Element && osuiElement.isElement) {
-                    for (let j = 0; j < this.contents().children.length; j++) {
-                        const childElement = this.contents().children[j];
-                        if (childElement.dom.isSameNode(osuiElement.dom)) {
-                            childElement.clear();
-                            this.contents().children.splice(j, 1);
-                            removed = true;
-                            break;
-                        }
-                    }
-                }
-                // Dom Node
-                if (osuiElement.dom) {
-                    if (osuiElement.dom.dispose && typeof osuiElement.dom.dispose === 'function') osuiElement.dom.dispose();
-                    try {
-                        this.contents().dom.removeChild(osuiElement.dom);
-                        removed = true;
-                    } catch (exception) {
-                        // console.log(`Element.remove: Could not remove child from contents!`);
-                    }
-                }
-            }
+        // Onui Element
+        if (element && element.isElement) {
+            for (let i = 0; i < parent.children.length; i++) {
+                const child = parent.children[i];
 
-            // Didn't find in contents, attempt removal from base
-            if (! removed) {
-                // Element
-                if (osuiElement instanceof Element && osuiElement.isElement) {
-                    for (let j = 0; j < this.children.length; j++) {
-                        const childElement = this.children[j];
-                        if (childElement.dom.isSameNode(osuiElement.dom)) {
-                            childElement.clear();
-                            this.children.splice(j, 1);
-                            break;
-                        }
-                    }
-                }
-                // Dom Node
-                if (osuiElement.dom) {
-                    if (osuiElement.dom.dispose && typeof osuiElement.dom.dispose === 'function') osuiElement.dom.dispose();
-                    try {
-                        this.dom.removeChild(osuiElement.dom);
-                    } catch (exception) {
-                        console.log(`Element.remove: Could not remove child!`);
-                    }
+                if (element.dom.isSameNode(child.dom)) {
+                    Element.clear(element);
+                    parent.children.splice(j, 1);
+                    return true;
                 }
             }
         }
 
+        // Dom Node
+        try {
+            parent.dom.removeChild(element);
+            Element.clear(element);
+            return true;
+        } catch (exception) {
+            // REMOVE FAILED
+        }
+
+        return false;
+    }
+
+    /** Removes any number of Elements or Dom Nodes passed as arguments from contents() or base children */
+    remove(/* any number of Elements to remove */) {
+        for (let i = 0; i < arguments.length; i++) {
+            const element = arguments[i];
+
+            // Attempt to remove Element from contents()
+            let removed = Element.remove(this.contents(), element);
+
+            // Didn't find in contents, attempt removal from base
+            if (! removed) removed = Element.remove(this, element);
+
+            // Could not remove
+            if (! removed) console.log(`Element.remove: Could not remove child!`);
+        }
         return this;
+    }
+
+    static clear(element, dispose = true) {
+        if (! element) return;
+
+        // Clears Dom Element children
+        function clearDomChildren(dom) {
+            if (! dom.children) return;
+            for (let i = dom.children.length - 1; i >= 0; i--) {
+                const child = dom.children[i];
+                Element.clear(child);
+                try { dom.removeChild(child); } catch (e) { /* FAILED TO REMOVE */ }
+            }
+        }
+
+        // Onui Element
+        if (element.isElement) {
+            // Recursively remove all known Onui Children
+            for (let i = 0; i < element.children.length; i++) {
+                const child = element.children[i];
+                Element.clear(child);
+            }
+            element.children.length = 0;
+
+            // Recursively remove all known Html Elements
+            clearDomChildren(element.dom);
+
+        // Html Node
+        } else {
+            clearDomChildren(element);
+        }
+
+        // Call 'dispose' if implemented
+        if (! dispose) return;
+        if (element.dispose && typeof element.dispose === 'function') element.dispose();
+        if (element.dom && element.dom.dispose && typeof element.dom.dispose === 'function') element.dom.dispose();
     }
 
     /** Removes all children DOM elements from element's 'contents' only */
     clearContents() {
-        // Recursively remove all known Osui children
-        for (let i = 0; i < this.contents().children.length; i++) {
-            const childElement = this.contents().children[i];
-            childElement.clear();
-        }
-        this.contents().children.length = 0;
-
-        // Additionally removed any Dom Nodes that were not of Osui Element type
-        if (this.contents().dom) {
-            for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
-                const domChild = this.contents().dom.children[i];
-
-                if (domChild.dispose && typeof domChild.dispose === 'function') domChild.dispose();
-                try {
-                    this.contents().dom.removeChild(domChild);
-                } catch (exception) {
-                    console.log(`Element.clearContents: Could not remove child!`);
-                }
-            }
-        }
-
+        Element.clear(this.contents(), false /* dipose */);
         return this;
     }
 
     /** Removes all children DOM elements from this element */
     clear() {
-        // Call 'dispose' if implemented
-        if (this.dispose && typeof this.dispose === 'function') this.dispose();
-
-        // Recursively remove all known Osui children
-        for (let i = 0; i < this.children.length; i++) {
-            this.children[i].clear();
-        }
-        this.children.length = 0;
-
-        // Additionally removed any html elements that were not of Osui type
-        if (this.dom) {
-            for (let i = this.dom.children.length - 1; i >= 0; i--) {
-                const child = this.dom.children[i];
-                if (child.dispose && typeof child.dispose === 'function') child.dispose();
-                try {
-                    this.dom.removeChild(child);
-                } catch (exception) {
-                    console.log(`Element.clear: Could not remove child!`);
-                }
-            }
-        }
-
+        Element.clear(this);
         return this;
     }
 
