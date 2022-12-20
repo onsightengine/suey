@@ -1,15 +1,13 @@
 <div align="center">
 <img src="./files/logo/osui256.png" alt="Onsight UI Library"/>
+</div>
 
-<br>
-
-<h1>Osui</h1>
+# Osui
 
 The Onsight UI Library. A lightweight, modular UI library based on native HTML5 components.
 
-<br><br>
+## Status
 
-<p style="font-style: italic; font-size: larger;">Under development, more info to come...</p>
+Under heavy development, more info to come...
 
-<br><br>
-</div>
+<br>
