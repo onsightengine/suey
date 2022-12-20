@@ -107,8 +107,8 @@ class Menu extends Div {
 
         // If base / parent menu, add document event handler
         if (parentDom.classList.contains('MenuButton')) {
-            document.addEventListener('pointerdown', onPointerDown, false);
-            document.addEventListener('keydown', onKeyDown, false);
+            document.addEventListener('pointerdown', onPointerDown);
+            document.addEventListener('keydown', onKeyDown);
         }
 
         //////////////////// Mouse Down, closes menu on 'document' click

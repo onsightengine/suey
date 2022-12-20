@@ -34,6 +34,7 @@ class Panel extends Div {
 
     constructor(style = PANEL_STYLES.NONE) {
         super();
+        const self = this;
         this.setPointerEvents('auto');
         this.setClass('Panel');
         this.contents = function() { return this; }
@@ -58,7 +59,11 @@ class Panel extends Div {
         ///// Events
 
         // Disable Context Menu
-        this.dom.addEventListener('contextmenu', function(event) { event.preventDefault(); });
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+
+        this.onContextMenu(onContextMenu);
 
     }
 

@@ -144,14 +144,8 @@ class TreeList extends Div {
         this._shiftTrack = [];              // tracks selected values when shift key is starting to be held
 
         // Add Events
-        this.dom.addEventListener('keydown', onKeyDown);
-        this.dom.addEventListener('keyup', onKeyUp);
-
-        // Remove Events
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('keydown', onKeyDown);
-            self.dom.addEventListener('keydown', onKeyUp);
-        }, { once: true });
+        this.onKeyDown(onKeyDown);
+        this.onKeyUp(onKeyUp);
 
     }
 
@@ -382,12 +376,13 @@ class TreeList extends Div {
 
             div.addEventListener('destroy', function() {
                 div.removeEventListener('pointerdown', onPointerDown);
-                if (! div.draggable) return;
-                div.removeEventListener('drag', onDrag);
-                div.removeEventListener('dragstart', onDragStart);
-                div.removeEventListener('dragover', onDragOver);
-                div.removeEventListener('dragleave', onDragLeave);
-                div.removeEventListener('drop', onDrop);
+                if (div.draggable === true) {
+                    div.removeEventListener('drag', onDrag);
+                    div.removeEventListener('dragstart', onDragStart);
+                    div.removeEventListener('dragover', onDragOver);
+                    div.removeEventListener('dragleave', onDragLeave);
+                    div.removeEventListener('drop', onDrop);
+                }
             }, { once: true });
         }
 

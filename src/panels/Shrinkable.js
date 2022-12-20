@@ -42,10 +42,14 @@ class Shrinkable extends Panel {
         this.contents = function() { return self.bodyDiv };            	// This is the accessor for the body div
         this.setExpanded(true);
 
-        // Events
-        title.dom.addEventListener('click', function() {
+        ///// Events
+
+        function onClick() {
             self.toggle();
-        });
+        }
+
+        title.onClick(onClick);
+
     }
 
     setExpanded(expand = true) {

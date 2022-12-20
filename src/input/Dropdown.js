@@ -60,7 +60,8 @@ class Dropdown extends Button {
             }
         }
 
-        this.dom.addEventListener('wheel', onWheel, false);
+        this.onWheel(onWheel);
+
     }
 
     /** Get sub menu item by key value */

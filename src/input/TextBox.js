@@ -25,19 +25,30 @@ class TextBox extends Element {
         this.dom.setAttribute('autocomplete', 'off');
         this.dom.setAttribute('spellcheck', 'false');
 
-        this.dom.addEventListener('keydown', function(event) {
+        this.setValue(text);
+
+        ///// Events
+
+        function onKeyDown(event) {
             event.stopPropagation();
 
             if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
-                if (event.shiftKey) { editor.redo(); } else { editor.undo(); }
-                return;
+                if (event.shiftKey) {
+                    editor.redo();
+                } else {
+                    editor.undo();
+                }
             }
+        }
 
-        }, false);
-        this.dom.addEventListener('keyup', function(event) { event.stopPropagation(); }, false);
+        function onKeyUp(event) {
+            event.stopPropagation();
+        }
 
-        this.setValue(text);
+        this.onKeyDown(onKeyDown);
+        this.onKeyUp(onKeyUp);
+
     }
 
     getValue() {

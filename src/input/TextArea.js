@@ -20,7 +20,9 @@ class TextArea extends Element {
         this.dom.spellcheck = false;
         this.dom.setAttribute('autocomplete', 'off');
 
-        this.dom.addEventListener('keydown', function(event) {
+        ///// Events
+
+        function onKeyDown(event) {
             event.stopPropagation();
             if (event.keyCode === 9) {
                 event.preventDefault();
@@ -29,7 +31,10 @@ class TextArea extends Element {
                 this.selectionStart = cursor + 1;
                 this.selectionEnd = this.selectionStart;
             }
-        }, false);
+        }
+
+        this.onKeyDown(onKeyDown);
+
     }
 
     getValue() {

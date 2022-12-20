@@ -36,11 +36,11 @@ class Color extends Button {
 
         ///// Child Element Events
 
-        function colorBoxPointerDown(event) {
+        function colorBoxPointerDown() {
             self.addClass('Selected');
         }
 
-        function colorBoxInput(event) {
+        function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
         }
@@ -49,8 +49,8 @@ class Color extends Button {
             self.removeClass('Selected');
         }
 
-        colorBox.dom.addEventListener('pointerdown', colorBoxPointerDown);
-        colorBox.dom.addEventListener('input', colorBoxInput);
+        colorBox.onPointerDown(colorBoxPointerDown);
+        colorBox.onInput(colorBoxInput);
         colorBox.dom.addEventListener('blur', colorBoxBlur);
 
         ///// Member Functions
@@ -83,14 +83,6 @@ class Color extends Button {
         ///// Init
 
         this.setHexValue(0xffffff);
-
-        ///// Destroy
-
-        this.dom.addEventListener('destroy', function() {
-            colorBox.dom.removeEventListener('pointerdown', colorBoxPointerDown);
-            colorBox.dom.removeEventListener('input', colorBoxInput);
-            colorBox.dom.removeEventListener('blur', colorBoxBlur);
-        }, { once: true });
 
     }
 

@@ -56,7 +56,6 @@ class Slider extends Div {
             slider.dom.style.setProperty('--middle', `${parseFloat((val - min) / (max - min))}`);
         }
 
-        ///// Mouse Wheel
         function sliderWheel(event) {
             if (! slider.dom) return;
             event.preventDefault();
@@ -76,15 +75,8 @@ class Slider extends Div {
             slider.dom.dispatchEvent(_changeEvent);
         }
 
-        // Add Events
-        slider.dom.addEventListener('input', sliderInput);
-        slider.dom.addEventListener('wheel', sliderWheel);
-
-        // Remove Events
-        this.dom.addEventListener('destroy', function() {
-            slider.dom.addEventListener('input', sliderInput);
-            slider.dom.removeEventListener('wheel', sliderWheel);
-        }, { once: true });
+        slider.onInput(sliderInput);
+        slider.onWheel(sliderWheel);
 
     }
 

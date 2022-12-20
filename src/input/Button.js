@@ -33,16 +33,17 @@ class Button extends Element {
             set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
         });
 
-        this.dom.addEventListener('pointerdown', () => {
-            // Hide Tooltip
+        ///// Events
+
+        function hideTooltip() {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
-        }, false);
+        }
+
+        this.onPointerDown(hideTooltip);
 
         this.dom.addEventListener('destroy', function() {
-            if (self.attachedMenu) {
-                self.detachMenu();
-            }
+            if (self.attachedMenu) self.detachMenu();
         }, { once: true });
 
     }
@@ -58,7 +59,7 @@ class Button extends Element {
 
         ///// Add menu to document, add event handler
         document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', onPointerDown, false);
+        this.dom.addEventListener('pointerdown', onPointerDown);
 
         ////////////////////
         /////	DOM Watcher, more info: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
@@ -90,7 +91,7 @@ class Button extends Element {
         observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
 
         ///// Handle document resize / positioning
-        window.addEventListener('resize', popMenu, false);
+        window.addEventListener('resize', popMenu);
 
         ///// Pop this menu (calculate proper positioning)
         function popMenu() {
@@ -128,8 +129,8 @@ class Button extends Element {
         this.detachMenu = function() {
             if (self.hasClass('MenuButton') === false) return;
             self.removeClass('MenuButton');
-            window.removeEventListener('resize', popMenu, false);
-            self.dom.removeEventListener('pointerdown', onPointerDown, false);
+            window.removeEventListener('resize', popMenu);
+            self.dom.removeEventListener('pointerdown', onPointerDown);
             self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;

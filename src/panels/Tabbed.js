@@ -282,12 +282,14 @@ class TabButton extends Div {
             this.iconVector.setStyle('background-image', bgImage);
         }
 
-        ///// Click Handler
+        ///// Events
 
-        this.dom.addEventListener('click', function() {
+        function onClick() {
             parent.selectTab(self.dom.id, self.count, true);
             if (window.signals) signals.windowResize.dispatch();
-        });
+        }
+
+        this.onClick(onClick);
 
     } // end ctor
 

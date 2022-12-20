@@ -34,10 +34,16 @@ class MenuItem extends Div {
         this.disabled = false;
         this.subMenu = undefined;
 
-        ////////// Disable Context Menu
-        this.dom.addEventListener('contextmenu', function(event) { event.preventDefault(); });
+        ///// Disable Context Menu
 
-        ////////// On Mouse Enter, hide all sub menus, show this sub menu
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+
+        this.onContextMenu(onContextMenu);
+
+        ///// On Mouse Enter (hide all sub menus, show this sub menu)
+
         this.onPointerEnter((event) => {
             // // Don't process menu items that don't have sub menus
             // if (this.subMenu == undefined) return;
@@ -53,9 +59,10 @@ class MenuItem extends Div {
             this.subMenu?.showMenu(this.dom);
         });
 
-        ////////// Text, Unselectable
+        // Text, Unselectable
         this.setText(text);
         this.selectable(false);
+
     }
 
     /////////////////////////////////////////////////////////////////////////////////////

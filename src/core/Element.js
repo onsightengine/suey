@@ -414,19 +414,25 @@ Object.defineProperties(Element.prototype, {
 /////////////////////////////////////////////////////////////////////////////////////
 
 const events = [
-    'Change', 'Input',
+    'Change', 'Input', 'Wheel',
     'KeyUp', 'KeyDown',
-    'Click', 'DblClick',
+    'Click', 'DblClick', 'ContextMenu',
     'PointerDown', 'PointerMove', 'PointerUp',
     'PointerEnter', 'PointerLeave', 'PointerOut', 'PointerOver', 'PointerCancel',
 ];
 
 events.forEach(function(event) {
     const method = 'on' + event;
+
     Element.prototype[method] = function(callback) {
-        this.dom.addEventListener(event.toLowerCase(), callback.bind(this), false);
+        const eventName = event.toLowerCase();
+        const eventHandler = callback.bind(this);
+        const dom = this.dom;
+        dom.addEventListener(eventName, eventHandler);
+        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
         return this;
     };
+
 });
 
 /////////////////////////////////////////////////////////////////////////////////////
