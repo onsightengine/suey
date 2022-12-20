@@ -285,8 +285,8 @@ function addToParent(parent, element) {
         }
         if (! hasIt) parent.children.push(element);
 
-        // Set child to have this Element as parent
-        element.parent = this;
+        // Set element parent
+        element.parent = parent;
 
     // Html Node?
     } else {

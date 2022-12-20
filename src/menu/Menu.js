@@ -25,6 +25,8 @@ class Menu extends Div {
         super();
         this.setClass('Menu');
 
+        ////////// Mouse Area
+
         this.mouseSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         this.mouseSvg.setAttribute('class', 'MenuMouseTriangle');
         // this.mouseSvg.setAttribute('style', 'border: 1px solid black');      // NOTE: Un-comment to see container
@@ -36,6 +38,7 @@ class Menu extends Div {
         this.mouseArea.setAttribute('opacity', '0.0');                          // NOTE: Comment out to see triangle
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
+
     }
 
     /** Is Shown? */
@@ -57,7 +60,8 @@ class Menu extends Div {
         // Makes sure any click after click that opened menu will close menu
         this.clickCount = 0;
 
-        //////////////////// Attach mouse area polygon if this menu is a child of another menu
+        ///// Attach mouse area polygon if this menu is a child of another menu
+
         if (Html.isChildOfElementWithClass(this.dom, 'Menu')) {
             // Turn off mouse events temporarily while when give menu time to animate
             this.mouseArea.setAttribute('pointer-events', 'none');
@@ -70,8 +74,10 @@ class Menu extends Div {
             setTimeout(() => { this.updateMouseArea(); }, timeFloat);
         }
 
-        //////////////////// Close Menu
+        ///// Close Menu
+
         this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
+
             // Close children menus and attached sub menus
             this.traverse((child) => {
                 // Don't close menus that are children of 'dontCloseChildrenOf'
@@ -111,7 +117,8 @@ class Menu extends Div {
             document.addEventListener('keydown', onKeyDown);
         }
 
-        //////////////////// Mouse Down, closes menu on 'document' click
+        ///// Mouse Down, closes menu on 'document' click
+
         function onPointerDown(event) {
             let menuShouldClose = true;
 
@@ -147,7 +154,8 @@ class Menu extends Div {
             }
         }
 
-        //////////////////// Key Down, watch for 'Escape'
+        ///// Key Down, watch for 'Escape'
+
         function onKeyDown(event) {
             switch (event.code) {
                 case 'Escape': self.closeMenu(); break;

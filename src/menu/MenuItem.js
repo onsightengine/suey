@@ -20,9 +20,11 @@ class MenuItem extends Div {
 
     constructor(text = undefined, icon = undefined, shortcutText = undefined) {
         super();
+        const self = this;
         this.setClass('MenuItem');
         this.setName(text);
 
+        // Build
         this.divIcon = new VectorBox(icon);
         this.divIconHolder = new Div().add(this.divIcon).setClass('MenuIcon');
         this.divText = new Div().setClass('MenuText');
@@ -30,6 +32,7 @@ class MenuItem extends Div {
         this.divShortcut = new MenuShortcut(shortcutText);
         this.add(new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut));
 
+        // Properties
         this.checked = false;
         this.disabled = false;
         this.subMenu = undefined;
@@ -44,20 +47,20 @@ class MenuItem extends Div {
 
         ///// On Mouse Enter (hide all sub menus, show this sub menu)
 
-        this.onPointerEnter((event) => {
+        this.onPointerEnter(() => {
             // // Don't process menu items that don't have sub menus
             // if (this.subMenu == undefined) return;
 
             // Have parent menu hide all other children menus
-            let parentMenu = this.parent;
+            let parentMenu = self.parent;
             while (parentMenu && (parentMenu.hasClass('Menu') === false)) parentMenu = parentMenu.parent;
-            if (parentMenu && parentMenu.closeMenu) {
-                parentMenu.closeMenu(false, this.dom);
-            }
+            if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
 
             // Show our sub menu
-            this.subMenu?.showMenu(this.dom);
+            if (self.subMenu) self.subMenu.showMenu(self.dom);
         });
+
+        ///// Initialize
 
         // Text, Unselectable
         this.setText(text);
