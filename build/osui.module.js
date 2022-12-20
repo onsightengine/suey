@@ -210,84 +210,35 @@ class Element {
         this.contents = function() { return self; };
         this.children = [];
     }
+    destroy() {
+        clearChildren(this, true );
+        return this;
+    }
     add() {
         for (let i = 0; i < arguments.length; i++) {
-            const osuiElement = arguments[i];
-            if (osuiElement instanceof Element && osuiElement.isElement) {
-                this.contents().dom.appendChild(osuiElement.dom);
-                let hasIt = false;
-                for (let j = 0; j < this.contents().children.length; j++) {
-                    if (this.contents().children[j].dom.isSameNode(osuiElement.dom)) {
-                        hasIt = true;
-                        break;
-                    }
-                }
-                if (! hasIt) this.contents().children.push(osuiElement);
-                osuiElement.parent = this;
-            } else {
-                console.error('Element.add:', osuiElement, 'is not an instance of Osui Element.');
-            }
+            const element = arguments[i];
+            addToParent(this.contents(), element);
         }
         return this;
     }
-    static remove(parent, element) {
-        if (element && element.isElement) {
-            for (let i = 0; i < parent.children.length; i++) {
-                const child = parent.children[i];
-                if (element.dom.isSameNode(child.dom)) {
-                    Element.clear(element);
-                    parent.children.splice(j, 1);
-                    return true;
-                }
-            }
+    addToSelf() {
+        for (let i = 0; i < arguments.length; i++) {
+            const element = arguments[i];
+            addToParent(this, element);
         }
-        try {
-            parent.dom.removeChild(element);
-            Element.clear(element);
-            return true;
-        } catch (exception) {
-        }
-        return false;
+        return this;
+    }
+    clearContents() {
+        clearChildren(this.contents(), false );
+        return this;
     }
     remove() {
         for (let i = 0; i < arguments.length; i++) {
             const element = arguments[i];
-            let removed = Element.remove(this.contents(), element);
-            if (! removed) removed = Element.remove(this, element);
-            if (! removed) console.log(`Element.remove: Could not remove child!`);
+            let removed = removeFromParent(this.contents(), element);
+            if (! removed) removed = removeFromParent(this, element);
+            if (! removed) console.log(`Element.removeFromParent: Could not remove child!`);
         }
-        return this;
-    }
-    static clear(element, dispose = true) {
-        if (! element) return;
-        function clearDomChildren(dom) {
-            if (! dom.children) return;
-            for (let i = dom.children.length - 1; i >= 0; i--) {
-                const child = dom.children[i];
-                Element.clear(child);
-                try { dom.removeChild(child); } catch (e) {  }
-            }
-        }
-        if (element.isElement) {
-            for (let i = 0; i < element.children.length; i++) {
-                const child = element.children[i];
-                Element.clear(child);
-            }
-            element.children.length = 0;
-            clearDomChildren(element.dom);
-        } else {
-            clearDomChildren(element);
-        }
-        if (! dispose) return;
-        if (element.dispose && typeof element.dispose === 'function') element.dispose();
-        if (element.dom && element.dom.dispose && typeof element.dom.dispose === 'function') element.dom.dispose();
-    }
-    clearContents() {
-        Element.clear(this.contents(), false );
-        return this;
-    }
-    clear() {
-        Element.clear(this);
         return this;
     }
     setClass(className) {
@@ -405,6 +356,78 @@ class Element {
         }
     }
 }
+function addToParent(parent, element) {
+    if (! element) return;
+    if (element.isElement) {
+        parent.dom.appendChild(element.dom);
+        let hasIt = false;
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i];
+            if (child.dom.isSameNode(element.dom)) {
+                hasIt = true;
+                break;
+            }
+        }
+        if (! hasIt) parent.children.push(element);
+        element.parent = parent;
+    } else {
+        try {
+            parent.dom.appendChild(element);
+        } catch (exception) {
+        }
+    }
+}
+function clearElementChildren(osui) {
+    for (let i = 0; i < osui.children.length; i++) {
+        const child = osui.children[i];
+        clearChildren(child, true );
+    }
+    osui.children.length = 0;
+}
+function clearDomChildren(dom) {
+    if (! dom.children) return;
+    for (let i = dom.children.length - 1; i >= 0; i--) {
+        const child = dom.children[i];
+        clearChildren(child, true );
+        try { dom.removeChild(child); } catch (e) {  }
+    }
+}
+function clearChildren(element, destroy = true) {
+    if (! element) return;
+    if (element.isElement) {
+        clearElementChildren(element);
+        clearDomChildren(element.dom);
+        if (destroy && element.dom && element.dom.dispatchEvent) {
+            element.dom.dispatchEvent(new Event('destroy'));
+        }
+    } else {
+        clearDomChildren(element);
+        if (destroy && element && element.dispatchEvent) {
+            element.dispatchEvent(new Event('destroy'));
+        }
+    }
+}
+function removeFromParent(parent, element) {
+    if (! element) return;
+    if (element.isElement) {
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i];
+            if (child.dom.isSameNode(element.dom)) {
+                clearChildren(element);
+                parent.children.splice(j, 1);
+                element.parent = undefined;
+                return true;
+            }
+        }
+    }
+    clearChildren(element);
+    try {
+        parent.dom.removeChild(element);
+        return true;
+    } catch (exception) {
+    }
+    return false;
+}
 const properties = [
     'display', 'flex', 'overflow', 'visibility',
     'position', 'left', 'top', 'right', 'bottom', 'width', 'height',
@@ -428,16 +451,20 @@ Object.defineProperties(Element.prototype, {
     },
 });
 const events = [
-    'Change', 'Input',
+    'Change', 'Input', 'Wheel',
     'KeyUp', 'KeyDown',
-    'Click', 'DblClick',
+    'Click', 'DblClick', 'ContextMenu',
     'PointerDown', 'PointerMove', 'PointerUp',
     'PointerEnter', 'PointerLeave', 'PointerOut', 'PointerOver', 'PointerCancel',
 ];
 events.forEach(function(event) {
     const method = 'on' + event;
     Element.prototype[method] = function(callback) {
-        this.dom.addEventListener(event.toLowerCase(), callback.bind(this), false);
+        const eventName = event.toLowerCase();
+        const eventHandler = callback.bind(this);
+        const dom = this.dom;
+        dom.addEventListener(eventName, eventHandler);
+        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
         return this;
     };
 });
@@ -732,12 +759,8 @@ class TreeList extends Div {
         this.selectedValues = [];
         this._shiftAdd = 0;
         this._shiftTrack = [];
-        this.dom.addEventListener('keydown', onKeyDown);
-        this.dom.addEventListener('keyup', onKeyUp);
-        this.dispose = function() {
-            this.dom.removeEventListener('keydown', onKeyDown);
-            this.dom.addEventListener('keydown', onKeyUp);
-        };
+        this.onKeyDown(onKeyDown);
+        this.onKeyUp(onKeyUp);
     }
     getIndex(value) {
         for (let i = 0; i < this.options.length; i++) {
@@ -881,18 +904,16 @@ class TreeList extends Div {
                 div.addEventListener('dragleave', onDragLeave);
                 div.addEventListener('drop', onDrop);
             }
-            if (! div.dispose) {
-                div.dispose = function() {
-                    div.removeEventListener('pointerdown', onPointerDown);
-                    if (div.draggable === true) {
-                        div.removeEventListener('drag', onDrag);
-                        div.removeEventListener('dragstart', onDragStart);
-                        div.removeEventListener('dragover', onDragOver);
-                        div.removeEventListener('dragleave', onDragLeave);
-                        div.removeEventListener('drop', onDrop);
-                    }
-                };
-            }
+            div.addEventListener('destroy', function() {
+                div.removeEventListener('pointerdown', onPointerDown);
+                if (div.draggable === true) {
+                    div.removeEventListener('drag', onDrag);
+                    div.removeEventListener('dragstart', onDragStart);
+                    div.removeEventListener('dragover', onDragOver);
+                    div.removeEventListener('dragleave', onDragLeave);
+                    div.removeEventListener('drop', onDrop);
+                }
+            }, { once: true });
         }
         return this;
     }
@@ -913,10 +934,14 @@ class Button extends Element {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
             set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
         });
-        this.dom.addEventListener('pointerdown', () => {
+        function hideTooltip() {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
-        }, false);
+        }
+        this.onPointerDown(hideTooltip);
+        this.dom.addEventListener('destroy', function() {
+            if (self.attachedMenu) self.detachMenu();
+        }, { once: true });
     }
     attachMenu(osuiMenu) {
         const self = this;
@@ -924,7 +949,7 @@ class Button extends Element {
         this.addClass('MenuButton');
         this.attachedMenu = osuiMenu;
         document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', onPointerDown, false);
+        this.dom.addEventListener('pointerdown', onPointerDown);
         const observer = new MutationObserver((mutations, observer) => {
             if (document.contains(this.dom)) {
                 popMenu();
@@ -932,7 +957,7 @@ class Button extends Element {
             }
         });
         observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
-        window.addEventListener('resize', popMenu, false);
+        window.addEventListener('resize', popMenu);
         function popMenu() {
             const popped = Popper.popUnder(
                 osuiMenu.dom,
@@ -960,17 +985,12 @@ class Button extends Element {
         this.detachMenu = function() {
             if (self.hasClass('MenuButton') === false) return;
             self.removeClass('MenuButton');
-            window.removeEventListener('resize', popMenu, false);
-            self.dom.removeEventListener('pointerdown', onPointerDown, false);
-            self.attachedMenu.clear();
+            window.removeEventListener('resize', popMenu);
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
         };
-    }
-    dispose() {
-        if (this.attachedMenu) {
-            this.detachMenu();
-        }
     }
 }
 
@@ -1009,18 +1029,18 @@ class Color extends Button {
         const colorBackground = new Div().addClass('DropColor');
         colorBackground.setStyle('backgroundColor', colorBox.dom.value);
         this.add(colorBackground);
-        function colorBoxPointerDown(event) {
+        function colorBoxPointerDown() {
             self.addClass('Selected');
         }
-        function colorBoxInput(event) {
+        function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
         }
         function colorBoxBlur() {
             self.removeClass('Selected');
         }
-        colorBox.dom.addEventListener('pointerdown', colorBoxPointerDown);
-        colorBox.dom.addEventListener('input', colorBoxInput);
+        colorBox.onPointerDown(colorBoxPointerDown);
+        colorBox.onInput(colorBoxInput);
         colorBox.dom.addEventListener('blur', colorBoxBlur);
         this.getValue = function() {
             if (! colorBox.dom) return 0;
@@ -1044,11 +1064,6 @@ class Color extends Button {
             return this;
         };
         this.setHexValue(0xffffff);
-        this.dispose = function() {
-            colorBox.dom.removeEventListener('pointerdown', colorBoxPointerDown);
-            colorBox.dom.removeEventListener('input', colorBoxInput);
-            colorBox.dom.removeEventListener('blur', colorBoxBlur);
-        };
     }
 }
 
@@ -1106,8 +1121,8 @@ class Menu extends Div {
             }
         };
         if (parentDom.classList.contains('MenuButton')) {
-            document.addEventListener('pointerdown', onPointerDown, false);
-            document.addEventListener('keydown', onKeyDown, false);
+            document.addEventListener('pointerdown', onPointerDown);
+            document.addEventListener('keydown', onKeyDown);
         }
         function onPointerDown(event) {
             let menuShouldClose = true;
@@ -1170,7 +1185,7 @@ class MenuShortcut extends Div {
     setShortcutText(text) {
         if (! text) return this;
         this.text = text;
-        this.clear();
+        this.clearContents();
         for (let i = 0; i < text.length; i++) {
             let letter = new Div().setClass('MenuShortcutCharacter');
             let subString = text[i];
@@ -1194,6 +1209,7 @@ class MenuShortcut extends Div {
 class MenuItem extends Div {
     constructor(text = undefined, icon = undefined, shortcutText = undefined) {
         super();
+        const self = this;
         this.setClass('MenuItem');
         this.setName(text);
         this.divIcon = new VectorBox(icon);
@@ -1205,14 +1221,15 @@ class MenuItem extends Div {
         this.checked = false;
         this.disabled = false;
         this.subMenu = undefined;
-        this.dom.addEventListener('contextmenu', function(event) { event.preventDefault(); });
-        this.onPointerEnter((event) => {
-            let parentMenu = this.parent;
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+        this.onContextMenu(onContextMenu);
+        this.onPointerEnter(() => {
+            let parentMenu = self.parent;
             while (parentMenu && (parentMenu.hasClass('Menu') === false)) parentMenu = parentMenu.parent;
-            if (parentMenu && parentMenu.closeMenu) {
-                parentMenu.closeMenu(false, this.dom);
-            }
-            this.subMenu?.showMenu(this.dom);
+            if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
+            if (self.subMenu) self.subMenu.showMenu(self.dom);
         });
         this.setText(text);
         this.selectable(false);
@@ -1306,7 +1323,7 @@ class Dropdown extends Button {
                 }
             }
         }
-        this.dom.addEventListener('wheel', onWheel, false);
+        this.onWheel(onWheel);
     }
     getItemByKey(key) {
         for (let i = 0; i < this.items.length; i++) {
@@ -1415,12 +1432,12 @@ class NumberBox extends Element {
         this.dom.addEventListener('keyup', onKeyUp);
         this.dom.addEventListener('wheel', onWheel);
         this.dom.addEventListener('change', onChange);
-        this.dispose = function() {
+        this.dom.addEventListener('destroy', function() {
             self.dom.removeEventListener('keydown', onKeyDown);
             self.dom.removeEventListener('keyup', onKeyUp);
             self.dom.removeEventListener('wheel', onWheel);
             self.dom.removeEventListener('change', onChange);
-        };
+        }, { once: true });
     }
     getValue() {
         return parseFloat(this.value);
@@ -1548,16 +1565,16 @@ class NumberScroll extends NumberBox {
         this.dom.addEventListener('touchend', onTouchEnd);
         this.dom.addEventListener('focus', onFocus);
         this.dom.addEventListener('blur', onBlur);
-        this.dispose = function() {
-            this.dom.removeEventListener('mousedown', onMouseDown);
-            this.dom.removeEventListener('mousemove', onMouseMove);
-            this.dom.removeEventListener('mouseup', onMouseUp);
-            this.dom.removeEventListener('touchstart', onTouchStart);
-            this.dom.removeEventListener('touchmove', onTouchMove);
-            this.dom.removeEventListener('touchend', onTouchEnd);
-            this.dom.removeEventListener('focus', onFocus);
-            this.dom.removeEventListener('blur', onBlur);
-        };
+        this.dom.addEventListener('destroy', function() {
+            self.dom.removeEventListener('mousedown', onMouseDown);
+            self.dom.removeEventListener('mousemove', onMouseMove);
+            self.dom.removeEventListener('mouseup', onMouseUp);
+            self.dom.removeEventListener('touchstart', onTouchStart);
+            self.dom.removeEventListener('touchmove', onTouchMove);
+            self.dom.removeEventListener('touchend', onTouchEnd);
+            self.dom.removeEventListener('focus', onFocus);
+            self.dom.removeEventListener('blur', onBlur);
+        }, { once: true });
     }
 }
 
@@ -1601,12 +1618,8 @@ class Slider extends Div {
             self.setValue(newValue);
             slider.dom.dispatchEvent(_changeEvent);
         }
-        slider.dom.addEventListener('input', sliderInput);
-        slider.dom.addEventListener('wheel', sliderWheel);
-        this.dispose = function() {
-            slider.dom.addEventListener('input', sliderInput);
-            slider.dom.removeEventListener('wheel', sliderWheel);
-        };
+        slider.onInput(sliderInput);
+        slider.onWheel(sliderWheel);
     }
     getValue() {
         if (! this.slider.dom) return null;
@@ -1681,7 +1694,7 @@ class TextArea extends Element {
         this.setClass('TextArea');
         this.dom.spellcheck = false;
         this.dom.setAttribute('autocomplete', 'off');
-        this.dom.addEventListener('keydown', function(event) {
+        function onKeyDown(event) {
             event.stopPropagation();
             if (event.keyCode === 9) {
                 event.preventDefault();
@@ -1690,7 +1703,8 @@ class TextArea extends Element {
                 this.selectionStart = cursor + 1;
                 this.selectionEnd = this.selectionStart;
             }
-        }, false);
+        }
+        this.onKeyDown(onKeyDown);
     }
     getValue() {
         if (! this.dom) return null;
@@ -1710,16 +1724,23 @@ class TextBox extends Element {
         this.dom.type = 'text';
         this.dom.setAttribute('autocomplete', 'off');
         this.dom.setAttribute('spellcheck', 'false');
-        this.dom.addEventListener('keydown', function(event) {
+        this.setValue(text);
+        function onKeyDown(event) {
             event.stopPropagation();
             if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
-                if (event.shiftKey) { editor.redo(); } else { editor.undo(); }
-                return;
+                if (event.shiftKey) {
+                    editor.redo();
+                } else {
+                    editor.undo();
+                }
             }
-        }, false);
-        this.dom.addEventListener('keyup', function(event) { event.stopPropagation(); }, false);
-        this.setValue(text);
+        }
+        function onKeyUp(event) {
+            event.stopPropagation();
+        }
+        this.onKeyDown(onKeyDown);
+        this.onKeyUp(onKeyUp);
     }
     getValue() {
         if (! this.dom) return null;
@@ -1803,6 +1824,7 @@ const CLOSE_SIDES = {
 class Panel extends Div {
     constructor(style = PANEL_STYLES.NONE) {
         super();
+        const self = this;
         this.setPointerEvents('auto');
         this.setClass('Panel');
         this.contents = function() { return this; };
@@ -1818,7 +1840,10 @@ class Panel extends Div {
             this.add(outerBox);
             this.contents = function() { return insideBox; };
         }
-        this.dom.addEventListener('contextmenu', function(event) { event.preventDefault(); });
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+        this.onContextMenu(onContextMenu);
     }
     makeClosable(closeSide = CLOSE_SIDES.LEFT, sizeScale = 1.1, offsetScale = 1.0) {
         const self = this;
@@ -1876,7 +1901,7 @@ class Panel extends Div {
             this.closeButton.dom.addEventListener('click', clickedClose);
             this.dom.addEventListener('pointerenter', opacityGhost);
             this.dom.addEventListener('pointerleave', opacityTransparent);
-            this.dom.appendChild(this.closeButton.dom);
+            this.addToSelf(this.closeButton);
             return;
         } else if (closeSide === CLOSE_SIDES.NONE) {
             if (! this.closeButton) return;
@@ -2053,13 +2078,13 @@ class Tabbed extends Resizeable {
         if (wasClicked !== true) {
             Css.setVariable('--tab-timing', '0');
         }
-        let tab = this.tabs.find(function(item) { return (item.dom.id === id && item.count === count); });
-        let panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
+        const tab = this.tabs.find(function(item) { return (item.dom.id === id && item.count === count); });
+        const panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
         if (tab && panel) {
-            let currentTab = this.tabs.find(function(item) {
+            const currentTab = this.tabs.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
             });
-            let currentPanel = this.panels.find(function(item) {
+            const currentPanel = this.panels.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
             });
             if (currentTab) currentTab.removeClass('Selected');
@@ -2080,15 +2105,19 @@ class Tabbed extends Resizeable {
         }
         return false;
     }
+    destroy() {
+        this.clearTabs();
+        super.destroy();
+    }
     clearTabs() {
-        if (this.tabsDiv) this.tabsDiv.clear();
-        if (this.panelsDiv) this.panelsDiv.clear();
+        if (this.tabsDiv) this.tabsDiv.clearContents();
+        if (this.panelsDiv) this.panelsDiv.clearContents();
         if (this.tabs) {
-            for (let i = 0; i < this.tabs.length; i++) this.tabs[i].clear();
+            for (let i = 0; i < this.tabs.length; i++) this.tabs[i].destroy();
             this.tabs.length = 0;
         }
         if (this.panels) {
-            for (let i = 0; i < this.panels.length; i++) this.panels[i].clear();
+            for (let i = 0; i < this.panels.length; i++) this.panels[i].destroy();
             this.panels.length = 0;
         }
         this.setStyle('minHeight', '');
@@ -2170,10 +2199,11 @@ class TabButton extends Div {
             const bgImage = `linear-gradient(to bottom left, ${light}, ${dark})`;
             this.iconVector.setStyle('background-image', bgImage);
         }
-        this.dom.addEventListener('click', function() {
+        function onClick() {
             parent.selectTab(self.dom.id, self.count, true);
             if (window.signals) signals.windowResize.dispatch();
-        });
+        }
+        this.onClick(onClick);
     }
 }
 
@@ -2211,16 +2241,6 @@ class Docker extends Div {
             cornerDivs[cornerName] = corner;
             this.add(corner);
         }
-        function windowResizeCallback() {
-            let bottomLeftHeight = 0;
-            for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {
-                bottomLeftHeight += cornerDivs[CORNERS.BOTTOM_LEFT].children[i].getHeight();
-            }
-            let newHeightEm = parseFloat(Css.toEm(bottomLeftHeight)) - 0.175;
-            cornerDivs[CORNERS.TOP_LEFT].setStyle('bottom', `${newHeightEm}em`);
-        }
-        signals.windowResize.add(windowResizeCallback);
-        this.dispose = () => { signals.windowResize.remove(windowResizeCallback); };
         this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
             cornerDivs[cornerName].add(osuiElement);
             if (osuiElement.isElement && osuiElement.hasClass('Tabbed')) {
@@ -2236,6 +2256,18 @@ class Docker extends Div {
                 osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
             }
         };
+        function windowResizeCallback() {
+            let bottomLeftHeight = 0;
+            for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {
+                bottomLeftHeight += cornerDivs[CORNERS.BOTTOM_LEFT].children[i].getHeight();
+            }
+            let newHeightEm = parseFloat(Css.toEm(bottomLeftHeight)) - 0.175;
+            cornerDivs[CORNERS.TOP_LEFT].setStyle('bottom', `${newHeightEm}em`);
+        }
+        signals.windowResize.add(windowResizeCallback);
+        this.dom.addEventListener('destroy', function() {
+            signals.windowResize.remove(windowResizeCallback);
+        }, { once: true });
     }
 }
 
@@ -2308,9 +2340,10 @@ class Shrinkable extends Panel {
         this.bodyDiv = body;
         this.contents = function() { return self.bodyDiv };
         this.setExpanded(true);
-        title.dom.addEventListener('click', function() {
+        function onClick() {
             self.toggle();
-        });
+        }
+        title.onClick(onClick);
     }
     setExpanded(expand = true) {
         this.isExpanded = expand;
