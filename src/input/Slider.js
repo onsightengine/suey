@@ -11,17 +11,9 @@
 import { Element } from '../core/Element.js';
 import { Div } from '../core/Div.js';
 
-///// Constants
-
 const MAX_SLIDER_TICKS = 10;              	// Maximum number of ticks to show on Slider with 'step'
 
-///// Local Variables
-
 const _changeEvent = new Event('change', { 'bubbles': true, 'cancelable': true });
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Slider
-/////////////////////////////////////////////////////////////////////////////////////
 
 class Slider extends Div {
 

@@ -14,16 +14,12 @@ import { FlexBreak } from './FlexBreak.js';
 import { RESIZERS } from '../panels/Resizeable.js';
 import { TAB_SIDES } from '../panels/Tabbed.js';
 
-///// Enumerations
-
 export const CORNERS = {
     TOP_LEFT:       'TopLeft',
     TOP_RIGHT:      'TopRight',
     BOTTOM_LEFT:    'BottomLeft',
     BOTTOM_RIGHT:   'BottomRight',
 };
-
-///// Class
 
 class Docker extends Div {
 

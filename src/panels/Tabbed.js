@@ -14,14 +14,10 @@ import { Panel } from './Panel.js';
 import { Resizeable } from './Resizeable.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
-///// Enumerations
-
 export const TAB_SIDES = {
     LEFT:		'left',
     RIGHT:		'right',
 }
-
-///// Class
 
 class Tabbed extends Resizeable {
 
@@ -198,7 +194,7 @@ class Tabbed extends Resizeable {
 
 }
 
-///// Class
+//////////////////// Tab Button
 
 class TabButton extends Div {
 

@@ -15,14 +15,10 @@ import { Span } from '../core/Span.js';
 import { Text } from '../core/Text.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
-///// Enumerations
-
 export const PROPERTY_SIZE = {
     HALF:	'half',
     THIRD:	'third',
 }
-
-///// Class
 
 class PropertyList extends Div {
 

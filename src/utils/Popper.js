@@ -8,9 +8,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 //
-//  Popper
-//      Determines proper layout within browser window to place pop up div
-//
 //  NOTES:
 //      When seeking window width / height:
 //          document.documentElement.clientHeight   // Returns height of <html> element
@@ -25,11 +22,7 @@
 
 import { Css } from './Css.js';
 
-///// Constants
-
 const EDGE_SPACE = 4;
-
-///// Enumerations
 
 export const ALIGN = {
     LEFT:       'left',
@@ -47,10 +40,6 @@ export const POSITION = {
     OVER:       'over',
     UNDER:      'under',
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Popper
-/////////////////////////////////////////////////////////////////////////////////////
 
 /** Determines proper layout within browser window to place pop up div */
 class Popper {

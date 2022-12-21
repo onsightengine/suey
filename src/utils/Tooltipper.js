@@ -8,9 +8,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 //
-//  Tooltipper
-//      Singleton used to add tooltips to HTML elements
-//
 //  Additional Source(s)
 //      MIT     https://github.com/codewithkyle/tooltipper - v1.1.4, Feb 9, 2022
 //
@@ -24,21 +21,15 @@ import { Popper } from './Popper.js';
 import { ALIGN } from './Popper.js';
 import { TOOLTIP_Y_OFFSET } from '../constants.js';
 
-///// Enumerations
 
 const DEVICE_TYPE = {
     POINTER: 1,
     TOUCH: 2,
 }
 
-///// Local Variables
-
 let _showTimer;
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Tooltipper
-/////////////////////////////////////////////////////////////////////////////////////
-
+/** Singleton used to add tooltips to HTML elements */
 class Tooltipper {
 
     constructor() {

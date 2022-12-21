@@ -8,8 +8,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 //
-//	Additional Source(s)
-//		MIT		https://github.com/mrdoob/three.js/blob/dev/editor/js/libs/ui.three.js (Outliner)
+//  Additional Source(s)
+//      MIT     https://github.com/mrdoob/three.js/blob/dev/editor/js/libs/ui.three.js (Outliner)
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,8 +17,6 @@ import { Div } from '../core/Div.js';
 
 import { Css } from '../utils/Css.js';
 import { Html } from '../utils/Html.js';
-
-///// Class
 
 class TreeList extends Div {
 
@@ -391,9 +389,5 @@ class TreeList extends Div {
     } // end function
 
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Exports
-/////////////////////////////////////////////////////////////////////////////////////
 
 export { TreeList };

@@ -14,8 +14,6 @@ import { ShadowBox } from '../layout/ShadowBox.js';
 
 import { IMAGE_CLOSE } from '../constants.js';
 
-///// Enumerations
-
 export const PANEL_STYLES = {
     NONE:       'none',
     SIMPLE:     'simple',
@@ -27,8 +25,6 @@ export const CLOSE_SIDES = {
     LEFT:		'left',
     RIGHT:		'right',
 }
-
-///// Class
 
 class Panel extends Div {
 

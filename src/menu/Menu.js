@@ -8,16 +8,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////*/
 
+import { Div } from '../core/Div.js';
 import { Css } from '../utils/Css.js';
 import { Html } from '../utils/Html.js';
 
-import { Div } from '../core/Div.js';
-
-///// Constants
-
 const TRIANGLE_SIZE = 3.0;                  // Bigger value is smaller triangle (size = width / TRIANGLE_SIZE)
-
-///// Class
 
 class Menu extends Div {
 

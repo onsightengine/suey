@@ -12,8 +12,6 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
 
-///// Enumerations
-
 export const RESIZERS = {
     TOP:            'Top',
     BOTTOM:     	'Bottom',
@@ -25,8 +23,6 @@ export const RESIZERS = {
     BOTTOM_RIGHT:	'BottomRight',
 };
 
-///// Class
-
 class Resizeable extends Panel {
 
     constructor(style) {
@@ -34,10 +30,10 @@ class Resizeable extends Panel {
         const self = this;
         this.addClass('Resizeable');
 
-        ///// Properties
+        // Properties
         this.wantsWidth = 0;
 
-        ///// Resizers
+        // Resizers
         this.resizer = {};
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
@@ -46,7 +42,7 @@ class Resizeable extends Panel {
             this.add(this.resizer[resizerName]);
         }
 
-        ///// Init Sizes
+        // Init Sizes
         this.setXSizes();
         this.setYSizes();
     }

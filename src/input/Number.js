@@ -10,8 +10,6 @@
 
 import { Element } from '../core/Element.js';
 
-///// Local Variables
-
 const _changeEvent = new Event('change', { 'bubbles': true, 'cancelable': true });
 
 /////////////////////////////////////////////////////////////////////////////////////
