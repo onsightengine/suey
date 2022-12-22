@@ -1,5 +1,5 @@
 /** /////////////////////////////////////////////////////////////////////////////////
-//		ELEMENT: Input (number, text, etc)
+//      ELEMENT: Input (number, text, etc)
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 input {
@@ -7,11 +7,11 @@ input {
     background-color: rgba(var(--background-dark), 0.35);
     box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.25);
 
-	border: var(--border-micro) solid rgba(var(--shadow), 0.5);
+    border: var(--border-micro) solid rgba(var(--shadow), 0.5);
     border-radius: var(--box-radius);
     outline: var(--border-micro) solid rgba(var(--shadow), 0.0);
     padding: var(--pad-x-small) var(--pad-smallish);
-	vertical-align: middle;
+    vertical-align: middle;
     min-width: 1em;
 }
 
@@ -57,7 +57,7 @@ input[type=number] {
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		ELEMENT: Button
+//      ELEMENT: Button
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 button {
@@ -109,8 +109,8 @@ button:not(.Selected):enabled:active {
 
 button.Selected {
     background-image:
-		linear-gradient(to bottom left, rgba(var(--icon-light), 0.20), rgba(var(--icon), 0.20)),
-		linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+        linear-gradient(to bottom left, rgba(var(--icon-light), 0.20), rgba(var(--icon), 0.20)),
+        linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
     box-shadow: var(--sunk-in-shadow);
 }
 
@@ -119,7 +119,7 @@ button:disabled {
 }
 
 button:disabled {
-	filter: contrast(75%) grayscale(100%) brightness(50%);
+    filter: contrast(75%) grayscale(100%) brightness(50%);
 }
 
 /* Little borderless buttons */
@@ -151,7 +151,7 @@ button:disabled {
 }
 
 /** ////////////////
-//		ELEMENT: Input.Checkbox
+//      ELEMENT: Input.Checkbox
 //////////////////*/
 /* Container */
 .Checkbox {
@@ -237,7 +237,7 @@ button:disabled {
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: Drop down buttons and menus
+//      CLASS: Drop down buttons and menus
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 /** Buttons that drop down a 'select' option list  */
@@ -270,7 +270,7 @@ button:disabled {
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .DropArrow (adds a little down arrow on right side of element)
+//      CLASS: .DropArrow (adds a little down arrow on right side of element)
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .DropArrow {
@@ -298,7 +298,7 @@ button:disabled {
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .Number (Number Box)
+//      CLASS: .Number (Number Box)
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .Number {
@@ -306,7 +306,7 @@ button:disabled {
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		ELEMENT: Slider
+//      ELEMENT: Slider
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .SlideContainer {
@@ -409,20 +409,20 @@ button:disabled {
 .Slider::-moz-range-thumb:active { cursor: ew-resize; }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		ELEMENT: Text Area
+//      ELEMENT: Text Area
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 textarea {
     color: rgba(var(--text), 1);
-	background-color: #222;
+    background-color: #222;
     border: var(--pixel) solid rgba(var(--shadow), 1);
     border-radius: var(--box-radius);
     outline: none; /* for macos */
-	padding: var(--border-size) var(--pad-large);
+    padding: var(--border-size) var(--pad-large);
     tab-size: 4;
-	white-space: pre;
-	word-wrap: normal;
-	vertical-align: top;
+    white-space: pre;
+    word-wrap: normal;
+    vertical-align: top;
 }
 
 textarea.success {

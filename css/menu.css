@@ -1,5 +1,5 @@
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .MenuShow (Show menu that was previously hidden)
+//      CLASS: .MenuShow (Show menu that was previously hidden)
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .Menu.MenuShow {
@@ -9,7 +9,7 @@
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .Menu
+//      CLASS: .Menu
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 /* Normal Menu Styling */
@@ -160,75 +160,75 @@
 }
 
 .MenuRight {
-	text-align: left;
-	vertical-align: middle;
-	width: 50%;
+    text-align: left;
+    vertical-align: middle;
+    width: 50%;
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .ToolbarButton
+//      CLASS: .ToolbarButton
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .ToolbarButton {
-	background-repeat: no-repeat;
+    background-repeat: no-repeat;
 
-	background-image:
-		linear-gradient(to bottom left, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5)),
-		linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
-	border: 0;
-	border-radius: var(--border-radius-inner);
-	box-shadow:
-		inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-		inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1); /* pop-out-shadow */
+    background-image:
+        linear-gradient(to bottom left, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5)),
+        linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    border: 0;
+    border-radius: var(--border-radius-inner);
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1); /* pop-out-shadow */
     outline: none; /* for macos */
 
-	position: relative;
-	height: var(--button-size);
-	width: var(--button-size);
+    position: relative;
+    height: var(--button-size);
+    width: var(--button-size);
 
-	min-height: var(--button-size);
-	min-width: var(--button-size);
+    min-height: var(--button-size);
+    min-width: var(--button-size);
 
-	margin-left: var(--pad-x-small);
-	margin-right: var(--pad-x-small);
+    margin-left: var(--pad-x-small);
+    margin-right: var(--pad-x-small);
 
-	opacity: 1.0;
-	overflow: hidden;
-	display: flex;
+    opacity: 1.0;
+    overflow: hidden;
+    display: flex;
 }
 
 .ToolbarButton:not(.Selected):enabled:hover > * {
-	filter: brightness(125%);
+    filter: brightness(125%);
 }
 
 .ToolbarButton:not(.Selected):enabled:hover {
     background-image:
-		linear-gradient(to bottom left, rgba(var(--icon-light), 0.7), rgba(var(--icon), 0.7)),
-		linear-gradient(to bottom left, rgba(var(--shadow), 0.4), rgba(var(--shadow), 0.4));
-	box-shadow:
-		inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.3),
-		inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
+        linear-gradient(to bottom left, rgba(var(--icon-light), 0.7), rgba(var(--icon), 0.7)),
+        linear-gradient(to bottom left, rgba(var(--shadow), 0.4), rgba(var(--shadow), 0.4));
+    box-shadow:
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.3),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
 }
 
 .ToolbarButton:not(.Selected):enabled:active,
 .ToolbarButton.Selected:enabled {
-	background-image:
-		linear-gradient(to bottom left, rgba(var(--icon-light), 0.15), rgba(var(--icon), 0.15)),
-		linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    background-image:
+        linear-gradient(to bottom left, rgba(var(--icon-light), 0.15), rgba(var(--icon), 0.15)),
+        linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
     box-shadow: var(--sunk-in-shadow);
 }
 
 .ToolbarButton:disabled {
-	background-image:
-		linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05)),
-		linear-gradient(to right, rgba(var(--button-dark), var(--panel-transparency)), rgba(var(--button-dark), var(--panel-transparency)));
-	box-shadow: none;
+    background-image:
+        linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05)),
+        linear-gradient(to right, rgba(var(--button-dark), var(--panel-transparency)), rgba(var(--button-dark), var(--panel-transparency)));
+    box-shadow: none;
 }
 .ToolbarButton:disabled {
-	filter: none;
+    filter: none;
 }
 .ToolbarButton:disabled > * {
-	filter: contrast(75%) grayscale(100%) brightness(50%);
+    filter: contrast(75%) grayscale(100%) brightness(50%);
 }
 
 .ToolbarButton.ButtonLeft, .ToolbarButton.ButtonMiddle {
@@ -260,37 +260,37 @@
 }
 
 .SpecialButton {
-	background-image:
-		linear-gradient(to bottom left, rgba(var(--complement), 0.85), rgba(var(--complement), 0.7)),
-		linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    background-image:
+        linear-gradient(to bottom left, rgba(var(--complement), 0.85), rgba(var(--complement), 0.7)),
+        linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
 }
 
 .SpecialButton:not(.Selected):enabled:hover {
     background-image:
-		linear-gradient(to bottom left, rgba(var(--complement), 0.95), rgba(var(--complement), 0.8)),
-		linear-gradient(to bottom left, rgba(var(--highlight), 0.2), rgba(var(--highlight), 0.2));
+        linear-gradient(to bottom left, rgba(var(--complement), 0.95), rgba(var(--complement), 0.8)),
+        linear-gradient(to bottom left, rgba(var(--highlight), 0.2), rgba(var(--highlight), 0.2));
 }
 
 .SpecialButton:not(.Selected):enabled:active,
 .SpecialButton.Selected:enabled {
-	background-image:
-		linear-gradient(to bottom left, rgba(var(--complement), 0.5), rgba(var(--complement), 0.35)),
-		linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
+    background-image:
+        linear-gradient(to bottom left, rgba(var(--complement), 0.5), rgba(var(--complement), 0.35)),
+        linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .ToolbarSeparator
+//      CLASS: .ToolbarSeparator
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .ToolbarSeparator {
-	/* background-color: rgba(var(--shadow), 0.5); */
-	border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);
-	border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);
-	border-top: 0;
-	border-bottom: 0;
-	width: var(--pad-micro);
-	height: calc(var(--button-size) - 1.25ch);
-	margin-left: var(--pad-medium);
-	margin-right: var(--pad-medium);
-	margin-top: var(--pad-small);
+    /* background-color: rgba(var(--shadow), 0.5); */
+    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);
+    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);
+    border-top: 0;
+    border-bottom: 0;
+    width: var(--pad-micro);
+    height: calc(var(--button-size) - 1.25ch);
+    margin-left: var(--pad-medium);
+    margin-right: var(--pad-medium);
+    margin-top: var(--pad-small);
 }

@@ -1,25 +1,25 @@
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .PropertyList
+//      CLASS: .PropertyList
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 /* --- HEADER --- */
 
 .PropertyHeaderTitle {
     position: relative;
-	display: flex;
+    display: flex;
     flex-direction: row;
     align-items: center;
     width: calc(100% - 0.5em);
     overflow: hidden;
-	font-size: 110%;
+    font-size: 110%;
     background-color: rgba(var(--icon), 0.35);
-	border: solid var(--border-small) rgba(var(--shadow), 0.65);
+    border: solid var(--border-small) rgba(var(--shadow), 0.65);
     border-radius: var(--border-radius-inner);
     margin: var(--pad-small) 0.25em;		/* vertical | horizontal */
-	padding: var(--pad-small) 0.5em;		/* vertical | horizontal */
-	box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */
-	text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+    padding: var(--pad-small) 0.5em;		/* vertical | horizontal */
+    box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */
+    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
 }
 
 .PropertyHeaderIcon > * {
@@ -29,7 +29,7 @@
 .PropertyHeaderIcon {
     flex-grow: 0;
     flex-shrink: 0;
-	font-size: 110%;
+    font-size: 110%;
     position: relative; /* anchor to children with 'posiiton: absolute' */
     display: flex;
     width: calc(var(--arrow-size) * 3);
@@ -39,10 +39,10 @@
 }
 
 .PropertyHeaderText {
-	flex-grow: 1;
+    flex-grow: 1;
     flex-shrink: 2;
-	color: rgba(var(--text-light), 1.0);
-	font-size: 100%;
+    color: rgba(var(--text-light), 1.0);
+    font-size: 100%;
     overflow: hidden;
     text-align: left;
     text-overflow: ellipsis;
@@ -53,45 +53,45 @@
 /* --- ROW --- */
 
 .PropertyRow {
-	position: relative;
-	min-height: 1.7em;
+    position: relative;
+    min-height: 1.7em;
 }
 
 .PropertyRow:hover .PropertyLeftHalf, .PropertyRow:hover .PropertyLeftThird {
-	color: rgba(var(--highlight), 0.8);
+    color: rgba(var(--highlight), 0.8);
 }
 
 .PropertyRow:hover .PropertyLeftHalf .Image,
 .PropertyRow:hover .PropertyLeftThird .Image {
-	filter: brightness(250%);
+    filter: brightness(250%);
 }
 
 .PropertySpace {
-	flex: 0 0 auto;
-	min-width: 0.2em;
+    flex: 0 0 auto;
+    min-width: 0.2em;
 }
 
 .PropertyLeft {
-	position: relative;
-	flex-shrink: 0;
-	margin: 0;
-	padding-left: var(--pad-x-large);
+    position: relative;
+    flex-shrink: 0;
+    margin: 0;
+    padding-left: var(--pad-x-large);
 
-	height: 100%;
-	min-height: 1.7em;
+    height: 100%;
+    min-height: 1.7em;
 
-	text-align: left;
-	text-transform: capitalize;
+    text-align: left;
+    text-transform: capitalize;
 }
 
 .PropertyRight {
-	flex-shrink: 0;
-	margin: auto;
-	margin-right: var(--pad-small) !important;
-	justify-content: left;
-	text-align: left;
-	height: 100%;
-	min-height: 1.7em;
+    flex-shrink: 0;
+    margin: auto;
+    margin-right: var(--pad-small) !important;
+    justify-content: left;
+    text-align: left;
+    height: 100%;
+    min-height: 1.7em;
 }
 
 .PropertyLeftHalf { width: 50% !important; }
@@ -105,45 +105,45 @@
 .PropertyRight > .Input:not(.PropertyTinyRow),
 .PropertyRight > .Number:not(.PropertyTinyRow),
 .PropertyRight > .SlideContainer:not(.PropertyTinyRow) {
-	flex: 1 1 auto;
-	min-height: 1.7em;
-	min-width: 0;
-	margin: auto;
-	text-align: left;
-	height: 100%;
+    flex: 1 1 auto;
+    min-height: 1.7em;
+    min-width: 0;
+    margin: auto;
+    text-align: left;
+    height: 100%;
 }
 
 /* Right side of Property Box flex fill when using multiple controls */
 .PropertyTinyRow {
-	--min-width: 2em;
-	flex: 2 2 var(--min-width);
-	min-height: 1.7em;
-	min-width: var(--min-width);
-	height: 100%;
+    --min-width: 2em;
+    flex: 2 2 var(--min-width);
+    min-height: 1.7em;
+    min-width: var(--min-width);
+    height: 100%;
 }
 
 /* ---BUTTON--- */
 /* Button appearing in right column of PropertyList, fixed size */
 .PropertyButton {
-	position: relative;
-	height: 1.7em;
-	width: 2.1em;
+    position: relative;
+    height: 1.7em;
+    width: 2.1em;
 }
 
 /* Button appearing in right column of PropertyList, flex box */
 .PropertyButtonFlex {
-	flex: 1 1 auto;
-	position: relative;
-	display: block;
-	overflow: hidden;
-	margin: 0 0.05em;
-	padding: 0 0.1em;
-	height: 1.7em;
-	white-space: nowrap;
+    flex: 1 1 auto;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    margin: 0 0.05em;
+    padding: 0 0.1em;
+    height: 1.7em;
+    white-space: nowrap;
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		CLASS: .TreeList
+//      CLASS: .TreeList
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .TreeList {
@@ -151,23 +151,23 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: left;
-	overflow: auto;
+    overflow: auto;
 
-	color: rgba(var(--text), 1.0);
+    color: rgba(var(--text), 1.0);
     background-color: rgba(var(--background-dark), 0.25);
 
     border: solid var(--border-small) rgba(var(--shadow), 0.25);
     border-radius: var(--border-radius-small);
     box-shadow: var(--pop-out-shadow);
 
-	margin: var(--pad-x-small);
+    margin: var(--pad-x-small);
 
-	cursor: default;
-	outline: none; /* for macos */
+    cursor: default;
+    outline: none; /* for macos */
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		.TreeList .Option
+//      .TreeList .Option
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .TreeList .Option {
@@ -178,51 +178,51 @@
     white-space: nowrap;
 }
 .TreeList .Option:hover {
-	color: rgba(var(--text-light), 1.0);
+    color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--background-dark), 0.2);
 }
 
 .TreeList .Option.Active {
     color: rgba(var(--highlight), 1.0);
     background-color: rgba(var(--icon-light), 0.4);
-	border-top: var(--border-small) solid rgba(var(--shadow), 0.25);
-	border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);
-	border-radius: var(--border-radius-small);
+    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);
+    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);
+    border-radius: var(--border-radius-small);
 }
 .TreeList .Option.ActiveTop {
-	border-bottom: var(--border-small) solid transparent;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
+    border-bottom: var(--border-small) solid transparent;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 .TreeList .Option.ActiveBottom {
-	border-top: var(--border-small) solid transparent;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
+    border-top: var(--border-small) solid transparent;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .TreeList .Option.Drag {
-	border: var(--border-small) solid rgba(var(--icon-light), 1.0);
-	border-radius: var(--border-radius-small);
+    border: var(--border-small) solid rgba(var(--icon-light), 1.0);
+    border-radius: var(--border-radius-small);
 }
 .TreeList .Option.DragTop {
-	border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);
+    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
 .TreeList .Option.DragBottom {
-	border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);
+    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
 
 /** /////////////////////////////////////////////////////////////////////////////////
-//		.TreeList .Opener
+//      .TreeList .Opener
 ///////////////////////////////////////////////////////////////////////////////////*/
 
 .TreeList .Opener {
-	display: inline-block;
-	width: 1em;
-	height: 1em;
-	margin: 0 0.25em;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin: 0 0.25em;
 
-	vertical-align: top;
-	text-align: center;
+    vertical-align: top;
+    text-align: center;
 }
 
 .TreeList .Opener.Open:after {
