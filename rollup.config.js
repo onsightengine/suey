@@ -1,21 +1,9 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//
-// @description Osui
-// @about       Lightweight JavaScript UI library.
-// @author      Stephens Nunnally <@stevinz>
-// @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/osui
-//
-///////////////////////////////////////////////////////////////////////////////////*/
-
-///// Plugins
-
+// Plugins
 import { terser } from 'rollup-plugin-terser';              // Remove comments, minify
 import { visualizer } from 'rollup-plugin-visualizer';      // Visualize
 import cleanup from 'rollup-plugin-cleanup';                // Remove comments, supports sourcemap
 
-///// Post Build Header
-
+// Post Build Header
 function header() {
 	return {
 		renderChunk(code) {
@@ -23,7 +11,7 @@ function header() {
  * @description Osui
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
- * @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
+ * @license     MIT - Copyright (c) 2021-2023 Stephens Nunnally and Scidian Studios
  * @source      https://github.com/onsightengine/osui
  */
 ${code}`;
@@ -31,8 +19,7 @@ ${code}`;
     };
 }
 
-///// Builds
-
+// Builds
 const builds = [
 
     { // Standard Build

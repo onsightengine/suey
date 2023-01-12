@@ -1,26 +1,9 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//
-// @description Osui
-// @about       Lightweight JavaScript UI library.
-// @author      Stephens Nunnally <@stevinz>
-// @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/osui
-//
-///////////////////////////////////////////////////////////////////////////////////*/
-//
-//  Additional Source(s)
-//      MIT     https://github.com/codewithkyle/tooltipper - v1.1.4, Feb 9, 2022
-//
-/////////////////////////////////////////////////////////////////////////////////////
-
 import { Div } from '../core/Div.js';
-
 import { Css } from './Css.js';
 import { Popper } from './Popper.js';
 
 import { ALIGN } from './Popper.js';
 import { TOOLTIP_Y_OFFSET } from '../constants.js';
-
 
 const DEVICE_TYPE = {
     POINTER: 1,

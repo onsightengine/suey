@@ -1,20 +1,4 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//
-// @description Osui
-// @about       Lightweight JavaScript UI library.
-// @author      Stephens Nunnally <@stevinz>
-// @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/osui
-//
-///////////////////////////////////////////////////////////////////////////////////*/
-//
-//  Additional Source(s)
-//      MIT     https://github.com/mrdoob/three.js/blob/dev/editor/js/libs/ui.three.js (Outliner)
-//
-/////////////////////////////////////////////////////////////////////////////////////
-
 import { Div } from '../core/Div.js';
-
 import { Css } from '../utils/Css.js';
 import { Html } from '../utils/Html.js';
 
