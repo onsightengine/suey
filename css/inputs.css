@@ -1,6 +1,4 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//      ELEMENT: Input (number, text, etc)
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** ELEMENT: Input (number, text, etc) *****/
 
 input {
     color: rgba(var(--text), 1);
@@ -56,9 +54,7 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-/** /////////////////////////////////////////////////////////////////////////////////
-//      ELEMENT: Button
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** ELEMENT: Button *****/
 
 button {
     display: flex;
@@ -150,9 +146,8 @@ button:disabled {
         inset var(--pixel) var(--negative) var(--pixel) 0 rgba(var(--black), 0.5);
 }
 
-/** ////////////////
-//      ELEMENT: Input.Checkbox
-//////////////////*/
+/***** ELEMENT: Input.Checkbox *****/
+
 /* Container */
 .Checkbox {
     background: transparent;
@@ -236,9 +231,7 @@ button:disabled {
     background-color: rgba(var(--highlight), 0.9);
 }
 
-/** /////////////////////////////////////////////////////////////////////////////////
-//      CLASS: Drop down buttons and menus
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** CLASS: Drop down buttons and menus *****/
 
 /** Buttons that drop down a 'select' option list  */
 .Dropdown.Selected, .Dropdown:not(.Selected):enabled:active {
@@ -269,9 +262,7 @@ button:disabled {
     border-radius: var(--border-radius-small);
 }
 
-/** /////////////////////////////////////////////////////////////////////////////////
-//      CLASS: .DropArrow (adds a little down arrow on right side of element)
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** CLASS: .DropArrow (adds a little down arrow on right side of element) *****/
 
 .DropArrow {
     padding-right: 1.4em;
@@ -297,17 +288,13 @@ button:disabled {
     transform: translateY(-75%) scale(1.0, -1.0);
 }
 
-/** /////////////////////////////////////////////////////////////////////////////////
-//      CLASS: .Number (Number Box)
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** CLASS: .Number (Number Box) *****/
 
 .Number {
     font-size: 100%;
 }
 
-/** /////////////////////////////////////////////////////////////////////////////////
-//      ELEMENT: Slider
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** ELEMENT: Slider *****/
 
 .SlideContainer {
     position: relative;
@@ -408,9 +395,7 @@ button:disabled {
 }
 .Slider::-moz-range-thumb:active { cursor: ew-resize; }
 
-/** /////////////////////////////////////////////////////////////////////////////////
-//      ELEMENT: Text Area
-///////////////////////////////////////////////////////////////////////////////////*/
+/***** ELEMENT: Text Area *****/
 
 textarea {
     color: rgba(var(--text), 1);

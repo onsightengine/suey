@@ -77,6 +77,10 @@ export { tooltipper } from './utils/Tooltipper.js';
 
 //////////////////// Widgets
 
+///// Little Property Gui
+
+export { Gooey } from './Gooey.js';
+
 ///// Core
 
 export { Break } from './core/Break.js';
@@ -133,7 +137,7 @@ export { Shrinkable } from './panels/Shrinkable.js';
 export { Tabbed } from './panels/Tabbed.js';
 export { Titled } from './panels/Titled.js';
 
-////////// Enums
+///// Enums
 
 export { CLOSE_SIDES } from './panels/Panel.js';
 export { CORNERS } from './layout/Docker.js';
@@ -141,3 +145,15 @@ export { PROPERTY_SIZE } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
 export { RESIZERS } from './panels/Resizeable.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
+
+///// CSS
+
+import '../css/variables.css';
+import '../css/core.css';
+import '../css/inputs.css';
+import '../css/layout.css';
+import '../css/menu.css';
+import '../css/panels.css';
+import '../css/gooey.css';
+import '../css/data.css';
+import '../css/tooltip.css';

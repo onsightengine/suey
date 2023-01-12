@@ -1,0 +1,9 @@
+/***** Gooey Panel *****/
+
+.Gooey {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20em;
+    z-index: 1;
+}

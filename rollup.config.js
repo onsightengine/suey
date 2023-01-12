@@ -2,6 +2,7 @@
 import { terser } from 'rollup-plugin-terser';              // Remove comments, minify
 import { visualizer } from 'rollup-plugin-visualizer';      // Visualize
 import cleanup from 'rollup-plugin-cleanup';                // Remove comments, supports sourcemap
+import postcss from 'rollup-plugin-postcss';                // Include CSS
 
 // Post Build Header
 function header() {
@@ -34,6 +35,9 @@ const builds = [
                 sourcemap: false,
             }),
             header(),
+            postcss({
+                extensions: [ '.css' ],
+            }),
         ],
 
         output: [{
@@ -51,6 +55,9 @@ const builds = [
         plugins: [
             header(),
             visualizer(),
+            postcss({
+                extensions: [ '.css' ],
+            }),
         ],
 
         output: [{

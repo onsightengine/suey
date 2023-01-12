@@ -20,7 +20,6 @@ class Panel extends Div {
 
     constructor(style = PANEL_STYLES.NONE) {
         super();
-        const self = this;
         this.setPointerEvents('auto');
         this.setClass('Panel');
         this.contents = function() { return this; }

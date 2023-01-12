@@ -17,7 +17,6 @@ class Resizeable extends Panel {
 
     constructor(style) {
         super(style);
-        const self = this;
         this.addClass('Resizeable');
 
         // Properties
@@ -29,7 +28,7 @@ class Resizeable extends Panel {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
             this.resizer[resizerName] = new Div().addClass('Resizer').addClass(className);
-            this.add(this.resizer[resizerName]);
+            this.addToSelf(this.resizer[resizerName]);
         }
 
         // Init Sizes
@@ -72,8 +71,8 @@ class Resizeable extends Panel {
             this.downY = event.clientY;
             this.downW = this.parent.getWidth();
             this.downH = this.parent.getHeight();
-            this.dom.ownerDocument.addEventListener('pointermove', this._onPointerMove, false);
-            this.dom.ownerDocument.addEventListener('pointerup', this._onPointerUp, false);
+            this.dom.ownerDocument.addEventListener('pointermove', this._onPointerMove);
+            this.dom.ownerDocument.addEventListener('pointerup', this._onPointerUp);
         }
 
         function onPointerUp(event) {
@@ -106,7 +105,6 @@ class Resizeable extends Panel {
             if (this.downW !== newWidth) this.parent.changeWidth(newWidth);
 
             // Set Height
-
             // // TEMP: No vertical resizing for now...
             // if (this.downH !== newHeight) this.parent.changeHeight(newHeight);
 
@@ -119,7 +117,7 @@ class Resizeable extends Panel {
             if (resizer._onPointerDown === undefined) resizer._onPointerDown = onPointerDown.bind(resizer);
             if (resizer._onPointerMove === undefined) resizer._onPointerMove = onPointerMove.bind(resizer);
             if (resizer._onPointerUp === undefined) resizer._onPointerUp = onPointerUp.bind(resizer);
-            resizer.dom.addEventListener('pointerdown', resizer._onPointerDown, false);
+            resizer.dom.addEventListener('pointerdown', resizer._onPointerDown);
             resizer.setPointerEvents('auto');
         } else if (! enabled && resizer.resizeEnabled === true) {
             resizer.dom.removeEventListener('pointerdown', resizer._onPointerDown);
