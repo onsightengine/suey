@@ -32,10 +32,10 @@ class Slider extends Div {
 
         function sliderInput() {
             if (! slider.dom) return;
-            const val = slider.dom.value;
-            const min = slider.dom.min;
-            const max = slider.dom.max;
-            slider.dom.style.setProperty('--middle', `${parseFloat((val - min) / (max - min))}`);
+            const val = parseFloat(slider.dom.value);
+            const min = parseFloat(slider.dom.min);
+            const max = parseFloat(slider.dom.max);
+            slider.dom.style.setProperty('--middle', `${((val - min) / (max - min))}`);
         }
 
         function sliderWheel(event) {
@@ -91,15 +91,29 @@ class Slider extends Div {
             this.slider.dom.value = valueAsFloat;
         }
 
-        const val = this.slider.dom.value;
-        const min = this.slider.dom.min;
-        const max = this.slider.dom.max;
-        this.slider.dom.style.setProperty('--middle', `${parseFloat((val - min) / (max - min))}`);
+        const val = parseFloat(this.slider.dom.value);
+        const min = parseFloat(this.slider.dom.min);
+        const max = parseFloat(this.slider.dom.max);
+        this.slider.dom.style.setProperty('--middle', `${((val - min) / (max - min))}`);
         return this;
     }
 
     setPrecision(precision) {
         this.precision = precision;
+        return this;
+    }
+
+    setMin(min) {
+        if (! this.slider.dom) return this;
+        this.slider.dom.min = min;
+        this.setTicks();
+        return this;
+    }
+
+    setMax(max) {
+        if (! this.slider.dom) return this;
+        this.slider.dom.max = max;
+        this.setTicks();
         return this;
     }
 
@@ -121,10 +135,10 @@ class Slider extends Div {
     setTicks() {
         if (! this.slider.dom) return this;
         const ticks = this.ticks;
-        const min = this.slider.dom.min;
-        const max = this.slider.dom.max;
+        const min = parseFloat(this.slider.dom.min);
+        const max = parseFloat(this.slider.dom.max);
         const step = this.slider.dom.step;
-        if (step !== 'any' && isFinite(min) && isFinite(max)) {
+        if (step !== 'any' && Number.isFinite(min) && Number.isFinite(max)) {
             // Calculate Steps
             const totalSteps = parseFloat((max - min) / step);
 

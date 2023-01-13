@@ -141,7 +141,7 @@ export { Titled } from './panels/Titled.js';
 
 export { CLOSE_SIDES } from './panels/Panel.js';
 export { CORNERS } from './layout/Docker.js';
-export { PROPERTY_SIZE } from './data/PropertyList.js';
+export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
 export { RESIZERS } from './panels/Resizeable.js';
 export { TAB_SIDES } from './panels/Tabbed.js';

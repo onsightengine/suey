@@ -11,14 +11,20 @@ export const PROPERTY_SIZE = {
     THIRD:	'third',
 }
 
+export const LEFT_SPACING = {
+    TABS:   'tabs',
+    NORMAL: 'normal',
+}
+
 class PropertyList extends Div {
 
-    constructor(rowSizing = PROPERTY_SIZE.HALF) {
+    constructor(rowSizing = PROPERTY_SIZE.HALF, leftSpacing = LEFT_SPACING.TABS) {
         super();
         this.addClass('PropertyList');
         this.setStyle('display', 'block');
 
         this.rowSizing = rowSizing;
+        this.leftSpacing = leftSpacing;
 
         this.setRowSizeHalfs = function() { this.rowSizing = PROPERTY_SIZE.HALF; };
         this.setRowSizeFifths = function() { this.rowSizing = PROPERTY_SIZE.FIFTHS; };
@@ -55,7 +61,8 @@ class PropertyList extends Div {
     /** Creates row from left / right widgets, spacing defaults to this.rowSizing */
     createRow(title = '', ...controls) {
         const rightWidget = this.createControls(...controls);
-        const leftWidget = new Text(title).selectable(false).addClass('PropertyLeft')
+        const leftWidget = new Text(title).selectable(false).addClass('PropertyLeft');
+        if (this.leftSpacing === LEFT_SPACING.TABS) leftWidget.addClass('LeftTabSpacing');
         if (this.rowSizing === PROPERTY_SIZE.THIRD) {
             leftWidget.addClass('PropertyLeftThird');
             rightWidget.addClass('PropertyRightThird');

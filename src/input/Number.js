@@ -97,7 +97,7 @@ class NumberBox extends Element {
     /** Sets numeric value of input box, enforces range and precision */
     setValue(value) {
         let valueAsFloat = parseFloat(value);
-        if (valueAsFloat === undefined || isNaN(valueAsFloat) || !isFinite(valueAsFloat)) {
+        if (valueAsFloat === undefined || isNaN(valueAsFloat) || ! isFinite(valueAsFloat)) {
             return this;
         }
 
@@ -134,6 +134,16 @@ class NumberBox extends Element {
 
     setNudge(nudge) {
         this.nudge = nudge;
+        return this;
+    }
+
+    setMin(min) {
+        this.min = min;
+        return this;
+    }
+
+    setMin(max) {
+        this.max = max;
         return this;
     }
 

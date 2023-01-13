@@ -67,6 +67,8 @@ class Resizeable extends Panel {
     toggleResize(position, enabled) {
         function onPointerDown(event) {
             if (event.isPrimary === false) return;
+            event.stopPropagation();
+            event.preventDefault();
             this.downX = event.clientX;
             this.downY = event.clientY;
             this.downW = this.parent.getWidth();
@@ -77,12 +79,16 @@ class Resizeable extends Panel {
 
         function onPointerUp(event) {
             if (event.isPrimary === false) return;
+            event.stopPropagation();
+            event.preventDefault();
             this.dom.ownerDocument.removeEventListener('pointermove', this._onPointerMove);
             this.dom.ownerDocument.removeEventListener('pointerup', this._onPointerUp);
         }
 
         function onPointerMove(event) {
             if (event.isPrimary === false) return;
+            event.stopPropagation();
+            event.preventDefault();
 
             let newWidth = this.downW;
             let newHeight = this.downH;
@@ -114,8 +120,6 @@ class Resizeable extends Panel {
 
         let resizer = this.resizer[position];
         if (enabled && resizer.resizeEnabled !== true) {
-            console.log(resizer);
-
             if (resizer._onPointerDown === undefined) resizer._onPointerDown = onPointerDown.bind(resizer);
             if (resizer._onPointerMove === undefined) resizer._onPointerMove = onPointerMove.bind(resizer);
             if (resizer._onPointerUp === undefined) resizer._onPointerUp = onPointerUp.bind(resizer);

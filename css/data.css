@@ -77,13 +77,15 @@
     position: relative;
     flex-shrink: 0;
     margin: 0;
-    padding-left: var(--pad-x-large);
-
+    padding-left: var(--pad-medium);
     height: 100%;
     min-height: 1.7em;
 
     text-align: left;
     text-transform: capitalize;
+}
+.LeftTabSpacing {
+    padding-left: var(--pad-x-large);
 }
 
 .PropertyRight {
