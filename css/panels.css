@@ -262,20 +262,17 @@
 }
 
 .ShrinkBody {
+    display: flex;
+    flex-wrap: wrap;
     border-bottom-left-radius: var(--border-radius-small);
     border-bottom-right-radius: var(--border-radius-small);
     padding: var(--pad-small);
     overflow: hidden;
+    pointer-events: auto;
 }
 .Shrinkable:not(.Expanded) .ShrinkBody {
-    display: none;
     pointer-events: none;
-}
-.Shrinkable.Expanded .ShrinkBody {
-    /* display: block; */
-    display: flex;
-    flex-wrap: wrap;
-    pointer-events: auto;
+    display: none;
 }
 
 /***** CLASS: .Tabbed *****/

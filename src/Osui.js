@@ -68,7 +68,9 @@ export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
 
 ///// Utils
 
+export { ColorScheme } from './utils/ColorScheme.js';
 export { Css } from './utils/Css.js';
+export { Iris } from './utils/Iris.js';
 export { Html } from './utils/Html.js';
 export { Popper } from './utils/Popper.js';
 

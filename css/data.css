@@ -59,12 +59,11 @@
     min-height: 1.7em;
 }
 
-.PropertyRow:hover .PropertyLeftHalf, .PropertyRow:hover .PropertyLeftThird {
+.PropertyRow:hover .PropertyLeft {
     color: rgba(var(--highlight), 0.8);
 }
 
-.PropertyRow:hover .PropertyLeftHalf .Image,
-.PropertyRow:hover .PropertyLeftThird .Image {
+.PropertyRow:hover .PropertyLeft .Image {
     filter: brightness(250%);
 }
 

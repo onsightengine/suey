@@ -150,8 +150,7 @@ class Folder extends Shrinkable {
         slider.setValue(params[variable]);
         slideBox.setValue(params[variable]);
 
-        let digits = countDigits(parseInt(max)) + precision;
-        if (precision > 0) digits += 0.5;
+        const digits = countDigits(parseInt(max)) + (precision > 0 ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
 
         function checkForMinMax() {
