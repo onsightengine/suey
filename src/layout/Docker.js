@@ -66,10 +66,10 @@ class Docker extends Div {
                 // // TEMP: No vertical resizing for now...
                 // osuiElement.toggleResize(RESIZERS.TOP, cornerName.includes('Bottom'));
                 // osuiElement.toggleResize(RESIZERS.BOTTOM, cornerName.includes('Top'));
-                osuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
-                osuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
-                osuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
-                osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
+                // osuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
+                // osuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
+                // osuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
+                // osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
             }
         }
 

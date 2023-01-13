@@ -1,6 +1,10 @@
 
 /***** .PropertyList *****/
 
+.PropertyList {
+    width: 100%;
+}
+
 /* --- HEADER --- */
 
 .PropertyHeaderTitle {
@@ -93,8 +97,11 @@
 }
 
 .PropertyLeftHalf { width: 50% !important; }
+.PropertyLeftFifth { width: 45% !important; }
 .PropertyLeftThird { width: 30% !important; }
+
 .PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }
+.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }
 .PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }
 
 /* --- RIGHT SIDE OF ROW --- */

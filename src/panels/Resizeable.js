@@ -114,6 +114,8 @@ class Resizeable extends Panel {
 
         let resizer = this.resizer[position];
         if (enabled && resizer.resizeEnabled !== true) {
+            console.log(resizer);
+
             if (resizer._onPointerDown === undefined) resizer._onPointerDown = onPointerDown.bind(resizer);
             if (resizer._onPointerMove === undefined) resizer._onPointerMove = onPointerMove.bind(resizer);
             if (resizer._onPointerUp === undefined) resizer._onPointerUp = onPointerUp.bind(resizer);

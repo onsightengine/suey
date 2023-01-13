@@ -15,14 +15,18 @@ class Shrinkable extends Panel {
         this.bodyDiv = undefined;
 
         // Build
-        const iconHolder = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
-        const textHolder = new Span().setClass('ShrinkText').setInnerHtml(text);
-
         const title = new Div().setClass('ShrinkTitle');
-        title.add(iconHolder, textHolder, new Span().setClass('ShrinkArrow'));
+
+        if (icon !== '') {
+            const iconHolder = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
+            title.add(iconHolder);
+        }
+
+        const textHolder = new Span().setClass('ShrinkText').setInnerHtml(text);
+        if (icon === '') textHolder.setStyle('padding-left', '0.15em');
+        title.add(textHolder, new Span().setClass('ShrinkArrow'));
 
         const body = new Div().setClass('ShrinkBody');
-
         this.add(title, body);
 
         // Setup

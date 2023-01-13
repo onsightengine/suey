@@ -7,6 +7,7 @@ import { VectorBox } from '../layout/VectorBox.js';
 
 export const PROPERTY_SIZE = {
     HALF:	'half',
+    FIFTHS: 'fifths',
     THIRD:	'third',
 }
 
@@ -20,6 +21,7 @@ class PropertyList extends Div {
         this.rowSizing = rowSizing;
 
         this.setRowSizeHalfs = function() { this.rowSizing = PROPERTY_SIZE.HALF; };
+        this.setRowSizeFifths = function() { this.rowSizing = PROPERTY_SIZE.FIFTHS; };
         this.setRowSizeThirds = function() { this.rowSizing = PROPERTY_SIZE.THIRD; };
     }
 
@@ -57,6 +59,9 @@ class PropertyList extends Div {
         if (this.rowSizing === PROPERTY_SIZE.THIRD) {
             leftWidget.addClass('PropertyLeftThird');
             rightWidget.addClass('PropertyRightThird');
+        } else if (this.rowSizing === PROPERTY_SIZE.FIFTHS) {
+            leftWidget.addClass('PropertyLeftFifth');
+            rightWidget.addClass('PropertyRightFifth');
         } else {
             leftWidget.addClass('PropertyLeftHalf');
             rightWidget.addClass('PropertyRightHalf');
