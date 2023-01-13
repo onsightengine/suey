@@ -39,17 +39,17 @@ class Resizeable extends Panel {
     //////////////////// Methods
 
     changeWidth(width) {
-        if (width !== null && width !== undefined && Number.isNaN(width) === false) {
-            width = Math.min(Math.max(width, this.minWidth), this.maxWidth).toFixed(1);
-            this.setWidth(Css.toEm(width));
-        }
+        if (width == null) return;
+        width = parseFloat(width);
+        width = Math.min(Math.max(width, this.minWidth), this.maxWidth).toFixed(1);
+        this.setWidth(Css.toEm(width, this.dom));
     }
 
     changeHeight(height) {
-        if (height !== null && height !== undefined && Number.isNaN(height) === false) {
-            height = Math.min(Math.max(height, this.minHeight), this.maxHeight).toFixed(1);
-            this.setHeight(Css.toEm(height));
-        }
+        if (height == null) return;
+        height = parseFloat(height);
+        height = Math.min(Math.max(height, this.minHeight), this.maxHeight).toFixed(1);
+        this.setHeight(Css.toEm(height, this.dom));
     }
 
     setXSizes(start = null, min = 0, max = Infinity) {
@@ -102,10 +102,10 @@ class Resizeable extends Panel {
             if (this.hasClassWithString('Bottom')) newHeight = this.downH + diffY;
 
             // Check Min / Max Sizes
-            if (newWidth < this.parent.minWidth * Css.guiScale()) newWidth = this.parent.minWidth * Css.guiScale();
-            if (newWidth > this.parent.maxWidth * Css.guiScale()) newWidth = this.parent.maxWidth * Css.guiScale();
-            if (newHeight < this.parent.minHeight * Css.guiScale()) newHeight = this.parent.minHeight * Css.guiScale();
-            if (newHeight > this.parent.maxHeight * Css.guiScale()) newHeight = this.parent.maxHeight * Css.guiScale();
+            if (newWidth < this.parent.minWidth * Css.guiScale(this.dom)) newWidth = this.parent.minWidth * Css.guiScale(this.dom);
+            if (newWidth > this.parent.maxWidth * Css.guiScale(this.dom)) newWidth = this.parent.maxWidth * Css.guiScale(this.dom);
+            if (newHeight < this.parent.minHeight * Css.guiScale(this.dom)) newHeight = this.parent.minHeight * Css.guiScale(this.dom);
+            if (newHeight > this.parent.maxHeight * Css.guiScale(this.dom)) newHeight = this.parent.maxHeight * Css.guiScale(this.dom);
 
             // Set Width
             if (this.downW !== newWidth) this.parent.changeWidth(newWidth);

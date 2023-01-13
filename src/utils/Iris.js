@@ -1,88 +1,16 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//
-// @description Iris
-// @about       Color library with support for RGB, RYB, HSL color models and RYB hue shifting
-// @author      Stephens Nunnally <@stevinz>
-// @license     MIT - Copyright (c) 2021-2023 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/scidian/iris
-//
-//      See end of file for license details and acknowledgements
-//
-///////////////////////////////////////////////////////////////////////////////////*/
-//
-//  Iris
-//      Color library with support for RGB, RYB, HSL color models and RYB hue shifting
-//
-//  Initialization
-//      let color = new Iris();
-//      ...
-//      new Iris();                                 // Defaults to white, 0xffffff
-//      new Iris(0xff0000);                         // Hexadecimal (0xff0000, i.e. 16711680)
-//
-//      new Iris(1.0, 0.0, 0.0);                    // RGB Values (0.0 to 1.0)
-//
-//      new Iris(255,   0,   0, 'rgb');             // RGB Values (0 to 255)
-//      new Iris(255,   0,   0, 'ryb');             // RYB Values (0 to 255)
-//      new Iris(360, 1.0, 0.5, 'hsl');             // HSL Values (H: 0 to 360, SL: 0.0 to 1.0)
-//
-//      new Iris({ r: 1.0, g: 0.0, b: 0.0 });       // Object with RGB Properties (0.0 to 1.0)
-//      new Iris({ r: 1.0, y: 0.0, b: 0.0 });       // Object with RYB Properties (0.0 to 1.0)
-//      new Iris({ h: 1.0, s: 1.0, l: 0.5 });       // Object with HSL Properties (0.0 to 1.0)
-//
-//      new Iris([ 1.0, 0.0, 0.0 ], offset);        // RGB Array (0.0 to 1.0), optional array offset
-//
-//      new Iris('#ff0000');                        // Hex String (also 3 digits: #f00)
-//      new Iris('rgb(255, 0, 0)');                 // CSS Color String
-//      new Iris('red');                            // X11 Color Name
-//
-//      new Iris(fromIris);                         // Copy from Iris Object
-//      new Iris(fromThreeColor);                   // Copy from Three.js Color Object
-//
-//  Properties
-//      color.r                                     // 0.0 to 1.0
-//      color.g                                     // 0.0 to 1.0
-//      color.b                                     // 0.0 to 1.0
-//
-//  Static
-//      Iris.hexString(hexColor);                   // Converts hex color (i.e. 16711680) into hex string, ex: '#ff0000'
-//      Iris.randomHex();                           // Returns number (i.e. 16711680) of a random color
-//
-//  Output
-//      color.cssString();                          // Returns string, ex: 'rgb(255, 0, 0)'
-//      color.hex();                                // Returns number, ex: 16711680 (equivalent to 0xff0000)
-//      color.hexString();                          // Returns string, ex: '#ff0000'
-//      color.rgbString();                          // Returns string, ex: '255, 0, 0'
-//
-//      color.getHSL(target);                       // Copies HSL values into target, values from 0.0 to 1.0
-//      color.getRGB(target);                       // Copies RGB values into target, values from 0.0 to 1.0
-//      color.getRYB(target);                       // Copies RYB values into target, values from 0.0 to 1.0
-//      color.toArray(array);                       // Copies RGB values into array, values from 0.0 to 1.0
-//
-//      color.red();                                // Returns red value of color, 0 to 255
-//      color.green();                              // Returns green value of color, 0 to 255
-//      color.blue();                               // Returns blue value of color, 0 to 255
-//
-//      color.redF();                               // Returns red value of color, 0.0 to 1.0
-//      color.greenF();                             // Returns green value of color, 0.0 to 1.0
-//      color.blueF();                              // Returns blue value of color, 0.0 to 1.0
-//
-//      color.hue();                                // Returns hue value of color, 0 to 360
-//      color.saturation();                         // Returns saturation value of color, 0 to 255
-//      color.lightness();                          // Returns lightness value of color, 0 to 255
-//
-//      color.hueF();                               // Returns hue value of color, 0.0 to 1.0
-//      color.hueRYB();                             // Returns RGB hue mapped to hue in the RYB, 0 to 360
-//
-/////////////////////////////////////////////////////////////////////////////////////
+/**
+ * @description Iris
+ * @about       Color library with support for RGB, RYB, HSL color models and RYB hue shifting
+ * @author      Stephens Nunnally <@stevinz>
+ * @license     MIT - Copyright (c) 2021-2023 Stephens Nunnally and Scidian Studios
+ * @source      https://github.com/scidian/iris
+ *
+ *      See end of file for license details
+ */
 
-/** Color library with support for RGB, RYB, HSL color models and RYB hue shifting */
 class Iris {
 
-    //////////////////// Static
-
     static get NAMES() { return COLOR_KEYWORDS; }
-
-    //////////////////// Ctor
 
     constructor(r = 0xffffff, g, b, format = '') {
         this.isColor = true;
@@ -95,9 +23,7 @@ class Iris {
         this.set(r, g, b, format);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Assignment
-    ////////////////////
+    /***** Assignment *****/
 
     copy(colorObject) {
         return this.set(colorObject);
@@ -267,9 +193,7 @@ class Iris {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Output
-    ////////////////////
+    /***** Output *****/
 
     /** Example output: 'rgb(255, 0, 0)' */
     cssString(alpha /* optional */) {
@@ -309,9 +233,7 @@ class Iris {
         return this.hex();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Retrieving Data
-    ////////////////////
+    /***** Retrieving Data *****/
 
     clone() {
         return new this.constructor(this.r, this.g, this.b);
@@ -359,9 +281,7 @@ class Iris {
         return array;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Spectrum Components
-    ////////////////////
+    /***** Spectrum Components *****/
 
     red() { return clamp(Math.floor(this.r * 255), 0, 255); }
     green() { return clamp(Math.floor(this.g * 255), 0, 255); }
@@ -384,9 +304,7 @@ class Iris {
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Color Functions
-    ////////////////////
+    /***** Color Functions *****/
 
     /** Adds RGB values from color to this color */
     add(color) {
@@ -502,9 +420,7 @@ class Iris {
         return this.setRGBF(this.r - color.r, this.g - color.g, this.b - color.b);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Comparison
-    ////////////////////
+    /***** Comparison *****/
 
     /** Returns true if the RGB values of 'color' are the same as those of this object. */
     equals(color) {
@@ -531,9 +447,7 @@ class Iris {
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Utility Functions
-/////////////////////////////////////////////////////////////////////////////////////
+/***** Utility Functions *****/
 
 function isRGB(object) { return (object.r !== undefined && object.g !== undefined && object.b !== undefined); }
 function isHSL(object) { return (object.h !== undefined && object.s !== undefined && object.l !== undefined); }
@@ -561,9 +475,7 @@ function keepInRange(value, min = 0, max = 360) {
     return value;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Return hue (0 to 360), saturation (0 to 1), and lightness (0 to 1)
-////////////////////
+/***** Return hue (0 to 360), saturation (0 to 1), and lightness (0 to 1) *****/
 
 let _hslHex;
 let _hslH;
@@ -605,9 +517,7 @@ function hsl(hexColor, channel = 'h') {
     return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Match to 'matchHue' into 'spectrum'
-////////////////////
+/***** Match to 'matchHue' into 'spectrum' *****/
 
 const _mix1 = new Iris();
 const _mix2 = new Iris();
@@ -630,9 +540,7 @@ function matchSpectrum(matchHue, spectrum = SPECTRUM.RYB) {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Cubic Interpolation
-////////////////////
+/***** Cubic Interpolation *****/
 
 const _interpolate = new Iris();
 
@@ -675,9 +583,7 @@ function cubicInterpolation(v1, v2, v3, scale = 255, table = CUBE.RYB_TO_RGB) {
     return _interpolate.set(o1, o2, o3, 'gl').hex();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Color Data
-/////////////////////////////////////////////////////////////////////////////////////
+/***** Color Data *****/
 
 const CUBE = {
     RYB_TO_RGB: [
@@ -774,69 +680,30 @@ const COLOR_KEYWORDS = {
     'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Exports
-/////////////////////////////////////////////////////////////////////////////////////
+/***** Exports *****/
 
 export { Iris };
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Acknowledgements
-/////////////////////////////////////////////////////////////////////////////////////
-//
-// Some portions of this code adapted from:
-//      Description:    Color Schemer
-//      Author:         Scott Kellum <@scottkellum> and Mason Wendell <@canarymason>
-//      License:        Distributed under the MIT License
-//      Source(s):      https://github.com/at-import/color-schemer/blob/master/stylesheets/color-schemer/_ryb.scss
-//
-//      Description:    three.js
-//      Author:         mrdoob and three.js authors
-//      License:        Distributed under the MIT License
-//      Source(s):      https://github.com/mrdoob/three.js/blob/master/src/math/Color.js
-//
-//      Description:    RYB
-//      Author:         Ilya Kolbin
-//      License:        Distributed under the MIT License
-//      Source(s):      https://github.com/iskolbin/lryb/blob/master/ryb.lua
-//
-// Thanks to:
-//      Description:    RYB and RGB Color Space Conversion
-//      Author:         Jean-Olivier Irisson
-//      Source(s):      https://math.stackexchange.com/questions/305395/ryb-and-rgb-color-space-conversion
-//
-//      Description:    Paint Inspired Color Mixing and Compositing for Visualization
-//      Author:         Nathan Gossett & Baoquan Chen
-//      Source(s):      http://vis.computer.org/vis2004/DVD/infovis/papers/gossett.pdf
-//
-/////////////////////////////////////////////////////////////////////////////////////
-/////   License
-/////////////////////////////////////////////////////////////////////////////////////
-//
-// MIT License
-//
-// Iris
-//      Copyright (c) 2021-2023 Stephens Nunnally <@stevinz>
-//
-// Some Portions
-//      Copyright (c) 2011 Scott Kellum <@scottkellum> and Mason Wendell <@canarymason>
-//      Copyright (c) 2010-2022 mrdoob and three.js authors
-//      Copyright (c) 2018 Ilya Kolbin
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+/**
+ * MIT License
+ *
+ * Copyright (c) 2021-2023 Stephens Nunnally <@stevinz>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */

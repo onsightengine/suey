@@ -40,13 +40,13 @@ class Css {
         return parseFloat(getComputedStyle(document.querySelector(':root')).fontSize);
     }
 
-    static fontSize() {
-        return parseFloat(getComputedStyle(document.body).fontSize);
+    static fontSize(element = document.body) {
+        return parseFloat(getComputedStyle(element).fontSize);
     }
 
     /** Calculates current GUI scale based on <body> font size */
-    static guiScale() {
-        return Css.fontSize() / Css.baseSize();
+    static guiScale(element = document.body) {
+        return Css.fontSize(element) / Css.baseSize();
     }
 
     //////////////////// Font Metrics
@@ -85,10 +85,10 @@ class Css {
     }
 
     /** Returns input units from 'px' to 'em' */
-    static toEm(pixels) {
+    static toEm(pixels, element = document.body) {
         const parsedSize = Css.parseSize(pixels);
         if (parsedSize.includes('px')) {
-            return ((parseFloat(parsedSize) / 10.0) / Css.guiScale()) + 'em';
+            return ((parseFloat(parsedSize) / 10.0) / Css.guiScale(element)) + 'em';
         } else if (parsedSize.includes('em')) {
             return parsedSize;
         }
@@ -97,14 +97,14 @@ class Css {
     }
 
     /** Returns input units to converted pixels string ending in 'px' */
-    static toPx(size) {
+    static toPx(size, element = document.body) {
         const parsedSize = Css.parseSize(size);
         if (parsedSize.includes('px')) {
             return parsedSize;
         } else if (parsedSize.includes('rem')) {
             return parseInt((parseFloat(size) * 10.0)) + 'px';
         } else if (parsedSize.includes('em')) {
-            return parseInt((parseFloat(size) * 10.0 * Css.guiScale())) + 'px';
+            return parseInt((parseFloat(size) * 10.0 * Css.guiScale(element))) + 'px';
         }
         console.warn(`Css.toPx: Could not convert to pixels! Unit passed in: ${size}`);
         return size;

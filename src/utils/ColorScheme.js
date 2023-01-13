@@ -1,23 +1,12 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//
-// @description Onsight Editor
-// @about       Easy to use 2D / 3D JavaScript game engine.
-// @author      Written by Stephens Nunnally <@stevinz>
-// @license     None - Copyright (C) 2021-2023 Scidian Studios - All Rights Reserved
-//              Unauthorized Copying of these Files, via Any Medium is Strictly Prohibited
-//              Proprietary and Confidential, No Public License
-//
-///////////////////////////////////////////////////////////////////////////////////*/
-//
-//  Color Reference(s)
-//      Triadic / RYB       https://paletton.com
-//      Material Palette    https://material.io/design/color/the-color-system.html
-//
-/////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Color Reference(s)
+ * Triadic / RYB       https://paletton.com
+ * Material Palette    https://material.io/design/color/the-color-system.html
+ */
 
+import { BACKGROUNDS, TRAIT } from '../constants.js';
 import { Css } from './Css.js';
 import { Iris } from './Iris.js';
-import { BACKGROUNDS, TRAIT } from '../constants.js';
 
 const _clr = new Iris();
 
@@ -35,30 +24,27 @@ const _triadic6 = new Iris();
 
 // Save state
 let _background = BACKGROUNDS.DARK;
-let _color = 0x00b4af; // (0, 180, 175) - classic aqua
+let _color = 0x00b4af; /* (0, 180, 175) - classic aqua */
 let _tint = 0.0;
 let _saturation = 0.0;
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////   Color Scheme
-/////////////////////////////////////////////////////////////////////////////////////
 
 /** Handles scheming CSS for Osui */
 class ColorScheme {
 
-    //////////////////// Set Background Style
+    /***** Set Background Style *****/
 
     static changeBackground(background) {
-        if (background !== undefined) _background = background;
+        if (background === undefined || background === null) return;
+        _background = background;
         ColorScheme.updateCSS();
     }
 
-    //////////////////// Set Icon Color
+    /***** Set Icon Color *****/
 
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
 
-        _color = color;
+        _color = _clr.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
 
@@ -76,7 +62,7 @@ class ColorScheme {
         ColorScheme.updateCSS();
     }
 
-    //////////////////// Update CSS Variables
+    /***** Update CSS Variables *****/
 
     static updateCSS() {
         Css.setVariable('--shadow',             _clr.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
@@ -111,7 +97,7 @@ class ColorScheme {
         Css.setVariable('--rotate-hue', diffHue);
     }
 
-    //////////////////// Get Scheme Color
+    /***** Get Scheme Color *****/
 
     static color(guiColor, ignoreSaturation = false) {
         // Reset temp color

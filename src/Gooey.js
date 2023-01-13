@@ -38,6 +38,9 @@
 //     updateMeshes();
 // }
 
+import { ColorScheme } from './utils/ColorScheme.js';
+import { Css } from './utils/Css.js';
+
 import { FlexSpacer } from './layout/FlexSpacer.js';
 import { Resizeable, RESIZERS } from './panels/Resizeable.js';
 import { Shrinkable } from './panels/Shrinkable.js';
@@ -69,6 +72,31 @@ class Gooey extends Resizeable {
         const folder = new Folder(capitalize(folderName), icon);
         this.add(folder);
         return folder;
+    }
+
+    color(color) {
+        ColorScheme.changeColor(color);
+    }
+
+    opacity(opacity) {
+        if (opacity == null) return;
+        opacity = Math.min(Math.max(opacity, 0.0), 1.0);
+        Css.setVariable('--panel-transparency', opacity);
+    }
+
+    scale(multiplier) {
+        if (! multiplier) multiplier = 1.0;
+        multiplier = parseFloat(multiplier);
+        const newSize = 14 /* base size = 14px */ * multiplier;
+        const fontSize = Math.min(Math.max(newSize, 10 /* min font size */), 30 /* max font size */);
+        Css.setVariable('--font-size', Css.toPx(fontSize, this.dom));
+    }
+
+    width(width) {
+        if (width == null) return;
+        if (width < this.minWidth * Css.guiScale(this.dom)) width = this.minWidth * Css.guiScale(this.dom);
+        if (width > this.maxWidth * Css.guiScale(this.dom)) width = this.maxWidth * Css.guiScale(this.dom);
+        this.setWidth(Css.toEm(width, this.dom));
     }
 
 }
