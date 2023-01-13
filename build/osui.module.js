@@ -199,7 +199,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                let offset = (typeof g === number && g > 0) ? g : 0;
+                let offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
@@ -675,7 +675,7 @@ const COLOR_KEYWORDS = {
     'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
 };
 
-const _clr = new Iris();
+const _clr$1 = new Iris();
 const _icon = new Iris();
 const _icon_light = new Iris();
 const _icon_dark = new Iris();
@@ -698,7 +698,7 @@ class ColorScheme {
     }
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
-        _color = _clr.set(color).hex();
+        _color = _clr$1.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
         _icon.set(color);
@@ -714,34 +714,34 @@ class ColorScheme {
         ColorScheme.updateCSS();
     }
     static updateCSS() {
-        Css.setVariable('--shadow',             _clr.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
-        Css.setVariable('--background-dark',    _clr.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
-        Css.setVariable('--background-light',   _clr.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
-        Css.setVariable('--button-dark',        _clr.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
-        Css.setVariable('--button-light',       _clr.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
-        Css.setVariable('--text-dark',          _clr.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
-        Css.setVariable('--text',               _clr.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
-        Css.setVariable('--text-light',         _clr.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
-        Css.setVariable('--midlight',           _clr.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
-        Css.setVariable('--darklight',          _clr.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
-        Css.setVariable('--highlight',          _clr.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
-		Css.setVariable('--icon-dark',          _clr.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
-        Css.setVariable('--icon',               _clr.set(ColorScheme.color(TRAIT.ICON)).rgbString());
-        Css.setVariable('--icon-light',         _clr.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
-        Css.setVariable('--complement',         _clr.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
-        Css.setVariable('--triadic1',           _clr.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
-        Css.setVariable('--triadic2',           _clr.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
-        Css.setVariable('--triadic3',           _clr.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
-        Css.setVariable('--triadic4',           _clr.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
-        Css.setVariable('--triadic5',           _clr.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
-        Css.setVariable('--triadic6',           _clr.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
-        let startHue = _clr.set(0x00b4af).hue();
-        let newHue = _clr.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        Css.setVariable('--shadow',             _clr$1.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
+        Css.setVariable('--background-dark',    _clr$1.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
+        Css.setVariable('--background-light',   _clr$1.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
+        Css.setVariable('--button-dark',        _clr$1.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
+        Css.setVariable('--button-light',       _clr$1.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
+        Css.setVariable('--text-dark',          _clr$1.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
+        Css.setVariable('--text',               _clr$1.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
+        Css.setVariable('--text-light',         _clr$1.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
+        Css.setVariable('--midlight',           _clr$1.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
+        Css.setVariable('--darklight',          _clr$1.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
+        Css.setVariable('--highlight',          _clr$1.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
+		Css.setVariable('--icon-dark',          _clr$1.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
+        Css.setVariable('--icon',               _clr$1.set(ColorScheme.color(TRAIT.ICON)).rgbString());
+        Css.setVariable('--icon-light',         _clr$1.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
+        Css.setVariable('--complement',         _clr$1.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
+        Css.setVariable('--triadic1',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
+        Css.setVariable('--triadic2',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
+        Css.setVariable('--triadic3',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
+        Css.setVariable('--triadic4',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
+        Css.setVariable('--triadic5',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
+        Css.setVariable('--triadic6',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
+        let startHue = _clr$1.set(0x00b4af).hue();
+        let newHue = _clr$1.set(ColorScheme.color(TRAIT.ICON, true )).hue();
         let diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
     static color(guiColor, ignoreSaturation = false) {
-        _clr.set(0);
+        _clr$1.set(0);
         let tint = _tint;
         let saturation = _saturation;
         let darkness = 0;
@@ -754,44 +754,44 @@ class ColorScheme {
         }
         if (_background == BACKGROUNDS.LIGHT) {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr.set(230, 230, 230, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr.set(  4,   4,   4, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$1.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$1.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$1.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$1.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$1.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$1.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$1.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$1.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$1.set(230, 230, 230, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$1.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$1.set(  4,   4,   4, 'rgb'); break;
             }
         } else {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$1.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$1.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$1.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$1.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$1.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$1.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$1.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$1.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$1.set(  8,   8,   8, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$1.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$1.set(255, 255, 255, 'rgb'); break;
             }
         }
         switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr.copy(_triadic6);   break;
+            case TRAIT.ICON_DARK:   _clr$1.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$1.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$1.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$1.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$1.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$1.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$1.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$1.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr$1.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr$1.copy(_triadic6);   break;
         }
         switch (guiColor) {
             case TRAIT.COMPLEMENT:
@@ -809,11 +809,11 @@ class ColorScheme {
                 lightness = 0;
                 break;
         }
-        if (tint !== 0) _clr.mix(_icon, tint);
-        if (lightness !== 0) _clr.brighten(lightness);
-        if (darkness !== 0) _clr.darken(darkness);
-        if (saturation !== 0 && ! ignoreSaturation) _clr.hslOffset(0, saturation, 0);
-        return _clr.hex();
+        if (tint !== 0) _clr$1.mix(_icon, tint);
+        if (lightness !== 0) _clr$1.brighten(lightness);
+        if (darkness !== 0) _clr$1.darken(darkness);
+        if (saturation !== 0 && ! ignoreSaturation) _clr$1.hslOffset(0, saturation, 0);
+        return _clr$1.hex();
     }
 }
 
@@ -1765,6 +1765,58 @@ class Checkbox extends Element {
     }
 }
 
+class Color extends Button {
+    constructor() {
+        super();
+        const self = this;
+        this.addClass('ColorButton');
+        this.addClass('DropArrow');
+        const colorBox = new Element(document.createElement('input'));
+        colorBox.addClass('ColorInputButton');
+        colorBox.dom.setAttribute('autocomplete', 'off');
+        try { colorBox.dom.type = 'color'; } catch(exception) {}
+        this.add(colorBox);
+        const colorBackground = new Div().addClass('DropColor');
+        colorBackground.setStyle('backgroundColor', colorBox.dom.value);
+        this.add(colorBackground);
+        function colorBoxPointerDown() {
+            self.addClass('Selected');
+        }
+        function colorBoxInput() {
+            colorBackground.setStyle('backgroundColor', colorBox.dom.value);
+            self.dom.setAttribute('tooltip', colorBox.dom.value);
+        }
+        function colorBoxBlur() {
+            self.removeClass('Selected');
+        }
+        colorBox.onPointerDown(colorBoxPointerDown);
+        colorBox.onInput(colorBoxInput);
+        colorBox.dom.addEventListener('blur', colorBoxBlur);
+        this.getValue = function() {
+            if (! colorBox.dom) return 0;
+            return colorBox.dom.value;
+        };
+        this.getHexValue = function() {
+            if (! colorBox.dom) return 0;
+            return parseInt(colorBox.dom.value.substring(1), 16);
+        };
+        this.setValue = function(value) {
+            if (! colorBox.dom) return this;
+            colorBox.dom.value = value;
+            colorBackground.setStyle('backgroundColor', colorBox.dom.value);
+            self.dom.setAttribute('tooltip', colorBox.dom.value);
+            return this;
+        };
+        this.setHexValue = function(hex) {
+            if (! colorBox.dom) return this;
+            if (hex === undefined) return this;
+            self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
+            return this;
+        };
+        this.setHexValue(0xffffff);
+    }
+}
+
 const _changeEvent$1 = new Event('change', { 'bubbles': true, 'cancelable': true });
 class NumberBox extends Element {
     constructor(number) {
@@ -2099,6 +2151,7 @@ class Slider extends Div {
     }
 }
 
+const _clr = new Iris();
 class Gooey extends Resizeable {
     constructor(title) {
         super(PANEL_STYLES.FANCY);
@@ -2144,7 +2197,7 @@ class Folder extends Shrinkable {
         this.add(this.props);
         this.add = function(params, variable, a, b, c, d) {
             const value = params[variable];
-            if (value === undefined) {
+            if (value == undefined) {
                 return null;
             } else if (typeof value === 'boolean') {
                 return this.addBoolean(params, variable);
@@ -2163,6 +2216,40 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        return prop;
+    }
+    addColor(params, variable) {
+        let value = params[variable];
+        let type;
+        if (value == undefined) { return null; }
+        else if (typeof value === 'string' || value instanceof String) { type = 'string'; }
+        else if (Array.isArray(value)) { type = 'array'; }
+        else if (typeof value === 'object') { type = 'object'; }
+        else { type = 'number'; }
+        const prop = new Property();
+        const colorButton = new Color();
+        colorButton.setHexValue(_clr.set(value).hex());
+        function setVariable(newValue) {
+            _clr.set(newValue);
+            switch (type) {
+                case 'string': params[variable] = _clr.hexString(); break;
+                case 'array': _clr.toArray(params[variable]); break;
+                case 'object': _clr.getRGB(params[variable]); break;
+                case 'number': params[variable] = _clr.hex(); break;
+                default:
+            }
+        }
+        colorButton.onInput(() => {
+            setVariable(colorButton.getHexValue());
+            if (typeof prop.change === 'function') prop.change();
+        });
+        colorButton.onChange(() => {
+            setVariable(colorButton.getHexValue());
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
+        const row = this.props.addRow(prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
         return prop;
     }
@@ -2507,58 +2594,6 @@ class TreeList extends Div {
             }, { once: true });
         }
         return this;
-    }
-}
-
-class Color extends Button {
-    constructor() {
-        super();
-        const self = this;
-        this.addClass('ColorButton');
-        this.addClass('DropArrow');
-        const colorBox = new Element(document.createElement('input'));
-        colorBox.addClass('ColorInputButton');
-        colorBox.dom.setAttribute('autocomplete', 'off');
-        try { colorBox.dom.type = 'color'; } catch(exception) {}
-        this.add(colorBox);
-        const colorBackground = new Div().addClass('DropColor');
-        colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-        this.add(colorBackground);
-        function colorBoxPointerDown() {
-            self.addClass('Selected');
-        }
-        function colorBoxInput() {
-            colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-            self.dom.setAttribute('tooltip', colorBox.dom.value);
-        }
-        function colorBoxBlur() {
-            self.removeClass('Selected');
-        }
-        colorBox.onPointerDown(colorBoxPointerDown);
-        colorBox.onInput(colorBoxInput);
-        colorBox.dom.addEventListener('blur', colorBoxBlur);
-        this.getValue = function() {
-            if (! colorBox.dom) return 0;
-            return colorBox.dom.value;
-        };
-        this.getHexValue = function() {
-            if (! colorBox.dom) return 0;
-            return parseInt(colorBox.dom.value.substring(1), 16);
-        };
-        this.setValue = function(value) {
-            if (! colorBox.dom) return this;
-            colorBox.dom.value = value;
-            colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-            self.dom.setAttribute('tooltip', colorBox.dom.value);
-            return this;
-        };
-        this.setHexValue = function(hex) {
-            if (! colorBox.dom) return this;
-            if (hex === undefined) return this;
-            self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
-            return this;
-        };
-        this.setHexValue(0xffffff);
     }
 }
 

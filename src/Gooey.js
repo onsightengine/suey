@@ -40,6 +40,7 @@
 
 import { ColorScheme } from './utils/ColorScheme.js';
 import { Css } from './utils/Css.js';
+import { Iris } from './utils/Iris.js';
 
 import { FlexSpacer } from './layout/FlexSpacer.js';
 import { Resizeable, RESIZERS } from './panels/Resizeable.js';
@@ -49,8 +50,11 @@ import { PANEL_STYLES } from './panels/Panel.js';
 import { PropertyList, PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 
 import { Checkbox } from './input/Checkbox.js';
+import { Color } from './input/Color.js';
 import { NumberBox } from './input/Number.js';
 import { Slider } from './input/Slider.js';
+
+const _clr = new Iris();
 
 class Gooey extends Resizeable {
 
@@ -115,7 +119,7 @@ class Folder extends Shrinkable {
 
         this.add = function(params, variable, a, b, c, d) {
             const value = params[variable];
-            if (value === undefined) {
+            if (value == undefined) {
                 return null;
             } else if (typeof value === 'boolean') {
                 return this.addBoolean(params, variable);
@@ -135,6 +139,48 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        return prop;
+    }
+
+    /**
+     * Formats:
+     *  string: '#ffffff'
+     *  int: 0xffffff
+     *  object: { r: 1, g: 1, b: 1 }
+     *  array: [ 1, 1, 1 ]
+     */
+    addColor(params, variable) {
+        let value = params[variable];
+        let type;
+        if (value == undefined) { return null; }
+        else if (typeof value === 'string' || value instanceof String) { type = 'string'; }
+        else if (Array.isArray(value)) { type = 'array'; }
+        else if (typeof value === 'object') { type = 'object'; }
+        else { type = 'number'; }
+        const prop = new Property();
+        const colorButton = new Color();
+        colorButton.setHexValue(_clr.set(value).hex()); // set from int
+        function setVariable(newValue) {
+            _clr.set(newValue);
+            switch (type) {
+                case 'string': params[variable] = _clr.hexString(); break;
+                case 'array': _clr.toArray(params[variable]); break;
+                case 'object': _clr.getRGB(params[variable]); break;
+                case 'number': params[variable] = _clr.hex(); break;
+                default:
+            }
+        }
+        colorButton.onInput(() => {
+            setVariable(colorButton.getHexValue());
+            if (typeof prop.change === 'function') prop.change();
+        });
+        colorButton.onChange(() => {
+            setVariable(colorButton.getHexValue());
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
+        const row = this.props.addRow(prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
         return prop;
     }
