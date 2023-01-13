@@ -53,6 +53,7 @@ import { Checkbox } from './input/Checkbox.js';
 import { Color } from './input/Color.js';
 import { NumberBox } from './input/Number.js';
 import { Slider } from './input/Slider.js';
+import { TextBox } from './input/TextBox.js';
 
 const _clr = new Iris();
 
@@ -125,6 +126,8 @@ class Folder extends Shrinkable {
                 return this.addBoolean(params, variable);
             } else if (typeof value === 'number') {
                 return this.addNumber(params, variable, a, b, c, d);
+            } else if (typeof value === 'string' || value instanceof String) {
+                return this.addString(params, variable);
             }
         }
     }
@@ -244,6 +247,20 @@ class Folder extends Shrinkable {
         prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); };
         prop.step = function(step) { setStep(step); };
         prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); };
+        return prop;
+    }
+
+    addString(params, variable) {
+        const prop = new Property();
+        const textBox = new TextBox();
+        textBox.setValue(params[variable]);
+        textBox.onChange(() => {
+            params[variable] = textBox.getValue();
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
+        const row = this.props.addRow(prettyTitle(variable), textBox);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
         return prop;
     }
 

@@ -2151,6 +2151,42 @@ class Slider extends Div {
     }
 }
 
+class TextBox extends Element {
+    constructor(text) {
+        super(document.createElement('input'));
+        this.setClass('Input');
+        this.dom.type = 'text';
+        this.dom.setAttribute('autocomplete', 'off');
+        this.dom.setAttribute('spellcheck', 'false');
+        this.setValue(text);
+        function onKeyDown(event) {
+            event.stopPropagation();
+            if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+                if (event.shiftKey) {
+                    editor.redo();
+                } else {
+                    editor.undo();
+                }
+            }
+        }
+        function onKeyUp(event) {
+            event.stopPropagation();
+        }
+        this.onKeyDown(onKeyDown);
+        this.onKeyUp(onKeyUp);
+    }
+    getValue() {
+        if (! this.dom) return null;
+        return this.dom.value;
+    }
+    setValue(value) {
+        if (! this.dom) return this;
+        this.dom.value = value;
+        return this;
+    }
+}
+
 const _clr = new Iris();
 class Gooey extends Resizeable {
     constructor(title) {
@@ -2203,6 +2239,8 @@ class Folder extends Shrinkable {
                 return this.addBoolean(params, variable);
             } else if (typeof value === 'number') {
                 return this.addNumber(params, variable, a, b, c, d);
+            } else if (typeof value === 'string' || value instanceof String) {
+                return this.addString(params, variable);
             }
         };
     }
@@ -2307,6 +2345,19 @@ class Folder extends Shrinkable {
         prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); };
         prop.step = function(step) { setStep(step); };
         prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); };
+        return prop;
+    }
+    addString(params, variable) {
+        const prop = new Property();
+        const textBox = new TextBox();
+        textBox.setValue(params[variable]);
+        textBox.onChange(() => {
+            params[variable] = textBox.getValue();
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
+        const row = this.props.addRow(prettyTitle(variable), textBox);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
         return prop;
     }
 }
@@ -2921,42 +2972,6 @@ class TextArea extends Element {
             }
         }
         this.onKeyDown(onKeyDown);
-    }
-    getValue() {
-        if (! this.dom) return null;
-        return this.dom.value;
-    }
-    setValue(value) {
-        if (! this.dom) return this;
-        this.dom.value = value;
-        return this;
-    }
-}
-
-class TextBox extends Element {
-    constructor(text) {
-        super(document.createElement('input'));
-        this.setClass('Input');
-        this.dom.type = 'text';
-        this.dom.setAttribute('autocomplete', 'off');
-        this.dom.setAttribute('spellcheck', 'false');
-        this.setValue(text);
-        function onKeyDown(event) {
-            event.stopPropagation();
-            if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
-                event.preventDefault();
-                if (event.shiftKey) {
-                    editor.redo();
-                } else {
-                    editor.undo();
-                }
-            }
-        }
-        function onKeyUp(event) {
-            event.stopPropagation();
-        }
-        this.onKeyDown(onKeyDown);
-        this.onKeyUp(onKeyUp);
     }
     getValue() {
         if (! this.dom) return null;
