@@ -105,6 +105,24 @@
 .PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }
 .PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }
 
+.PropertyFull {
+    margin: auto;
+    margin-right: var(--pad-small) !important;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    min-height: 1.7em;
+    width: calc(100% - var(--pad-small)) !important;
+}
+
+.PropertyFull > * {
+    flex: 1 1 auto;
+    min-height: 1.7em;
+    min-width: 0;
+    margin: auto;
+    height: 100%;
+}
+
 /* --- RIGHT SIDE OF ROW --- */
 
 .PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),

@@ -57,7 +57,7 @@ input[type=number] {
 /***** ELEMENT: Button *****/
 
 button {
-    display: flex;
+    /* display: flex; */
     position: relative;
 
     cursor: pointer;

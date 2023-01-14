@@ -40,7 +40,13 @@ class PropertyList extends Div {
     }
 
     addRow(title = '', ...controls) {
-        const row = this.createRow(title, this.createControls(...controls));
+        const row = this.createRow(title, ...controls);
+        this.add(row);
+        return row;
+    }
+
+    addRowWithoutTitle(...controls) {
+        const row = this.createRowWithoutTitle(...controls);
         this.add(row);
         return row;
     }
@@ -79,6 +85,16 @@ class PropertyList extends Div {
         return row;
     }
 
+    /** Creates row from widgets, spacing defaults to this.rowSizing */
+    createRowWithoutTitle(...controls) {
+        const widgets = this.createControls(...controls);
+        widgets.removeClass('PropertyRight').addClass('PropertyFull');
+        const row = new Row().addClass('PropertyRow').add(widgets);
+        row.leftWidget = widgets;
+        row.rightWidget = widgets;
+        return row;
+    }
+
     /** Creates a zero margin Row to hold right side controls of a Property Row */
     createControls(/* any number of Osui Elements */) {
         const rightRow = new Row().setStyle('margin', '0', 'padding', '0').addClass('PropertyRight');
@@ -90,7 +106,7 @@ class PropertyList extends Div {
                 rightRow.add(argument);
                 if (i < args.length - 1) rightRow.add(new Span().addClass('PropertySpace'));
             } else {
-                console.error('PropertyList.createRight():', argument, 'is not an instance of Osui Element.');
+                console.error('PropertyList.createControls():', argument, 'is not an instance of Osui Element.');
             }
         }
         // rightRow.add(new FlexSpacer());

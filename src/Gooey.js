@@ -49,6 +49,7 @@ import { Titled } from './panels/Titled.js';
 import { PANEL_STYLES } from './panels/Panel.js';
 import { PropertyList, PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 
+import { Button } from './input/Button.js';
 import { Checkbox } from './input/Checkbox.js';
 import { Color } from './input/Color.js';
 import { NumberBox } from './input/Number.js';
@@ -128,6 +129,8 @@ class Folder extends Shrinkable {
                 return this.addNumber(params, variable, a, b, c, d);
             } else if (typeof value === 'string' || value instanceof String) {
                 return this.addString(params, variable);
+            } else if (typeof value === 'function') {
+                return this.addFunction(params, variable);
             }
         }
     }
@@ -185,6 +188,15 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        return prop;
+    }
+
+    addFunction(params, variable) {
+        const prop = new Property();
+        const button = new Button(prettyTitle(variable));
+        button.onClick(() => params[variable]());
+        this.props.addRowWithoutTitle(button);
+        prop.name = function(name) { button.setInnerHtml(name); };
         return prop;
     }
 
