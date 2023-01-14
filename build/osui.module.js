@@ -1470,6 +1470,109 @@ class Panel extends Div {
     }
 }
 
+class Row extends Div {
+    constructor() {
+        super();
+        this.addClass('Row');
+    }
+}
+
+class Text extends Span {
+    constructor(innerHtml) {
+        super(innerHtml);
+        this.setClass('Text');
+        this.setCursor('default');
+    }
+}
+
+const PROPERTY_SIZE = {
+    HALF:	'half',
+    FIFTHS: 'fifths',
+    THIRD:	'third',
+};
+const LEFT_SPACING = {
+    TABS:   'tabs',
+    NORMAL: 'normal',
+};
+class PropertyList extends Div {
+    constructor(rowSizing = PROPERTY_SIZE.HALF, leftSpacing = LEFT_SPACING.TABS) {
+        super();
+        this.addClass('PropertyList');
+        this.setStyle('display', 'block');
+        this.rowSizing = rowSizing;
+        this.leftSpacing = leftSpacing;
+        this.setRowSizeHalfs = function() { this.rowSizing = PROPERTY_SIZE.HALF; };
+        this.setRowSizeFifths = function() { this.rowSizing = PROPERTY_SIZE.FIFTHS; };
+        this.setRowSizeThirds = function() { this.rowSizing = PROPERTY_SIZE.THIRD; };
+    }
+    addHeader(text = '', iconUrl, enlarge = false) {
+        const header = this.createHeader(text, iconUrl, enlarge);
+        this.add(header);
+        return header;
+    }
+    addRow(title = '', ...controls) {
+        const row = this.createRow(title, ...controls);
+        this.add(row);
+        return row;
+    }
+    addRowWithoutTitle(...controls) {
+        const row = this.createRowWithoutTitle(...controls);
+        this.add(row);
+        return row;
+    }
+    createHeader(text = '', iconUrl, enlarge = false) {
+        const header = new Div().setClass('PropertyHeaderTitle');
+        const icon = new VectorBox(iconUrl);
+        if (enlarge) icon.addClass('EnlargeIcon');
+        header.iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
+        header.textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
+        header.add(header.iconHolder, header.textHolder);
+        return header;
+    }
+    createRow(title = '', ...controls) {
+        const rightWidget = this.createControls(...controls);
+        const leftWidget = new Text(title).selectable(false).addClass('PropertyLeft');
+        if (this.leftSpacing === LEFT_SPACING.TABS) leftWidget.addClass('LeftTabSpacing');
+        if (this.rowSizing === PROPERTY_SIZE.THIRD) {
+            leftWidget.addClass('PropertyLeftThird');
+            rightWidget.addClass('PropertyRightThird');
+        } else if (this.rowSizing === PROPERTY_SIZE.FIFTHS) {
+            leftWidget.addClass('PropertyLeftFifth');
+            rightWidget.addClass('PropertyRightFifth');
+        } else {
+            leftWidget.addClass('PropertyLeftHalf');
+            rightWidget.addClass('PropertyRightHalf');
+        }
+        const row = new Row().addClass('PropertyRow').add(leftWidget, rightWidget);
+        row.leftWidget = leftWidget;
+        row.rightWidget = rightWidget;
+        return row;
+    }
+    createRowWithoutTitle(...controls) {
+        const widgets = this.createControls(...controls);
+        widgets.removeClass('PropertyRight').addClass('PropertyFull');
+        const row = new Row().addClass('PropertyRow').add(widgets);
+        row.leftWidget = widgets;
+        row.rightWidget = widgets;
+        return row;
+    }
+    createControls() {
+        const rightRow = new Row().setStyle('margin', '0', 'padding', '0').addClass('PropertyRight');
+        let args = arguments;
+        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
+        for (let i = 0; i < args.length; i++) {
+            const argument = args[i];
+            if (argument instanceof Element && argument.isElement) {
+                rightRow.add(argument);
+                if (i < args.length - 1) rightRow.add(new Span().addClass('PropertySpace'));
+            } else {
+                console.error('PropertyList.createControls():', argument, 'is not an instance of Osui Element.');
+            }
+        }
+        return rightRow;
+    }
+}
+
 const RESIZERS = {
     TOP:            'Top',
     BOTTOM:     	'Bottom',
@@ -1654,109 +1757,6 @@ class Titled extends Div {
     }
 }
 
-class Row extends Div {
-    constructor() {
-        super();
-        this.addClass('Row');
-    }
-}
-
-class Text extends Span {
-    constructor(innerHtml) {
-        super(innerHtml);
-        this.setClass('Text');
-        this.setCursor('default');
-    }
-}
-
-const PROPERTY_SIZE = {
-    HALF:	'half',
-    FIFTHS: 'fifths',
-    THIRD:	'third',
-};
-const LEFT_SPACING = {
-    TABS:   'tabs',
-    NORMAL: 'normal',
-};
-class PropertyList extends Div {
-    constructor(rowSizing = PROPERTY_SIZE.HALF, leftSpacing = LEFT_SPACING.TABS) {
-        super();
-        this.addClass('PropertyList');
-        this.setStyle('display', 'block');
-        this.rowSizing = rowSizing;
-        this.leftSpacing = leftSpacing;
-        this.setRowSizeHalfs = function() { this.rowSizing = PROPERTY_SIZE.HALF; };
-        this.setRowSizeFifths = function() { this.rowSizing = PROPERTY_SIZE.FIFTHS; };
-        this.setRowSizeThirds = function() { this.rowSizing = PROPERTY_SIZE.THIRD; };
-    }
-    addHeader(text = '', iconUrl, enlarge = false) {
-        const header = this.createHeader(text, iconUrl, enlarge);
-        this.add(header);
-        return header;
-    }
-    addRow(title = '', ...controls) {
-        const row = this.createRow(title, ...controls);
-        this.add(row);
-        return row;
-    }
-    addRowWithoutTitle(...controls) {
-        const row = this.createRowWithoutTitle(...controls);
-        this.add(row);
-        return row;
-    }
-    createHeader(text = '', iconUrl, enlarge = false) {
-        const header = new Div().setClass('PropertyHeaderTitle');
-        const icon = new VectorBox(iconUrl);
-        if (enlarge) icon.addClass('EnlargeIcon');
-        header.iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
-        header.textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
-        header.add(header.iconHolder, header.textHolder);
-        return header;
-    }
-    createRow(title = '', ...controls) {
-        const rightWidget = this.createControls(...controls);
-        const leftWidget = new Text(title).selectable(false).addClass('PropertyLeft');
-        if (this.leftSpacing === LEFT_SPACING.TABS) leftWidget.addClass('LeftTabSpacing');
-        if (this.rowSizing === PROPERTY_SIZE.THIRD) {
-            leftWidget.addClass('PropertyLeftThird');
-            rightWidget.addClass('PropertyRightThird');
-        } else if (this.rowSizing === PROPERTY_SIZE.FIFTHS) {
-            leftWidget.addClass('PropertyLeftFifth');
-            rightWidget.addClass('PropertyRightFifth');
-        } else {
-            leftWidget.addClass('PropertyLeftHalf');
-            rightWidget.addClass('PropertyRightHalf');
-        }
-        const row = new Row().addClass('PropertyRow').add(leftWidget, rightWidget);
-        row.leftWidget = leftWidget;
-        row.rightWidget = rightWidget;
-        return row;
-    }
-    createRowWithoutTitle(...controls) {
-        const widgets = this.createControls(...controls);
-        widgets.removeClass('PropertyRight').addClass('PropertyFull');
-        const row = new Row().addClass('PropertyRow').add(widgets);
-        row.leftWidget = widgets;
-        row.rightWidget = widgets;
-        return row;
-    }
-    createControls() {
-        const rightRow = new Row().setStyle('margin', '0', 'padding', '0').addClass('PropertyRight');
-        let args = arguments;
-        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
-        for (let i = 0; i < args.length; i++) {
-            const argument = args[i];
-            if (argument instanceof Element && argument.isElement) {
-                rightRow.add(argument);
-                if (i < args.length - 1) rightRow.add(new Span().addClass('PropertySpace'));
-            } else {
-                console.error('PropertyList.createControls():', argument, 'is not an instance of Osui Element.');
-            }
-        }
-        return rightRow;
-    }
-}
-
 class Checkbox extends Element {
     constructor(boolean) {
         super(document.createElement('label'));
@@ -1792,19 +1792,26 @@ class Color extends Button {
         const colorBackground = new Div().addClass('DropColor');
         colorBackground.setStyle('backgroundColor', colorBox.dom.value);
         this.add(colorBackground);
-        function colorBoxPointerDown() {
-            self.addClass('Selected');
+        let selected = false;
+        function colorBoxClick(event) {
+            if (! selected) {
+                self.addClass('Selected');
+                selected = true;
+            }
         }
         function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
+            selected = false;
         }
         function colorBoxBlur() {
             self.removeClass('Selected');
+            selected = false;
         }
-        colorBox.onPointerDown(colorBoxPointerDown);
+        colorBox.onClick(colorBoxClick);
         colorBox.onInput(colorBoxInput);
         colorBox.dom.addEventListener('blur', colorBoxBlur);
+        colorBox.dom.addEventListener('focusout', colorBoxBlur);
         this.getValue = function() {
             if (! colorBox.dom) return 0;
             return colorBox.dom.value;
@@ -1827,6 +1834,313 @@ class Color extends Button {
             return this;
         };
         this.setHexValue(0xffffff);
+    }
+}
+
+const TRIANGLE_SIZE = 3.0;
+class Menu extends Div {
+    constructor() {
+        super();
+        this.setClass('Menu');
+        this.mouseSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        this.mouseSvg.setAttribute('class', 'MenuMouseTriangle');
+        this.mouseSvg.setAttribute('pointer-events', 'none');
+        this.mouseSvg.setAttribute('version', '1.1');
+        this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        this.mouseArea.setAttribute('fill', 'aqua');
+        this.mouseArea.setAttribute('opacity', '0.0');
+        this.mouseArea.setAttribute('pointer-events', 'fill');
+        this.mouseSvg.appendChild(this.mouseArea);
+    }
+    isShown() {
+        return this.hasClass('MenuShow');
+    }
+    showMenu(parentDom) {
+        const self = this;
+        this.addClass('MenuShow');
+        this.clickCount = 0;
+        if (Html.isChildOfElementWithClass(this.dom, 'Menu')) {
+            this.mouseArea.setAttribute('pointer-events', 'none');
+            this.contents().dom.appendChild(this.mouseSvg);
+            let timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
+            setTimeout(() => { this.updateMouseArea(); }, timeFloat);
+        }
+        this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
+            this.traverse((child) => {
+                if (dontCloseChildrenOf && Html.isChildOf(child.dom, dontCloseChildrenOf)) {
+                } else {
+                    child.removeClass('MenuShow', 'Selected');
+                    if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
+                    if (child.dom && child.dom.blur) child.dom.blur();
+                }
+            }, applyToSelf);
+            if (applyToSelf) {
+                let parent = parentDom;
+                while (parent) {
+                    if (parentDom.classList.contains('MenuButton')) {
+                        parent.classList.remove('Selected');
+                        parent = undefined;
+                    } else {
+                        parent = parent.parentElement;
+                    }
+                }
+                if (parentDom.classList.contains('MenuButton')) {
+                    document.removeEventListener('pointerdown', onPointerDown);
+                    document.removeEventListener('keydown', onKeyDown);
+                }
+            }
+        };
+        if (parentDom.classList.contains('MenuButton')) {
+            document.addEventListener('pointerdown', onPointerDown);
+            document.addEventListener('keydown', onKeyDown);
+        }
+        function onPointerDown(event) {
+            let menuShouldClose = true;
+            if (self.dom.contains(event.target)) {
+                let node = event.target;
+                let list = node.classList;
+                while (node.parentElement && list.contains('Menu') === false && list.contains('MenuItem') === false) {
+                    node = node.parentElement;
+                    list = node.classList;
+                }
+                if ((list.contains('MenuItem') && list.contains('SubMenuItem')) || list.contains('KeepOpen')) {
+                    menuShouldClose = false;
+                    if (event.target && event.target.tagName.toLowerCase() !== 'input') {
+                        event.preventDefault();
+                    }
+                }
+            }
+            if (menuShouldClose) self.clickCount++;
+            if (self.clickCount === 1) menuShouldClose = false;
+            if (menuShouldClose) {
+                self.closeMenu();
+                if (window.signals) signals.guiLostFocus.dispatch();
+            }
+        }
+        function onKeyDown(event) {
+            switch (event.code) {
+                case 'Escape': self.closeMenu(); break;
+            }
+        }
+        return this;
+    }
+    updateMouseArea() {
+        let parentRect = this.dom.parentElement.getBoundingClientRect();
+        let myRect = this.dom.getBoundingClientRect();
+        let middle = (parentRect.top - myRect.top) + (parentRect.height / 2);
+        let middle1 = middle - (parentRect.height / 2);
+        let middle2 = middle + (parentRect.height / 2);
+        let leftSide = (parentRect.width / TRIANGLE_SIZE);
+        let topSides = 10;
+        this.mouseSvg.style['left'] = `-${leftSide}px`;
+        this.mouseSvg.style['top'] = `-${topSides}px`;
+        this.mouseSvg.setAttribute('width', `${this.getWidth() + leftSide}px`);
+        this.mouseSvg.setAttribute('height', `${this.getHeight() + topSides*2}px`);
+        let point1 = `${leftSide},0`;
+        let point2 = `0,${topSides + middle1}`;
+        let point3 = `0,${topSides + middle2}`;
+        let point4 = `${leftSide},${this.getHeight() + topSides*2}`;
+        this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4}`);
+        this.mouseArea.setAttribute('pointer-events', 'fill');
+        return this;
+    }
+}
+
+class MenuShortcut extends Div {
+    constructor(text = undefined) {
+        super();
+        this.setClass('MenuShortcut');
+        if (text) this.setShortcutText(text);
+    }
+    setShortcutText(text) {
+        if (! text) return this;
+        this.text = text;
+        this.clearContents();
+        for (let i = 0; i < text.length; i++) {
+            let letter = new Div().setClass('MenuShortcutCharacter');
+            let subString = text[i];
+            while (i + 1 < text.length && text[i+1] === text[i+1].toLowerCase()) {
+                subString += text[i+1];
+                i++;
+            }
+            if (subString.length === 1) {
+                letter.setWidth('1em');
+            } else {
+                letter.setStyle('paddingLeft', '0.15em');
+                letter.setStyle('paddingRight', '0.15em');
+            }
+            letter.dom.innerHTML = subString;
+            this.add(letter);
+        }
+        return this;
+    }
+}
+
+class MenuItem extends Div {
+    constructor(text = undefined, icon = undefined, shortcutText = undefined) {
+        super();
+        const self = this;
+        this.setClass('MenuItem');
+        this.setName(text);
+        this.divIcon = new VectorBox(icon);
+        this.divIconHolder = new Div().add(this.divIcon).setClass('MenuIcon');
+        this.divText = new Div().setClass('MenuText');
+        this.divSpacer = new Div().setStyle('flex', '1 1 auto');
+        this.divShortcut = new MenuShortcut(shortcutText);
+        this.add(new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut));
+        this.checked = false;
+        this.disabled = false;
+        this.subMenu = undefined;
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+        this.onContextMenu(onContextMenu);
+        this.onPointerEnter(() => {
+            let parentMenu = self.parent;
+            while (parentMenu && (parentMenu.hasClass('Menu') === false)) parentMenu = parentMenu.parent;
+            if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
+            if (self.subMenu) self.subMenu.showMenu(self.dom);
+        });
+        this.setText(text);
+        this.selectable(false);
+    }
+    isChecked() {
+        return this.checked;
+    }
+    isDisabled() {
+        return this.disabled;
+    }
+    keepOpen() {
+        this.addClass('KeepOpen');
+        return this;
+    }
+    setChecked(checked) {
+        const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
+        if (checked) this.divIcon.addClass('IconColorize'); else this.divIcon.removeClass('IconColorize');
+        this.setImage(imageUrl);
+        this.checked = checked;
+        return this;
+    }
+    setDisabled(disabled) {
+        if (disabled) { this.addClass('Disabled'); } else { this.removeClass('Disabled'); }
+        this.disabled = disabled;
+        return this;
+    }
+    setImage(imageUrl) {
+        this.divIcon.setImage(imageUrl);
+        return this;
+    }
+    setText(text) {
+        let newText = (text) ? text : ' ';
+        this.divText.dom.innerHTML = newText;
+        return this;
+    }
+    attachSubMenu(osuiMenu) {
+        if (osuiMenu.hasClass('Menu') === false) return this;
+        osuiMenu.addClass('SlideDown');
+        this.removeSubMenu();
+        this.addClass('SubMenuItem');
+        this.add(osuiMenu);
+        this.subMenu = osuiMenu;
+        return this;
+    }
+    hasSubMenu() {
+        return this.hasClass('SubMenuItem');
+    }
+    removeSubMenu() {
+        this.removeClass('SubMenuItem');
+        const osuiMenu = this.subMenu;
+        this.subMenu = undefined;
+        for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
+            let child = this.contents().dom.children[i];
+            if (child.classList.contains('Menu')) this.remove(child);
+        }
+        return osuiMenu;
+    }
+}
+
+class Dropdown extends Button {
+    constructor(innerHtml) {
+        innerHtml = innerHtml ?? '&nbsp';
+        super(innerHtml);
+        const self = this;
+        this.items = [];
+        this.value = undefined;
+        this.menuOffsetX = 0;
+        this.menuOffsetY = 5;
+        this.addClass('Dropdown');
+        this.addClass('DropArrow');
+        function onWheel(event) {
+            event.preventDefault();
+            let upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
+            let currentValue = self.getValue();
+            if (currentValue === undefined || currentValue === null) return;
+            let currentSelectedItem = self.getItemByKey(currentValue);
+            if (! currentSelectedItem) return;
+            let currentIndex = self.items.indexOf(currentSelectedItem);
+            if (currentIndex === -1) return;
+            if (event.deltaY < 0) {
+                if (currentIndex > 0) {
+                    currentIndex -= 1;
+                    self.setValue(self.items[currentIndex].value);
+                    if (self.dom) self.dom.dispatchEvent(new Event('change'));
+                }
+            } else {
+                if (currentIndex < (self.items.length - 1)) {
+                    currentIndex += 1;
+                    self.setValue(self.items[currentIndex].value);
+                    if (self.dom) self.dom.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+        this.onWheel(onWheel);
+    }
+    getItemByKey(key) {
+        for (let i = 0; i < this.items.length; i++) {
+            if (this.items[i].value === key) return this.items[i];
+        }
+        return undefined;
+    }
+    getValue() {
+        return this.value;
+    }
+    setValue(value) {
+        value = String(value);
+        if (this.value !== value) {
+            for (let i = 0; i < this.items.length; i++) {
+                let item = this.items[i];
+                if (item.value === value) {
+                    for (let i = 0; i < this.items.length; i++) {
+                        this.items[i].setChecked(false);
+                    }
+                    item.setChecked(true);
+                    this.value = value;
+                    if (this.dom) this.dom.innerHTML = item.dom.innerText;
+                    return this;
+                }
+            }
+        }
+        return this;
+    }
+    setOptions(options) {
+        if (this.detachMenu) this.detachMenu();
+        this.items.length = 0;
+        for (const key in options) {
+            let item = new MenuItem(options[key]);
+            item.value = key;
+            this.items.push(item);
+            const self = this;
+            item.onPointerDown(function() {
+                self.setValue(item.value);
+                if (self.dom) self.dom.dispatchEvent(new Event('change'));
+            });
+        }
+        let menu = new Menu();
+        for (let i = 0; i < this.items.length; i++) {
+            menu.add(this.items[i]);
+        }
+        this.attachMenu(menu);
+        menu.addClass('SelectMenu');
     }
 }
 
@@ -2251,15 +2565,24 @@ class Folder extends Shrinkable {
             } else if (typeof value === 'boolean') {
                 return this.addBoolean(params, variable);
             } else if (typeof value === 'number') {
-                return this.addNumber(params, variable, a, b, c, d);
+                if (Array.isArray(a) && a.length > 0) {
+                    return this.addList(params, variable, a);
+                } else {
+                    return this.addNumber(params, variable, a, b, c, d);
+                }
             } else if (typeof value === 'string' || value instanceof String) {
                 return this.addString(params, variable);
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
+            } else if (Array.isArray(value) && value.length > 0) {
+                if (typeof value[0] === 'string' || value[0] instanceof String) {
+                    return this.addList(params, variable);
+                }
             }
         };
     }
     addBoolean(params, variable) {
+        const self = this;
         const prop = new Property();
         const boolBox = new Checkbox();
         boolBox.setValue(params[variable]);
@@ -2269,10 +2592,11 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
     addColor(params, variable) {
+        const self = this;
         let value = params[variable];
         let type;
         if (value == undefined) { return null; }
@@ -2303,18 +2627,48 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
     addFunction(params, variable) {
+        const self = this;
         const prop = new Property();
         const button = new Button(prettyTitle(variable));
         button.onClick(() => params[variable]());
-        this.props.addRowWithoutTitle(button);
-        prop.name = function(name) { button.setInnerHtml(name); };
+        const row = this.props.addRow(prettyTitle(variable), button);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return self; };
+        return prop;
+    }
+    addList(params, variable, options) {
+        const self = this;
+        const prop = new Property();
+        const selectOptions = {};
+        for (let option of options) selectOptions[option] = option;
+        const selectDropDown = new Dropdown();
+        selectDropDown.overflowMenu = OVERFLOW.LEFT;
+        selectDropDown.setOptions(selectOptions);
+        selectDropDown.onChange(() => {
+            let value = selectDropDown.getValue();
+            let keys = Object.keys(selectOptions);
+            for (let i = 0; i < keys.length; i++) {
+                if (keys[i] === value) { params[variable] = i; break; }
+                if (typeof prop.change === 'function') prop.change();
+                if (typeof prop.finishChange === 'function') prop.finishChange();
+            }
+            params[variable];
+        });
+        function setByNumber(num) {
+            let keys = Object.keys(selectOptions);
+            let value = -1;
+            for (let i = 0; i < keys.length; i++) { if (i === num) { selectDropDown.setValue(keys[i]); break; } }
+        }
+        setByNumber(params[variable]);
+        const row = this.props.addRow(prettyTitle(variable), selectDropDown);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
     addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
+        const self = this;
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
@@ -2363,14 +2717,15 @@ class Folder extends Shrinkable {
         }
         checkForMinMax();
         const row = this.props.addRow(prettyTitle(variable), slider, slideBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
-        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); };
-        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); };
-        prop.step = function(step) { setStep(step); };
-        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return self; };
+        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return self; };
+        prop.step = function(step) { setStep(step); return self; };
+        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return self; };
         return prop;
     }
     addString(params, variable) {
+        const self = this;
         const prop = new Property();
         const textBox = new TextBox();
         textBox.setValue(params[variable]);
@@ -2380,19 +2735,20 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), textBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
 }
 class Property {
     constructor() {
-        this.name = function() {};
+        const self = this;
+        this.name = function() { return self; };
         this.change = null;
         this.finishChange = null;
-        this.min = function() {};
-        this.max = function() {};
-        this.step = function() {};
-        this.precision = function() {};
+        this.min = function() { return self; };
+        this.max = function() { return self; };
+        this.step = function() { return self; };
+        this.precision = function() { return self; };
     }
     onChange(callback) {
         this.change = callback;
@@ -2668,313 +3024,6 @@ class TreeList extends Div {
             }, { once: true });
         }
         return this;
-    }
-}
-
-const TRIANGLE_SIZE = 3.0;
-class Menu extends Div {
-    constructor() {
-        super();
-        this.setClass('Menu');
-        this.mouseSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.mouseSvg.setAttribute('class', 'MenuMouseTriangle');
-        this.mouseSvg.setAttribute('pointer-events', 'none');
-        this.mouseSvg.setAttribute('version', '1.1');
-        this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        this.mouseArea.setAttribute('fill', 'aqua');
-        this.mouseArea.setAttribute('opacity', '0.0');
-        this.mouseArea.setAttribute('pointer-events', 'fill');
-        this.mouseSvg.appendChild(this.mouseArea);
-    }
-    isShown() {
-        return this.hasClass('MenuShow');
-    }
-    showMenu(parentDom) {
-        const self = this;
-        this.addClass('MenuShow');
-        this.clickCount = 0;
-        if (Html.isChildOfElementWithClass(this.dom, 'Menu')) {
-            this.mouseArea.setAttribute('pointer-events', 'none');
-            this.contents().dom.appendChild(this.mouseSvg);
-            let timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
-            setTimeout(() => { this.updateMouseArea(); }, timeFloat);
-        }
-        this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
-            this.traverse((child) => {
-                if (dontCloseChildrenOf && Html.isChildOf(child.dom, dontCloseChildrenOf)) {
-                } else {
-                    child.removeClass('MenuShow', 'Selected');
-                    if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
-                    if (child.dom && child.dom.blur) child.dom.blur();
-                }
-            }, applyToSelf);
-            if (applyToSelf) {
-                let parent = parentDom;
-                while (parent) {
-                    if (parentDom.classList.contains('MenuButton')) {
-                        parent.classList.remove('Selected');
-                        parent = undefined;
-                    } else {
-                        parent = parent.parentElement;
-                    }
-                }
-                if (parentDom.classList.contains('MenuButton')) {
-                    document.removeEventListener('pointerdown', onPointerDown);
-                    document.removeEventListener('keydown', onKeyDown);
-                }
-            }
-        };
-        if (parentDom.classList.contains('MenuButton')) {
-            document.addEventListener('pointerdown', onPointerDown);
-            document.addEventListener('keydown', onKeyDown);
-        }
-        function onPointerDown(event) {
-            let menuShouldClose = true;
-            if (self.dom.contains(event.target)) {
-                let node = event.target;
-                let list = node.classList;
-                while (node.parentElement && list.contains('Menu') === false && list.contains('MenuItem') === false) {
-                    node = node.parentElement;
-                    list = node.classList;
-                }
-                if ((list.contains('MenuItem') && list.contains('SubMenuItem')) || list.contains('KeepOpen')) {
-                    menuShouldClose = false;
-                    if (event.target && event.target.tagName.toLowerCase() !== 'input') {
-                        event.preventDefault();
-                    }
-                }
-            }
-            if (menuShouldClose) self.clickCount++;
-            if (self.clickCount === 1) menuShouldClose = false;
-            if (menuShouldClose) {
-                self.closeMenu();
-                if (window.signals) signals.guiLostFocus.dispatch();
-            }
-        }
-        function onKeyDown(event) {
-            switch (event.code) {
-                case 'Escape': self.closeMenu(); break;
-            }
-        }
-        return this;
-    }
-    updateMouseArea() {
-        let parentRect = this.dom.parentElement.getBoundingClientRect();
-        let myRect = this.dom.getBoundingClientRect();
-        let middle = (parentRect.top - myRect.top) + (parentRect.height / 2);
-        let middle1 = middle - (parentRect.height / 2);
-        let middle2 = middle + (parentRect.height / 2);
-        let leftSide = (parentRect.width / TRIANGLE_SIZE);
-        let topSides = 10;
-        this.mouseSvg.style['left'] = `-${leftSide}px`;
-        this.mouseSvg.style['top'] = `-${topSides}px`;
-        this.mouseSvg.setAttribute('width', `${this.getWidth() + leftSide}px`);
-        this.mouseSvg.setAttribute('height', `${this.getHeight() + topSides*2}px`);
-        let point1 = `${leftSide},0`;
-        let point2 = `0,${topSides + middle1}`;
-        let point3 = `0,${topSides + middle2}`;
-        let point4 = `${leftSide},${this.getHeight() + topSides*2}`;
-        this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4}`);
-        this.mouseArea.setAttribute('pointer-events', 'fill');
-        return this;
-    }
-}
-
-class MenuShortcut extends Div {
-    constructor(text = undefined) {
-        super();
-        this.setClass('MenuShortcut');
-        if (text) this.setShortcutText(text);
-    }
-    setShortcutText(text) {
-        if (! text) return this;
-        this.text = text;
-        this.clearContents();
-        for (let i = 0; i < text.length; i++) {
-            let letter = new Div().setClass('MenuShortcutCharacter');
-            let subString = text[i];
-            while (i + 1 < text.length && text[i+1] === text[i+1].toLowerCase()) {
-                subString += text[i+1];
-                i++;
-            }
-            if (subString.length === 1) {
-                letter.setWidth('1em');
-            } else {
-                letter.setStyle('paddingLeft', '0.15em');
-                letter.setStyle('paddingRight', '0.15em');
-            }
-            letter.dom.innerHTML = subString;
-            this.add(letter);
-        }
-        return this;
-    }
-}
-
-class MenuItem extends Div {
-    constructor(text = undefined, icon = undefined, shortcutText = undefined) {
-        super();
-        const self = this;
-        this.setClass('MenuItem');
-        this.setName(text);
-        this.divIcon = new VectorBox(icon);
-        this.divIconHolder = new Div().add(this.divIcon).setClass('MenuIcon');
-        this.divText = new Div().setClass('MenuText');
-        this.divSpacer = new Div().setStyle('flex', '1 1 auto');
-        this.divShortcut = new MenuShortcut(shortcutText);
-        this.add(new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut));
-        this.checked = false;
-        this.disabled = false;
-        this.subMenu = undefined;
-        function onContextMenu(event) {
-            event.preventDefault();
-        }
-        this.onContextMenu(onContextMenu);
-        this.onPointerEnter(() => {
-            let parentMenu = self.parent;
-            while (parentMenu && (parentMenu.hasClass('Menu') === false)) parentMenu = parentMenu.parent;
-            if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
-            if (self.subMenu) self.subMenu.showMenu(self.dom);
-        });
-        this.setText(text);
-        this.selectable(false);
-    }
-    isChecked() {
-        return this.checked;
-    }
-    isDisabled() {
-        return this.disabled;
-    }
-    keepOpen() {
-        this.addClass('KeepOpen');
-        return this;
-    }
-    setChecked(checked) {
-        const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
-        if (checked) this.divIcon.addClass('IconColorize'); else this.divIcon.removeClass('IconColorize');
-        this.setImage(imageUrl);
-        this.checked = checked;
-        return this;
-    }
-    setDisabled(disabled) {
-        if (disabled) { this.addClass('Disabled'); } else { this.removeClass('Disabled'); }
-        this.disabled = disabled;
-        return this;
-    }
-    setImage(imageUrl) {
-        this.divIcon.setImage(imageUrl);
-        return this;
-    }
-    setText(text) {
-        let newText = (text) ? text : ' ';
-        this.divText.dom.innerHTML = newText;
-        return this;
-    }
-    attachSubMenu(osuiMenu) {
-        if (osuiMenu.hasClass('Menu') === false) return this;
-        osuiMenu.addClass('SlideDown');
-        this.removeSubMenu();
-        this.addClass('SubMenuItem');
-        this.add(osuiMenu);
-        this.subMenu = osuiMenu;
-        return this;
-    }
-    hasSubMenu() {
-        return this.hasClass('SubMenuItem');
-    }
-    removeSubMenu() {
-        this.removeClass('SubMenuItem');
-        const osuiMenu = this.subMenu;
-        this.subMenu = undefined;
-        for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
-            let child = this.contents().dom.children[i];
-            if (child.classList.contains('Menu')) this.remove(child);
-        }
-        return osuiMenu;
-    }
-}
-
-class Dropdown extends Button {
-    constructor(innerHtml) {
-        innerHtml = innerHtml ?? '&nbsp';
-        super(innerHtml);
-        const self = this;
-        this.items = [];
-        this.value = undefined;
-        this.menuOffsetX = 0;
-        this.menuOffsetY = 5;
-        this.addClass('Dropdown');
-        this.addClass('DropArrow');
-        function onWheel(event) {
-            event.preventDefault();
-            let upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
-            let currentValue = self.getValue();
-            if (currentValue === undefined || currentValue === null) return;
-            let currentSelectedItem = self.getItemByKey(currentValue);
-            if (! currentSelectedItem) return;
-            let currentIndex = self.items.indexOf(currentSelectedItem);
-            if (currentIndex === -1) return;
-            if (event.deltaY < 0) {
-                if (currentIndex > 0) {
-                    currentIndex -= 1;
-                    self.setValue(self.items[currentIndex].value);
-                    if (self.dom) self.dom.dispatchEvent(new Event('change'));
-                }
-            } else {
-                if (currentIndex < (self.items.length - 1)) {
-                    currentIndex += 1;
-                    self.setValue(self.items[currentIndex].value);
-                    if (self.dom) self.dom.dispatchEvent(new Event('change'));
-                }
-            }
-        }
-        this.onWheel(onWheel);
-    }
-    getItemByKey(key) {
-        for (let i = 0; i < this.items.length; i++) {
-            if (this.items[i].value === key) return this.items[i];
-        }
-        return undefined;
-    }
-    getValue() {
-        return this.value;
-    }
-    setValue(value) {
-        value = String(value);
-        if (this.value !== value) {
-            for (let i = 0; i < this.items.length; i++) {
-                let item = this.items[i];
-                if (item.value === value) {
-                    for (let i = 0; i < this.items.length; i++) {
-                        this.items[i].setChecked(false);
-                    }
-                    item.setChecked(true);
-                    this.value = value;
-                    if (this.dom) this.dom.innerHTML = item.dom.innerText;
-                    return this;
-                }
-            }
-        }
-        return this;
-    }
-    setOptions(options) {
-        if (this.detachMenu) this.detachMenu();
-        this.items.length = 0;
-        for (const key in options) {
-            let item = new MenuItem(options[key]);
-            item.value = key;
-            this.items.push(item);
-            const self = this;
-            item.onPointerDown(function() {
-                self.setValue(item.value);
-                if (self.dom) self.dom.dispatchEvent(new Event('change'));
-            });
-        }
-        let menu = new Menu();
-        for (let i = 0; i < this.items.length; i++) {
-            menu.add(this.items[i]);
-        }
-        this.attachMenu(menu);
-        menu.addClass('SelectMenu');
     }
 }
 

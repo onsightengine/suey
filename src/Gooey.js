@@ -43,15 +43,17 @@ import { Css } from './utils/Css.js';
 import { Iris } from './utils/Iris.js';
 
 import { FlexSpacer } from './layout/FlexSpacer.js';
+import { OVERFLOW } from './utils/Popper.js';
+import { PANEL_STYLES } from './panels/Panel.js';
+import { PropertyList, PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 import { Resizeable, RESIZERS } from './panels/Resizeable.js';
 import { Shrinkable } from './panels/Shrinkable.js';
 import { Titled } from './panels/Titled.js';
-import { PANEL_STYLES } from './panels/Panel.js';
-import { PropertyList, PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 
 import { Button } from './input/Button.js';
 import { Checkbox } from './input/Checkbox.js';
 import { Color } from './input/Color.js';
+import { Dropdown } from './input/Dropdown.js';
 import { NumberBox } from './input/Number.js';
 import { Slider } from './input/Slider.js';
 import { TextBox } from './input/TextBox.js';
@@ -119,6 +121,28 @@ class Folder extends Shrinkable {
         this.props = new PropertyList(PROPERTY_SIZE.FIFTHS, LEFT_SPACING.NORMAL);
         this.add(this.props);
 
+        /**
+         * const params = {
+         *      myFunction: () => console.log('hello world'),
+         *      myBoolean: true,
+         *      myList: 0,
+         *      myNumber: 75,
+         *      myString: 'California',
+         *
+         *      myColorString: '#ffffff',
+         *      myColorInt: 0xffffff,
+         *      myColorObject: { r: 1, g: 1, b: 1 },
+         *      myColorArray: [ 1, 1, 1 ],
+         * }
+         *
+         * TYPES                OBJECT VALUE    EXAMPLE
+         *  button              function        folder.add(params, 'myFunction');
+         *  checkbox            boolean         folder.add(params, 'myBoolean');
+         *  color               several types   folder.addColor(params, 'myColor______');
+         *  list                number          folder.add(params, 'myList', [ 'apple', 'banana', 'cherry' ]);
+         *  number / slider     number          folder.add(params, 'myNumber', min, max, step, precision);
+         *  text box            string          folder.add(params, 'myString');
+         */
         this.add = function(params, variable, a, b, c, d) {
             const value = params[variable];
             if (value == undefined) {
@@ -126,16 +150,25 @@ class Folder extends Shrinkable {
             } else if (typeof value === 'boolean') {
                 return this.addBoolean(params, variable);
             } else if (typeof value === 'number') {
-                return this.addNumber(params, variable, a, b, c, d);
+                if (Array.isArray(a) && a.length > 0) {
+                    return this.addList(params, variable, a);
+                } else {
+                    return this.addNumber(params, variable, a, b, c, d);
+                }
             } else if (typeof value === 'string' || value instanceof String) {
                 return this.addString(params, variable);
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
+            } else if (Array.isArray(value) && value.length > 0) {
+                if (typeof value[0] === 'string' || value[0] instanceof String) {
+                    return this.addList(params, variable);
+                }
             }
         }
     }
 
     addBoolean(params, variable) {
+        const self = this;
         const prop = new Property();
         const boolBox = new Checkbox();
         boolBox.setValue(params[variable]);
@@ -145,18 +178,12 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
 
-    /**
-     * Formats:
-     *  string: '#ffffff'
-     *  int: 0xffffff
-     *  object: { r: 1, g: 1, b: 1 }
-     *  array: [ 1, 1, 1 ]
-     */
     addColor(params, variable) {
+        const self = this;
         let value = params[variable];
         let type;
         if (value == undefined) { return null; }
@@ -187,20 +214,57 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
 
     addFunction(params, variable) {
+        const self = this;
         const prop = new Property();
         const button = new Button(prettyTitle(variable));
         button.onClick(() => params[variable]());
-        this.props.addRowWithoutTitle(button);
-        prop.name = function(name) { button.setInnerHtml(name); };
+        // this.props.addRowWithoutTitle(button);
+        // prop.name = function(name) { button.setInnerHtml(name); return self; };
+        const row = this.props.addRow(prettyTitle(variable), button);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return self; };
+        return prop;
+    }
+
+    addList(params, variable, options) {
+        const self = this;
+        const prop = new Property();
+
+        const selectOptions = {};
+        for (let option of options) selectOptions[option] = option;
+
+        const selectDropDown = new Dropdown();
+        selectDropDown.overflowMenu = OVERFLOW.LEFT;
+        selectDropDown.setOptions(selectOptions);
+        selectDropDown.onChange(() => {
+            let value = selectDropDown.getValue();
+            let keys = Object.keys(selectOptions);
+            for (let i = 0; i < keys.length; i++) {
+                if (keys[i] === value) { params[variable] = i; break; }
+                if (typeof prop.change === 'function') prop.change();
+                if (typeof prop.finishChange === 'function') prop.finishChange();
+            }
+            params[variable];
+        });
+
+        function setByNumber(num) {
+            let keys = Object.keys(selectOptions);
+            let value = -1;
+            for (let i = 0; i < keys.length; i++) { if (i === num) { selectDropDown.setValue(keys[i]); break; } }
+        }
+        setByNumber(params[variable]);
+
+        const row = this.props.addRow(prettyTitle(variable), selectDropDown);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
 
     addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
+        const self = this;
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
@@ -254,15 +318,16 @@ class Folder extends Shrinkable {
         checkForMinMax();
 
         const row = this.props.addRow(prettyTitle(variable), slider, slideBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
-        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); };
-        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); };
-        prop.step = function(step) { setStep(step); };
-        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return self; };
+        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return self; };
+        prop.step = function(step) { setStep(step); return self; };
+        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return self; };
         return prop;
     }
 
     addString(params, variable) {
+        const self = this;
         const prop = new Property();
         const textBox = new TextBox();
         textBox.setValue(params[variable]);
@@ -272,7 +337,7 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), textBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
         return prop;
     }
 
@@ -281,17 +346,18 @@ class Folder extends Shrinkable {
 class Property {
 
     constructor() {
-        this.name = function() {};          // to be overwritten in 'add_______'
+        const self = this;
+        this.name = function() { return self; };        // to be overwritten in 'add_______'
 
         // Callbacks
         this.change = null;
         this.finishChange = null;
 
         // Number Functions
-        this.min = function() {};           // to be overwritten in 'addNumber'
-        this.max = function() {};           // to be overwritten in 'addNumber'
-        this.step = function() {};          // to be overwritten in 'addNumber'
-        this.precision = function() {};     // to be overwritten in 'addNumber'
+        this.min = function() { return self; };         // to be overwritten in 'addNumber'
+        this.max = function() { return self; };         // to be overwritten in 'addNumber'
+        this.step = function() { return self; };        // to be overwritten in 'addNumber'
+        this.precision = function() { return self; };   // to be overwritten in 'addNumber'
     }
 
     onChange(callback) {
@@ -309,7 +375,7 @@ class Property {
 /**
  * Capitalizes every word in a string and adds spaces between CamelCaseWords
  *
- * @param {*} string
+ * @param {String} string
  * @returns
  */
 function prettyTitle(string) {

@@ -26,22 +26,29 @@ class Color extends Button {
 
         ///// Child Element Events
 
-        function colorBoxPointerDown() {
-            self.addClass('Selected');
+        let selected = false;
+        function colorBoxClick(event) {
+            if (! selected) {
+                self.addClass('Selected');
+                selected = true;
+            }
         }
 
         function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
+            selected = false;
         }
 
         function colorBoxBlur() {
             self.removeClass('Selected');
+            selected = false;
         }
 
-        colorBox.onPointerDown(colorBoxPointerDown);
+        colorBox.onClick(colorBoxClick);
         colorBox.onInput(colorBoxInput);
         colorBox.dom.addEventListener('blur', colorBoxBlur);
+        colorBox.dom.addEventListener('focusout', colorBoxBlur);
 
         ///// Member Functions
 
