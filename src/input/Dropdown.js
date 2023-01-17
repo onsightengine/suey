@@ -4,13 +4,12 @@ import { MenuItem } from '../menu/MenuItem.js';
 
 class Dropdown extends Button {
 
-    constructor(innerHtml) {
-        innerHtml = innerHtml ?? '&nbsp';
-
+    constructor(innerHtml = '&nbsp') {
         super(innerHtml);
         const self = this;
 
         this.items = [];
+        this.currentIndex = -1;
         this.value = undefined;
 
         this.menuOffsetX = 0;
@@ -22,29 +21,20 @@ class Dropdown extends Button {
         ///// Events
 
         function onWheel(event) {
+            event.stopPropagation()
             event.preventDefault();
-            let upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
-
-            let currentValue = self.getValue();
-            if (currentValue === undefined || currentValue === null) return;
-            let currentSelectedItem = self.getItemByKey(currentValue);
-            if (! currentSelectedItem) return;
-            let currentIndex = self.items.indexOf(currentSelectedItem);
-            if (currentIndex === -1) return;
 
             // Scroll Up
             if (event.deltaY < 0) {
-                if (currentIndex > 0) {
-                    currentIndex -= 1;
-                    self.setValue(self.items[currentIndex].value);
+                if (self.currentIndex > 0) {
+                    self.setIndex(self.currentIndex - 1);
                     if (self.dom) self.dom.dispatchEvent(new Event('change'));
                 }
 
             // Scroll Down
             } else {
-                if (currentIndex < (self.items.length - 1)) {
-                    currentIndex += 1;
-                    self.setValue(self.items[currentIndex].value);
+                if (self.currentIndex < (self.items.length - 1)) {
+                    self.setIndex(self.currentIndex + 1);
                     if (self.dom) self.dom.dispatchEvent(new Event('change'));
                 }
             }
@@ -62,9 +52,29 @@ class Dropdown extends Button {
         return undefined;
     }
 
+    /** Returns current index */
+    getIndex() {
+        return this.currentIndex;
+    }
+
     /** Returns value (key) */
     getValue() {
         return this.value;
+    }
+
+    /** Sets option by index */
+    setIndex(index = 0) {
+        if (index < 0 || index >= this.items.length || index === this.currentIndex) return;
+        const item = this.items[index];
+
+        // Check selected item
+        for (let i = 0; i < this.items.length; i++) this.items[i].setChecked(false);
+        item.setChecked(true);
+
+        this.currentIndex = index;
+        this.value = item.value;
+        if (this.dom) this.dom.innerHTML = item.dom.innerText;
+        return this;
     }
 
     /** Sets value (by key) */
@@ -72,15 +82,14 @@ class Dropdown extends Button {
         value = String(value);
         if (this.value !== value) {
             for (let i = 0; i < this.items.length; i++) {
-                let item = this.items[i];
+                const item = this.items[i];
                 if (item.value === value) {
-                    // Check proper item
-                    for (let i = 0; i < this.items.length; i++) {
-                        this.items[i].setChecked(false);
-                    }
+                    // Check selected item
+                    for (let i = 0; i < this.items.length; i++) this.items[i].setChecked(false);
                     item.setChecked(true);
 
                     // Set value and text
+                    this.currentIndex = i;
                     this.value = value;
                     if (this.dom) this.dom.innerHTML = item.dom.innerText;
                     return this;
@@ -92,24 +101,25 @@ class Dropdown extends Button {
 
     /** Build sub menu from option list */
     setOptions(options) {
+        const self = this;
+
         if (this.detachMenu) this.detachMenu();
         this.items.length = 0;
 
         // Add sub items for 'options'
         for (const key in options) {
-            let item = new MenuItem(options[key]);
+            const item = new MenuItem(options[key]);
             item.value = key;
-            this.items.push(item);
-
-            const self = this;
             item.onPointerDown(function() {
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
             });
+
+            this.items.push(item);
         }
 
         // Build menu
-        let menu = new Menu();
+        const menu = new Menu();
         for (let i = 0; i < this.items.length; i++) {
             menu.add(this.items[i]);
         }

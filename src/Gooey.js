@@ -1,42 +1,42 @@
+// -- USAGE --
+// import { Gooey } from 'osui';
+// const gui = new Gooey('Geometries');         // instantiate
+// const folder1 = gui.addFolder('Geometry');   // create folder
 //
-// lil gui example
-// ---------------
+// -- STLYING --
+// gui.color('#bb0000');                        // sets gui color
+// gui.opacity(0.5);                            // background opacity
+// gui.scale(1.0);                              // scale multiplier
+// gui.width(10);                               // sets panel width
 //
+// -- PROPERTIES --
 // const params = {
-//     geometry: 'Box',
-//     iterations: 3,
-//     split: true,
-//     uvSmooth: false,
-//     preserveEdges: false,
-//     flatOnly: false,
-//     maxTriangles: 25000,
-//     flatShading: false,
-//     textured: true,
-// };
-//
-// const gui = new GUI();
-// const folder1 = gui.addFolder('Subdivide Params');
-
-// folder1.add(params, 'iterations').min(0).max(5).step(1).onFinishChange(updateMeshes);
-// const geomController = folder1.add(params, 'geometry', geomTypes).onFinishChange(() => { refreshDisplay(); });
-
-// const splitController = folder1.add( params, 'split' ).onFinishChange( updateMeshes );
-// const uvSmoothController = folder1.add( params, 'uvSmooth' ).onFinishChange( updateMeshes );
-// const preserveController = folder1.add( params, 'preserveEdges' ).onFinishChange( updateMeshes );
-// folder1.add( params, 'flatOnly' ).onFinishChange( updateMeshes );
-// folder1.add( params, 'maxTriangles' ).onFinishChange( updateMeshes );
-//
-// const folder2 = gui.addFolder( 'Material' );
-// folder2.add( params, 'flatShading' ).onFinishChange( updateMaterial );
-// folder2.add( params, 'textured' ).onFinishChange( updateMaterial );
-//
-// function refreshDisplay() {
-//     geomController.updateDisplay();
-//     splitController.updateDisplay();
-//     uvSmoothController.updateDisplay();
-//     preserveController.updateDisplay();
-//     updateMeshes();
+//      myFunction: () => console.log('hello world'),
+//      myBoolean: true,
+//      myListInt: 0,
+//      myListString: 'b',
+//      myNumber: 75,
+//      myString: 'California',
+//      myColorString: '#ffffff',
+//      myColorInt: 0xffffff,
+//      myColorObject: { r: 1, g: 1, b: 1 },
+//      myColorArray: [ 1, 1, 1 ],
 // }
+//
+// -- TYPES ----------- OBJECT VALUE ------ EXAMPLE --
+//  button              function            folder.add(params, 'myFunction');
+//  checkbox            boolean             folder.add(params, 'myBoolean');
+//  color               multiple types      folder.addColor(params, 'myColor______');
+//  list                number / string     folder.add(params, 'myList', [ 'a', 'b', 'c', 'd', 'e' ]);
+//  number / slider     number              folder.add(params, 'myNumber', min, max, step, precision);
+//  text box            string              folder.add(params, 'myString');
+//
+// -- UPDATING --
+// params = { myNumber: 5.0 };
+// const controller = folder1.add(params, 'myNumber');
+// ...
+// params.myNumber += 2.0;
+// controller.updateDisplay();
 
 import { ColorScheme } from './utils/ColorScheme.js';
 import { Css } from './utils/Css.js';
@@ -118,31 +118,11 @@ class Folder extends Shrinkable {
     constructor(title, icon) {
         super(title, icon);
 
+        // Build osui
         this.props = new PropertyList(PROPERTY_SIZE.FIFTHS, LEFT_SPACING.NORMAL);
         this.add(this.props);
 
-        /**
-         * const params = {
-         *      myFunction: () => console.log('hello world'),
-         *      myBoolean: true,
-         *      myList: 0,
-         *      myNumber: 75,
-         *      myString: 'California',
-         *
-         *      myColorString: '#ffffff',
-         *      myColorInt: 0xffffff,
-         *      myColorObject: { r: 1, g: 1, b: 1 },
-         *      myColorArray: [ 1, 1, 1 ],
-         * }
-         *
-         * TYPES                OBJECT VALUE    EXAMPLE
-         *  button              function        folder.add(params, 'myFunction');
-         *  checkbox            boolean         folder.add(params, 'myBoolean');
-         *  color               several types   folder.addColor(params, 'myColor______');
-         *  list                number          folder.add(params, 'myList', [ 'apple', 'banana', 'cherry' ]);
-         *  number / slider     number          folder.add(params, 'myNumber', min, max, step, precision);
-         *  text box            string          folder.add(params, 'myString');
-         */
+        // Add function (replaces osui.add() functionality)
         this.add = function(params, variable, a, b, c, d) {
             const value = params[variable];
             if (value == undefined) {
@@ -156,7 +136,11 @@ class Folder extends Shrinkable {
                     return this.addNumber(params, variable, a, b, c, d);
                 }
             } else if (typeof value === 'string' || value instanceof String) {
-                return this.addString(params, variable);
+                if (Array.isArray(a) && a.length > 0) {
+                    return this.addList(params, variable, a);
+                } else {
+                    return this.addString(params, variable);
+                }
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
@@ -168,24 +152,23 @@ class Folder extends Shrinkable {
     }
 
     addBoolean(params, variable) {
-        const self = this;
         const prop = new Property();
         const boolBox = new Checkbox();
-        boolBox.setValue(params[variable]);
         boolBox.onChange(() => {
             params[variable] = boolBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() { boolBox.setValue(params[variable]); };
+        prop.updateDisplay();
         return prop;
     }
 
     addColor(params, variable) {
-        const self = this;
-        let value = params[variable];
         let type;
+        let value = params[variable];
         if (value == undefined) { return null; }
         else if (typeof value === 'string' || value instanceof String) { type = 'string'; }
         else if (Array.isArray(value)) { type = 'array'; }
@@ -193,7 +176,6 @@ class Folder extends Shrinkable {
         else { type = 'number'; }
         const prop = new Property();
         const colorButton = new Color();
-        colorButton.setHexValue(_clr.set(value).hex()); // set from int
         function setVariable(newValue) {
             _clr.set(newValue);
             switch (type) {
@@ -214,26 +196,26 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() { colorButton.setHexValue(_clr.set(params[variable]).hex()); };
+        prop.updateDisplay();
         return prop;
     }
 
     addFunction(params, variable) {
-        const self = this;
         const prop = new Property();
         const button = new Button(prettyTitle(variable));
         button.onClick(() => params[variable]());
         // this.props.addRowWithoutTitle(button);
         // prop.name = function(name) { button.setInnerHtml(name); return self; };
         const row = this.props.addRow(prettyTitle(variable), button);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return prop; };
         return prop;
     }
 
     addList(params, variable, options) {
-        const self = this;
         const prop = new Property();
-
+        const type = (typeof params[variable] === 'string' || params[variable] instanceof String) ? 'string' : 'number';
         const selectOptions = {};
         for (let option of options) selectOptions[option] = option;
 
@@ -241,30 +223,22 @@ class Folder extends Shrinkable {
         selectDropDown.overflowMenu = OVERFLOW.LEFT;
         selectDropDown.setOptions(selectOptions);
         selectDropDown.onChange(() => {
-            let value = selectDropDown.getValue();
-            let keys = Object.keys(selectOptions);
-            for (let i = 0; i < keys.length; i++) {
-                if (keys[i] === value) { params[variable] = i; break; }
-                if (typeof prop.change === 'function') prop.change();
-                if (typeof prop.finishChange === 'function') prop.finishChange();
-            }
-            params[variable];
+            params[variable] = (type === 'string') ? selectDropDown.getValue() : selectDropDown.getIndex();
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
         });
 
-        function setByNumber(num) {
-            let keys = Object.keys(selectOptions);
-            let value = -1;
-            for (let i = 0; i < keys.length; i++) { if (i === num) { selectDropDown.setValue(keys[i]); break; } }
-        }
-        setByNumber(params[variable]);
-
         const row = this.props.addRow(prettyTitle(variable), selectDropDown);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() {
+            if (type === 'string') selectDropDown.setValue(params[variable]);
+            else selectDropDown.setIndex(params[variable]);
+        };
+        prop.updateDisplay();
         return prop;
     }
 
     addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
-        const self = this;
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
@@ -299,12 +273,9 @@ class Folder extends Shrinkable {
         }
         setStep(step);
 
-        slideBox.setStyle('marginLeft', '0.14286em');
-        slider.setValue(params[variable]);
-        slideBox.setValue(params[variable]);
-
         const digits = countDigits(parseInt(max)) + (precision > 0 ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
+        slideBox.setStyle('marginLeft', '0.14286em');
 
         function checkForMinMax() {
             if (Number.isFinite(Number(slider.slider.dom.min)) && Number.isFinite(Number(slider.slider.dom.max))) {
@@ -318,26 +289,32 @@ class Folder extends Shrinkable {
         checkForMinMax();
 
         const row = this.props.addRow(prettyTitle(variable), slider, slideBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
-        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return self; };
-        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return self; };
-        prop.step = function(step) { setStep(step); return self; };
-        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return prop; };
+        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return prop; };
+        prop.step = function(step) { setStep(step); return prop; };
+        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return prop; };
+        prop.updateDisplay = function() {
+            slider.setValue(params[variable]);
+            slideBox.setValue(params[variable]);
+            params[variable] = slider.getValue(); /* to apply min / max */
+        };
+        prop.updateDisplay();
         return prop;
     }
 
     addString(params, variable) {
-        const self = this;
         const prop = new Property();
         const textBox = new TextBox();
-        textBox.setValue(params[variable]);
         textBox.onChange(() => {
             params[variable] = textBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), textBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() { textBox.setValue(params[variable]); };
+        prop.updateDisplay();
         return prop;
     }
 
@@ -347,17 +324,20 @@ class Property {
 
     constructor() {
         const self = this;
-        this.name = function() { return self; };        // to be overwritten in 'add_______'
 
         // Callbacks
         this.change = null;
         this.finishChange = null;
 
+        // Update Functions
+        this.name = function() { return self; };            // to be overwritten in 'add_______'
+        this.updateDisplay = function() { return self; };   // to be overwritten in 'add_______'
+
         // Number Functions
-        this.min = function() { return self; };         // to be overwritten in 'addNumber'
-        this.max = function() { return self; };         // to be overwritten in 'addNumber'
-        this.step = function() { return self; };        // to be overwritten in 'addNumber'
-        this.precision = function() { return self; };   // to be overwritten in 'addNumber'
+        this.min = function() { return self; };             // to be overwritten in 'addNumber'
+        this.max = function() { return self; };             // to be overwritten in 'addNumber'
+        this.step = function() { return self; };            // to be overwritten in 'addNumber'
+        this.precision = function() { return self; };       // to be overwritten in 'addNumber'
     }
 
     onChange(callback) {

@@ -2060,35 +2060,27 @@ class MenuItem extends Div {
 }
 
 class Dropdown extends Button {
-    constructor(innerHtml) {
-        innerHtml = innerHtml ?? '&nbsp';
+    constructor(innerHtml = '&nbsp') {
         super(innerHtml);
         const self = this;
         this.items = [];
+        this.currentIndex = -1;
         this.value = undefined;
         this.menuOffsetX = 0;
         this.menuOffsetY = 5;
         this.addClass('Dropdown');
         this.addClass('DropArrow');
         function onWheel(event) {
+            event.stopPropagation();
             event.preventDefault();
-            let upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
-            let currentValue = self.getValue();
-            if (currentValue === undefined || currentValue === null) return;
-            let currentSelectedItem = self.getItemByKey(currentValue);
-            if (! currentSelectedItem) return;
-            let currentIndex = self.items.indexOf(currentSelectedItem);
-            if (currentIndex === -1) return;
             if (event.deltaY < 0) {
-                if (currentIndex > 0) {
-                    currentIndex -= 1;
-                    self.setValue(self.items[currentIndex].value);
+                if (self.currentIndex > 0) {
+                    self.setIndex(self.currentIndex - 1);
                     if (self.dom) self.dom.dispatchEvent(new Event('change'));
                 }
             } else {
-                if (currentIndex < (self.items.length - 1)) {
-                    currentIndex += 1;
-                    self.setValue(self.items[currentIndex].value);
+                if (self.currentIndex < (self.items.length - 1)) {
+                    self.setIndex(self.currentIndex + 1);
                     if (self.dom) self.dom.dispatchEvent(new Event('change'));
                 }
             }
@@ -2101,19 +2093,31 @@ class Dropdown extends Button {
         }
         return undefined;
     }
+    getIndex() {
+        return this.currentIndex;
+    }
     getValue() {
         return this.value;
+    }
+    setIndex(index = 0) {
+        if (index < 0 || index >= this.items.length || index === this.currentIndex) return;
+        const item = this.items[index];
+        for (let i = 0; i < this.items.length; i++) this.items[i].setChecked(false);
+        item.setChecked(true);
+        this.currentIndex = index;
+        this.value = item.value;
+        if (this.dom) this.dom.innerHTML = item.dom.innerText;
+        return this;
     }
     setValue(value) {
         value = String(value);
         if (this.value !== value) {
             for (let i = 0; i < this.items.length; i++) {
-                let item = this.items[i];
+                const item = this.items[i];
                 if (item.value === value) {
-                    for (let i = 0; i < this.items.length; i++) {
-                        this.items[i].setChecked(false);
-                    }
+                    for (let i = 0; i < this.items.length; i++) this.items[i].setChecked(false);
                     item.setChecked(true);
+                    this.currentIndex = i;
                     this.value = value;
                     if (this.dom) this.dom.innerHTML = item.dom.innerText;
                     return this;
@@ -2123,19 +2127,19 @@ class Dropdown extends Button {
         return this;
     }
     setOptions(options) {
+        const self = this;
         if (this.detachMenu) this.detachMenu();
         this.items.length = 0;
         for (const key in options) {
-            let item = new MenuItem(options[key]);
+            const item = new MenuItem(options[key]);
             item.value = key;
-            this.items.push(item);
-            const self = this;
             item.onPointerDown(function() {
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
             });
+            this.items.push(item);
         }
-        let menu = new Menu();
+        const menu = new Menu();
         for (let i = 0; i < this.items.length; i++) {
             menu.add(this.items[i]);
         }
@@ -2571,7 +2575,11 @@ class Folder extends Shrinkable {
                     return this.addNumber(params, variable, a, b, c, d);
                 }
             } else if (typeof value === 'string' || value instanceof String) {
-                return this.addString(params, variable);
+                if (Array.isArray(a) && a.length > 0) {
+                    return this.addList(params, variable, a);
+                } else {
+                    return this.addString(params, variable);
+                }
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
@@ -2582,23 +2590,22 @@ class Folder extends Shrinkable {
         };
     }
     addBoolean(params, variable) {
-        const self = this;
         const prop = new Property();
         const boolBox = new Checkbox();
-        boolBox.setValue(params[variable]);
         boolBox.onChange(() => {
             params[variable] = boolBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() { boolBox.setValue(params[variable]); };
+        prop.updateDisplay();
         return prop;
     }
     addColor(params, variable) {
-        const self = this;
-        let value = params[variable];
         let type;
+        let value = params[variable];
         if (value == undefined) { return null; }
         else if (typeof value === 'string' || value instanceof String) { type = 'string'; }
         else if (Array.isArray(value)) { type = 'array'; }
@@ -2606,7 +2613,6 @@ class Folder extends Shrinkable {
         else { type = 'number'; }
         const prop = new Property();
         const colorButton = new Color();
-        colorButton.setHexValue(_clr.set(value).hex());
         function setVariable(newValue) {
             _clr.set(newValue);
             switch (type) {
@@ -2627,48 +2633,42 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() { colorButton.setHexValue(_clr.set(params[variable]).hex()); };
+        prop.updateDisplay();
         return prop;
     }
     addFunction(params, variable) {
-        const self = this;
         const prop = new Property();
         const button = new Button(prettyTitle(variable));
         button.onClick(() => params[variable]());
         const row = this.props.addRow(prettyTitle(variable), button);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return prop; };
         return prop;
     }
     addList(params, variable, options) {
-        const self = this;
         const prop = new Property();
+        const type = (typeof params[variable] === 'string' || params[variable] instanceof String) ? 'string' : 'number';
         const selectOptions = {};
         for (let option of options) selectOptions[option] = option;
         const selectDropDown = new Dropdown();
         selectDropDown.overflowMenu = OVERFLOW.LEFT;
         selectDropDown.setOptions(selectOptions);
         selectDropDown.onChange(() => {
-            let value = selectDropDown.getValue();
-            let keys = Object.keys(selectOptions);
-            for (let i = 0; i < keys.length; i++) {
-                if (keys[i] === value) { params[variable] = i; break; }
-                if (typeof prop.change === 'function') prop.change();
-                if (typeof prop.finishChange === 'function') prop.finishChange();
-            }
-            params[variable];
+            params[variable] = (type === 'string') ? selectDropDown.getValue() : selectDropDown.getIndex();
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        function setByNumber(num) {
-            let keys = Object.keys(selectOptions);
-            let value = -1;
-            for (let i = 0; i < keys.length; i++) { if (i === num) { selectDropDown.setValue(keys[i]); break; } }
-        }
-        setByNumber(params[variable]);
         const row = this.props.addRow(prettyTitle(variable), selectDropDown);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() {
+            if (type === 'string') selectDropDown.setValue(params[variable]);
+            else selectDropDown.setIndex(params[variable]);
+        };
+        prop.updateDisplay();
         return prop;
     }
     addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
-        const self = this;
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
@@ -2701,11 +2701,9 @@ class Folder extends Shrinkable {
             slideBox.setStep(newStep);
         }
         setStep(step);
-        slideBox.setStyle('marginLeft', '0.14286em');
-        slider.setValue(params[variable]);
-        slideBox.setValue(params[variable]);
         const digits = countDigits(parseInt(max)) + (precision > 0 ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
+        slideBox.setStyle('marginLeft', '0.14286em');
         function checkForMinMax() {
             if (Number.isFinite(Number(slider.slider.dom.min)) && Number.isFinite(Number(slider.slider.dom.max))) {
                 slideBox.addClass('PropertyTinyRow');
@@ -2717,34 +2715,41 @@ class Folder extends Shrinkable {
         }
         checkForMinMax();
         const row = this.props.addRow(prettyTitle(variable), slider, slideBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
-        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return self; };
-        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return self; };
-        prop.step = function(step) { setStep(step); return self; };
-        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return prop; };
+        prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return prop; };
+        prop.step = function(step) { setStep(step); return prop; };
+        prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return prop; };
+        prop.updateDisplay = function() {
+            slider.setValue(params[variable]);
+            slideBox.setValue(params[variable]);
+            params[variable] = slider.getValue();
+        };
+        prop.updateDisplay();
         return prop;
     }
     addString(params, variable) {
-        const self = this;
         const prop = new Property();
         const textBox = new TextBox();
-        textBox.setValue(params[variable]);
         textBox.onChange(() => {
             params[variable] = textBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         const row = this.props.addRow(prettyTitle(variable), textBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return self; };
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.updateDisplay = function() { textBox.setValue(params[variable]); };
+        prop.updateDisplay();
         return prop;
     }
 }
 class Property {
     constructor() {
         const self = this;
-        this.name = function() { return self; };
         this.change = null;
         this.finishChange = null;
+        this.name = function() { return self; };
+        this.updateDisplay = function() { return self; };
         this.min = function() { return self; };
         this.max = function() { return self; };
         this.step = function() { return self; };
