@@ -2230,7 +2230,7 @@ class NumberBox extends Element {
         }
         let decimals = Math.min(this.precision, countDecimals(valueAsFloat));
         valueAsFloat = valueAsFloat.toFixed(decimals);
-        if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
+        if (valueAsFloat !== undefined && ! isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
             this.value = valueAsFloat;
             if (this.dom) this.dom.value = valueAsFloat;
             if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + ' ' + this.unit;
@@ -2583,9 +2583,7 @@ class Folder extends Shrinkable {
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
-                if (typeof value[0] === 'string' || value[0] instanceof String) {
-                    return this.addList(params, variable);
-                }
+                return this.addVector(params, variable);
             }
         };
     }
@@ -2684,7 +2682,7 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         slideBox.onChange(() => {
-            params[variable] = slider.getValue();
+            params[variable] = slideBox.getValue();
             slider.setValue(slideBox.getValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -2739,6 +2737,46 @@ class Folder extends Shrinkable {
         const row = this.props.addRow(prettyTitle(variable), textBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { textBox.setValue(params[variable]); };
+        prop.updateDisplay();
+        return prop;
+    }
+    addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
+        const prop = new Property();
+        const vector = params[variable];
+        const row = this.props.addRow(prettyTitle(variable));
+        const boxes = [];
+        for (let i = 0; i < vector.length; i++) {
+            const box = new NumberBox();
+            boxes.push(box);
+            box.onChange(() => {
+                vector[i] = box.getValue();
+                if (typeof prop.change === 'function') prop.change();
+                if (typeof prop.finishChange === 'function') prop.finishChange();
+            });
+            box.onWheel((event) => event.stopPropagation());
+            box.setRange(min, max).setPrecision(precision);
+            row.rightWidget.add(box);
+            if (i < vector.length - 1) row.rightWidget.add(new Div().setStyle('min-width', '3px'));
+        }
+        function setStep(newStep) {
+            let min = boxes[0].min, max = boxes[0].max;
+            if (newStep === 'any') newStep = (Number.isFinite(max) && Number.isFinite(min)) ? (max - min) / 20 : 1;
+            for (let i = 0; i < vector.length; i++) {
+                boxes[i].setStep(newStep);
+            }
+        }
+        setStep(step);
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.min = function(min) { for (let i = 0; i < boxes.length; i++) { boxes[i].setMin(min); } return prop; };
+        prop.max = function(max) { for (let i = 0; i < boxes.length; i++) { boxes[i].setMax(max); } return prop; };
+        prop.step = function(step) { for (let i = 0; i < boxes.length; i++) { boxes[i].setStep(step); } return prop; };
+        prop.precision = function(precision) { for (let i = 0; i < boxes.length; i++) { boxes[i].setPrecision(precision); } return prop; };
+        prop.updateDisplay = function() {
+            for (let i = 0; i < vector.length; i++) {
+                boxes[i].setValue(params[variable][i]);
+                params[variable][i] = boxes[i].getValue();
+            }
+        };
         prop.updateDisplay();
         return prop;
     }

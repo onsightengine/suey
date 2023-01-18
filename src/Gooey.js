@@ -10,13 +10,15 @@
 // gui.width(10);                               // sets panel width
 //
 // -- PROPERTIES --
-// const params = {
+// const params = {q
 //      myFunction: () => console.log('hello world'),
 //      myBoolean: true,
 //      myListInt: 0,
 //      myListString: 'b',
 //      myNumber: 75,
 //      myString: 'California',
+//      myVector: [ 1, 0, 0 ], // or new Vec3(),
+//
 //      myColorString: '#ffffff',
 //      myColorInt: 0xffffff,
 //      myColorObject: { r: 1, g: 1, b: 1 },
@@ -28,6 +30,7 @@
 //  checkbox            boolean             folder.add(params, 'myBoolean');
 //  color               multiple types      folder.addColor(params, 'myColor______');
 //  list                number / string     folder.add(params, 'myList', [ 'a', 'b', 'c', 'd', 'e' ]);
+//  multiple numbers    array               folder.add(params, 'myVector');
 //  number / slider     number              folder.add(params, 'myNumber', min, max, step, precision);
 //  text box            string              folder.add(params, 'myString');
 //
@@ -42,6 +45,7 @@ import { ColorScheme } from './utils/ColorScheme.js';
 import { Css } from './utils/Css.js';
 import { Iris } from './utils/Iris.js';
 
+import { Div } from './core/Div.js';
 import { FlexSpacer } from './layout/FlexSpacer.js';
 import { OVERFLOW } from './utils/Popper.js';
 import { PANEL_STYLES } from './panels/Panel.js';
@@ -144,9 +148,7 @@ class Folder extends Shrinkable {
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
-                if (typeof value[0] === 'string' || value[0] instanceof String) {
-                    return this.addList(params, variable);
-                }
+                return this.addVector(params, variable);
             }
         }
     }
@@ -254,7 +256,7 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
         slideBox.onChange(() => {
-            params[variable] = slider.getValue();
+            params[variable] = slideBox.getValue();
             slider.setValue(slideBox.getValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -314,6 +316,52 @@ class Folder extends Shrinkable {
         const row = this.props.addRow(prettyTitle(variable), textBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { textBox.setValue(params[variable]); };
+        prop.updateDisplay();
+        return prop;
+    }
+
+    addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
+        const prop = new Property();
+        const vector = params[variable];
+        const row = this.props.addRow(prettyTitle(variable));
+
+        const boxes = [];
+        for (let i = 0; i < vector.length; i++) {
+            const box = new NumberBox();
+            boxes.push(box);
+
+            box.onChange(() => {
+                vector[i] = box.getValue();
+                if (typeof prop.change === 'function') prop.change();
+                if (typeof prop.finishChange === 'function') prop.finishChange();
+            });
+            box.onWheel((event) => event.stopPropagation());
+            box.setRange(min, max).setPrecision(precision);
+
+            row.rightWidget.add(box);
+            if (i < vector.length - 1) row.rightWidget.add(new Div().setStyle('min-width', '3px'));
+        }
+
+        function setStep(newStep) {
+            let min = boxes[0].min, max = boxes[0].max;
+            if (newStep === 'any') newStep = (Number.isFinite(max) && Number.isFinite(min)) ? (max - min) / 20 : 1;
+            for (let i = 0; i < vector.length; i++) {
+                boxes[i].setStep(newStep);
+            }
+        }
+        setStep(step);
+
+        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.min = function(min) { for (let i = 0; i < boxes.length; i++) { boxes[i].setMin(min); } return prop; };
+        prop.max = function(max) { for (let i = 0; i < boxes.length; i++) { boxes[i].setMax(max); } return prop; };
+        prop.step = function(step) { for (let i = 0; i < boxes.length; i++) { boxes[i].setStep(step); } return prop; };
+        prop.precision = function(precision) { for (let i = 0; i < boxes.length; i++) { boxes[i].setPrecision(precision); } return prop; };
+        prop.updateDisplay = function() {
+            for (let i = 0; i < vector.length; i++) {
+                boxes[i].setValue(params[variable][i]);
+                params[variable][i] = boxes[i].getValue(); /* to apply min / max */
+            }
+        };
         prop.updateDisplay();
         return prop;
     }
