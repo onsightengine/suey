@@ -2597,7 +2597,7 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { boolBox.setValue(params[variable]); };
+        prop.updateDisplay = function() { boolBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
         return prop;
     }
@@ -2632,16 +2632,21 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setHexValue(_clr.set(params[variable]).hex()); };
+        prop.updateDisplay = function() { colorButton.setHexValue(_clr.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
         return prop;
     }
     addFunction(params, variable) {
         const prop = new Property();
         const button = new Button(prettyTitle(variable));
+        button.setStyle('text-align', 'center');
         button.onClick(() => params[variable]());
         const row = this.props.addRow(prettyTitle(variable), button);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); button.setInnerHtml(name); return prop; };
+        prop.name = function(name, buttonText) {
+            row.leftWidget.setInnerHtml(name);
+            if (buttonText) button.setInnerHtml(buttonText);
+            return prop;
+        };
         return prop;
     }
     addList(params, variable, options) {
@@ -2662,6 +2667,7 @@ class Folder extends Shrinkable {
         prop.updateDisplay = function() {
             if (type === 'string') selectDropDown.setValue(params[variable]);
             else selectDropDown.setIndex(params[variable]);
+            return prop;
         };
         prop.updateDisplay();
         return prop;
@@ -2722,6 +2728,7 @@ class Folder extends Shrinkable {
             slider.setValue(params[variable]);
             slideBox.setValue(params[variable]);
             params[variable] = slider.getValue();
+            return prop;
         };
         prop.updateDisplay();
         return prop;
@@ -2736,7 +2743,7 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(prettyTitle(variable), textBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { textBox.setValue(params[variable]); };
+        prop.updateDisplay = function() { textBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
         return prop;
     }
@@ -2776,6 +2783,7 @@ class Folder extends Shrinkable {
                 boxes[i].setValue(params[variable][i]);
                 params[variable][i] = boxes[i].getValue();
             }
+            return prop;
         };
         prop.updateDisplay();
         return prop;
@@ -2795,9 +2803,11 @@ class Property {
     }
     onChange(callback) {
         this.change = callback;
+        return this;
     }
     onFinishChange(callback) {
         this.finishChange = callback;
+        return this;
     }
 }
 function prettyTitle(string) {
