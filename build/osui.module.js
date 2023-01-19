@@ -2531,7 +2531,8 @@ class Gooey extends Resizeable {
         document.body.appendChild(this.dom);
     }
     addFolder(folderName = '', icon = '') {
-        const folder = new Folder(capitalize(folderName), icon);
+        if (folderName && folderName !== '') folderName = capitalize(folderName);
+        const folder = new Folder(folderName, icon);
         this.add(folder);
         return folder;
     }
@@ -2814,10 +2815,13 @@ function prettyTitle(string) {
     return addSpaces(capitalize(string));
 }
 function addSpaces(string) {
+    if (! string || string === '') return '';
     return String(string).replace(/([A-Z])/g, ' $1').trim();
 }
 function capitalize(string) {
-    const words = String(string).split(' ');
+    if (! string || string === '') return '';
+    let words = String(string);
+    words = words.split(' ');
     for (let i = 0; i < words.length; i++) {
         words[i] = words[i][0].toUpperCase() + words[i].substring(1);
     }
