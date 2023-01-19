@@ -6,8 +6,10 @@
 
 The Onsight UI Library. A lightweight, modular UI library based on native HTML5 components.
 
+<br />
+
 ## Status
 
 Under heavy development, more info to come...
 
-<br>
+<br />
