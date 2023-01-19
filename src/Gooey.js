@@ -80,7 +80,7 @@ class Gooey extends Resizeable {
         document.body.appendChild(this.dom);
     }
 
-    addFolder(folderName, icon = '') {
+    addFolder(folderName = '', icon = '') {
         const folder = new Folder(capitalize(folderName), icon);
         this.add(folder);
         return folder;

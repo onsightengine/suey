@@ -2530,7 +2530,7 @@ class Gooey extends Resizeable {
         this.contents = function() { return titlePanel.scroller; };
         document.body.appendChild(this.dom);
     }
-    addFolder(folderName, icon = '') {
+    addFolder(folderName = '', icon = '') {
         const folder = new Folder(capitalize(folderName), icon);
         this.add(folder);
         return folder;
