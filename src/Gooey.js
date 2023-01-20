@@ -101,7 +101,7 @@ class Gooey extends Resizeable {
         if (! multiplier) multiplier = 1.0;
         multiplier = parseFloat(multiplier);
         const newSize = 14 /* base size = 14px */ * multiplier;
-        const fontSize = Math.min(Math.max(newSize, 10 /* min font size */), 30 /* max font size */);
+        const fontSize = Math.min(Math.max(newSize, 7 /* min font size */), 42 /* max font size */);
         Css.setVariable('--font-size', Css.toPx(fontSize, this.dom));
     }
 
@@ -282,7 +282,7 @@ class Folder extends Shrinkable {
         }
         setStep(step);
 
-        const digits = countDigits(parseInt(max)) + (precision > 0 ? precision + 0.5 : 0);
+        const digits = countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
         slideBox.setStyle('marginLeft', '0.14286em');
 
