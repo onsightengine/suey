@@ -2,8 +2,8 @@
 //
 //  Css Functions
 //      Variables
-//          getVariable             Gets a CSS variable
-//          setVariable             Sets a CSS variable
+//          getVariable             Gets a CSS variable by name, hyphens optional
+//          setVariable             Sets a CSS variable by name, hyphens optional
 //      Font / Gui Sizing
 //          baseSize
 //          fontSize
@@ -22,16 +22,20 @@ class Css {
 
     //////////////////// Variables
 
-    /** Gets a CSS variable */
+    /** Gets a CSS variable by name, hyphens optional */
     static getVariable(variable) {
+        variable = String(variable);
+        if (! variable.startsWith('--')) variable = '--' + variable;
         const rootElement = document.querySelector(':root');
         return getComputedStyle(rootElement).getPropertyValue(variable);
     }
 
-    /** Sets a CSS variable */
-    static setVariable(variableName, valueAsString) {
+    /** Sets a CSS variable by name, hyphens optional */
+    static setVariable(variable, valueAsString) {
+        variable = String(variable);
+        if (! variable.startsWith('--')) variable = '--' + variable;
         const rootElement = document.querySelector(':root');
-		rootElement.style.setProperty(variableName, valueAsString);
+		rootElement.style.setProperty(variable, valueAsString);
     }
 
     //////////////////// Font / Gui Sizing

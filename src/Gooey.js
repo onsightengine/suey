@@ -66,12 +66,13 @@ const _clr = new Iris();
 
 class Gooey extends Resizeable {
 
-    constructor(title) {
+    constructor(title, opacity) {
         super(PANEL_STYLES.FANCY);
         this.addClass('Gooey');
 
         this.toggleResize(RESIZERS.LEFT, true);
         this.minWidth = 180;
+        this.opacity(opacity);
 
         const titlePanel = new Titled(title, true /* collapsible */);
         this.add(titlePanel);
@@ -89,12 +90,14 @@ class Gooey extends Resizeable {
 
     color(color) {
         ColorScheme.changeColor(color);
+        return this;
     }
 
     opacity(opacity) {
-        if (opacity == null) return;
+        if (opacity == null || Number.isNaN(opacity)) return;
         opacity = Math.min(Math.max(opacity, 0.0), 1.0);
         Css.setVariable('--panel-transparency', opacity);
+        return this;
     }
 
     scale(multiplier) {
@@ -103,6 +106,7 @@ class Gooey extends Resizeable {
         const newSize = 14 /* base size = 14px */ * multiplier;
         const fontSize = Math.min(Math.max(newSize, 7 /* min font size */), 42 /* max font size */);
         Css.setVariable('--font-size', Css.toPx(fontSize, this.dom));
+        return this;
     }
 
     width(width) {
@@ -110,6 +114,7 @@ class Gooey extends Resizeable {
         if (width < this.minWidth * Css.guiScale(this.dom)) width = this.minWidth * Css.guiScale(this.dom);
         if (width > this.maxWidth * Css.guiScale(this.dom)) width = this.maxWidth * Css.guiScale(this.dom);
         this.setWidth(Css.toEm(width, this.dom));
+        return this;
     }
 
 }

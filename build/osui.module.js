@@ -41,12 +41,16 @@ const TRAIT = {
 
 class Css {
     static getVariable(variable) {
+        variable = String(variable);
+        if (! variable.startsWith('--')) variable = '--' + variable;
         const rootElement = document.querySelector(':root');
         return getComputedStyle(rootElement).getPropertyValue(variable);
     }
-    static setVariable(variableName, valueAsString) {
+    static setVariable(variable, valueAsString) {
+        variable = String(variable);
+        if (! variable.startsWith('--')) variable = '--' + variable;
         const rootElement = document.querySelector(':root');
-		rootElement.style.setProperty(variableName, valueAsString);
+		rootElement.style.setProperty(variable, valueAsString);
     }
     static baseSize() {
         return parseFloat(getComputedStyle(document.querySelector(':root')).fontSize);
@@ -2520,11 +2524,12 @@ class TextBox extends Element {
 
 const _clr = new Iris();
 class Gooey extends Resizeable {
-    constructor(title) {
+    constructor(title, opacity) {
         super(PANEL_STYLES.FANCY);
         this.addClass('Gooey');
         this.toggleResize(RESIZERS.LEFT, true);
         this.minWidth = 180;
+        this.opacity(opacity);
         const titlePanel = new Titled(title, true );
         this.add(titlePanel);
         this.contents = function() { return titlePanel.scroller; };
@@ -2538,11 +2543,13 @@ class Gooey extends Resizeable {
     }
     color(color) {
         ColorScheme.changeColor(color);
+        return this;
     }
     opacity(opacity) {
-        if (opacity == null) return;
+        if (opacity == null || Number.isNaN(opacity)) return;
         opacity = Math.min(Math.max(opacity, 0.0), 1.0);
         Css.setVariable('--panel-transparency', opacity);
+        return this;
     }
     scale(multiplier) {
         if (! multiplier) multiplier = 1.0;
@@ -2550,12 +2557,14 @@ class Gooey extends Resizeable {
         const newSize = 14  * multiplier;
         const fontSize = Math.min(Math.max(newSize, 7 ), 42 );
         Css.setVariable('--font-size', Css.toPx(fontSize, this.dom));
+        return this;
     }
     width(width) {
         if (width == null) return;
         if (width < this.minWidth * Css.guiScale(this.dom)) width = this.minWidth * Css.guiScale(this.dom);
         if (width > this.maxWidth * Css.guiScale(this.dom)) width = this.maxWidth * Css.guiScale(this.dom);
         this.setWidth(Css.toEm(width, this.dom));
+        return this;
     }
 }
 class Folder extends Shrinkable {
