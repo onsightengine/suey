@@ -19,9 +19,7 @@ class AssetBox extends Div {
         if (title !== '') this.dom.setAttribute('tooltip', title);
 
         // Set Name
-        if (! ((typeof title === 'string' || title instanceof String) && title !== '')) {
-            title = 'Unknown';
-        }
+        if (typeof title !== 'string' || title === '') title = 'Unknown';
         this.setName(title.toLowerCase());
 
         // Image

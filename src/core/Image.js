@@ -11,7 +11,7 @@ class Image extends Element {
 
         // If imageUrl is SVG string, convert to image
         function setImage(fromImage) {
-            const isString = (typeof fromImage === 'string' || fromImage instanceof String);
+            const isString = (typeof fromImage === 'string');
             // SVG
             if (isString && (fromImage.includes('<svg') || fromImage.includes('<SVG'))) {
                 const blob = new Blob([ fromImage ], { type: 'image/svg+xml' });

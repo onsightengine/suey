@@ -145,7 +145,7 @@ class Folder extends Shrinkable {
                 } else {
                     return this.addNumber(params, variable, a, b, c, d);
                 }
-            } else if (typeof value === 'string' || value instanceof String) {
+            } else if (typeof value === 'string') {
                 if (Array.isArray(a) && a.length > 0) {
                     return this.addList(params, variable, a);
                 } else {
@@ -178,7 +178,7 @@ class Folder extends Shrinkable {
         let type;
         let value = params[variable];
         if (value == undefined) { return null; }
-        else if (typeof value === 'string' || value instanceof String) { type = 'string'; }
+        else if (typeof value === 'string') { type = 'string'; }
         else if (Array.isArray(value)) { type = 'array'; }
         else if (typeof value === 'object') { type = 'object'; }
         else { type = 'number'; }
@@ -228,7 +228,7 @@ class Folder extends Shrinkable {
 
     addList(params, variable, options) {
         const prop = new Property();
-        const type = (typeof params[variable] === 'string' || params[variable] instanceof String) ? 'string' : 'number';
+        const type = (typeof params[variable] === 'string') ? 'string' : 'number';
         const selectOptions = {};
         for (let option of options) selectOptions[option] = option;
 

@@ -73,7 +73,7 @@ class Css {
     //////////////////// Size Parsing
 
     static parseSize(size) {
-        if (typeof size === 'string' || size instanceof String) {
+        if (typeof size === 'string') {
             if (size.includes('px') || size.includes('%') ||
                 size.includes('em') || size.includes('rem') ||
                 size.includes('ch') || size.includes('ex') || size.includes('cap') ||
