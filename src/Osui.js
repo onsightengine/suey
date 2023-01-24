@@ -32,6 +32,9 @@
 //      TextArea                textarea                .TextArea
 //      TextBox                 input['text']           .TextBox
 //
+//  INTERACTIVE
+//      CloseButton
+//
 //  LAYOUT
 //      AbsoluteBox             div                     .AbsoluteBox
 //		AssetBox                div                     .AssetBox, .MiniAssetBox
@@ -109,6 +112,10 @@ export { Slider } from './input/Slider.js';
 export { TextArea } from './input/TextArea.js';
 export { TextBox } from './input/TextBox.js';
 
+///// Interactive
+
+export { CloseButton } from './interactive/CloseButton.js';
+
 ///// Layout
 
 export { AbsoluteBox } from './layout/AbsoluteBox.js';
@@ -141,7 +148,7 @@ export { Titled } from './panels/Titled.js';
 
 ///// Enums
 
-export { CLOSE_SIDES } from './panels/Panel.js';
+export { CLOSE_SIDES } from './interactive/CloseButton.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';

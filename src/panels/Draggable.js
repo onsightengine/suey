@@ -1,15 +1,17 @@
+import { CloseButton, CLOSE_SIDES } from '../interactive/CloseButton.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
-
-import { CLOSE_SIDES } from './Panel.js';
 
 class Draggable extends Panel {
 
     constructor(style) {
         super(style);
         this.addClass('Draggable');
-        this.makeClosable(CLOSE_SIDES.RIGHT, 1.3 /* sizeScale */, -1.9 /* offsetScale */);
+
+        // Close Button
+        const closeButton = new CloseButton(this, CLOSE_SIDES.LEFT, 1.3 /* sizeScale */, -1.9 /* offsetScale */);
+        this.addToSelf(closeButton);
 
         // function onPointerDown(event) {
         //     if (event.isPrimary === false) return;

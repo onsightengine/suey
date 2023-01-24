@@ -1211,78 +1211,48 @@ class FlexSpacer extends Span {
     }
 }
 
-class Button extends Element {
-    constructor(innerHtml) {
-        super(document.createElement('button'));
-        const self = this;
-        this.setClass('Button');
-        this.dom.innerHTML = innerHtml ?? '';
-        this.attachedMenu = undefined;
-        this.menuOffsetX = 0;
-        this.menuOffsetY = 0;
-        this.alignMenu = ALIGN.LEFT;
-        this.overflowMenu = OVERFLOW.RIGHT;
-        Object.defineProperty(this, 'disabled', {
-            get: function() { return (this.dom) ? this.dom.disabled : true; },
-            set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
-        });
-        function hideTooltip() {
-            const hideEvent = new Event('hidetooltip', { bubbles: true });
-            self.dom.dispatchEvent(hideEvent);
+const PANEL_STYLES = {
+    NONE:       'none',
+    SIMPLE:     'simple',
+    FANCY:      'fancy',
+};
+class Panel extends Div {
+    constructor(style = PANEL_STYLES.NONE) {
+        super();
+        this.setPointerEvents('auto');
+        this.setClass('Panel');
+        this.contents = function() { return this; };
+        if (style === PANEL_STYLES.SIMPLE) {
+            this.addClass('SimplePanel');
+        } else if (style === PANEL_STYLES.FANCY) {
+            this.addClass('FancyPanel');
+            const outerBox =  new Panel().setClass('FancyPanelOuter');
+            const borderBox = new Panel().setClass('FancyPanelBorder');
+            const insideBox = new Panel().setClass('FancyPanelInside');
+            borderBox.add(insideBox);
+            outerBox.add(borderBox);
+            this.add(outerBox);
+            this.contents = function() { return insideBox; };
         }
-        this.onPointerDown(hideTooltip);
-        this.dom.addEventListener('destroy', function() {
-            if (self.attachedMenu) self.detachMenu();
-        }, { once: true });
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+        this.onContextMenu(onContextMenu);
     }
-    attachMenu(osuiMenu) {
-        const self = this;
-        if (osuiMenu.hasClass('Menu') === false) return this;
-        this.addClass('MenuButton');
-        this.attachedMenu = osuiMenu;
-        document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        const observer = new MutationObserver((mutations, observer) => {
-            if (document.contains(this.dom)) {
-                popMenu();
-                observer.disconnect();
-            }
-        });
-        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
-        window.addEventListener('resize', popMenu);
-        function popMenu() {
-            const popped = Popper.popUnder(
-                osuiMenu.dom,
-                self.dom,
-                self.alignMenu,
-                self.menuOffsetX,
-                self.menuOffsetY,
-                self.overflowMenu
-            );
-            if (popped === POSITION.UNDER) {
-                osuiMenu.removeClass('SlideUp');
-                osuiMenu.addClass('SlideDown');
-            } else {
-                osuiMenu.removeClass('SlideDown');
-                osuiMenu.addClass('SlideUp');
-            }
-        }
-        function onPointerDown(event) {
-            if (self.hasClass('Selected') === false) {
-                self.addClass('Selected');
-                popMenu();
-                if (self.dom) osuiMenu.showMenu(self.dom);
-            }
-        };
-        this.detachMenu = function() {
-            if (self.hasClass('MenuButton') === false) return;
-            self.removeClass('MenuButton');
-            window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', onPointerDown);
-            self.attachedMenu.destroy();
-            document.body.removeChild(self.attachedMenu.dom);
-            self.attachedMenu = undefined;
-        };
+}
+
+class Row extends Div {
+    constructor() {
+        super();
+        this.addClass('Row');
+    }
+}
+
+class Text extends Span {
+    constructor(innerHtml) {
+        super(innerHtml);
+        this.setClass('Text');
+        this.setCursor('default');
     }
 }
 
@@ -1344,148 +1314,6 @@ class VectorBox extends Div {
     }
     setImage(imageUrl) {
         this.img.setImage(imageUrl);
-    }
-}
-
-class ShadowBox extends Div {
-    constructor() {
-        super();
-        this.setClass('ShadowBox');
-        let args = arguments;
-        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
-        for (let i = 0; i < args.length; i++) {
-            let argument = args[i];
-            if (argument !== undefined && argument.isElement === true) {
-                this.add(argument);
-            } else {
-                this.add(new VectorBox(argument));
-            }
-        }
-    }
-    noShadow() {
-        this.addClass('NoShadow');
-        return this;
-    }
-}
-
-const PANEL_STYLES = {
-    NONE:       'none',
-    SIMPLE:     'simple',
-    FANCY:      'fancy',
-};
-const CLOSE_SIDES = {
-    NONE:       'none',
-    LEFT:		'left',
-    RIGHT:		'right',
-};
-class Panel extends Div {
-    constructor(style = PANEL_STYLES.NONE) {
-        super();
-        this.setPointerEvents('auto');
-        this.setClass('Panel');
-        this.contents = function() { return this; };
-        if (style === PANEL_STYLES.SIMPLE) {
-            this.addClass('SimplePanel');
-        } else if (style === PANEL_STYLES.FANCY) {
-            this.addClass('FancyPanel');
-            const outerBox =  new Panel().setClass('FancyPanelOuter');
-            const borderBox = new Panel().setClass('FancyPanelBorder');
-            const insideBox = new Panel().setClass('FancyPanelInside');
-            borderBox.add(insideBox);
-            outerBox.add(borderBox);
-            this.add(outerBox);
-            this.contents = function() { return insideBox; };
-        }
-        function onContextMenu(event) {
-            event.preventDefault();
-        }
-        this.onContextMenu(onContextMenu);
-    }
-    makeClosable(closeSide = CLOSE_SIDES.LEFT, sizeScale = 1.1, offsetScale = 1.0) {
-        const self = this;
-        function opacityTransparent() {
-            if (! self.closeButton) return;
-            self.closeButton.setStyle('opacity', '0');
-        }
-        function opacityGhost() {
-            if (! self.closeButton || ! self.closeImageBox) return;
-            self.closeButton.setStyle('opacity', '1.0');
-            self.closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(100%)');
-        }
-        function opacityOpaque() {
-            if (! self.closeButton || ! self.closeImageBox) return;
-            self.closeButton.setStyle('opacity', '1.0');
-            self.closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(125%)');
-        }
-        function clickedClose() {
-            self.setDisplay('none');
-            self.dom.dispatchEvent(new Event('closed'));
-        }
-        if (closeSide === CLOSE_SIDES.LEFT || closeSide === CLOSE_SIDES.RIGHT) {
-            this.closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
-            this.closeImageBox.setStyle(
-                'width', '105%',
-                'height', '105%',
-                'transition', 'filter var(--menu-timing) ease-in-out',
-            );
-            this.closeButton = new Button();
-            this.closeButton.dom.setAttribute('tooltip', 'Close Panel');
-            this.closeButton.add(self.closeImageBox);
-            this.closeButton.setStyle(
-                'background', 'rgb(var(--background-dark))',
-                'box-shadow', 'none',
-                'border', 'none',
-                'border-radius', '100%',
-                'outline', 'none',
-                'min-height', `${sizeScale}em`,
-                'min-width', `${sizeScale}em`,
-                'position', 'absolute',
-                'opacity', '0',
-                'overflow', 'visible',
-                'transition', 'opacity var(--menu-timing) ease-in-out',
-                'z-index', '1001',
-            );
-            if (closeSide === CLOSE_SIDES.RIGHT) {
-                this.closeButton.setStyle('right', `${sizeScale * offsetScale * 0.1}em`);
-                this.closeButton.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
-            } else {
-                this.closeButton.setStyle('left', `${sizeScale * offsetScale * 0.1}em`);
-                this.closeButton.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
-            }
-            this.closeButton.dom.addEventListener('pointerenter', opacityOpaque);
-            this.closeButton.dom.addEventListener('pointerleave', opacityGhost);
-            this.closeButton.dom.addEventListener('click', clickedClose);
-            this.dom.addEventListener('pointerenter', opacityGhost);
-            this.dom.addEventListener('pointerleave', opacityTransparent);
-            this.addToSelf(this.closeButton);
-            return;
-        } else if (closeSide === CLOSE_SIDES.NONE) {
-            if (! this.closeButton) return;
-            this.closeButton.dom.removeEventListener('pointerenter', opacityOpaque);
-            this.closeButton.dom.removeEventListener('pointerleave', opacityGhost);
-            this.closeButton.dom.removeEventListener('click', clickedClose);
-            this.dom.removeEventListener('pointerenter', opacityGhost);
-            this.dom.removeEventListener('pointerleave', opacityTransparent);
-            this.remove(this.closeButton);
-            this.closeButton = undefined;
-            this.closeImageBox = undefined;
-            return;
-        }
-    }
-}
-
-class Row extends Div {
-    constructor() {
-        super();
-        this.addClass('Row');
-    }
-}
-
-class Text extends Span {
-    constructor(innerHtml) {
-        super(innerHtml);
-        this.setClass('Text');
-        this.setCursor('default');
     }
 }
 
@@ -1758,6 +1586,81 @@ class Titled extends Div {
     }
     toggle() {
         this.setExpanded(! this.isExpanded);
+    }
+}
+
+class Button extends Element {
+    constructor(innerHtml) {
+        super(document.createElement('button'));
+        const self = this;
+        this.setClass('Button');
+        this.dom.innerHTML = innerHtml ?? '';
+        this.attachedMenu = undefined;
+        this.menuOffsetX = 0;
+        this.menuOffsetY = 0;
+        this.alignMenu = ALIGN.LEFT;
+        this.overflowMenu = OVERFLOW.RIGHT;
+        Object.defineProperty(this, 'disabled', {
+            get: function() { return (this.dom) ? this.dom.disabled : true; },
+            set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
+        });
+        function hideTooltip() {
+            const hideEvent = new Event('hidetooltip', { bubbles: true });
+            self.dom.dispatchEvent(hideEvent);
+        }
+        this.onPointerDown(hideTooltip);
+        this.dom.addEventListener('destroy', function() {
+            if (self.attachedMenu) self.detachMenu();
+        }, { once: true });
+    }
+    attachMenu(osuiMenu) {
+        const self = this;
+        if (osuiMenu.hasClass('Menu') === false) return this;
+        this.addClass('MenuButton');
+        this.attachedMenu = osuiMenu;
+        document.body.appendChild(osuiMenu.dom);
+        this.dom.addEventListener('pointerdown', onPointerDown);
+        const observer = new MutationObserver((mutations, observer) => {
+            if (document.contains(this.dom)) {
+                popMenu();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
+        window.addEventListener('resize', popMenu);
+        function popMenu() {
+            const popped = Popper.popUnder(
+                osuiMenu.dom,
+                self.dom,
+                self.alignMenu,
+                self.menuOffsetX,
+                self.menuOffsetY,
+                self.overflowMenu
+            );
+            if (popped === POSITION.UNDER) {
+                osuiMenu.removeClass('SlideUp');
+                osuiMenu.addClass('SlideDown');
+            } else {
+                osuiMenu.removeClass('SlideDown');
+                osuiMenu.addClass('SlideUp');
+            }
+        }
+        function onPointerDown(event) {
+            if (self.hasClass('Selected') === false) {
+                self.addClass('Selected');
+                popMenu();
+                if (self.dom) osuiMenu.showMenu(self.dom);
+            }
+        };
+        this.detachMenu = function() {
+            if (self.hasClass('MenuButton') === false) return;
+            self.removeClass('MenuButton');
+            window.removeEventListener('resize', popMenu);
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.attachedMenu.destroy();
+            document.body.removeChild(self.attachedMenu.dom);
+            self.attachedMenu = undefined;
+        };
     }
 }
 
@@ -3122,6 +3025,93 @@ class TextArea extends Element {
     }
 }
 
+class ShadowBox extends Div {
+    constructor() {
+        super();
+        this.setClass('ShadowBox');
+        let args = arguments;
+        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
+        for (let i = 0; i < args.length; i++) {
+            let argument = args[i];
+            if (argument !== undefined && argument.isElement === true) {
+                this.add(argument);
+            } else {
+                this.add(new VectorBox(argument));
+            }
+        }
+    }
+    noShadow() {
+        this.addClass('NoShadow');
+        return this;
+    }
+}
+
+const CLOSE_SIDES = {
+    LEFT:		'left',
+    RIGHT:		'right',
+};
+class CloseButton extends Button {
+    constructor(parent, closeSide = CLOSE_SIDES.LEFT, sizeScale = 1.1, offsetScale = 1.0) {
+        if (! parent || ! parent.isElement) {
+            console.warn(`CloseButton: A parent osui element to be attached to is required.`);
+            return;
+        }
+        super();
+        const self = this;
+        let closeImageBox;
+        function opacityTransparent() {
+            self.setStyle('opacity', '0');
+        }
+        function opacityGhost() {
+            self.setStyle('opacity', '1.0');
+            closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(100%)');
+        }
+        function opacityOpaque() {
+            self.setStyle('opacity', '1.0');
+            closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(125%)');
+        }
+        function clickedClose() {
+            parent.setDisplay('none');
+            parent.dom.dispatchEvent(new Event('closed'));
+        }
+        this.dom.setAttribute('tooltip', 'Close Panel');
+        closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
+        closeImageBox.setStyle(
+            'width', '105%',
+            'height', '105%',
+            'transition', 'filter var(--menu-timing) ease-in-out',
+        );
+        this.add(closeImageBox);
+        this.setStyle(
+            'display', '',
+            'background', 'rgb(var(--background-dark))',
+            'box-shadow', 'none',
+            'border', 'none',
+            'border-radius', '100%',
+            'outline', 'none',
+            'min-height', `${sizeScale}em`,
+            'min-width', `${sizeScale}em`,
+            'position', 'absolute',
+            'opacity', '0',
+            'overflow', 'visible',
+            'transition', 'opacity var(--menu-timing) ease-in-out',
+            'z-index', '1001',
+        );
+        if (closeSide === CLOSE_SIDES.RIGHT) {
+            this.setStyle('right', `${sizeScale * offsetScale * 0.1}em`);
+            this.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
+        } else {
+            this.setStyle('left', `${sizeScale * offsetScale * 0.1}em`);
+            this.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
+        }
+        this.dom.addEventListener('pointerenter', opacityOpaque);
+        this.dom.addEventListener('pointerleave', opacityGhost);
+        this.dom.addEventListener('click', clickedClose);
+        parent.dom.addEventListener('pointerenter', opacityGhost);
+        parent.dom.addEventListener('pointerleave', opacityTransparent);
+    }
+}
+
 class AbsoluteBox extends Div {
     constructor() {
         super();
@@ -3452,7 +3442,8 @@ class Draggable extends Panel {
     constructor(style) {
         super(style);
         this.addClass('Draggable');
-        this.makeClosable(CLOSE_SIDES.RIGHT, 1.3 , -1.9 );
+        const closeButton = new CloseButton(this, CLOSE_SIDES.LEFT, 1.3 , -1.9 );
+        this.addToSelf(closeButton);
     }
 }
 
@@ -3515,4 +3506,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-image:\n        linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--box-radius);\n    */\n\n    border-radius: var(--box-radius);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n}\n\n.Tooltip {\n    position: absolute;\n    z-index: 1001; /* Tooltip */\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    z-index: 1001; /* InfoBox */\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Checkbox, Color, ColorScheme, Css, Div, Docker, Draggable, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, Gooey, Html, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, TreeList, VectorBox, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Draggable, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, Gooey, Html, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, TreeList, VectorBox, tooltipper };
