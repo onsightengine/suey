@@ -84,6 +84,7 @@ input[type=number] {
     padding: var(--pad-x-small) var(--pad-medium);
 
     overflow: hidden;
+    text-align: center;
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;

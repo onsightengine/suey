@@ -137,6 +137,10 @@
     height: 100%;
 }
 
+.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {
+    text-align: center;
+}
+
 /* Right side of Property Box flex fill when using multiple controls */
 .PropertyTinyRow {
     --min-width: 2em;
