@@ -1,4 +1,4 @@
-/***** CLASS: .AbsoluteBox *****/
+/********** .AbsoluteBox **********/
 
 .AbsoluteBox {
     position: absolute;
@@ -13,7 +13,7 @@
     vertical-align: middle;
 }
 
-/***** CLASS: .AssetBox / .MiniAssetBox *****/
+/********** .AssetBox / .MiniAssetBox **********/
 
 .AssetBox {
     position: relative;
@@ -55,7 +55,7 @@
     /* filter: brightness(125%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 150deg)); */
 }
 
-/***** CLASS: .DockerLeft / .DockerRight *****/
+/********** .DockerLeft / .DockerRight **********/
 
 .DockerCorner {
     position: absolute;
@@ -97,7 +97,7 @@
     justify-content: end;
 }
 
-/***** CLASS: .FlexBox *****/
+/********** .FlexBox **********/
 
 .FlexBox {
     display: flex;
@@ -105,7 +105,7 @@
     vertical-align: middle;
 }
 
-/***** CLASS: .Row *****/
+/********** .Row **********/
 
 .Row {
     width: 100%;
@@ -118,7 +118,7 @@
     vertical-align: middle;
 }
 
-/***** CLASS: .ShadowBox *****/
+/********** .ShadowBox **********/
 
 .ShadowBox { /* Affects Toolbar Icons! */
     position: absolute;
@@ -140,7 +140,7 @@
     filter: var(--drop-shadow);
 }
 
-/***** CLASS: .VectorBox *****/
+/********** .VectorBox **********/
 
 .VectorBox {
     position: absolute;

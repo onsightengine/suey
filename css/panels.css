@@ -1,4 +1,4 @@
-/***** CLASS: .Draggable *****/
+/********** .Draggable **********/
 
 /* .Scripter, .Player, .Shaper, etc. */
 
@@ -15,7 +15,7 @@
     z-index: 200; /* OverlayPanel */
 }
 
-/***** CLASS: .Panel / .SimplePanel / .FancyPanel(s) *****/
+/********** .Panel / .SimplePanel / .FancyPanel(s) **********/
 
 .Panel {
     position: relative;
@@ -72,7 +72,7 @@
     flex-direction: column;
 }
 
-/***** CLASS: .Resizeable / Resizers *****/
+/********** .Resizeable / Resizers **********/
 
 .Resizeable {
     position: relative;
@@ -163,13 +163,13 @@
     z-index: 100; /* Resizer Corner */
 }
 
-/***** CLASS: .Scroller ***/
+/********** .Scroller ********/
 
 .Scroller {
     overflow: auto;
 }
 
-/***** CLASS: .Shrinkable *****/
+/********** .Shrinkable **********/
 
 .Shrinkable {
     border: solid var(--border-small) rgba(var(--shadow), 0.25);
@@ -275,7 +275,7 @@
     display: none;
 }
 
-/***** CLASS: .Tabbed *****/
+/********** .Tabbed **********/
 
 .Tabbed {
     padding: var(--pad-small);
@@ -437,7 +437,7 @@
     padding-bottom: var(--pad-medium);
 }
 
-/***** CLASS: .Titled *****/
+/********** .Titled **********/
 
 .Titled {
     height: 100%;
