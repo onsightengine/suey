@@ -18,7 +18,7 @@ class Dropdown extends Button {
         this.addClass('Dropdown');
         this.addClass('DropArrow');
 
-        ///// Events
+        // Events
 
         function onWheel(event) {
             event.stopPropagation()

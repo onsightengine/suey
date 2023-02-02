@@ -8,16 +8,15 @@ class TextBox extends Element {
 
         this.dom.type = 'text';
 
-        ///// NOTE: For chrome, this doesn't always turn off autocomplete.
+        // // NOTE: For chrome, this doesn't always turn off autocomplete.
         // Try inserting a zero-width non-joiner into the input name to trick chrome.
         // So 'Name' -> 'N&zwnj;ame', 'Street' -> 'S&zwnj;treet'
-        /////
         this.dom.setAttribute('autocomplete', 'off');
         this.dom.setAttribute('spellcheck', 'false');
 
         this.setValue(text);
 
-        ///// Events
+        // Events
 
         function onKeyDown(event) {
             event.stopPropagation();

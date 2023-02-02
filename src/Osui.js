@@ -1,13 +1,11 @@
-/** /////////////////////////////////////////////////////////////////////////////////
-//
-// @description Osui
-// @about       Lightweight JavaScript UI library.
-// @author      Stephens Nunnally <@stevinz>
-// @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
-// @source      https://github.com/onsightengine/osui
-//
-///////////////////////////////////////////////////////////////////////////////////*/
-//
+/**
+ * @description Osui
+ * @about       Lightweight JavaScript UI library.
+ * @author      Stephens Nunnally <@stevinz>
+ * @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
+ * @source      https://github.com/onsightengine/osui
+ */
+
 //  ---CATEGORY---              ---NODE TYPE---         ---CLASS NAME---
 //
 //  CORE
@@ -61,15 +59,14 @@
 //      Tabbed                  div                     .Tabbed
 //      - Tab                   span                    .Tab
 //
-/////////////////////////////////////////////////////////////////////////////////////
 
-///// General Constants
+/***** CONSTANTS *****/
 
 export * from './constants.js';
 
 export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
 
-///// Utils
+/***** UTILS *****/
 
 export { ColorScheme } from './utils/ColorScheme.js';
 export { Css } from './utils/Css.js';
@@ -80,14 +77,12 @@ export { Popper } from './utils/Popper.js';
 import { tooltipper } from './utils/Tooltipper.js';
 export { tooltipper } from './utils/Tooltipper.js';
 
-//////////////////// Widgets
+/***** WIDGETS *****/
 
-///// Little Property Gui
-
+// Little Property Gui
 export { Gooey } from './Gooey.js';
 
-///// Core
-
+// Core
 export { Break } from './core/Break.js';
 export { Div } from './core/Div.js';
 export { Element } from './core/Element.js';
@@ -95,13 +90,11 @@ export { Image } from './core/Image.js';
 export { Span } from './core/Span.js';
 export { Text } from './core/Text.js';
 
-///// Data
-
+// Data
 export { PropertyList } from './data/PropertyList.js';
 export { TreeList } from './data/TreeList.js';
 
-///// Inputs
-
+// Inputs
 export { Button } from './input/Button.js';
 export { Checkbox } from './input/Checkbox.js';
 export { Color } from './input/Color.js';
@@ -112,12 +105,10 @@ export { Slider } from './input/Slider.js';
 export { TextArea } from './input/TextArea.js';
 export { TextBox } from './input/TextBox.js';
 
-///// Interactive
-
+// Interactive
 export { CloseButton } from './interactive/CloseButton.js';
 
-///// Layout
-
+// Layout
 export { AbsoluteBox } from './layout/AbsoluteBox.js';
 export { AssetBox } from './layout/AssetBox.js';
 export { Docker } from './layout/Docker.js';
@@ -128,8 +119,7 @@ export { Row } from './layout/Row.js';
 export { ShadowBox } from './layout/ShadowBox.js';
 export { VectorBox } from './layout/VectorBox.js';
 
-///// Menu
-
+// Menu
 export { Menu } from './menu/Menu.js';
 export { MenuItem } from './menu/MenuItem.js';
 export { MenuSeparator } from './menu/MenuSeperator.js';
@@ -137,8 +127,7 @@ export { MenuShortcut } from './menu/MenuShortcut.js';
 export { ToolbarButton } from './menu/ToolbarButton.js';
 export { ToolbarSeparator } from './menu/ToolbarSeparator.js';
 
-///// Panels
-
+// Panels
 export { Draggable } from './panels/Draggable.js';
 export { Panel } from './panels/Panel.js';
 export { Resizeable } from './panels/Resizeable.js';
@@ -146,8 +135,7 @@ export { Shrinkable } from './panels/Shrinkable.js';
 export { Tabbed } from './panels/Tabbed.js';
 export { Titled } from './panels/Titled.js';
 
-///// Enums
-
+// Enums
 export { CLOSE_SIDES } from './interactive/CloseButton.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
@@ -155,8 +143,7 @@ export { PANEL_STYLES } from './panels/Panel.js';
 export { RESIZERS } from './panels/Resizeable.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
-///// CSS
-
+// CSS
 import '../css/variables.css';
 import '../css/core.css';
 import '../css/inputs.css';

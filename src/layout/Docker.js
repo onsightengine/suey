@@ -16,7 +16,7 @@ class Docker extends Div {
     constructor() {
         super();
 
-        ///// Build
+        // Build
         const cornerDivs = {};
         let zIndex = 1;
         for (let key in CORNERS) {
@@ -50,8 +50,7 @@ class Docker extends Div {
             this.add(corner);
         }
 
-        ///// Add Dock
-
+        // Add Dock
         this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
             cornerDivs[cornerName].add(osuiElement);
 
@@ -73,8 +72,7 @@ class Docker extends Div {
             }
         }
 
-        ///// Signals
-
+        // Signals
         function windowResizeCallback() {
             let bottomLeftHeight = 0;
             for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {

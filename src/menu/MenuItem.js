@@ -27,7 +27,7 @@ class MenuItem extends Div {
         this.disabled = false;
         this.subMenu = undefined;
 
-        ///// Disable Context Menu
+        // Disable Context Menu
 
         function onContextMenu(event) {
             event.preventDefault();
@@ -35,7 +35,7 @@ class MenuItem extends Div {
 
         this.onContextMenu(onContextMenu);
 
-        ///// On Mouse Enter (hide all sub menus, show this sub menu)
+        // On Mouse Enter (hide all sub menus, show this sub menu)
 
         this.onPointerEnter(() => {
             // // Don't process menu items that don't have sub menus
@@ -50,7 +50,7 @@ class MenuItem extends Div {
             if (self.subMenu) self.subMenu.showMenu(self.dom);
         });
 
-        ///// Initialize
+        // Initialize
 
         // Text, Unselectable
         this.setText(text);
@@ -58,9 +58,7 @@ class MenuItem extends Div {
 
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Methods
-    ////////////////////
+    /******************** METHODS ********************/
 
     isChecked() {
         return this.checked;
@@ -100,9 +98,7 @@ class MenuItem extends Div {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Sub Menu
-    ////////////////////
+    /******************** SUB MENU ********************/
 
     /** Attaches a sub menu, first removes any previously attached sub menu */
     attachSubMenu(osuiMenu) {

@@ -10,7 +10,7 @@ class Color extends Button {
         this.addClass('ColorButton');
         this.addClass('DropArrow');
 
-        ///// Color Input
+        // Color Input
 
         const colorBox = new Element(document.createElement('input'));
         colorBox.addClass('ColorInputButton');
@@ -18,13 +18,13 @@ class Color extends Button {
         try { colorBox.dom.type = 'color'; } catch(exception) {}
         this.add(colorBox);
 
-        ///// Color Background
+        // Color Background
 
         const colorBackground = new Div().addClass('DropColor');
         colorBackground.setStyle('backgroundColor', colorBox.dom.value);
         this.add(colorBackground);
 
-        ///// Child Element Events
+        // Child Element Events
 
         let selected = false;
         function colorBoxClick(event) {
@@ -50,7 +50,7 @@ class Color extends Button {
         colorBox.dom.addEventListener('blur', colorBoxBlur);
         colorBox.dom.addEventListener('focusout', colorBoxBlur);
 
-        ///// Member Functions
+        // Member Functions
 
         this.getValue = function() {
             if (! colorBox.dom) return 0;
@@ -77,7 +77,7 @@ class Color extends Button {
             return this;
         }
 
-        ///// Init
+        // Init
 
         this.setHexValue(0xffffff);
 

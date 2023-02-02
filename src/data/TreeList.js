@@ -15,7 +15,7 @@ class TreeList extends Div {
         // Properties
         this.multiSelect = multiSelect;
 
-        ///// Events
+        // Events
 
         /** Handle key down, handles arrow navigation, also prevents native scroll behavior */
         function onKeyDown(event) {
@@ -131,9 +131,7 @@ class TreeList extends Div {
 
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////	Lookup
-    ////////////////////
+    /******************** LOOKUP ********************/
 
     getIndex(value) {
         for (let i = 0; i < this.options.length; i++) {
@@ -142,9 +140,7 @@ class TreeList extends Div {
         return -1;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////	Select - Single
-    ////////////////////
+    /******************** SELECT - SINGLE ********************/
 
     getValue() {
         return this.selectedValue;
@@ -175,9 +171,7 @@ class TreeList extends Div {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////	Select - Multi
-    ////////////////////
+    /******************** SELECT - MULTI ********************/
 
     getValues() {
         return this.selectedValues;
@@ -225,9 +219,7 @@ class TreeList extends Div {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////	Build from Option (div) List
-    ////////////////////
+    /******************** BUILD FROM OPTION (div) LIST ********************/
 
     setOptions(options) {
         const self = this;
@@ -235,8 +227,7 @@ class TreeList extends Div {
         // Clear Existing Options
         this.clearContents();
 
-        ////////// Click
-
+        // Click
         function onPointerDown(event) {
             // Reset shift tracking values on no shift key
             if (! event.shiftKey) {
@@ -298,8 +289,7 @@ class TreeList extends Div {
             self.dom.dispatchEvent(changeEvent);
         }
 
-        ////////// Drag & Drop
-
+        // Drag & Drop
         let currentDrag = undefined;
 
         function onDrag() {
@@ -338,7 +328,7 @@ class TreeList extends Div {
             currentDrag = undefined;
         }
 
-        ////////// Attach Events
+        /***** EVENTS *****/
 
         self.options = [];
         for (let i = 0; i < options.length; i++) {

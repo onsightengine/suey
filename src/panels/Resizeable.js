@@ -36,7 +36,7 @@ class Resizeable extends Panel {
         this.setYSizes();
     }
 
-    //////////////////// Methods
+    /******************** METHODS ********************/
 
     changeWidth(width) {
         if (width == null) return;

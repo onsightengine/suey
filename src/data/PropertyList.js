@@ -31,7 +31,7 @@ class PropertyList extends Div {
         this.setRowSizeThirds = function() { this.rowSizing = PROPERTY_SIZE.THIRD; };
     }
 
-    //////////////////// Add Widgets
+    /******************** ADD WIDGETS ********************/
 
     addHeader(text = '', iconUrl, enlarge = false) {
         const header = this.createHeader(text, iconUrl, enlarge);
@@ -51,7 +51,7 @@ class PropertyList extends Div {
         return row;
     }
 
-    //////////////////// Create Widgets
+    /******************** CREATE WIDGETS ********************/
 
     /** Separating category header title */
     createHeader(text = '', iconUrl, enlarge = false) {

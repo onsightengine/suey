@@ -2,10 +2,6 @@ import { Element } from '../core/Element.js';
 
 const _changeEvent = new Event('change', { 'bubbles': true, 'cancelable': true });
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Number Box
-/////////////////////////////////////////////////////////////////////////////////////
-
 class NumberBox extends Element {
 
     constructor(number) {
@@ -29,7 +25,7 @@ class NumberBox extends Element {
         this.nudge = 1.0;
         this.setValue(number);
 
-        ///// Events
+        // Events
 
         function onChange(event) {
             if (self.dom) self.setValue(self.dom.value);
@@ -159,11 +155,6 @@ class NumberBox extends Element {
     }
 
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Number Scroller Box
-/////		Adds scroller functionality to NumberBox
-/////////////////////////////////////////////////////////////////////////////////////
 
 class NumberScroll extends NumberBox {
 

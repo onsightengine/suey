@@ -1,26 +1,21 @@
-/////////////////////////////////////////////////////////////////////////////////////
-//
-//  Css Functions
-//      Variables
-//          getVariable             Gets a CSS variable by name, hyphens optional
-//          setVariable             Sets a CSS variable by name, hyphens optional
-//      Font / Gui Sizing
-//          baseSize
-//          fontSize
-//          guiScale                Calculates current GUI scale based on <body> font size
-//      Font Metrics
-//          getTextWidth            Gets the width of a string in pixels
-//          getFontCssFromElement
-//      Size Parsing
-//          parseSize
-//          toEm                    Returns input units from 'px' to 'em'
-//          toPx                    Returns input units to converted pixels string ending in 'px'
-//
-/////////////////////////////////////////////////////////////////////////////////////
+// VARIABLES
+//  getVariable()               Gets a CSS variable by name, hyphens optional
+//  setVariable()               Sets a CSS variable by name, hyphens optional
+// FONT / GUI SIZING
+//  baseSize()
+//  fontSize()
+//  guiScale()                  Calculates current GUI scale based on <body> font size
+// FONT METRICS
+//  getTextWidth()              Gets the width of a string in pixels
+//  getFontCssFromElement()
+// SIZE PARSING
+//  parseSize()
+//  toEm()                      Returns input units from 'px' to 'em'
+//  toPx()                      Returns input units to converted pixels string ending in 'px'
 
 class Css {
 
-    //////////////////// Variables
+    /******************** VARIABLES ********************/
 
     /** Gets a CSS variable by name, hyphens optional */
     static getVariable(variable) {
@@ -38,7 +33,7 @@ class Css {
 		rootElement.style.setProperty(variable, valueAsString);
     }
 
-    //////////////////// Font / Gui Sizing
+    /******************** FONT / GUI SIZING ********************/
 
     static baseSize() { /* 1rem === 10px @ root */
         return parseFloat(getComputedStyle(document.querySelector(':root')).fontSize);
@@ -53,7 +48,7 @@ class Css {
         return Css.fontSize(element) / Css.baseSize();
     }
 
-    //////////////////// Font Metrics
+    /******************** FONT METRICS ********************/
 
     /* Gets the width of a string in pixels, use with getFontCssFromElement() */
     static getTextWidth(text, font) {
@@ -70,7 +65,7 @@ class Css {
         return `${fontWeight} ${fontSize} ${fontFamily}`;
     }
 
-    //////////////////// Size Parsing
+    /******************** SIZE PARSING ********************/
 
     static parseSize(size) {
         if (typeof size === 'string') {

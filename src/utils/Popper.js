@@ -1,16 +1,12 @@
-/////////////////////////////////////////////////////////////////////////////////////
+// NOTES:
+//  When seeking window width / height:
+//      document.documentElement.clientHeight   // Returns height of <html> element
+//      document.body.clientHeight              // Returns height of <body> element
+//      window.innerHeight                      // Returns height of the window rather than height of the content
 //
-//  NOTES:
-//      When seeking window width / height:
-//          document.documentElement.clientHeight   // Returns height of <html> element
-//          document.body.clientHeight              // Returns height of <body> element
-//          window.innerHeight                      // Returns height of the window rather than height of the content
-//
-//      Different browsers could give different values for the sizes of the <html> and <body> elements.
-//      The <html> element can either represent the window, or the entire page. The <body> element can either
-//      be the same size as the html element, or the size of the content in the page. Best to use 'window'.
-//
-/////////////////////////////////////////////////////////////////////////////////////
+// Different browsers could give different values for the sizes of the <html> and <body> elements.
+// The <html> element can either represent the window, or the entire page. The <body> element can either
+// be the same size as the html element, or the size of the content in the page. Best to use 'window'.
 
 import { Css } from './Css.js';
 
@@ -36,7 +32,7 @@ export const POSITION = {
 /** Determines proper layout within browser window to place pop up div */
 class Popper {
 
-    //////////////////// Size
+    /******************** SIZE ********************/
 
     static getLeft(dom) { return dom.getBoundingClientRect().left; }
     static getTop(dom) { return dom.getBoundingClientRect().top; }
@@ -45,7 +41,7 @@ class Popper {
     static getWidth(dom) { return dom.offsetWidth; }
     static getHeight(dom) { return dom.offsetHeight; }
 
-    //////////////////// Pop!
+    /******************** POP ********************/
 
     static popOver(dom, parent, align = ALIGN.LEFT, offsetX = 0, offsetY = 0, overflow = OVERFLOW.RIGHT) {
         return Popper.popOverUnder(dom, parent, POSITION.OVER, align, offsetX, offsetY, overflow);
@@ -64,7 +60,7 @@ class Popper {
         offsetX = (offsetX) ? parseInt(Css.toPx(offsetX), 10) : 0;
         offsetY = (offsetY) ? parseInt(Css.toPx(offsetY), 10) : 0;
 
-        ///// Left, originally parent left (align === ALIGN.LEFT)
+        // Left, originally parent left (align === ALIGN.LEFT)
 
         let desiredLeft = Popper.getLeft(parent) + offsetX;
 
@@ -88,7 +84,7 @@ class Popper {
         // Leftside adjust
         if (desiredLeft < EDGE_SPACE) desiredLeft = EDGE_SPACE;
 
-        ///// Top
+        // Top
 
         let underTop = Popper.getTop(parent) + Popper.getHeight(parent) + offsetY;
         let overTop = Popper.getTop(parent) - Popper.getHeight(dom) - offsetY;
@@ -110,7 +106,7 @@ class Popper {
             }
         }
 
-        ///// Set Location
+        // Set Location
 
         dom.style.left = Css.toPx(desiredLeft);
         dom.style.top = Css.toPx(desiredTop);

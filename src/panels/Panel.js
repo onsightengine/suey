@@ -31,7 +31,7 @@ class Panel extends Div {
             this.contents = function() { return insideBox; };               // Accessor for the inside panel
         }
 
-        ///// Events
+        // Events
 
         // Disable Context Menu
         function onContextMenu(event) {

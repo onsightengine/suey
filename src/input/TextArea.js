@@ -10,7 +10,7 @@ class TextArea extends Element {
         this.dom.spellcheck = false;
         this.dom.setAttribute('autocomplete', 'off');
 
-        ///// Events
+        // Events
 
         function onKeyDown(event) {
             event.stopPropagation();

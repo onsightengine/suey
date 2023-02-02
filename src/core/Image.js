@@ -30,13 +30,11 @@ class Image extends Element {
         if (width != undefined) imageDom.style.width = Css.parseSize(width);
         if (height != undefined) imageDom.style.height = Css.parseSize(height);
 
-        ///// Base
-
+        // Base
         super(imageDom);
         this.setClass('Image');
 
-        ///// Methods
-
+        // Methods
         this.setImage = function(imageUrl) {
             setImage(imageUrl);
         }

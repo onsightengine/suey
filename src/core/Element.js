@@ -13,9 +13,7 @@ class Element {
         this.children = [];                             // Holds Osui Children (.add / .remove / .clearContents)
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Clean Up
-    ////////////////////
+    /********** DESTROY **********/
 
     /** Removes all children DOM elements from this element */
     destroy() {
@@ -23,9 +21,7 @@ class Element {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Children
-    ////////////////////
+    /********** CHILDREN **********/
 
     /** Adds to contents() any number of Osui Elements passed as arguments */
     add(/* any number of Elements to remove */) {
@@ -63,9 +59,7 @@ class Element {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Classes / ID / Name
-    ////////////////////
+    /********** CLASS / ID / NAME **********/
 
     setClass(className) {
         this.dom.className = className;
@@ -118,9 +112,7 @@ class Element {
         return (this.name === undefined) ? 'No name' : this.name;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   HTML
-    ////////////////////
+    /********** HTML **********/
 
     setAttribute(attrib, value) {
         this.dom.setAttribute(attrib, value);
@@ -141,14 +133,13 @@ class Element {
         return this;
     }
 
-    ///// WARNING: Setting any of the following will delete children!
+    // // WARNING: Setting any of the following will delete children!
     //
     // 	Order of content, from least to most:
     // 		textContents:	All text contained by an element and all its children that are for formatting purposes only.
     // 		innerText:		All text contained by an element and all its child elements.
     // 		innerHtml:		All text, including html tags, that is contained by an element.
     //
-    /////
 
     /** The innerText property represents the "rendered" text content of a node and its descendants. */
     getInnerText() {
@@ -183,9 +174,7 @@ class Element {
         return this.contents().dom.textContent;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   CSS
-    ////////////////////
+    /********** CSS **********/
 
     setStyle(/* style, value, style, value, etc. */) {
         for (let i = 0, l = arguments.length; i < l; i += 2) {
@@ -205,9 +194,7 @@ class Element {
         return this;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Dom
-    ////////////////////
+    /********** DOM **********/
 
     getLeft() {
         // return this.dom.left;
@@ -229,9 +216,7 @@ class Element {
         return this.dom.getBoundingClientRect().height;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    /////   Traverse
-    ////////////////////
+    /********** TRAVERSE **********/
 
     /** Applies a callback function to all Element children, recursively */
     traverse(callback, applyToSelf = true) {
@@ -245,11 +230,9 @@ class Element {
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Add / Remove / Clear
-/////////////////////////////////////////////////////////////////////////////////////
+export { Element };
 
-//////////////////// Add
+/******************** ADD / REMOVE / CLEAR ********************/
 
 function addToParent(parent, element) {
     if (! element) return;
@@ -282,8 +265,6 @@ function addToParent(parent, element) {
         }
     }
 }
-
-//////////////////// Clear
 
 // Clears Element Children
 function clearElementChildren(osui) {
@@ -329,8 +310,6 @@ function clearChildren(element, destroy = true) {
     }
 }
 
-//////////////////// Remove
-
 /** Returns true if element was removed */
 function removeFromParent(parent, element) {
     if (! element) return;
@@ -360,9 +339,7 @@ function removeFromParent(parent, element) {
     return false;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Properties
-/////////////////////////////////////////////////////////////////////////////////////
+/******************** PROPERTIES ********************/
 
 // Hyphenated style properties can be referenced via camelCase in JavaScript
 // See: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties
@@ -394,9 +371,7 @@ Object.defineProperties(Element.prototype, {
 
 });
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Events
-/////////////////////////////////////////////////////////////////////////////////////
+/******************** EVENTS ********************/
 
 const events = [
     'Change', 'Input', 'Wheel',
@@ -420,9 +395,7 @@ events.forEach(function(event) {
 
 });
 
-/////////////////////////////////////////////////////////////////////////////////////
-/////  Reference
-////////////////////
+/******************** REFERENCE ********************/
 
 // 'blur'           Fires when element has lost focus (does not bubble, 'focusout' follows and does bubble)
 // 'focus'          Fires when element has received focus (does not bubble, 'focusin' follows and does bubble)
@@ -435,9 +408,3 @@ events.forEach(function(event) {
 // 'dragstart', 'dragend'
 // 'dragenter', 'dragover', 'dragleave'
 // 'drop'
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////	Exports
-/////////////////////////////////////////////////////////////////////////////////////
-
-export { Element };

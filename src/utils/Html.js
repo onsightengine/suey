@@ -1,14 +1,9 @@
-/////////////////////////////////////////////////////////////////////////////////////
-//
-//  Html Utility Functions
-//      isChildOf                   Check if 'element' is a descendant of 'possibleParent'
-//      isChildOfElementWithClass   Check if 'element' is a descendant of a parent element with class type 'className'
-//      parentElementWithClass      Finds and returns parent of 'element' with class 'className'
-//      parentScroller              Finds closest 'scrollable' parent
-//      scrollIntoView              If element has a scorllable parent, scrolls element into view
-//      traverse                    Applies a function to all children, recursively
-//
-/////////////////////////////////////////////////////////////////////////////////////
+// isChildOf()                      Check if 'element' is a descendant of 'possibleParent'
+// isChildOfElementWithClass()      Check if 'element' is a descendant of a parent element with class type 'className'
+// parentElementWithClass()         Finds and returns parent of 'element' with class 'className'
+// parentScroller()                 Finds closest 'scrollable' parent
+// scrollIntoView()                 If element has a scorllable parent, scrolls element into view
+// traverse()                       Applies a function to all children, recursively
 
 import { Css } from './Css.js';
 

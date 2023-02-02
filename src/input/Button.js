@@ -23,7 +23,7 @@ class Button extends Element {
             set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
         });
 
-        ///// Events
+        // Events
 
         function hideTooltip() {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
@@ -42,18 +42,17 @@ class Button extends Element {
     attachMenu(osuiMenu) {
         const self = this;
 
-        ///// Verify element is a .Menu, apply MenuButton class, store for later
+        // Verify element is a .Menu, apply MenuButton class, store for later
         if (osuiMenu.hasClass('Menu') === false) return this;
         this.addClass('MenuButton');
         this.attachedMenu = osuiMenu;
 
-        ///// Add menu to document, add event handler
+        // Add menu to document, add event handler
         document.body.appendChild(osuiMenu.dom);
         this.dom.addEventListener('pointerdown', onPointerDown);
 
-        ////////////////////
-        /////	DOM Watcher, more info: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-        ////////////////////
+        /********** DOM WATCHER **********/
+        // more info: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
         //
         // const observer = new MutationObserver((mutations, observer) => {
         // 	mutations.forEach((mutation) => {
@@ -67,7 +66,7 @@ class Button extends Element {
         // });
         //
 
-        ///// Mutation Callback
+        // Mutation Callback
         // Calls popMenu when button is initially added to the DOM. This is done to decide initial
         // (over / under) popper placement, then the observer is removed.
         const observer = new MutationObserver((mutations, observer) => {
@@ -80,10 +79,10 @@ class Button extends Element {
         // Start mutation observer
         observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
 
-        ///// Handle document resize / positioning
+        // Handle document resize / positioning
         window.addEventListener('resize', popMenu);
 
-        ///// Pop this menu (calculate proper positioning)
+        // Pop this menu (calculate proper positioning)
         function popMenu() {
             const popped = Popper.popUnder(
                 osuiMenu.dom,
@@ -102,7 +101,7 @@ class Button extends Element {
             }
         }
 
-        ///// Handle button click
+        // Handle button click
         function onPointerDown(event) {
             if (self.hasClass('Selected') === false) {
                 self.addClass('Selected');

@@ -77,7 +77,7 @@ class Tabbed extends Resizeable {
 
     } // end ctor
 
-    //////////////////// Methods
+    /******************** METHODS ********************/
 
     /** Select first tab */
     selectFirst() {
@@ -184,7 +184,7 @@ class Tabbed extends Resizeable {
 
 }
 
-//////////////////// Tab Button
+/******************** TAB BUTTON ********************/
 
 class TabButton extends Div {
 
@@ -194,7 +194,7 @@ class TabButton extends Div {
         this.setClass('Tab');
         this.setCursor('default');
 
-        ///// Icon / Label
+        // Icon / Label
 
         this.iconVector = new VectorBox(icon);
         this.iconBorder = new Div().setClass('TabIcon');
@@ -205,7 +205,7 @@ class TabButton extends Div {
         }
         this.setLabel(label);
 
-        ///// Background Color
+        // Background Color
 
         if (bgColor !== undefined && bgColor !== null) {
             let m, r, g, b;
@@ -268,7 +268,7 @@ class TabButton extends Div {
             this.iconVector.setStyle('background-image', bgImage);
         }
 
-        ///// Events
+        // Events
 
         function onClick() {
             parent.selectTab(self.dom.id, self.count, true);

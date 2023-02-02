@@ -28,7 +28,7 @@ class Slider extends Div {
 
         this.add(ticks, slider);
 
-        ///// Events
+        // Events
 
         function sliderInput() {
             if (! slider.dom) return;
