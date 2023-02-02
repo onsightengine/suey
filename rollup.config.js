@@ -14,6 +14,7 @@ function header() {
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2021-2023 Stephens Nunnally and Scidian Studios
  * @source      https://github.com/onsightengine/osui
+ * @version     v0.1.8
  */
 ${code}`;
         }
