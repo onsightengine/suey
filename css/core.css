@@ -14,16 +14,8 @@ html *, html *::before, html *::after {
 }
 
 body {
-    /* Disable user select */
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-
     margin: 0;
     padding: 0;
-    overflow: hidden;
 
     /* Color main text and background */
     color: rgba(var(--text-light), 0.75);
