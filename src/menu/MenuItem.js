@@ -75,14 +75,16 @@ class MenuItem extends Div {
 
     setChecked(checked) {
         const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
-        if (checked) this.divIcon.addClass('IconColorize'); else this.divIcon.removeClass('IconColorize');
+        if (checked) this.divIcon.addClass('IconColorize');
+        else this.divIcon.removeClass('IconColorize');
         this.setImage(imageUrl);
         this.checked = checked;
         return this;
     }
 
     setDisabled(disabled) {
-        if (disabled) { this.addClass('Disabled'); } else { this.removeClass('Disabled'); }
+        if (disabled) this.addClass('Disabled');
+        else this.removeClass('Disabled');
         this.disabled = disabled;
         return this;
     }
@@ -93,8 +95,7 @@ class MenuItem extends Div {
     }
 
     setText(text) {
-        let newText = (text) ? text : ' ';
-        this.divText.dom.innerHTML = newText;
+        this.divText.dom.innerHTML = text ?? ' ';
         return this;
     }
 

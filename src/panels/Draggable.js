@@ -10,7 +10,7 @@ class Draggable extends Panel {
         this.addClass('Draggable');
 
         // Close Button
-        const closeButton = new CloseButton(this, CLOSE_SIDES.LEFT, 1.3 /* sizeScale */, -1.9 /* offsetScale */);
+        const closeButton = new CloseButton(this, CLOSE_SIDES.BOTH, 1.45 /* sizeScale */, -1.8 /* offsetScale */);
         this.addToSelf(closeButton);
 
         // function onPointerDown(event) {

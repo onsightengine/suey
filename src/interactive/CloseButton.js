@@ -6,11 +6,12 @@ import { IMAGE_CLOSE } from '../constants.js';
 export const CLOSE_SIDES = {
     LEFT:		'left',
     RIGHT:		'right',
+    BOTH:       'both',
 }
 
 class CloseButton extends Button {
 
-    constructor(parent, closeSide = CLOSE_SIDES.LEFT, sizeScale = 1.1, offsetScale = 1.0) {
+    constructor(parent, closeSide = CLOSE_SIDES.BOTH, sizeScale = 1.0, offsetScale = 1.0) {
         if (! parent || ! parent.isElement) {
             console.warn(`CloseButton: A parent osui element to be attached to is required.`);
             return;
@@ -18,7 +19,10 @@ class CloseButton extends Button {
 
         super();
         const self = this;
-        let closeImageBox;
+        this.setClass('CloseButton');
+
+        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
+        this.add(closeImageBox);
 
         function opacityTransparent() {
             self.setStyle('opacity', '0');
@@ -26,12 +30,12 @@ class CloseButton extends Button {
 
         function opacityGhost() {
             self.setStyle('opacity', '1.0');
-            closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(100%)');
+            self.setStyle('filter', 'brightness(100%)');
         }
 
         function opacityOpaque() {
             self.setStyle('opacity', '1.0');
-            closeImageBox.setStyle('filter', 'var(--drop-shadow) brightness(125%)');
+            self.setStyle('filter', 'brightness(125%)');
         }
 
         function clickedClose() {
@@ -40,37 +44,39 @@ class CloseButton extends Button {
         }
 
         this.dom.setAttribute('tooltip', 'Close Panel');
-
-        closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
-        closeImageBox.setStyle(
-            'width', '105%',
-            'height', '105%',
-            'transition', 'filter var(--menu-timing) ease-in-out',
-        );
-        this.add(closeImageBox);
-
         this.setStyle(
-            'display', '',
-            'background', 'rgb(var(--background-dark))',
-            'box-shadow', 'none',
-            'border', 'none',
-            'border-radius', '100%',
-            'outline', 'none',
             'min-height', `${sizeScale}em`,
             'min-width', `${sizeScale}em`,
-            'position', 'absolute',
-            'opacity', '0',
-            'overflow', 'visible',
-            'transition', 'opacity var(--menu-timing) ease-in-out',
-            'z-index', '1001', /* Close Button */
         );
 
-        if (closeSide === CLOSE_SIDES.RIGHT) {
-            this.setStyle('right', `${sizeScale * offsetScale * 0.1}em`);
-            this.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
-        } else {
-            this.setStyle('left', `${sizeScale * offsetScale * 0.1}em`);
-            this.setStyle('top', `${sizeScale * offsetScale * 0.1}em`);
+        const offset = `${sizeScale * offsetScale * 0.1}em`;
+        this.setStyle('top', offset);
+        this.setStyle((closeSide === CLOSE_SIDES.RIGHT) ? 'right' : 'left', offset);
+
+        if (closeSide === CLOSE_SIDES.BOTH) {
+            let lastSide = CLOSE_SIDES.LEFT;
+            parent.dom.addEventListener('pointermove', function(event) {
+                const rect = parent.dom.getBoundingClientRect();
+                const middle = rect.left + (rect.width / 2);
+                const x = event.pageX;
+                if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) {
+                    opacityTransparent();
+                    setTimeout(() => {
+                        self.dom.style.removeProperty('left');
+                        self.setStyle('right', offset);
+                        opacityGhost();
+                    }, 200);
+                    lastSide = CLOSE_SIDES.RIGHT;
+                } else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) {
+                    opacityTransparent();
+                    setTimeout(() => {
+                        self.dom.style.removeProperty('right');
+                        self.setStyle('left', offset);
+                        opacityGhost();
+                    }, 200);
+                    lastSide = CLOSE_SIDES.LEFT;
+                }
+            });
         }
 
         this.dom.addEventListener('pointerenter', opacityOpaque);

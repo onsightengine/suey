@@ -1,10 +1,9 @@
-// Plugins
 import { terser } from 'rollup-plugin-terser';              // Remove comments, minify
 import { visualizer } from 'rollup-plugin-visualizer';      // Visualize
 import cleanup from 'rollup-plugin-cleanup';                // Remove comments, supports sourcemap
 import postcss from 'rollup-plugin-postcss';                // Include CSS
+import image from '@rollup/plugin-image';                   // Include Images
 
-// Post Build Header
 function header() {
 	return {
 		renderChunk(code) {
@@ -21,10 +20,9 @@ ${code}`;
     };
 }
 
-// Builds
 const builds = [
 
-    { // Standard Build
+    { // Standard
         input: './src/Osui.js',
         treeshake: false,
         external: p => /^three/.test(p),
@@ -39,6 +37,7 @@ const builds = [
             postcss({
                 extensions: [ '.css' ],
             }),
+            image(),
         ],
 
         output: [{
@@ -59,6 +58,7 @@ const builds = [
             postcss({
                 extensions: [ '.css' ],
             }),
+            image(),
         ],
 
         output: [{

@@ -11,16 +11,15 @@ class Image extends Element {
 
         // If imageUrl is SVG string, convert to image
         function setImage(fromImage) {
-            const isString = (typeof fromImage === 'string');
             // SVG
-            if (isString && (fromImage.includes('<svg') || fromImage.includes('<SVG'))) {
+            if (typeof fromImage === 'string' && (fromImage.includes('<svg') || fromImage.includes('<SVG'))) {
                 const blob = new Blob([ fromImage ], { type: 'image/svg+xml' });
                 const url = URL.createObjectURL(blob);
                 imageDom.src = url;
                 imageDom.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
-            // Filename or Image
+            // Filename / Image
             } else {
-                imageDom.src = imageUrl;
+                imageDom.src = fromImage;
             }
         }
         setImage(imageUrl)

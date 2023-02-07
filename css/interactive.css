@@ -1,0 +1,17 @@
+.CloseButton {
+    cursor: pointer;
+    pointer-events: all;
+    background-color: #e24c4b;
+    box-shadow: none;
+    border-radius: 50%;
+    border: var(--border-small) solid rgb(var(--icon));
+    outline: none;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: opacity var(--menu-timing) ease-in-out;
+    filter: none;
+    z-index: 1001; /* Close Button */
+}
