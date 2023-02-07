@@ -1,7 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { FlexBreak } from './FlexBreak.js';
-import { RESIZERS } from '../panels/Resizeable.js';
+import { RESIZERS } from '../constants.js';
 import { TAB_SIDES } from '../panels/Tabbed.js';
 
 export const CORNERS = {
@@ -59,7 +58,7 @@ class Docker extends Div {
                 if (cornerName.includes('Left')) osuiElement.setTabSide(TAB_SIDES.RIGHT);
             }
 
-            if (osuiElement.isElement && osuiElement.hasClass('Resizeable')) {
+            if (osuiElement.isElement && osuiElement.hasClass('ResizeFlex')) {
                 osuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
                 osuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
                 // // TEMP: No vertical resizing for now...

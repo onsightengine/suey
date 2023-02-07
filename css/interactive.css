@@ -11,7 +11,7 @@
     padding: 0;
     opacity: 0;
     overflow: hidden;
-    transition: opacity var(--menu-timing) ease-in-out;
+    transition: opacity 0.1s ease-in-out;
     filter: none;
     z-index: 1001; /* Close Button */
 }

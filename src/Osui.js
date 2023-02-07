@@ -55,6 +55,7 @@
 //  PANELS
 //      Panel                   div                     .Panel
 //      Resizeable              div                     .Resizeable
+//      ResizeFlex              div                     .ResizeFlex
 //      Shrinkable              div                     .Shrinkable
 //      Tabbed                  div                     .Tabbed
 //      - Tab                   span                    .Tab
@@ -128,9 +129,9 @@ export { ToolbarButton } from './menu/ToolbarButton.js';
 export { ToolbarSeparator } from './menu/ToolbarSeparator.js';
 
 // Panels
-export { Draggable } from './panels/Draggable.js';
 export { Panel } from './panels/Panel.js';
 export { Resizeable } from './panels/Resizeable.js';
+export { ResizeFlex } from './panels/ResizeFlex.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Tabbed } from './panels/Tabbed.js';
 export { Titled } from './panels/Titled.js';
@@ -140,7 +141,6 @@ export { CLOSE_SIDES } from './interactive/CloseButton.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
-export { RESIZERS } from './panels/Resizeable.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
 // CSS

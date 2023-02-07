@@ -64,7 +64,7 @@ div::-webkit-scrollbar-corner {
     }
 }
 
-/********** SPECIAL **********/
+/********** MISC **********/
 
 /** Grayscale filter for disabled items */
 .Disabled {
@@ -75,9 +75,5 @@ div::-webkit-scrollbar-corner {
 
 /** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */
 .Unselectable {
-    -moz-user-select: -moz-none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }

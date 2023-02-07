@@ -3,11 +3,11 @@ import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
 import { RESIZERS } from '../constants.js';
 
-class Resizeable extends Panel {
+class ResizeFlex extends Panel {
 
     constructor(style, resizeAll = false) {
         super(style);
-        this.addClass('Resizeable');
+        this.addClass('ResizeFlex');
 
         // Properties
         this.wantsWidth = 0;
@@ -138,4 +138,4 @@ class Resizeable extends Panel {
 
 }
 
-export { Resizeable };
+export { ResizeFlex };

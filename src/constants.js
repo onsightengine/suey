@@ -41,3 +41,14 @@ export const TRAIT = {
     TRIADIC5:           'triadic5',             // Triadic color 5 (icon shifted 150°)
     TRIADIC6:           'triadic6',             // Triadic color 6 (complement shifted 150°)
 };
+
+export const RESIZERS = {
+    TOP:            'Top',
+    BOTTOM:     	'Bottom',
+    LEFT:       	'Left',
+    RIGHT:			'Right',
+    TOP_LEFT:		'TopLeft',
+    TOP_RIGHT:		'TopRight',
+    BOTTOM_LEFT:	'BottomLeft',
+    BOTTOM_RIGHT:	'BottomRight',
+};

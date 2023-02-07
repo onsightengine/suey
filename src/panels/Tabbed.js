@@ -1,7 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
-import { Resizeable } from './Resizeable.js';
+import { ResizeFlex } from './ResizeFlex.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
@@ -9,7 +9,7 @@ export const TAB_SIDES = {
     RIGHT:		'right',
 }
 
-class Tabbed extends Resizeable {
+class Tabbed extends ResizeFlex {
 
     constructor(style, tabSide = TAB_SIDES.RIGHT) {
         super(style);

@@ -50,7 +50,8 @@ import { FlexSpacer } from './layout/FlexSpacer.js';
 import { OVERFLOW } from './utils/Popper.js';
 import { PANEL_STYLES } from './panels/Panel.js';
 import { PropertyList, PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
-import { Resizeable, RESIZERS } from './panels/Resizeable.js';
+import { ResizeFlex } from './panels/ResizeFlex.js';
+import { RESIZERS } from './constants.js';
 import { Shrinkable } from './panels/Shrinkable.js';
 import { Titled } from './panels/Titled.js';
 
@@ -64,7 +65,7 @@ import { TextBox } from './input/TextBox.js';
 
 const _clr = new Iris();
 
-class Gooey extends Resizeable {
+class Gooey extends ResizeFlex {
 
     constructor(title, opacity) {
         super(PANEL_STYLES.FANCY);

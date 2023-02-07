@@ -11,11 +11,8 @@ export const CLOSE_SIDES = {
 
 class CloseButton extends Button {
 
-    constructor(parent, closeSide = CLOSE_SIDES.BOTH, sizeScale = 1.0, offsetScale = 1.0) {
-        if (! parent || ! parent.isElement) {
-            console.warn(`CloseButton: A parent osui element to be attached to is required.`);
-            return;
-        }
+    constructor(parent, closeSide = CLOSE_SIDES.BOTH, scale = 1.3, offset = 0) {
+        if (! parent || ! parent.isElement) return console.warn(`CloseButton: Missing parent osui element to be attached to`);
 
         super();
         const self = this;
@@ -45,13 +42,13 @@ class CloseButton extends Button {
 
         this.dom.setAttribute('tooltip', 'Close Panel');
         this.setStyle(
-            'min-height', `${sizeScale}em`,
-            'min-width', `${sizeScale}em`,
+            'min-height', `${scale}em`,
+            'min-width', `${scale}em`,
         );
 
-        const offset = `${sizeScale * offsetScale * 0.1}em`;
-        this.setStyle('top', offset);
-        this.setStyle((closeSide === CLOSE_SIDES.RIGHT) ? 'right' : 'left', offset);
+        const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset}em`;
+        this.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
+        this.setStyle((closeSide === CLOSE_SIDES.RIGHT) ? 'right' : 'left', sideways);
 
         if (closeSide === CLOSE_SIDES.BOTH) {
             let lastSide = CLOSE_SIDES.LEFT;
@@ -63,17 +60,17 @@ class CloseButton extends Button {
                     opacityTransparent();
                     setTimeout(() => {
                         self.dom.style.removeProperty('left');
-                        self.setStyle('right', offset);
+                        self.setStyle('right', sideways);
                         opacityGhost();
-                    }, 200);
+                    }, 100);
                     lastSide = CLOSE_SIDES.RIGHT;
                 } else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) {
                     opacityTransparent();
                     setTimeout(() => {
                         self.dom.style.removeProperty('right');
-                        self.setStyle('left', offset);
+                        self.setStyle('left', sideways);
                         opacityGhost();
-                    }, 200);
+                    }, 100);
                     lastSide = CLOSE_SIDES.LEFT;
                 }
             });
