@@ -1,6 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { Panel } from './Panel.js';
+import { Panel, PANEL_STYLES } from './Panel.js';
 import { ResizeFlex } from './ResizeFlex.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
@@ -11,11 +11,15 @@ export const TAB_SIDES = {
 
 class Tabbed extends ResizeFlex {
 
-    constructor(style, tabSide = TAB_SIDES.RIGHT) {
-        super(style);
-        const self = this;
+    constructor({
+        style = PANEL_STYLES.FANCY,
+        tabSide = TAB_SIDES.RIGHT,
+     } = {}) {
+        super({ style });
         this.setName('Tabbed');
         this.addClass('Tabbed');
+
+        const self = this;
 
         // Public Properties
         this.tabs = [];

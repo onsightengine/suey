@@ -2,7 +2,7 @@
  * @description Osui
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
- * @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally and Scidian Studios
+ * @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally
  * @source      https://github.com/onsightengine/osui
  */
 
@@ -57,9 +57,10 @@
 //      Resizeable              div                     .Resizeable
 //      ResizeFlex              div                     .ResizeFlex
 //      Shrinkable              div                     .Shrinkable
+//      Stacked                 div                     .Stacked
 //      Tabbed                  div                     .Tabbed
 //      - Tab                   span                    .Tab
-//
+//      Titled                  div                     .Titled
 
 /***** CONSTANTS *****/
 

@@ -68,7 +68,7 @@ const _clr = new Iris();
 class Gooey extends ResizeFlex {
 
     constructor(title, opacity) {
-        super(PANEL_STYLES.FANCY);
+        super({ style: PANEL_STYLES.FANCY });
         this.addClass('Gooey');
 
         this.toggleResize(RESIZERS.LEFT, true);

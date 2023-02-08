@@ -8,18 +8,25 @@ class Resizeable extends Panel {
     #resizers = {};
     #enabled = {};
 
-    constructor(style = PANEL_STYLES.FANCY, width = 600, height = 600, resizers = [
-        RESIZERS.TOP,
-        RESIZERS.BOTTOM,
-        RESIZERS.LEFT,
-        RESIZERS.RIGHT,
-        RESIZERS.TOP_LEFT,
-        RESIZERS.TOP_RIGHT,
-        RESIZERS.BOTTOM_LEFT,
-        RESIZERS.BOTTOM_RIGHT,
-    ]) {
-        super({ style });
+    constructor({
+        style = PANEL_STYLES.FANCY,
+        width = 600,
+        height = 600,
+        bringToTop = false,
+        resizers = [
+            RESIZERS.TOP,
+            RESIZERS.BOTTOM,
+            RESIZERS.LEFT,
+            RESIZERS.RIGHT,
+            RESIZERS.TOP_LEFT,
+            RESIZERS.TOP_RIGHT,
+            RESIZERS.BOTTOM_LEFT,
+            RESIZERS.BOTTOM_RIGHT,
+        ],
+    } = {}) {
+        super({ style, bringToTop });
         this.addClass('Resizeable');
+        this.addClass('FloatingPanel');
 
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
@@ -34,11 +41,19 @@ class Resizeable extends Panel {
         }
 
         this.setStyle(
+            'left', '0',
+            'top', '0',
             'right', `${window.innerWidth - width}px`,
             'bottom', `${window.innerHeight - height}px`,
         );
 
-        this.dom.addEventListener('displayed', () => this.center());
+        let hasShown = false;
+        this.dom.addEventListener('displayed', () => {
+            if (!hasShown) {
+                this.center();
+                hasShown = true;
+            }
+        });
     }
 
     center() {

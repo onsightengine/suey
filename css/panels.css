@@ -5,6 +5,10 @@
     overflow: visible;
 }
 
+.Panel.BringToTop {
+    z-index: 1;
+}
+
 .SimplePanel {
     background-color: rgba(var(--background-light), var(--panel-transparency));
     border: var(--border-small) solid rgb(var(--icon));
@@ -55,18 +59,20 @@
     flex-direction: column;
 }
 
-/********** .Resizeable / .ResizeFlex / Resizers **********/
+/********** .FloatingPanel **********/
 
-.Resizeable {
+.FloatingPanel {
     position: fixed;
-    opacity: calc(90% + (10% * var(--panel-transparency)));
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
     padding: var(--pad-small);
-    z-index: 200; /* Resizeable */
+    opacity: calc(90% + (10% * var(--panel-transparency)));
+    z-index: 200; /* FloatingPanel */
 }
+
+.FloatingPanel.BringToTop {
+    z-index: 201; /* FloatingPanel */
+}
+
+/********** .ResizeFlex / Resizers **********/
 
 .ResizeFlex {
     position: relative;

@@ -7,7 +7,9 @@ class ResizeFlex extends Panel {
 
     #resizers = {};
 
-    constructor(style = PANEL_STYLES.FANCY) {
+    constructor({
+        style = PANEL_STYLES.FANCY,
+    } = {}) {
         super({ style });
         this.addClass('ResizeFlex');
 
