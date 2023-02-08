@@ -133,6 +133,16 @@ class Element {
         return this;
     }
 
+    hide() {
+        this.setDisplay('none');
+        this.dom.dispatchEvent(new Event('hidden'));
+    }
+
+    display(display = '') {
+        this.setDisplay(display);
+        this.dom.dispatchEvent(new Event('displayed'));
+    }
+
     // // WARNING: Setting any of the following will delete children!
     //
     // 	Order of content, from least to most:

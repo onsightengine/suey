@@ -7,12 +7,13 @@ export const CLOSE_SIDES = {
     LEFT:		'left',
     RIGHT:		'right',
     BOTH:       'both',
+    NONE:       'none',
 }
 
 class CloseButton extends Button {
 
     constructor(parent, closeSide = CLOSE_SIDES.BOTH, scale = 1.3, offset = 0) {
-        if (! parent || ! parent.isElement) return console.warn(`CloseButton: Missing parent osui element to be attached to`);
+        if (! parent || ! parent.isElement) return console.warn(`CloseButton: Missing parent element`);
 
         super();
         const self = this;
@@ -20,25 +21,6 @@ class CloseButton extends Button {
 
         const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
         this.add(closeImageBox);
-
-        function opacityTransparent() {
-            self.setStyle('opacity', '0');
-        }
-
-        function opacityGhost() {
-            self.setStyle('opacity', '1.0');
-            self.setStyle('filter', 'brightness(100%)');
-        }
-
-        function opacityOpaque() {
-            self.setStyle('opacity', '1.0');
-            self.setStyle('filter', 'brightness(125%)');
-        }
-
-        function clickedClose() {
-            parent.setDisplay('none');
-            parent.dom.dispatchEvent(new Event('closed'));
-        }
 
         this.dom.setAttribute('tooltip', 'Close Panel');
         this.setStyle(
@@ -52,35 +34,32 @@ class CloseButton extends Button {
 
         if (closeSide === CLOSE_SIDES.BOTH) {
             let lastSide = CLOSE_SIDES.LEFT;
+
             parent.dom.addEventListener('pointermove', function(event) {
                 const rect = parent.dom.getBoundingClientRect();
                 const middle = rect.left + (rect.width / 2);
                 const x = event.pageX;
-                if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) {
-                    opacityTransparent();
+
+                let changeSide = CLOSE_SIDES.NONE;
+                if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) changeSide = CLOSE_SIDES.RIGHT;
+                else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) changeSide = CLOSE_SIDES.LEFT;
+
+                if (changeSide !== CLOSE_SIDES.NONE) {
+                    self.addClass('ItemHidden');
                     setTimeout(() => {
                         self.dom.style.removeProperty('left');
-                        self.setStyle('right', sideways);
-                        opacityGhost();
-                    }, 100);
-                    lastSide = CLOSE_SIDES.RIGHT;
-                } else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) {
-                    opacityTransparent();
-                    setTimeout(() => {
                         self.dom.style.removeProperty('right');
-                        self.setStyle('left', sideways);
-                        opacityGhost();
+                        self.setStyle(changeSide, sideways);
+                        self.removeClass('ItemHidden');
                     }, 100);
-                    lastSide = CLOSE_SIDES.LEFT;
+                    lastSide = changeSide;
                 }
             });
         }
 
-        this.dom.addEventListener('pointerenter', opacityOpaque);
-        this.dom.addEventListener('pointerleave', opacityGhost);
-        this.dom.addEventListener('click', clickedClose);
-        parent.dom.addEventListener('pointerenter', opacityGhost);
-        parent.dom.addEventListener('pointerleave', opacityTransparent);
+        this.dom.addEventListener('click', () => parent.hide());
+        parent.dom.addEventListener('pointerenter', () => self.addClass('ItemShown'));
+        parent.dom.addEventListener('pointerleave', () => self.removeClass('ItemShown'));
     }
 
 }

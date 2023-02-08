@@ -60,10 +60,10 @@
 .Resizeable {
     position: fixed;
     opacity: calc(90% + (10% * var(--panel-transparency)));
-    width: 600px;
-    height: 600px;
-    top: 5.3em;
-    left: 5.3em;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
     padding: var(--pad-small);
     z-index: 200; /* Resizeable */
 }

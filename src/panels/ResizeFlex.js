@@ -1,44 +1,27 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { Panel } from './Panel.js';
+import { Panel, PANEL_STYLES } from './Panel.js';
 import { RESIZERS } from '../constants.js';
 
 class ResizeFlex extends Panel {
 
-    constructor(style, resizeAll = false) {
-        super(style);
+    #resizers = {};
+
+    constructor(style = PANEL_STYLES.FANCY) {
+        super({ style });
         this.addClass('ResizeFlex');
 
-        // Properties
-        this.wantsWidth = 0;
-
-        // Resizers
-        this.resizer = {};
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
-            this.resizer[resizerName] = new Div().addClass('Resizer').addClass(className);
-            this.addToSelf(this.resizer[resizerName]);
+            const resizer = new Div().addClass('Resizer').addClass(className);
+            this.addToSelf(resizer);
+            this.#resizers[resizerName] = resizer;
         }
 
-        // Init Sizes
         this.setXSizes();
         this.setYSizes();
-
-        // Enable resizing
-        if (resizeAll) {
-            this.toggleResize(RESIZERS.TOP, true);
-            this.toggleResize(RESIZERS.BOTTOM, true);
-            this.toggleResize(RESIZERS.LEFT, true);
-            this.toggleResize(RESIZERS.RIGHT, true);
-            this.toggleResize(RESIZERS.TOP_LEFT, true);
-            this.toggleResize(RESIZERS.TOP_RIGHT, true);
-            this.toggleResize(RESIZERS.BOTTOM_LEFT, true);
-            this.toggleResize(RESIZERS.BOTTOM_RIGHT, true);
-        }
     }
-
-    /******************** METHODS ********************/
 
     changeWidth(width) {
         if (width == null) return;
@@ -66,7 +49,8 @@ class ResizeFlex extends Panel {
         this.defaultHeight = start;
     }
 
-    toggleResize(position, enabled) {
+    toggleResize(resizerName, enabled) {
+        const resizer = this.#resizers[resizerName];
         let downX, downY;
         let downW, downH;
 
@@ -120,7 +104,6 @@ class ResizeFlex extends Panel {
             if (window.signals) signals.windowResize.dispatch();
         }
 
-        let resizer = this.resizer[position];
         if (enabled && resizer.resizeEnabled !== true) {
             if (resizer._onPointerDown === undefined) resizer._onPointerDown = onPointerDown.bind(resizer);
             if (resizer._onPointerMove === undefined) resizer._onPointerMove = onPointerMove.bind(resizer);
