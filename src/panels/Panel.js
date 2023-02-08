@@ -50,14 +50,16 @@ class Panel extends Div {
     bringToTop() {
         if (this.#bringingToTop) return;
         this.#bringingToTop = true;
-        this.dom.addEventListener('blur', () => this.removeClass('BringToTop'));
-        this.dom.addEventListener('focus', () => this.addClass('BringToTop'));
-        this.dom.addEventListener('displayed', () => this.addClass('BringToTop'));
-        this.dom.addEventListener('pointerdown', () => {
+        const self = this;
+        function applyBringToTop() {
             const panels = document.querySelectorAll('.Panel');
-            panels.forEach(element => element.classList.remove('BringToTop'));
-            this.addClass('BringToTop');
-        });
+            panels.forEach(element => { if (element !== self.dom) element.classList.remove('BringToTop') });
+            self.addClass('BringToTop');
+        }
+        this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
+        this.dom.addEventListener('focusin', () => applyBringToTop());
+        this.dom.addEventListener('displayed', () => applyBringToTop());
+        this.dom.addEventListener('pointerdown', () => applyBringToTop());
     }
 
 }

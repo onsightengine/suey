@@ -1,9 +1,12 @@
+/***** .CloseButton *****/
+
 .CloseButton {
     cursor: pointer;
     pointer-events: all;
-    box-shadow: 0px 0px 3px 3px rgba(0, 0, 0, 0.2); /*none;*/
+    box-shadow: 0px 0px 3px 3px rgba(0, 0, 0, 0.2);
     border-radius: 50%;
     border: var(--border-small) solid rgb(var(--icon));
+    /* background-color: rgba(var(--background-light), 1); */
     background-color: #e24c4b;
     outline: none;
     position: absolute;
@@ -11,18 +14,22 @@
     padding: 0;
     opacity: 0;
     overflow: hidden;
-    transition: opacity 0.5s ease-in-out;
+    transition: background-color 0.1s, opacity 0.5s ease-in-out;
     filter: none;
     z-index: 101; /* Close Button */
 }
 
 .CloseButton.ItemShown {
+    /* background-color: rgba(226, 76, 75, 1); */
+    background-color: #e24c4b;
     opacity: 1.0;
     filter: brightness(100%);
     transition: opacity 0.1s;
 }
 
 .CloseButton:hover {
+    background-color: #e24c4b;
+    /* background-color: rgba(var(--complement), 1); */
     opacity: 1.0;
     filter: brightness(125%);
     transition: opacity 0.1s;
@@ -31,4 +38,13 @@
 .CloseButton.ItemHidden {
     opacity: 0;
     transition: opacity 0.1s;
+}
+
+.CloseImage {
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.CloseButton:hover .CloseImage {
+    opacity: 1.0;
 }

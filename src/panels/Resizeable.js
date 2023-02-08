@@ -3,6 +3,11 @@ import { Div } from '../core/Div.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
 import { RESIZERS } from '../constants.js';
 
+export const RESIZE_MODE = {
+    STRETCH:    'stretch',
+    FIXED:      'fixed',
+}
+
 class Resizeable extends Panel {
 
     #resizers = {};
@@ -10,23 +15,17 @@ class Resizeable extends Panel {
 
     constructor({
         style = PANEL_STYLES.FANCY,
+        resizeMode = RESIZE_MODE.FIXED,
         width = 600,
         height = 600,
         bringToTop = false,
         resizers = [
-            RESIZERS.TOP,
-            RESIZERS.BOTTOM,
-            RESIZERS.LEFT,
-            RESIZERS.RIGHT,
-            RESIZERS.TOP_LEFT,
-            RESIZERS.TOP_RIGHT,
-            RESIZERS.BOTTOM_LEFT,
-            RESIZERS.BOTTOM_RIGHT,
+            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
+            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
         ],
     } = {}) {
         super({ style, bringToTop });
         this.addClass('Resizeable');
-        this.addClass('FloatingPanel');
 
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
@@ -40,12 +39,22 @@ class Resizeable extends Panel {
             }
         }
 
-        this.setStyle(
-            'left', '0',
-            'top', '0',
-            'right', `${window.innerWidth - width}px`,
-            'bottom', `${window.innerHeight - height}px`,
-        );
+        this.setStyle('left', '0', 'top', '0');
+        if (resizeMode === RESIZE_MODE.FIXED) {
+            if (String(width).includes('%')) this.setStyle('right', `${window.innerWidth - (window.innerWidth * (parseFloat(width)/100))}px`);
+            else this.setStyle('right', `${window.innerWidth - parseInt(Css.toPx(width))}px`);
+            if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
+            else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
+        } else {
+
+            /// TEMP
+            if (String(width).includes('%')) this.setStyle('right', `${window.innerWidth - (window.innerWidth * (parseFloat(width)/100))}px`);
+            else this.setStyle('right', `${window.innerWidth - parseInt(Css.toPx(width))}px`);
+            if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
+            else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
+            ///
+
+        }
 
         let hasShown = false;
         this.dom.addEventListener('displayed', () => {

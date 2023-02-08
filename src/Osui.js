@@ -142,6 +142,7 @@ export { CLOSE_SIDES } from './interactive/CloseButton.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
+export { RESIZE_MODE } from './panels/Resizeable.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
 // CSS

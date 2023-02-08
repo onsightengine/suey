@@ -19,7 +19,7 @@ class CloseButton extends Button {
         const self = this;
         this.setClass('CloseButton');
 
-        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow();
+        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
         this.add(closeImageBox);
 
         this.dom.setAttribute('tooltip', 'Close Panel');
@@ -30,10 +30,10 @@ class CloseButton extends Button {
 
         const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset}em`;
         this.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
-        this.setStyle((closeSide === CLOSE_SIDES.RIGHT) ? 'right' : 'left', sideways);
+        this.setStyle((closeSide === CLOSE_SIDES.LEFT) ? 'left' : 'right', sideways);
 
         if (closeSide === CLOSE_SIDES.BOTH) {
-            let lastSide = CLOSE_SIDES.LEFT;
+            let lastSide = CLOSE_SIDES.RIGHT;
 
             parent.dom.addEventListener('pointermove', function(event) {
                 const rect = parent.dom.getBoundingClientRect();
