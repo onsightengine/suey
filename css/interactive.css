@@ -1,21 +1,39 @@
+/***** .PanelButton *****/
+
+.PanelButton {
+    pointer-events: all;
+    border: var(--border-small) solid rgb(var(--icon));
+    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);
+    box-shadow: /* pop-out-shadow */
+        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    filter: none;
+    z-index: 101; /* Panel Button */
+}
+
+.PanelButton:hover {
+    opacity: 1.0;
+    filter: brightness(125%);
+    transition: opacity 0.1s;
+}
+
+.PanelButton:active {
+    box-shadow: var(--sunk-in-shadow);
+    filter: brightness(100%);
+}
+
 /***** .CloseButton *****/
 
 .CloseButton {
     cursor: pointer;
-    pointer-events: all;
-    box-shadow: 0px 0px 3px 3px rgba(0, 0, 0, 0.2);
     border-radius: 50%;
-    border: var(--border-small) solid rgb(var(--icon));
     background-color: #e24c4b;
-    outline: none;
-    position: absolute;
-    margin: 0;
-    padding: 0;
     opacity: 0;
-    overflow: hidden;
     transition: background-color 0.1s, opacity 0.25s ease-in-out;
-    filter: none;
-    z-index: 101; /* Close Button */
 }
 
 .CloseButton.ItemShown {
@@ -26,10 +44,7 @@
 }
 
 .CloseButton:hover {
-    background-color:  #e24c4b;
-    opacity: 1.0;
-    filter: brightness(125%);
-    transition: opacity 0.1s;
+    background-color: #e24c4b;
 }
 
 .CloseButton.ItemHidden {
@@ -44,4 +59,19 @@
 
 .CloseButton:hover .CloseImage {
     opacity: 1.0;
+}
+
+/***** .TitleBar *****/
+
+.TitleBar {
+    color: rgba(var(--highlight), 0.75);
+    border-radius: 9999px;
+    background-color: rgba(var(--background-dark), 1.0);
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
+    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);
+    text-align: center;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
 }

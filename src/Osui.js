@@ -109,6 +109,7 @@ export { TextBox } from './input/TextBox.js';
 
 // Interactive
 export { CloseButton } from './interactive/CloseButton.js';
+export { TitleBar } from './interactive/TitleBar.js';
 
 // Layout
 export { AbsoluteBox } from './layout/AbsoluteBox.js';

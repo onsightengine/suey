@@ -18,6 +18,7 @@ class CloseButton extends Button {
         super();
         const self = this;
         this.setClass('CloseButton');
+        this.addClass('PanelButton');
 
         const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
         this.add(closeImageBox);

@@ -8,7 +8,8 @@ export const RESIZE_MODE = {
     STRETCH:    'stretch',
 }
 
-const MIN_SIZE = 100;
+const MIN_W = 300;
+const MIN_H = 150;
 
 class Resizeable extends Panel {
 
@@ -117,30 +118,30 @@ class Resizeable extends Panel {
 
             if (self.#resizeMode === RESIZE_MODE.FIXED) {
                 if (resizer.hasClassWithString('Left')) {
-                    const newLeft = Math.max(0, Math.min(rect.right - MIN_SIZE, rect.left + diffX));
+                    const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
                     const newWidth = rect.right - newLeft;
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
-                    const newTop = Math.max(0, Math.min(rect.bottom - MIN_SIZE, rect.top + diffY));
+                    const newTop = Math.max(0, Math.min(rect.bottom - MIN_H, rect.top + diffY));
                     const newHeight = rect.bottom - newTop;
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.min(Math.max(MIN_SIZE, rect.width + diffX), window.innerWidth - rect.left);
+                    const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), window.innerWidth - rect.left);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.min(Math.max(MIN_SIZE, rect.height + diffY), window.innerHeight - rect.top);
+                    const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
                     self.setStyle('height', `${newHeight}px`);
                 }
             } else if (self.#resizeMode === RESIZE_MODE.STRETCH) {
                 const newLeft = Math.max(0, rect.left + diffX);
                 const newTop = Math.max(0, rect.top + diffY);
-                const newRight = Math.min(window.innerWidth - (rect.left + MIN_SIZE), Math.max(0, (window.innerWidth - rect.right) - diffX));
-                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_SIZE), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
+                const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
+                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
                 if (resizer.hasClassWithString('Left')) self.setStyle('left', `${newLeft}px`);
                 if (resizer.hasClassWithString('Top')) self.setStyle('top', `${newTop}px`);
                 if (resizer.hasClassWithString('Right')) self.setStyle('right', `${newRight}px`);
