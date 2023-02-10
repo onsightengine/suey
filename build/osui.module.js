@@ -3091,7 +3091,7 @@ const CLOSE_SIDES = {
     NONE:       'none',
 };
 class CloseButton extends Button {
-    constructor(parent, closeSide = CLOSE_SIDES.BOTH, scale = 1.3, offset = 0) {
+    constructor(parent, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
         if (! parent || ! parent.isElement) return console.warn(`CloseButton: Missing parent element`);
         super();
         const self = this;
@@ -3464,6 +3464,7 @@ const RESIZE_MODE = {
     FIXED:      'fixed',
     STRETCH:    'stretch',
 };
+const MIN_SIZE = 100;
 class Resizeable extends Panel {
     #resizers = {};
     #enabled = {};
@@ -3481,6 +3482,7 @@ class Resizeable extends Panel {
     } = {}) {
         super({ style, bringToTop });
         this.addClass('Resizeable');
+        const self = this;
         this.#resizeMode = resizeMode;
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
@@ -3503,7 +3505,14 @@ class Resizeable extends Panel {
             if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
             else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
         }
-        this.dom.addEventListener('displayed', () => this.center(), { once: true });
+        window.addEventListener('resize', () => {
+            const rect = self.dom.getBoundingClientRect();
+            if (resizeMode === RESIZE_MODE.FIXED) {
+                if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
+                if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
+            }
+        });
+        this.dom.addEventListener('displayed', () => self.center(), { once: true });
     }
     center() {
         const side = (window.innerWidth - this.getWidth()) / 2;
@@ -3540,7 +3549,6 @@ class Resizeable extends Panel {
             event.preventDefault();
             const diffX = event.pageX - downX;
             const diffY = event.pageY - downY;
-            const MIN_SIZE = 100;
             if (self.#resizeMode === RESIZE_MODE.FIXED) {
                 if (resizer.hasClassWithString('Left')) {
                     const newLeft = Math.max(0, Math.min(rect.right - MIN_SIZE, rect.left + diffX));
@@ -3565,16 +3573,12 @@ class Resizeable extends Panel {
             } else if (self.#resizeMode === RESIZE_MODE.STRETCH) {
                 const newLeft = Math.max(0, rect.left + diffX);
                 const newTop = Math.max(0, rect.top + diffY);
-                if (resizer.hasClassWithString('Left')) {
-                    self.setStyle('left', `${newLeft}px`);
-                }
-                if (resizer.hasClassWithString('Top')) {
-                    self.setStyle('top', `${newTop}px`);
-                }
-                if (resizer.hasClassWithString('Right')) {
-                }
-                if (resizer.hasClassWithString('Bottom')) {
-                }
+                const newRight = Math.min(window.innerWidth - (rect.left + MIN_SIZE), Math.max(0, (window.innerWidth - rect.right) - diffX));
+                const newBottom = Math.max(0, (window.innerHeight - rect.bottom) - diffY);
+                if (resizer.hasClassWithString('Left')) self.setStyle('left', `${newLeft}px`);
+                if (resizer.hasClassWithString('Top')) self.setStyle('top', `${newTop}px`);
+                if (resizer.hasClassWithString('Right')) self.setStyle('right', `${newRight}px`);
+                if (resizer.hasClassWithString('Bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
         }
         if (enable && ! wasEnabled) {

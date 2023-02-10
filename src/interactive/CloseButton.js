@@ -12,7 +12,7 @@ export const CLOSE_SIDES = {
 
 class CloseButton extends Button {
 
-    constructor(parent, closeSide = CLOSE_SIDES.BOTH, scale = 1.3, offset = 0) {
+    constructor(parent, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
         if (! parent || ! parent.isElement) return console.warn(`CloseButton: Missing parent element`);
 
         super();
