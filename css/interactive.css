@@ -72,6 +72,21 @@
     text-align: center;
     left: 0;
     right: 0;
+    min-width: 6em;
+    min-height: 1.6em;
     margin-left: auto;
     margin-right: auto;
+}
+
+/***** .Window *****/
+
+.Window {
+    position: fixed;
+    padding: var(--pad-small);
+    opacity: calc(90% + (10% * var(--panel-transparency)));
+    z-index: 200; /* Window */
+}
+
+.Window.BringToTop {
+    z-index: 201; /* Window */
 }

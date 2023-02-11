@@ -8,8 +8,6 @@ export const PANEL_STYLES = {
 
 class Panel extends Div {
 
-    #bringingToTop = false;
-
     constructor({
         style = PANEL_STYLES.NONE,
         bringToTop = false,
@@ -18,6 +16,7 @@ class Panel extends Div {
         this.setPointerEvents('auto');
         this.setClass('Panel');
         this.contents = function() { return this; }
+        const self = this;
 
         // Panel Style
         if (style === PANEL_STYLES.SIMPLE) {
@@ -40,26 +39,22 @@ class Panel extends Div {
         this.onContextMenu(onContextMenu);
 
         // Stacking
-        if (bringToTop) this.bringToTop();
+        if (bringToTop) {
+            this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
+            this.dom.addEventListener('focusin', () => self.bringToTop());
+            this.dom.addEventListener('displayed', () => self.bringToTop());
+            this.dom.addEventListener('pointerdown', () => self.bringToTop());
+        }
     }
 
     /**
-     * When enabled and Panel receives focus, Panel is "reattached".
-     * This brings it to the front of it's z-index.
+     * Applies 'BringToTop' class, ensures only element with this class
      */
     bringToTop() {
-        if (this.#bringingToTop) return;
-        this.#bringingToTop = true;
         const self = this;
-        function applyBringToTop() {
-            const panels = document.querySelectorAll('.Panel');
-            panels.forEach(element => { if (element !== self.dom) element.classList.remove('BringToTop') });
-            self.addClass('BringToTop');
-        }
-        this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-        this.dom.addEventListener('focusin', () => applyBringToTop());
-        this.dom.addEventListener('displayed', () => applyBringToTop());
-        this.dom.addEventListener('pointerdown', () => applyBringToTop());
+        const panels = document.querySelectorAll('.Panel');
+        panels.forEach(element => { if (element !== self.dom) element.classList.remove('BringToTop') });
+        this.addClass('BringToTop');
     }
 
 }

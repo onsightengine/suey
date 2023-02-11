@@ -32,6 +32,7 @@
 //
 //  INTERACTIVE
 //      CloseButton
+//      Window                  div (.Panel)            .Window
 //
 //  LAYOUT
 //      AbsoluteBox             div                     .AbsoluteBox
@@ -54,7 +55,6 @@
 //
 //  PANELS
 //      Panel                   div                     .Panel
-//      Resizeable              div                     .Resizeable
 //      ResizeFlex              div                     .ResizeFlex
 //      Shrinkable              div                     .Shrinkable
 //      Stacked                 div                     .Stacked
@@ -110,6 +110,7 @@ export { TextBox } from './input/TextBox.js';
 // Interactive
 export { CloseButton } from './interactive/CloseButton.js';
 export { TitleBar } from './interactive/TitleBar.js';
+export { Window } from './interactive/Window.js';
 
 // Layout
 export { AbsoluteBox } from './layout/AbsoluteBox.js';
@@ -132,7 +133,6 @@ export { ToolbarSeparator } from './menu/ToolbarSeparator.js';
 
 // Panels
 export { Panel } from './panels/Panel.js';
-export { Resizeable } from './panels/Resizeable.js';
 export { ResizeFlex } from './panels/ResizeFlex.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Tabbed } from './panels/Tabbed.js';
@@ -143,7 +143,7 @@ export { CLOSE_SIDES } from './interactive/CloseButton.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
-export { RESIZE_MODE } from './panels/Resizeable.js';
+export { RESIZE_MODE } from './interactive/Window.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
 // CSS

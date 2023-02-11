@@ -59,18 +59,7 @@
     flex-direction: column;
 }
 
-/********** .Resizeable / .ResizeFlex / Resizers **********/
-
-.Resizeable {
-    position: fixed;
-    padding: var(--pad-small);
-    opacity: calc(90% + (10% * var(--panel-transparency)));
-    z-index: 200; /* Resizeable */
-}
-
-.Resizeable.BringToTop {
-    z-index: 201; /* Resizeable */
-}
+/********** .ResizeFlex / Resizers **********/
 
 .ResizeFlex {
     position: relative;
