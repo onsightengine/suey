@@ -131,6 +131,10 @@ export { MenuShortcut } from './menu/MenuShortcut.js';
 export { ToolbarButton } from './menu/ToolbarButton.js';
 export { ToolbarSeparator } from './menu/ToolbarSeparator.js';
 
+// Node
+export { Graph } from './node/Graph.js';
+export { Node } from './node/Node.js';
+
 // Panels
 export { Panel } from './panels/Panel.js';
 export { ResizeFlex } from './panels/ResizeFlex.js';

@@ -1263,9 +1263,7 @@ class Panel extends Div {
             this.add(outerBox);
             this.contents = function() { return insideBox; };
         }
-        function onContextMenu(event) {
-            event.preventDefault();
-        }
+        function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
         if (bringToTop) {
             this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
@@ -3657,6 +3655,18 @@ class ToolbarSeparator extends Element {
     }
 }
 
+class Graph extends Panel {
+    constructor() {
+        super();
+    }
+}
+
+class Node extends Window {
+    constructor() {
+        super();
+    }
+}
+
 function styleInject(css, ref) {
   if ( ref === void 0 ) ref = {};
   var insertAt = ref.insertAt;
@@ -3720,4 +3730,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-image:\n        linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--box-radius);\n    */\n\n    border-radius: var(--box-radius);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n}\n\n.Tooltip {\n    position: absolute;\n    z-index: 1001; /* Tooltip */\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    z-index: 1001; /* InfoBox */\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, Gooey, Html, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, Gooey, Graph, Html, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, TreeList, VectorBox, Window, tooltipper };

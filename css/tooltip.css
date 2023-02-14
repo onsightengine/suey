@@ -22,11 +22,11 @@
     pointer-events: none;
 
     white-space: nowrap;
+    z-index: 1001; /* Tooltip, InfoBox */
 }
 
 .Tooltip {
     position: absolute;
-    z-index: 1001; /* Tooltip */
     opacity: 0;
     transform: scale(0.25);
     transform-origin: center;
@@ -43,7 +43,6 @@
 .InfoBox {
     margin: 0;
     position: absolute;
-    z-index: 1001; /* InfoBox */
     opacity: 0;
     transition: opacity 1.0s ease-in;
 }

@@ -33,9 +33,7 @@ class Panel extends Div {
         }
 
         // Disable context menu
-        function onContextMenu(event) {
-            event.preventDefault();
-        }
+        function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
 
         // Stacking
