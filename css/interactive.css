@@ -67,7 +67,7 @@
     color: rgba(var(--highlight), 0.75);
     border-radius: 9999px;
     background-color: rgba(var(--background-dark), 1.0);
-    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
+    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));
     text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);
     text-align: center;
     left: 0;
@@ -89,4 +89,8 @@
 
 .Window.BringToTop {
     z-index: 201; /* Window */
+}
+
+.Window.BringToTop .TitleBar {
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
 }

@@ -136,10 +136,10 @@ class Window extends Panel {
     toggleMinMax() {
         if (! this.#maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.setStyle('left', `-1em`);
-            this.setStyle('right', `-1em`);
-            this.setStyle('top', `-1em`);
-            this.setStyle('bottom', `-1em`);
+            this.setStyle('left', `0`);
+            this.setStyle('right', `0`);
+            this.setStyle('top', `0`);
+            this.setStyle('bottom', `0`);
             this.dom.style.removeProperty('width');
             this.dom.style.removeProperty('height');
             this.#maximized = true;
