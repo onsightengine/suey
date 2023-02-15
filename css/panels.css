@@ -1,6 +1,7 @@
 /********** .Panel / .SimplePanel / .FancyPanel(s) **********/
 
 .Panel {
+    pointer-events: auto;
     position: relative;
     overflow: visible;
     z-index: 0; /* Panel */

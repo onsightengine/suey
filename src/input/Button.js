@@ -7,6 +7,7 @@ class Button extends Element {
 
     constructor(innerHtml) {
         super(document.createElement('button'));
+        this.setStyle('pointerEvents', 'all');
         const self = this;
 
         this.setClass('Button');

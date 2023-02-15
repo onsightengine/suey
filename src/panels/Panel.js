@@ -13,7 +13,6 @@ class Panel extends Div {
         bringToTop = false,
     } = {}) {
         super();
-        this.setPointerEvents('auto');
         this.setClass('Panel');
         this.contents = function() { return this; }
         const self = this;

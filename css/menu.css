@@ -288,6 +288,7 @@
 }
 
 .ToolbarSpacer {
+    pointer-events: none;
     border: none;
     margin: none;
     width: 1em;
