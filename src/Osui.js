@@ -10,6 +10,7 @@
 //
 //  CORE
 //      Break                   br                      -
+//      Canvas                  canvas                  -
 //      Div                     div                     -
 //      Element                 base class              -
 //      Image                   img                     .Image
@@ -86,6 +87,7 @@ export { Gooey } from './Gooey.js';
 
 // Core
 export { Break } from './core/Break.js';
+export { Canvas } from './core/Canvas.js';
 export { Div } from './core/Div.js';
 export { Element } from './core/Element.js';
 export { Image } from './core/Image.js';
@@ -160,5 +162,6 @@ import '../css/menu.css';
 import '../css/panels.css';
 import '../css/gooey.css';
 import '../css/data.css';
+import '../css/node.css';
 import '../css/interactive.css';
 import '../css/tooltip.css';
