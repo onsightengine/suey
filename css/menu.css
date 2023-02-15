@@ -272,7 +272,7 @@
         linear-gradient(to bottom left, rgba(var(--shadow), 1.0), rgba(var(--shadow), 1.0));
 }
 
-/********** .ToolbarSeparator **********/
+/********** .ToolbarSeparator / .ToolbarSpacer **********/
 
 .ToolbarSeparator {
     /* background-color: rgba(var(--shadow), 0.5); */
@@ -285,4 +285,11 @@
     margin-left: var(--pad-medium);
     margin-right: var(--pad-medium);
     margin-top: var(--pad-small);
+}
+
+.ToolbarSpacer {
+    border: none;
+    margin: none;
+    width: 1em;
+    height: var(--button-size);
 }

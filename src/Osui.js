@@ -130,6 +130,7 @@ export { MenuSeparator } from './menu/MenuSeperator.js';
 export { MenuShortcut } from './menu/MenuShortcut.js';
 export { ToolbarButton } from './menu/ToolbarButton.js';
 export { ToolbarSeparator } from './menu/ToolbarSeparator.js';
+export { ToolbarSpacer } from './menu/ToolbarSpacer.js';
 
 // Node
 export { Graph } from './node/Graph.js';
