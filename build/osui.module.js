@@ -3674,6 +3674,7 @@ const MIN_W = 300;
 const MIN_H = 150;
 class Node extends Panel {
     #resizers = {};
+    #scale = 1;
     constructor({
         style = PANEL_STYLES.FANCY,
         width = 600,
@@ -3686,6 +3687,7 @@ class Node extends Panel {
         super({ style, bringToTop: true });
         this.addClass('Node');
         const self = this;
+        this.isNode = true;
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
@@ -3693,12 +3695,20 @@ class Node extends Panel {
             resizer.setPointerEvents('none');
             this.addToSelf(resizer);
             this.#resizers[resizerName] = resizer;
-            let downX, downY, rect;
+            let downX, downY;
+            let nodeRect, parentRect, relativeRect = {};
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
                 downX = event.pageX;
                 downY = event.pageY;
-                rect = self.dom.getBoundingClientRect();
+                nodeRect = self.dom.getBoundingClientRect();
+                parentRect = self.parent.dom.getBoundingClientRect();
+                relativeRect.top = (nodeRect.top - parentRect.top) * (1 / self.#scale);
+                relativeRect.right = (nodeRect.right - parentRect.left) * (1 / self.#scale);
+                relativeRect.bottom = (nodeRect.bottom - parentRect.top) * (1 / self.#scale);
+                relativeRect.left = (nodeRect.left - parentRect.left) * (1 / self.#scale);
+                relativeRect.width = (relativeRect.right - relativeRect.left);
+                relativeRect.height = relativeRect.bottom - relativeRect.top;
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
                 self.bringToTop();
@@ -3710,26 +3720,26 @@ class Node extends Panel {
             }
             function onPointerMove(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
-                const diffX = event.pageX - downX;
-                const diffY = event.pageY - downY;
+                const diffX = (event.pageX - downX) * (1 / self.#scale);
+                const diffY = (event.pageY - downY) * (1 / self.#scale);
                 if (resizer.hasClassWithString('Left')) {
-                    const newLeft = Math.min(rect.right - MIN_W, rect.left + diffX);
-                    const newWidth = rect.right - newLeft;
+                    const newLeft = Math.min(relativeRect.right - MIN_W, relativeRect.left + diffX);
+                    const newWidth = relativeRect.right - newLeft;
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
-                    const newTop = Math.min(rect.bottom - MIN_H, rect.top + diffY);
-                    const newHeight = rect.bottom - newTop;
+                    const newTop = Math.min(relativeRect.bottom - MIN_H, relativeRect.top + diffY);
+                    const newHeight = relativeRect.bottom - newTop;
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(MIN_W, rect.width + diffX);
+                    const newWidth = Math.max(MIN_W, relativeRect.width + diffX);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(MIN_H, rect.height + diffY);
+                    const newHeight = Math.max(MIN_H, relativeRect.height + diffY);
                     self.setStyle('height', `${newHeight}px`);
                 }
             }
@@ -3746,6 +3756,10 @@ class Node extends Panel {
         const top = (window.innerHeight - this.getHeight()) / 2;
         this.setStyle('left', `${side}px`, 'top', `${top}px`);
     }
+    setScale(scale) {
+        if (scale == null || Number.isNaN(scale)) scale = 1;
+        this.#scale = scale;
+    }
     toggleResize(resizerName, enable = true) {
         if (! resizerName) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
@@ -3758,11 +3772,13 @@ class Graph extends Panel {
     constructor() {
         super();
         const self = this;
+		this.map = new Canvas().setClass('MiniMap');
         this.nodes = new Div().setClass('GraphNodes');
+        this.nodes.scale = 1;
         this.lines = new Canvas().setClass('GraphLines');
-		this.map =  new Canvas().setClass('GraphMap');;
-        this.add(this.nodes, this.lines, this.map);
-		this.selected = null;
+        this.add(this.map);
+        this.add(this.nodes);
+        this.add(this.lines);
         function onMouseZoom(event) {
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -3776,13 +3792,19 @@ class Graph extends Panel {
         const node = new Node();
         this.nodes.add(node);
     }
+    getScale() {
+        return this.#scale;
+    }
     zoomTo(zoom, clientX = this.dom.clientX, clientY = this.dom.clientY) {
         zoom = Math.min(Math.max(zoom, 0.1), 1);
         this.nodes.dom.scrollLeft -= (clientX / this.#scale) - (clientX / zoom);
         this.nodes.dom.scrollTop -= (clientY / this.#scale) - (clientY / zoom);
-        this.#scale = zoom;
-        this.lines.setStyle('transform', `scale(${zoom})`);
         this.nodes.setStyle('transform', `scale(${zoom})`);
+        for (let i = 0; i < this.nodes.children.length; i++) {
+            const node = this.nodes.children[i];
+            if (node && node.isNode) node.setScale(zoom);
+        }
+        this.#scale = zoom;
     }
 }
 
@@ -3841,8 +3863,8 @@ var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    
 var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--border-radius-inner);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: var(--pad-x-large);\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n    box-shadow: var(--pop-out-shadow);\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.DragTop {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = ".Graph {\n    position: relative;\n}\n\n.GraphMap {\n    position: absolute;\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    background-color: rgba(var(--background-dark), 0.8);\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes {\n    top: 0;\n\tleft: 0;\n\tmargin: 0;\n\tpadding: 0;\n\twidth: 100%;\n\theight: 100%;\n    background-color: red;\n}\n\n.GraphLines {\n    pointer-events: none;\n    position: absolute;\n    background-color: rgba(0, 0, 255, 0.1);\n\ttop: 0;\n\tleft: 0;\n\tmargin: 0;\n\tpadding: 0;\n\twidth: 100%;\n\theight: 100%;\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n\n}\n";
-var stylesheet$2=".Graph {\n    position: relative;\n}\n\n.GraphMap {\n    position: absolute;\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    background-color: rgba(var(--background-dark), 0.8);\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes {\n    top: 0;\n\tleft: 0;\n\tmargin: 0;\n\tpadding: 0;\n\twidth: 100%;\n\theight: 100%;\n    background-color: red;\n}\n\n.GraphLines {\n    pointer-events: none;\n    position: absolute;\n    background-color: rgba(0, 0, 255, 0.1);\n\ttop: 0;\n\tleft: 0;\n\tmargin: 0;\n\tpadding: 0;\n\twidth: 100%;\n\theight: 100%;\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n\n}\n";
+var css_248z$2 = ".MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphNodes {\n    background-color: red;\n}\n\n.GraphLines {\n    pointer-events: none;\n    background-color: rgba(0, 0, 255, 0.1);\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n\n}\n";
+var stylesheet$2=".MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphNodes {\n    background-color: red;\n}\n\n.GraphLines {\n    pointer-events: none;\n    background-color: rgba(0, 0, 255, 0.1);\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = "/***** .PanelButton *****/\n\n.PanelButton {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.PanelButton:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.PanelButton:active {\n    box-shadow: var(--sunk-in-shadow);\n    filter: brightness(100%);\n}\n\n/***** .CloseButton *****/\n\n.CloseButton {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    opacity: 0;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.CloseButton.ItemShown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover {\n    background-color: #e24c4b;\n}\n\n.CloseButton.ItemHidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseImage {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover .CloseImage {\n    opacity: 1.0;\n}\n\n/***** .TitleBar *****/\n\n.TitleBar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/***** .Window *****/\n\n.Window {\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: 200; /* Window */\n}\n\n.Window.BringToTop {\n    z-index: 201; /* Window */\n}\n\n.Window.BringToTop .TitleBar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";

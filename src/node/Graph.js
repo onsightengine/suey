@@ -11,12 +11,13 @@ class Graph extends Panel {
         super();
         const self = this;
 
-        this.nodes = new Div().setClass('GraphNodes');
+		this.map = new Canvas().setClass('MiniMap');
+        this.nodes = new Div().setClass('GraphNodes')
+        this.nodes.scale = 1;
         this.lines = new Canvas().setClass('GraphLines');
-		this.map =  new Canvas().setClass('GraphMap');;
-        this.add(this.nodes, this.lines, this.map);
-
-		this.selected = null;
+        this.add(this.map);
+        this.add(this.nodes);
+        this.add(this.lines);
 
         function onMouseZoom(event) {
 			event.preventDefault();
@@ -36,13 +37,22 @@ class Graph extends Panel {
 
     }
 
+    getScale() {
+        return this.#scale;
+    }
+
     zoomTo(zoom, clientX = this.dom.clientX, clientY = this.dom.clientY) {
         zoom = Math.min(Math.max(zoom, 0.1), 1);
+
         this.nodes.dom.scrollLeft -= (clientX / this.#scale) - (clientX / zoom);
         this.nodes.dom.scrollTop -= (clientY / this.#scale) - (clientY / zoom);
-        this.#scale = zoom;
-        this.lines.setStyle('transform', `scale(${zoom})`);
         this.nodes.setStyle('transform', `scale(${zoom})`);
+
+        for (let i = 0; i < this.nodes.children.length; i++) {
+            const node = this.nodes.children[i];
+            if (node && node.isNode) node.setScale(zoom);
+        }
+        this.#scale = zoom;
     }
 
 }

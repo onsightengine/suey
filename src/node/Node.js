@@ -9,6 +9,7 @@ const MIN_H = 150;
 class Node extends Panel {
 
     #resizers = {};
+    #scale = 1;
 
     constructor({
         style = PANEL_STYLES.FANCY,
@@ -23,6 +24,8 @@ class Node extends Panel {
         this.addClass('Node');
         const self = this;
 
+        this.isNode = true;
+
         // Resizers
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
@@ -31,12 +34,20 @@ class Node extends Panel {
             resizer.setPointerEvents('none');
             this.addToSelf(resizer);
             this.#resizers[resizerName] = resizer;
-            let downX, downY, rect;
+            let downX, downY;
+            let nodeRect, parentRect, relativeRect = {};
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
                 downX = event.pageX;
                 downY = event.pageY;
-                rect = self.dom.getBoundingClientRect();
+                nodeRect = self.dom.getBoundingClientRect();
+                parentRect = self.parent.dom.getBoundingClientRect();
+                relativeRect.top = (nodeRect.top - parentRect.top) * (1 / self.#scale);
+                relativeRect.right = (nodeRect.right - parentRect.left) * (1 / self.#scale);
+                relativeRect.bottom = (nodeRect.bottom - parentRect.top) * (1 / self.#scale);
+                relativeRect.left = (nodeRect.left - parentRect.left) * (1 / self.#scale);
+                relativeRect.width = (relativeRect.right - relativeRect.left);
+                relativeRect.height = relativeRect.bottom - relativeRect.top;
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
                 self.bringToTop();
@@ -48,26 +59,26 @@ class Node extends Panel {
             }
             function onPointerMove(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
-                const diffX = event.pageX - downX;
-                const diffY = event.pageY - downY;
+                const diffX = (event.pageX - downX) * (1 / self.#scale);
+                const diffY = (event.pageY - downY) * (1 / self.#scale);
                 if (resizer.hasClassWithString('Left')) {
-                    const newLeft = Math.min(rect.right - MIN_W, rect.left + diffX);
-                    const newWidth = rect.right - newLeft;
+                    const newLeft = Math.min(relativeRect.right - MIN_W, relativeRect.left + diffX);
+                    const newWidth = relativeRect.right - newLeft;
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
-                    const newTop = Math.min(rect.bottom - MIN_H, rect.top + diffY);
-                    const newHeight = rect.bottom - newTop;
+                    const newTop = Math.min(relativeRect.bottom - MIN_H, relativeRect.top + diffY);
+                    const newHeight = relativeRect.bottom - newTop;
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(MIN_W, rect.width + diffX);
+                    const newWidth = Math.max(MIN_W, relativeRect.width + diffX);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(MIN_H, rect.height + diffY);
+                    const newHeight = Math.max(MIN_H, relativeRect.height + diffY);
                     self.setStyle('height', `${newHeight}px`);
                 }
             }
@@ -91,6 +102,11 @@ class Node extends Panel {
         const side = (window.innerWidth - this.getWidth()) / 2;
         const top = (window.innerHeight - this.getHeight()) / 2;
         this.setStyle('left', `${side}px`, 'top', `${top}px`);
+    }
+
+    setScale(scale) {
+        if (scale == null || Number.isNaN(scale)) scale = 1;
+        this.#scale = scale;
     }
 
     /**
