@@ -7,9 +7,10 @@
     width: 20%;
     height: 20%;
     z-index: 101; /* GraphMap */
+    cursor: auto;
 }
 
-.GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {
+.GraphInput, .GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {
     position: absolute;
     top: 0;
 	left: 0;
@@ -17,6 +18,10 @@
     height: 100%;
 	margin: 0;
 	padding: 0;
+}
+
+.GraphInput {
+    background: transparent;
 }
 
 .GraphBackground {
@@ -30,14 +35,13 @@
 }
 
 .GraphNodes {
+    pointer-events: none;
     background-color: transparent;
 }
 
 .GraphLines {
     pointer-events: none;
-    z-index: 100; /* GraphLines */
 }
-
 
 /***** NODE *****/
 
@@ -49,6 +53,7 @@
     border-radius: var(--border-radius-inner);
     margin: 0;
     padding: 0.15em;
+    cursor: inherit;
 }
 
 .Node.NodeSelected {

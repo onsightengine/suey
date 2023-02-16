@@ -9,18 +9,21 @@ class Graph extends Panel {
 
     #scale = 1;
     #snapToGrid = true;
+    #offsetX = 0;
+    #offsetY = 0;
 
     constructor() {
         super();
         const self = this;
 
         // Elements
+        this.input = new Div().setClass('GraphInput');
         this.bg = new Div().setClass('GraphBackground');
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
         this.minimap = new Canvas().setClass('MiniMap');
-        this.add(this.bg, this.grid, this.nodes, this.lines, this.minimap);
+        this.add(this.input, this.bg, this.grid, this.nodes, this.lines, this.minimap);
 
         // Init Style
         onMouseZoom();
@@ -32,7 +35,8 @@ class Graph extends Panel {
         function onMouseZoom(event) {
             if (event) {
                 event.preventDefault();
-                self.zoomTo(self.#scale - (event.deltaY * 0.002), event.clientX, event.clientY);
+                const delta = (event.deltaY * 0.002);
+                self.zoomTo(self.#scale - delta, event.clientX, event.clientY, delta);
             }
             self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
             self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
@@ -40,12 +44,64 @@ class Graph extends Panel {
 		};
         this.onWheel(onMouseZoom);
 
-        // Deselect
-        function onPointerDown() {
+        // Keys
+        let grabbing = false;
+        let spaceKey = false;
+        function onKeyDown(event) {
+            if (event.code === 'Space') {
+                spaceKey = true;
+                self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
+                self.input.setStyle('z-index', '100');
+            }
+        }
+        function onKeyUp(event) {
+            if (event.code === 'Space') {
+                spaceKey = false;
+                self.dom.style.cursor = 'auto';
+                self.input.setStyle('z-index', '0');
+            }
+        }
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+
+        // Translate
+        let downX, downY;
+        let offx, offy;
+        function onPointerDown(event) {
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => el.classList.remove('NodeSelected'));
+            if (event.button === 0 && ! spaceKey) return;
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.setPointerCapture(event.pointerId);
+            grabbing = true;
+            downX = event.pageX;
+            downY = event.pageY;
+            offx = self.#offsetX;
+            offy = self.#offsetY;
+            self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+            self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+            self.dom.style.cursor = 'grabbing';
         }
-        this.onPointerDown(onPointerDown);
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.releasePointerCapture(event.pointerId);
+            grabbing = false;
+            self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+            self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            self.dom.style.cursor = (spaceKey) ? 'grab' : 'auto';
+        }
+        function onPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            const diffX = (event.pageX - downX) * (1 / self.#scale);
+            const diffY = (event.pageY - downY) * (1 / self.#scale);
+            self.#offsetX = (offx + diffX);
+            self.#offsetY = (offy + diffY);
+            self.zoomTo();
+        }
+        this.input.onPointerDown(onPointerDown);
     }
 
     getScale() {
@@ -70,19 +126,35 @@ class Graph extends Panel {
         }
     }
 
-    zoomTo(zoom, clientX, clientY) {
+    zoomTo(zoom, clientX, clientY, delta = 0) {
+        if (zoom === undefined) zoom = this.#scale;
+        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+
+        // Client X / Y
         const rect = this.dom.getBoundingClientRect();
-        if (clientX == undefined) clientX = rect.width / 2;
-        if (clientY == undefined) clientY = rect.height / 2;
+        clientX = (clientX == undefined) ? rect.right - (rect.width / 2) : clientX;
+        clientY = (clientY == undefined) ? rect.bottom - (rect.height / 2) : clientY;
+        const nodeRect = this.nodes.dom.getBoundingClientRect();
+        clientX -= nodeRect.left;
+        clientY -= nodeRect.top;
+
+        // Scrolling
+        const diffW = (nodeRect.width - ((nodeRect.width / this.#scale) * zoom)) / 2;
+        const diffH = (nodeRect.height - ((nodeRect.height / this.#scale) * zoom)) / 2;
+        const percentX = ((nodeRect.width / 2) - clientX) / (nodeRect.width / 2);
+        const percentY = ((nodeRect.height / 2) - clientY) / (nodeRect.height / 2);
+        this.#offsetX -= (diffW * percentX);
+        this.#offsetY -= (diffH * percentY);
 
         // Set Scale
-        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
-        this.nodes.setStyle('transform', `scale(${zoom})`);
+        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
 
         // Align Grid
         const diffX = (rect.width - (rect.width * zoom)) / 2;
         const diffY = (rect.height - (rect.height * zoom)) / 2;
-        this.grid.setStyle('background-position', `left ${diffX}px top ${diffY}px`);
+        const ox = this.#offsetX * zoom;
+        const oy = this.#offsetY * zoom;
+        this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
 
         // Save
         this.#scale = zoom;

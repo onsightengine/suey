@@ -1278,7 +1278,7 @@ class Draggable {
             event.preventDefault();
             eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
             eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            eventElement.style.cursor = 'auto';
+            eventElement.style.cursor = 'inherit';
         }
         function onPointerMove(event) {
             if (! event.isPrimary) return;
@@ -3817,32 +3817,86 @@ class Node extends Div {
 class Graph extends Panel {
     #scale = 1;
     #snapToGrid = true;
+    #offsetX = 0;
+    #offsetY = 0;
     constructor() {
         super();
         const self = this;
+        this.input = new Div().setClass('GraphInput');
         this.bg = new Div().setClass('GraphBackground');
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
         this.minimap = new Canvas().setClass('MiniMap');
-        this.add(this.bg, this.grid, this.nodes, this.lines, this.minimap);
+        this.add(this.input, this.bg, this.grid, this.nodes, this.lines, this.minimap);
         onMouseZoom();
         this.nodes.getScale = function() { return self.#scale; };
         function onMouseZoom(event) {
             if (event) {
                 event.preventDefault();
-                self.zoomTo(self.#scale - (event.deltaY * 0.002), event.clientX, event.clientY);
+                const delta = (event.deltaY * 0.002);
+                self.zoomTo(self.#scale - delta, event.clientX, event.clientY, delta);
             }
             self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
             self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
             self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
 		};
         this.onWheel(onMouseZoom);
-        function onPointerDown() {
+        let grabbing = false;
+        let spaceKey = false;
+        function onKeyDown(event) {
+            if (event.code === 'Space') {
+                spaceKey = true;
+                self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
+                self.input.setStyle('z-index', '100');
+            }
+        }
+        function onKeyUp(event) {
+            if (event.code === 'Space') {
+                spaceKey = false;
+                self.dom.style.cursor = 'auto';
+                self.input.setStyle('z-index', '0');
+            }
+        }
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+        let downX, downY;
+        let offx, offy;
+        function onPointerDown(event) {
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => el.classList.remove('NodeSelected'));
+            if (event.button === 0 && ! spaceKey) return;
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.setPointerCapture(event.pointerId);
+            grabbing = true;
+            downX = event.pageX;
+            downY = event.pageY;
+            offx = self.#offsetX;
+            offy = self.#offsetY;
+            self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+            self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+            self.dom.style.cursor = 'grabbing';
         }
-        this.onPointerDown(onPointerDown);
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.releasePointerCapture(event.pointerId);
+            grabbing = false;
+            self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+            self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            self.dom.style.cursor = (spaceKey) ? 'grab' : 'auto';
+        }
+        function onPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            const diffX = (event.pageX - downX) * (1 / self.#scale);
+            const diffY = (event.pageY - downY) * (1 / self.#scale);
+            self.#offsetX = (offx + diffX);
+            self.#offsetY = (offy + diffY);
+            self.zoomTo();
+        }
+        this.input.onPointerDown(onPointerDown);
     }
     getScale() {
         return this.#scale;
@@ -3862,15 +3916,27 @@ class Graph extends Panel {
             callback(node);
         }
     }
-    zoomTo(zoom, clientX, clientY) {
-        const rect = this.dom.getBoundingClientRect();
-        if (clientX == undefined) clientX = rect.width / 2;
-        if (clientY == undefined) clientY = rect.height / 2;
+    zoomTo(zoom, clientX, clientY, delta = 0) {
+        if (zoom === undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
-        this.nodes.setStyle('transform', `scale(${zoom})`);
+        const rect = this.dom.getBoundingClientRect();
+        clientX = (clientX == undefined) ? rect.right - (rect.width / 2) : clientX;
+        clientY = (clientY == undefined) ? rect.bottom - (rect.height / 2) : clientY;
+        const nodeRect = this.nodes.dom.getBoundingClientRect();
+        clientX -= nodeRect.left;
+        clientY -= nodeRect.top;
+        const diffW = (nodeRect.width - ((nodeRect.width / this.#scale) * zoom)) / 2;
+        const diffH = (nodeRect.height - ((nodeRect.height / this.#scale) * zoom)) / 2;
+        const percentX = ((nodeRect.width / 2) - clientX) / (nodeRect.width / 2);
+        const percentY = ((nodeRect.height / 2) - clientY) / (nodeRect.height / 2);
+        this.#offsetX -= (diffW * percentX);
+        this.#offsetY -= (diffH * percentY);
+        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
         const diffX = (rect.width - (rect.width * zoom)) / 2;
         const diffY = (rect.height - (rect.height * zoom)) / 2;
-        this.grid.setStyle('background-position', `left ${diffX}px top ${diffY}px`);
+        const ox = this.#offsetX * zoom;
+        const oy = this.#offsetY * zoom;
+        this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
         this.#scale = zoom;
     }
 }
@@ -3930,8 +3996,8 @@ var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    
 var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--border-radius-inner);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: var(--pad-x-large);\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n    box-shadow: var(--pop-out-shadow);\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.DragTop {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** GRAPH *****/\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 1);\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n    z-index: 100; /* GraphLines */\n}\n\n\n/***** NODE *****/\n\n.Node {\n    display: flex;\n    position: absolute;\n    background-color: rgba(var(--background-light), 1);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    margin: 0;\n    padding: 0.15em;\n}\n\n.Node.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    z-index: 100; /* NodeResizers */\n}\n";
-var stylesheet$2="/***** GRAPH *****/\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 1);\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n    z-index: 100; /* GraphLines */\n}\n\n\n/***** NODE *****/\n\n.Node {\n    display: flex;\n    position: absolute;\n    background-color: rgba(var(--background-light), 1);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    margin: 0;\n    padding: 0.15em;\n}\n\n.Node.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    z-index: 100; /* NodeResizers */\n}\n";
+var css_248z$2 = "/***** GRAPH *****/\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n}\n\n.GraphBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 1);\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    display: flex;\n    position: absolute;\n    background-color: rgba(var(--background-light), 1);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    margin: 0;\n    padding: 0.15em;\n    cursor: inherit;\n}\n\n.Node.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    z-index: 100; /* NodeResizers */\n}\n";
+var stylesheet$2="/***** GRAPH *****/\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n}\n\n.GraphBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 1);\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    display: flex;\n    position: absolute;\n    background-color: rgba(var(--background-light), 1);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    margin: 0;\n    padding: 0.15em;\n    cursor: inherit;\n}\n\n.Node.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    z-index: 100; /* NodeResizers */\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = "/***** .PanelButton *****/\n\n.PanelButton {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.PanelButton:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.PanelButton:active {\n    box-shadow: var(--sunk-in-shadow);\n    filter: brightness(100%);\n}\n\n/***** .CloseButton *****/\n\n.CloseButton {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    opacity: 0;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.CloseButton.ItemShown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover {\n    background-color: #e24c4b;\n}\n\n.CloseButton.ItemHidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseImage {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover .CloseImage {\n    opacity: 1.0;\n}\n\n/***** .TitleBar *****/\n\n.TitleBar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/***** .Window *****/\n\n.Window {\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: 200; /* Window */\n}\n\n.Window.BringToTop {\n    z-index: 201; /* Window */\n}\n\n.Window.BringToTop .TitleBar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";

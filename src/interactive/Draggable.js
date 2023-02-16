@@ -45,7 +45,7 @@ class Draggable {
             event.preventDefault();
             eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
             eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            eventElement.style.cursor = 'auto';
+            eventElement.style.cursor = 'inherit';
         }
 
         function onPointerMove(event) {
