@@ -1,6 +1,6 @@
 import { Div } from '../core/Div.js';
 import { Css } from '../utils/Css.js';
-import { Html } from '../utils/Html.js';
+import { Utils } from '../utils/Utils.js';
 
 const TRIANGLE_SIZE = 3.0;                  // Bigger value is smaller triangle (size = width / TRIANGLE_SIZE)
 
@@ -43,7 +43,7 @@ class Menu extends Div {
         this.clickCount = 0;
 
         // Attach mouse area polygon if this menu is a child of another menu
-        if (Html.isChildOfElementWithClass(this.dom, 'Menu')) {
+        if (Utils.isChildOfElementWithClass(this.dom, 'Menu')) {
             // Turn off mouse events temporarily while when give menu time to animate
             this.mouseArea.setAttribute('pointer-events', 'none');
 
@@ -61,7 +61,7 @@ class Menu extends Div {
             // Close children menus and attached sub menus
             this.traverse((child) => {
                 // Don't close menus that are children of 'dontCloseChildrenOf'
-                if (dontCloseChildrenOf && Html.isChildOf(child.dom, dontCloseChildrenOf)) {
+                if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
                     // Empty
                 } else {
                     child.removeClass('MenuShow', 'Selected');

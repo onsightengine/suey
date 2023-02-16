@@ -19,15 +19,31 @@
 }
 
 .GraphNodes {
-    background-color: red;
+    background-color: transparent;
 }
 
 .GraphLines {
     pointer-events: none;
-    background-color: rgba(0, 0, 255, 0.1);
+    background-color: rgba(0, 0, 255, 0.05);
     z-index: 100; /* GraphLines */
 }
 
 .Node {
+    position: absolute;
+}
 
+/* Simple */
+.Node.SimplePanel {
+    background-color: rgba(var(--background-light), 1);
+}
+.Node.SimplePanel.NodeSelected {
+    border: var(--border-small) solid rgb(var(--complement));
+}
+
+/* Fancy */
+.Node .FancyPanelBorder {
+    background-color: rgba(var(--background-light), 1);
+}
+.Node.BringToTop .FancyPanelOuter {
+    filter: drop-shadow(0 0 0.25em rgba(var(--complement), 1.0));
 }

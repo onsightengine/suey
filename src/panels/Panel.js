@@ -1,4 +1,5 @@
 import { Div } from '../core/Div.js';
+import { Draggable } from '../interactive/Draggable.js';
 
 export const PANEL_STYLES = {
     NONE:       'none',
@@ -38,20 +39,10 @@ class Panel extends Div {
         // Stacking
         if (bringToTop) {
             this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-            this.dom.addEventListener('focusin', () => self.bringToTop());
-            this.dom.addEventListener('displayed', () => self.bringToTop());
-            this.dom.addEventListener('pointerdown', () => self.bringToTop());
+            this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
+            this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
+            this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
         }
-    }
-
-    /**
-     * Applies 'BringToTop' class, ensures only element with this class
-     */
-    bringToTop() {
-        const self = this;
-        const panels = document.querySelectorAll('.Panel');
-        panels.forEach(element => { if (element !== self.dom) element.classList.remove('BringToTop') });
-        this.addClass('BringToTop');
     }
 
 }

@@ -38,7 +38,7 @@ class VectorBox extends Div {
         return newImage;
     }
 
-    makeDraggable() {
+    enableDragging() {
         for (let j = 0; j < this.contents().children.length; j++) {
             this.contents().children[j].dom.ondragstart = () => {};
         }

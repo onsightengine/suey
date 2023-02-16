@@ -1,10 +1,11 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Draggable } from '../interactive/Draggable.js';
 import { Panel, PANEL_STYLES } from '../panels/Panel.js';
 import { RESIZERS } from '../constants.js';
 
-const MIN_W = 300;
-const MIN_H = 150;
+const MIN_W = 100;
+const MIN_H = 100;
 
 class Node extends Panel {
 
@@ -12,9 +13,11 @@ class Node extends Panel {
     #scale = 1;
 
     constructor({
-        style = PANEL_STYLES.FANCY,
-        width = 600,
-        height = 600,
+        style = PANEL_STYLES.SIMPLE,
+        width = 300,
+        height = 200,
+        x = 0,
+        y = 0,
         resizers = [
             RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
             RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
@@ -35,22 +38,20 @@ class Node extends Panel {
             this.addToSelf(resizer);
             this.#resizers[resizerName] = resizer;
             let downX, downY;
-            let nodeRect, parentRect, relativeRect = {};
+            let computed = getComputedStyle(this.dom);
+            let rect = {};
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                Draggable.bringToTop(self.dom);
                 downX = event.pageX;
                 downY = event.pageY;
-                nodeRect = self.dom.getBoundingClientRect();
-                parentRect = self.parent.dom.getBoundingClientRect();
-                relativeRect.top = (nodeRect.top - parentRect.top) * (1 / self.#scale);
-                relativeRect.right = (nodeRect.right - parentRect.left) * (1 / self.#scale);
-                relativeRect.bottom = (nodeRect.bottom - parentRect.top) * (1 / self.#scale);
-                relativeRect.left = (nodeRect.left - parentRect.left) * (1 / self.#scale);
-                relativeRect.width = (relativeRect.right - relativeRect.left);
-                relativeRect.height = relativeRect.bottom - relativeRect.top;
+                computed = getComputedStyle(self.dom);
+                rect.left = parseFloat(computed.left);
+                rect.top = parseFloat(computed.top);
+                rect.width = parseFloat(computed.width);
+                rect.height = parseFloat(computed.height);
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                self.bringToTop();
             }
             function onPointerUp(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
@@ -62,23 +63,35 @@ class Node extends Panel {
                 const diffX = (event.pageX - downX) * (1 / self.#scale);
                 const diffY = (event.pageY - downY) * (1 / self.#scale);
                 if (resizer.hasClassWithString('Left')) {
-                    const newLeft = Math.min(relativeRect.right - MIN_W, relativeRect.left + diffX);
-                    const newWidth = relativeRect.right - newLeft;
+                    const newWidth = Math.max(rect.width - diffX, MIN_W);
+                    const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
+                    const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
+                    const newLeft = (rect.left + (rect.width - newWidth)) + (diffAfter - diffBefore);
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
-                    const newTop = Math.min(relativeRect.bottom - MIN_H, relativeRect.top + diffY);
-                    const newHeight = relativeRect.bottom - newTop;
+                    const newHeight = Math.max(rect.height - diffY, MIN_H);
+                    const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
+                    const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
+                    const newTop = (rect.top + (rect.height - newHeight)) + (diffAfter - diffBefore);
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(MIN_W, relativeRect.width + diffX);
+                    const newWidth = Math.max(MIN_W, rect.width + diffX);
+                    const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
+                    const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
+                    const newLeft = rect.left - (diffAfter - diffBefore);
+                    self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(MIN_H, relativeRect.height + diffY);
+                    const newHeight = Math.max(MIN_H, rect.height + diffY);
+                    const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
+                    const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
+                    const newTop = rect.top - (diffAfter - diffBefore);
+                    self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
             }
@@ -87,25 +100,35 @@ class Node extends Panel {
         }
 
         // Initial Size
-        this.setStyle('left', '0', 'top', '0');
-        this.setStyle('width', `${parseInt(width)}px`);
-        this.setStyle('height', `${parseInt(height)}px`);
+        this.setStyle('left', `${parseFloat(x)}px`, 'top', `${parseFloat(y)}px`);
+        this.setStyle('width', `${parseFloat(width)}px`, 'height', `${parseFloat(height)}px`);
 
-        // Center first time shown
-        this.dom.addEventListener('displayed', () => self.center(), { once: true });
+        // Draggable
+        Draggable.enable(self.dom, self.dom);
+
+        // Selectable
+        this.dom.addEventListener('pointerdown', (event) => {
+            const panels = document.querySelectorAll(`.NodeSelected`);
+            panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
+            self.addClass('NodeSelected');
+        });
     }
 
-    /**
-     * Centers 'Window' panel in document window
-     */
-    center() {
-        const side = (window.innerWidth - this.getWidth()) / 2;
-        const top = (window.innerHeight - this.getHeight()) / 2;
-        this.setStyle('left', `${side}px`, 'top', `${top}px`);
-    }
-
+    /** Applies a zoom scale */
     setScale(scale) {
         if (scale == null || Number.isNaN(scale)) scale = 1;
+        const computed = getComputedStyle(this.dom);
+        const fullWidth = parseFloat(computed.width);
+        const fullHeight = parseFloat(computed.height);
+        const widthNowDiff = (fullWidth - (fullWidth * this.#scale)) / 2;
+        const widthNewDiff = (fullWidth - (fullWidth * scale)) / 2;
+        const heightNowDiff = (fullHeight - (fullHeight * this.#scale)) / 2;
+        const heightNewDiff = (fullHeight - (fullHeight * scale)) / 2;
+        const left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
+        const top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
+        this.setStyle('left', `${left}px`);
+        this.setStyle('top', `${top}px`);
+        this.setStyle('transform', `scale(${scale})`);
         this.#scale = scale;
     }
 

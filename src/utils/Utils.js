@@ -1,13 +1,17 @@
-// isChildOf()                      Check if 'element' is a descendant of 'possibleParent'
-// isChildOfElementWithClass()      Check if 'element' is a descendant of a parent element with class type 'className'
-// parentElementWithClass()         Finds and returns parent of 'element' with class 'className'
-// parentScroller()                 Finds closest 'scrollable' parent
-// scrollIntoView()                 If element has a scorllable parent, scrolls element into view
-// traverse()                       Applies a function to all children, recursively
+// PARENT / CHILD
+//  isChildOf()                      Check if 'element' is a descendant of 'possibleParent'
+//  isChildOfElementWithClass()      Check if 'element' is a descendant of a parent element with class type 'className'
+//  parentElementWithClass()         Finds and returns parent of 'element' with class 'className'
+//  traverse()                       Applies a function to all children, recursively
+// SCROLLING
+//  parentScroller()                 Finds closest 'scrollable' parent
+//  scrollIntoView()                 If element has a scorllable parent, scrolls element into view
 
 import { Css } from './Css.js';
 
-class Html {
+class Utils {
+
+    /********** PARENT / CHILD **********/
 
     /** Check if 'element' is a descendant of 'possibleParent' */
     static isChildOf(element, possibleParent) {
@@ -42,6 +46,17 @@ class Html {
         return undefined;
     }
 
+    /** Applies a function to all HTML Element children, recursively */
+    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        if (applyToSelf) applyFunction(element);
+        for (let i = 0; i < element.children.length; i++) {
+            Utils.traverse(element.children[i], applyFunction, true);
+        }
+    }
+
+    /********** SCROLLING **********/
+
     /** Finds closest 'scrollable' parent */
     static parentScroller(element) {
         if (! element) return null;
@@ -49,13 +64,13 @@ class Html {
         if (element.scrollHeight > element.clientHeight) {
             return element;
         } else {
-            return Html.parentScroller(element.parentElement);
+            return Utils.parentScroller(element.parentElement);
         }
     }
 
     /** If element has a scorllable parent, scrolls element into view */
     static scrollIntoView(element) {
-        const parent = Html.parentScroller(element);
+        const parent = Utils.parentScroller(element);
         if (parent) {
             const onePixel = parseInt(Css.toPx('0.2em'));
 
@@ -70,15 +85,6 @@ class Html {
         }
     }
 
-    /** Applies a function to all HTML Element children, recursively */
-    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        if (applyToSelf) applyFunction(element);
-        for (let i = 0; i < element.children.length; i++) {
-            Html.traverse(element.children[i], applyFunction, true);
-        }
-    }
-
 }
 
-export { Html };
+export { Utils };

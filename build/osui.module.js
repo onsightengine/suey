@@ -6,15 +6,18 @@
  * @source      https://github.com/onsightengine/osui
  * @version     v0.1.9
  */
-var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
+var img$3 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
 
-var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.574%2c400.264c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0l-84.496%2c-84.496l-84.496%2c84.496c-12.567%2c12.566 -33.513%2c12.566 -46.079%2c0c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079l84.496%2c-84.496l-84.496%2c-84.496c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079c12.566%2c-12.567 261.15%2c215.071 261.15%2c215.071c12.566%2c12.566 12.566%2c33.511 0%2c46.079Z' style='fill-opacity:0.25%3b'/%3e%3cpath d='M386.575%2c386.834c-12.567%2c12.568 -33.513%2c12.568 -46.079%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.497%2c84.498c12.566%2c12.566 12.566%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
+var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.574%2c400.264c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0l-84.496%2c-84.496l-84.496%2c84.496c-12.567%2c12.566 -33.513%2c12.566 -46.079%2c0c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079l84.496%2c-84.496l-84.496%2c-84.496c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079c12.566%2c-12.567 261.15%2c215.071 261.15%2c215.071c12.566%2c12.566 12.566%2c33.511 0%2c46.079Z' style='fill-opacity:0.25%3b'/%3e%3cpath d='M386.575%2c386.834c-12.567%2c12.568 -33.513%2c12.568 -46.079%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.497%2c84.498c12.566%2c12.566 12.566%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
 
-var img = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
+var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
 
-const IMAGE_CHECK = img$2;
-const IMAGE_CLOSE = img$1;
-const IMAGE_EMPTY = img;
+var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAFFWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICAgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIgogICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgeG1wOkNyZWF0ZURhdGU9IjIwMjMtMDItMTVUMTk6NDk6MDctMDgwMCIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDItMTVUMjA6MDA6MTctMDg6MDAiCiAgIHhtcDpNZXRhZGF0YURhdGU9IjIwMjMtMDItMTVUMjA6MDA6MTctMDg6MDAiCiAgIHBob3Rvc2hvcDpEYXRlQ3JlYXRlZD0iMjAyMy0wMi0xNVQxOTo0OTowNy0wODAwIgogICBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIgogICBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiCiAgIGV4aWY6UGl4ZWxYRGltZW5zaW9uPSI1MCIKICAgZXhpZjpQaXhlbFlEaW1lbnNpb249IjUwIgogICBleGlmOkNvbG9yU3BhY2U9IjEiCiAgIHRpZmY6SW1hZ2VXaWR0aD0iNTAiCiAgIHRpZmY6SW1hZ2VMZW5ndGg9IjUwIgogICB0aWZmOlJlc29sdXRpb25Vbml0PSIyIgogICB0aWZmOlhSZXNvbHV0aW9uPSI3Mi8xIgogICB0aWZmOllSZXNvbHV0aW9uPSI3Mi8xIj4KICAgPHhtcE1NOkhpc3Rvcnk+CiAgICA8cmRmOlNlcT4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0icHJvZHVjZWQiCiAgICAgIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFmZmluaXR5IERlc2lnbmVyIDIgMi4wLjQiCiAgICAgIHN0RXZ0OndoZW49IjIwMjMtMDItMTVUMjA6MDA6MTctMDg6MDAiLz4KICAgIDwvcmRmOlNlcT4KICAgPC94bXBNTTpIaXN0b3J5PgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KPD94cGFja2V0IGVuZD0iciI/PhEJS5AAAAGBaUNDUHNSR0IgSUVDNjE5NjYtMi4xAAAokXWR3yuDURjHP9uImKZILpSlUWp+TS1ulEmopTVThpvttR9qP97ed0vLrXK7osSNXxf8Bdwq10oRKbnlmrhBr+c1Ncme03nO53zP8zyd8xywhlJKWq/qh3QmpwUnfM658Lyz5hEL7bTQR3dE0dXRQMBPRXu7kWixqx6zVuW4f61+KaYrYKkVHlFULSc8Kexfyakmbwo3K8nIkvCxsFuTCwpfm3q0xE8mJ0r8YbIWCo6BtVHYmfjF0V+sJLW0sLwcVzqVV37uY77EHsvMzsjaIbMNnSAT+HAyxThjeBlgWLyXHjz0yo4K+f3f+dNkJVcRr1JAY5kESXK4Rc1L9ZiscdFjMlIUzP7/7aseH/SUqtt9UP1gGC+dULMBn0XDeN83jM8DsN3DWaacn92DoVfRi2XNtQuONTg5L2vRLThdh9Y7NaJFviWbTGs8Ds9H0BCGpkuoWyj17Oecw1sIrcpXXcD2DnRJvGPxC7KHaAiUK+Q5AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAY0lEQVRoge3aQQ2AQBAEwQVD618dmCChculSMP2fa3efOcEJIbv73H+P+EohmkI0hWgK0RSiKURTiKYQTSGaQjSFaArRFKIpRFOIphBNIZpCNIVoCtEUoilEU4jmOuGvNTPzAkM0BpErr7acAAAAAElFTkSuQmCC";
+
+const IMAGE_CHECK = img$3;
+const IMAGE_CLOSE = img$2;
+const IMAGE_EMPTY = img$1;
+const IMAGE_NODE_GRID = img;
 const TOOLTIP_Y_OFFSET = '0.3em';
 const BACKGROUNDS = {
     DARK:               0,
@@ -838,7 +841,7 @@ class ColorScheme {
     }
 }
 
-class Html {
+class Utils {
     static isChildOf(element, possibleParent) {
         if (element.isElement && element.dom) element = element.dom;
         let parent = element.parentElement;
@@ -866,17 +869,24 @@ class Html {
         }
         return undefined;
     }
+    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        if (applyToSelf) applyFunction(element);
+        for (let i = 0; i < element.children.length; i++) {
+            Utils.traverse(element.children[i], applyFunction, true);
+        }
+    }
     static parentScroller(element) {
         if (! element) return null;
         if (element.isElement && element.dom) element = element.dom;
         if (element.scrollHeight > element.clientHeight) {
             return element;
         } else {
-            return Html.parentScroller(element.parentElement);
+            return Utils.parentScroller(element.parentElement);
         }
     }
     static scrollIntoView(element) {
-        const parent = Html.parentScroller(element);
+        const parent = Utils.parentScroller(element);
         if (parent) {
             const onePixel = parseInt(Css.toPx('0.2em'));
             if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
@@ -884,13 +894,6 @@ class Html {
             } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
                 parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
             }
-        }
-    }
-    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        if (applyToSelf) applyFunction(element);
-        for (let i = 0; i < element.children.length; i++) {
-            Html.traverse(element.children[i], applyFunction, true);
         }
     }
 }
@@ -1236,6 +1239,63 @@ class FlexSpacer extends Span {
     }
 }
 
+class Draggable {
+    static bringToTop(element, withClass = 'Panel') {
+        const topElement = (element && element.isElement) ? element.dom : element;
+        const panels = document.querySelectorAll(`.${withClass}`);
+        panels.forEach(el => { if (el !== topElement) el.classList.remove('BringToTop'); });
+        topElement.classList.add("BringToTop");
+    }
+    static enable(element, parent = element, limitToWindow = false) {
+        const eventElement = (element && element.isElement) ? element.dom : element;
+        const dragElement = (parent && parent.isElement) ? parent.dom : parent;
+        let downX, downY, rect;
+        let startX, startY;
+        let computed = getComputedStyle(dragElement);
+        function onPointerDown(event) {
+            if (! event.isPrimary) return;
+            event.stopPropagation();
+            event.preventDefault();
+            downX = event.pageX;
+            downY = event.pageY;
+            rect = dragElement.getBoundingClientRect();
+            computed = getComputedStyle(dragElement);
+            startX = parseFloat(computed.left);
+            startY = parseFloat(computed.top);
+            eventElement.ownerDocument.addEventListener('pointermove', onPointerMove);
+            eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
+            eventElement.style.cursor = 'move';
+            Draggable.bringToTop(dragElement);
+        }
+        function onPointerUp(event) {
+            if (! event.isPrimary) return;
+            event.stopPropagation();
+            event.preventDefault();
+            eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
+            eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            eventElement.style.cursor = 'auto';
+        }
+        function onPointerMove(event) {
+            if (! event.isPrimary) return;
+            event.stopPropagation();
+            event.preventDefault();
+            const diffX = (event.pageX - downX);
+            const diffY = (event.pageY - downY);
+            let newLeft = startX + diffX;
+            let newTop = startY + diffY;
+            if (limitToWindow) {
+                newLeft = Math.min(window.innerWidth - rect.width, newLeft);
+                newTop = Math.min(window.innerHeight - rect.height, newTop);
+                newLeft = Math.max(0, newLeft);
+                newTop = Math.max(0, newTop);
+            }
+            dragElement.style.left = `${newLeft}px`;
+            dragElement.style.top = `${newTop}px`;
+        }
+        eventElement.addEventListener('pointerdown', onPointerDown);
+    }
+}
+
 const PANEL_STYLES = {
     NONE:       'none',
     SIMPLE:     'simple',
@@ -1266,16 +1326,10 @@ class Panel extends Div {
         this.onContextMenu(onContextMenu);
         if (bringToTop) {
             this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-            this.dom.addEventListener('focusin', () => self.bringToTop());
-            this.dom.addEventListener('displayed', () => self.bringToTop());
-            this.dom.addEventListener('pointerdown', () => self.bringToTop());
+            this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
+            this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
+            this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
         }
-    }
-    bringToTop() {
-        const self = this;
-        const panels = document.querySelectorAll('.Panel');
-        panels.forEach(element => { if (element !== self.dom) element.classList.remove('BringToTop'); });
-        this.addClass('BringToTop');
     }
 }
 
@@ -1344,7 +1398,7 @@ class VectorBox extends Div {
         if (! this.img) this.img = newImage;
         return newImage;
     }
-    makeDraggable() {
+    enableDragging() {
         for (let j = 0; j < this.contents().children.length; j++) {
             this.contents().children[j].dom.ondragstart = () => {};
         }
@@ -1799,7 +1853,7 @@ class Menu extends Div {
         const self = this;
         this.addClass('MenuShow');
         this.clickCount = 0;
-        if (Html.isChildOfElementWithClass(this.dom, 'Menu')) {
+        if (Utils.isChildOfElementWithClass(this.dom, 'Menu')) {
             this.mouseArea.setAttribute('pointer-events', 'none');
             this.contents().dom.appendChild(this.mouseSvg);
             let timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
@@ -1807,7 +1861,7 @@ class Menu extends Div {
         }
         this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
             this.traverse((child) => {
-                if (dontCloseChildrenOf && Html.isChildOf(child.dom, dontCloseChildrenOf)) {
+                if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
                 } else {
                     child.removeClass('MenuShow', 'Selected');
                     if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
@@ -2900,7 +2954,7 @@ class TreeList extends Div {
                 lastElement = element;
             }
         }
-        if (lastElement && scrollTo) setTimeout(() => Html.scrollIntoView(lastElement), 0);
+        if (lastElement && scrollTo) setTimeout(() => Utils.scrollIntoView(lastElement), 0);
         this.selectedValue = value;
         return this;
     }
@@ -2932,7 +2986,7 @@ class TreeList extends Div {
                 elementAfter.classList.add('ActiveBottom');
             }
         }
-        if (lastElement && scrollTo) setTimeout(() => Html.scrollIntoView(lastElement), 0);
+        if (lastElement && scrollTo) setTimeout(() => Utils.scrollIntoView(lastElement), 0);
         this.selectedValues = [...valueArray];
         return this;
     }
@@ -3142,49 +3196,10 @@ class TitleBar extends Div {
         super();
         this.setClass('TitleBar');
         this.addClass('PanelButton');
-        const self = this;
         this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
         this.setTitle(title);
-        if (draggable) {
-            let downX, downY, rect;
-            function onPointerDown(event) {
-                if (! event.isPrimary) return;
-                event.stopPropagation();
-                event.preventDefault();
-                downX = event.pageX;
-                downY = event.pageY;
-                rect = parent.dom.getBoundingClientRect();
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                self.setStyle('cursor', 'move');
-                if (parent && typeof parent.bringToTop === 'function') parent.bringToTop();
-            }
-            function onPointerUp(event) {
-                if (! event.isPrimary) return;
-                event.stopPropagation();
-                event.preventDefault();
-                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-                self.setStyle('cursor', 'auto');
-            }
-            function onPointerMove(event) {
-                if (! event.isPrimary) return;
-                event.stopPropagation();
-                event.preventDefault();
-                const diffX = event.pageX - downX;
-                const diffY = event.pageY - downY;
-                const newLeft = Math.max(0, Math.min(window.innerWidth - rect.width, rect.left + diffX));
-                const newTop = Math.max(0, Math.min(window.innerHeight - rect.height, rect.top + diffY));
-                parent.setStyle('left', `${newLeft}px`);
-                parent.setStyle('top', `${newTop}px`);
-            }
-            function onDoubleClick(event) {
-                if (parent.isWindow && parent.toggleMinMax) parent.toggleMinMax();
-            }
-            this.dom.addEventListener('pointerdown', onPointerDown);
-            this.dom.addEventListener('dblclick', onDoubleClick);
-        }
+        if (draggable) Draggable.enable(this, parent, true );
     }
     setTitle(title = '') {
         this.setInnerHtml(title);
@@ -3230,12 +3245,12 @@ class Window extends Panel {
             let downX, downY, rect;
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                Draggable.bringToTop(self.dom);
                 downX = event.pageX;
                 downY = event.pageY;
                 rect = self.dom.getBoundingClientRect();
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                self.bringToTop();
             }
             function onPointerUp(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
@@ -3670,15 +3685,17 @@ class ToolbarSpacer extends Element {
     }
 }
 
-const MIN_W = 300;
-const MIN_H = 150;
+const MIN_W = 100;
+const MIN_H = 100;
 class Node extends Panel {
     #resizers = {};
     #scale = 1;
     constructor({
-        style = PANEL_STYLES.FANCY,
-        width = 600,
-        height = 600,
+        style = PANEL_STYLES.SIMPLE,
+        width = 300,
+        height = 200,
+        x = 0,
+        y = 0,
         resizers = [
             RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
             RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
@@ -3696,22 +3713,20 @@ class Node extends Panel {
             this.addToSelf(resizer);
             this.#resizers[resizerName] = resizer;
             let downX, downY;
-            let nodeRect, parentRect, relativeRect = {};
+            let computed = getComputedStyle(this.dom);
+            let rect = {};
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                Draggable.bringToTop(self.dom);
                 downX = event.pageX;
                 downY = event.pageY;
-                nodeRect = self.dom.getBoundingClientRect();
-                parentRect = self.parent.dom.getBoundingClientRect();
-                relativeRect.top = (nodeRect.top - parentRect.top) * (1 / self.#scale);
-                relativeRect.right = (nodeRect.right - parentRect.left) * (1 / self.#scale);
-                relativeRect.bottom = (nodeRect.bottom - parentRect.top) * (1 / self.#scale);
-                relativeRect.left = (nodeRect.left - parentRect.left) * (1 / self.#scale);
-                relativeRect.width = (relativeRect.right - relativeRect.left);
-                relativeRect.height = relativeRect.bottom - relativeRect.top;
+                computed = getComputedStyle(self.dom);
+                rect.left = parseFloat(computed.left);
+                rect.top = parseFloat(computed.top);
+                rect.width = parseFloat(computed.width);
+                rect.height = parseFloat(computed.height);
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                self.bringToTop();
             }
             function onPointerUp(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
@@ -3723,41 +3738,64 @@ class Node extends Panel {
                 const diffX = (event.pageX - downX) * (1 / self.#scale);
                 const diffY = (event.pageY - downY) * (1 / self.#scale);
                 if (resizer.hasClassWithString('Left')) {
-                    const newLeft = Math.min(relativeRect.right - MIN_W, relativeRect.left + diffX);
-                    const newWidth = relativeRect.right - newLeft;
+                    const newWidth = Math.max(rect.width - diffX, MIN_W);
+                    const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
+                    const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
+                    const newLeft = (rect.left + (rect.width - newWidth)) + (diffAfter - diffBefore);
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
-                    const newTop = Math.min(relativeRect.bottom - MIN_H, relativeRect.top + diffY);
-                    const newHeight = relativeRect.bottom - newTop;
+                    const newHeight = Math.max(rect.height - diffY, MIN_H);
+                    const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
+                    const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
+                    const newTop = (rect.top + (rect.height - newHeight)) + (diffAfter - diffBefore);
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(MIN_W, relativeRect.width + diffX);
+                    const newWidth = Math.max(MIN_W, rect.width + diffX);
+                    const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
+                    const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
+                    const newLeft = rect.left - (diffAfter - diffBefore);
+                    self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(MIN_H, relativeRect.height + diffY);
+                    const newHeight = Math.max(MIN_H, rect.height + diffY);
+                    const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
+                    const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
+                    const newTop = rect.top - (diffAfter - diffBefore);
+                    self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
             }
             resizer.dom.addEventListener('pointerdown', onPointerDown);
             this.toggleResize(resizerName, resizers.includes(resizerName));
         }
-        this.setStyle('left', '0', 'top', '0');
-        this.setStyle('width', `${parseInt(width)}px`);
-        this.setStyle('height', `${parseInt(height)}px`);
-        this.dom.addEventListener('displayed', () => self.center(), { once: true });
-    }
-    center() {
-        const side = (window.innerWidth - this.getWidth()) / 2;
-        const top = (window.innerHeight - this.getHeight()) / 2;
-        this.setStyle('left', `${side}px`, 'top', `${top}px`);
+        this.setStyle('left', `${parseFloat(x)}px`, 'top', `${parseFloat(y)}px`);
+        this.setStyle('width', `${parseFloat(width)}px`, 'height', `${parseFloat(height)}px`);
+        Draggable.enable(self.dom, self.dom);
+        this.dom.addEventListener('pointerdown', (event) => {
+            const panels = document.querySelectorAll(`.NodeSelected`);
+            panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
+            self.addClass('NodeSelected');
+        });
     }
     setScale(scale) {
         if (scale == null || Number.isNaN(scale)) scale = 1;
+        const computed = getComputedStyle(this.dom);
+        const fullWidth = parseFloat(computed.width);
+        const fullHeight = parseFloat(computed.height);
+        const widthNowDiff = (fullWidth - (fullWidth * this.#scale)) / 2;
+        const widthNewDiff = (fullWidth - (fullWidth * scale)) / 2;
+        const heightNowDiff = (fullHeight - (fullHeight * this.#scale)) / 2;
+        const heightNewDiff = (fullHeight - (fullHeight * scale)) / 2;
+        const left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
+        const top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
+        this.setStyle('left', `${left}px`);
+        this.setStyle('top', `${top}px`);
+        this.setStyle('transform', `scale(${scale})`);
         this.#scale = scale;
     }
     toggleResize(resizerName, enable = true) {
@@ -3772,34 +3810,42 @@ class Graph extends Panel {
     constructor() {
         super();
         const self = this;
-		this.map = new Canvas().setClass('MiniMap');
+		this.minimap = new Canvas().setClass('MiniMap');
         this.nodes = new Div().setClass('GraphNodes');
-        this.nodes.scale = 1;
         this.lines = new Canvas().setClass('GraphLines');
-        this.add(this.map);
-        this.add(this.nodes);
-        this.add(this.lines);
+        this.add(this.minimap, this.nodes, this.lines);
+        this.nodes.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
+        this.nodes.setStyle('background-size', `20px`);
         function onMouseZoom(event) {
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			const delta = event.deltaY * .003;
 			self.zoomTo(self.#scale - delta);
+            if (self.#scale > 0.5) {
+                this.nodes.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
+                self.nodes.setStyle('background-size', `${(20 * self.#scale)}px`);
+            } else {
+                this.nodes.setStyle('background-image', `none`);
+            }
 		};
         this.onWheel(onMouseZoom);
+        function onPointerDown() {
+            const panels = document.querySelectorAll(`.NodeSelected`);
+            panels.forEach(el => el.classList.remove('NodeSelected'));
+        }
+        this.onPointerDown(onPointerDown);
         this.addNode();
     }
     addNode() {
-        const node = new Node();
-        this.nodes.add(node);
+        const node1 = new Node();
+        const node2 = new Node({ x: 500, y: 300 });
+        this.nodes.add(node1, node2);
     }
     getScale() {
         return this.#scale;
     }
     zoomTo(zoom, clientX = this.dom.clientX, clientY = this.dom.clientY) {
-        zoom = Math.min(Math.max(zoom, 0.1), 1);
-        this.nodes.dom.scrollLeft -= (clientX / this.#scale) - (clientX / zoom);
-        this.nodes.dom.scrollTop -= (clientY / this.#scale) - (clientY / zoom);
-        this.nodes.setStyle('transform', `scale(${zoom})`);
+        zoom = Math.min(Math.max(zoom, 0.1), 2);
         for (let i = 0; i < this.nodes.children.length; i++) {
             const node = this.nodes.children[i];
             if (node && node.isNode) node.setScale(zoom);
@@ -3863,8 +3909,8 @@ var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    
 var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--border-radius-inner);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: var(--pad-x-large);\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n    box-shadow: var(--pop-out-shadow);\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.DragTop {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = ".MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphNodes {\n    background-color: red;\n}\n\n.GraphLines {\n    pointer-events: none;\n    background-color: rgba(0, 0, 255, 0.1);\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n\n}\n";
-var stylesheet$2=".MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphNodes {\n    background-color: red;\n}\n\n.GraphLines {\n    pointer-events: none;\n    background-color: rgba(0, 0, 255, 0.1);\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n\n}\n";
+var css_248z$2 = ".MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphNodes {\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n    background-color: rgba(0, 0, 255, 0.05);\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n    position: absolute;\n}\n\n/* Simple */\n.Node.SimplePanel {\n    background-color: rgba(var(--background-light), 1);\n}\n.Node.SimplePanel.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n/* Fancy */\n.Node .FancyPanelBorder {\n    background-color: rgba(var(--background-light), 1);\n}\n.Node.BringToTop .FancyPanelOuter {\n    filter: drop-shadow(0 0 0.25em rgba(var(--complement), 1.0));\n}";
+var stylesheet$2=".MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n}\n\n.GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphNodes {\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n    background-color: rgba(0, 0, 255, 0.05);\n    z-index: 100; /* GraphLines */\n}\n\n.Node {\n    position: absolute;\n}\n\n/* Simple */\n.Node.SimplePanel {\n    background-color: rgba(var(--background-light), 1);\n}\n.Node.SimplePanel.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n/* Fancy */\n.Node .FancyPanelBorder {\n    background-color: rgba(var(--background-light), 1);\n}\n.Node.BringToTop .FancyPanelOuter {\n    filter: drop-shadow(0 0 0.25em rgba(var(--complement), 1.0));\n}";
 styleInject(css_248z$2);
 
 var css_248z$1 = "/***** .PanelButton *****/\n\n.PanelButton {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.PanelButton:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.PanelButton:active {\n    box-shadow: var(--sunk-in-shadow);\n    filter: brightness(100%);\n}\n\n/***** .CloseButton *****/\n\n.CloseButton {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    opacity: 0;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.CloseButton.ItemShown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover {\n    background-color: #e24c4b;\n}\n\n.CloseButton.ItemHidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseImage {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover .CloseImage {\n    opacity: 1.0;\n}\n\n/***** .TitleBar *****/\n\n.TitleBar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/***** .Window *****/\n\n.Window {\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: 200; /* Window */\n}\n\n.Window.BringToTop {\n    z-index: 201; /* Window */\n}\n\n.Window.BringToTop .TitleBar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";
@@ -3875,4 +3921,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-image:\n        linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--box-radius);\n    */\n\n    border-radius: var(--box-radius);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.Tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, Gooey, Graph, Html, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_NODE_GRID, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };

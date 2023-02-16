@@ -1,5 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Draggable } from './Draggable.js';
 import { Panel, PANEL_STYLES } from '../panels/Panel.js';
 import { RESIZERS } from '../constants.js';
 
@@ -46,12 +47,12 @@ class Window extends Panel {
             let downX, downY, rect;
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                Draggable.bringToTop(self.dom);
                 downX = event.pageX;
                 downY = event.pageY;
                 rect = self.dom.getBoundingClientRect();
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                self.bringToTop();
             }
             function onPointerUp(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
