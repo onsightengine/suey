@@ -74,7 +74,7 @@
 
 .NodePanel {
     display: block;
-    background-color: rgba(var(--button-light), 1);
+    background-color: rgba(var(--button-dark), 1);
     border-radius: var(--border-radius-inner);
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
@@ -82,6 +82,7 @@
 	padding: 0;
     cursor: inherit;
     overflow: hidden;
+    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;
 }
 
 .NodeBorder {
@@ -95,7 +96,7 @@
 }
 
 .Node.NodeSelected .NodeBorder {
-    border: var(--border-small) solid rgb(var(--icon));
+    border: var(--border-small) solid rgba(var(--icon), 0.7);
 }
 
 .NodeResizers {
@@ -110,31 +111,37 @@
 /***** COMPONENTS *****/
 
 .NodeHeaderTitle {
-    background-color: rgb(var(--icon-dark));
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
     position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-top: var(--border-small) solid rgba(var(--white), 0.2);
-    border-bottom: var(--border-small) solid rgba(var(--black), 0.2);
     width: 100%;
-    height: 2em;
+    height: 1.9em;
     margin: 0;
-    padding: var(--pad-small) 0.5em;		/* vertical | horizontal */
-    text-shadow: var(--negative) var(--pixel) rgba(20, 20, 20, 0.5);
+    padding: var(--pad-small) 0.5em; /* vertical | horizontal */
+    text-shadow: var(--negative) var(--pixel) rgba(var(--black), 0.5);
+}
+
+.NodeHeaderBoxShadow {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: auto;
+    border-top: solid var(--border-small) rgba(var(--white), 0.1);
+    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);
 }
 
 .NodeHeaderIcon > * {
-    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20, 20, 20, 0.5));
+    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(var(--black), 0.5));
 }
 
 .NodeHeaderIcon {
     position: absolute;
     left: 1.0em;
     top: 0.25em;
-    width: 1.2em;
-    height: 1.2em;
-    opacity: 0.5;
+    width: 1.3em;
+    height: 1.3em;
+    opacity: 0.65;
 }
 
 .NodeHeaderText {

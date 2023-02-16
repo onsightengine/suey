@@ -1,5 +1,6 @@
 import { Div } from '../core/Div.js';
 import { Draggable } from '../interactive/Draggable.js';
+import { Iris } from '../utils/Iris.js';
 import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
 import { GRID_SIZE, RESIZERS } from '../constants.js';
@@ -7,16 +8,21 @@ import { GRID_SIZE, RESIZERS } from '../constants.js';
 const MIN_W = 100;
 const MIN_H = 100;
 
+const _color1 = new Iris();
+const _color2 = new Iris();
+
 class Node extends Div {
 
     #resizers = {};
     #snapToGrid = true;
+    #color = new Iris();
 
     constructor({
         width = 200,
         height = 150,
         x = 0,
         y = 0,
+        color = 0x888888,
         resizers = [
             RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
             RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
@@ -28,6 +34,8 @@ class Node extends Div {
         this.addClass('Node');
 
         this.isNode = true;
+
+        this.#color.set(color);
 
         // Children
         const background = new Div().addClass('NodeBackground');
@@ -151,13 +159,26 @@ class Node extends Div {
     /******************** NODE BUILDING */
 
     createHeader(text = '', iconUrl, addToContents = true) {
+        if (this.header) return undefined;
         const header = new Div().setClass('NodeHeaderTitle');
         const icon = new VectorBox(iconUrl);
         header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
         header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
-        header.add(header.iconHolder, header.textHolder);
+        const boxShadow = new Div().setClass('NodeHeaderBoxShadow');
+        header.add(header.iconHolder, header.textHolder, boxShadow);
         if (addToContents) this.add(header);
+        this.header = header;
+        this.applyColor();
         return header;
+    }
+
+    /******************** STYLING */
+
+    applyColor(color) {
+        if (color !== undefined) this.#color.set(color);
+        const colorLight = _color2.set(this.#color).darken(1.3).rgbString();
+        const colorDark = _color1.set(this.#color).darken(0.7).rgbString();
+        if (this.header) this.header.setStyle('background-image', `linear-gradient(to bottom, rgba(${colorLight}, 0.5), rgba(${colorDark}, 0.5))`);
     }
 
 }

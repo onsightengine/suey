@@ -1,9 +1,7 @@
 import { Canvas } from '../core/Canvas.js';
-import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
-import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRID_SIZE, TRAIT } from '../constants.js';
+import { GRID_SIZE } from '../constants.js';
 
 class Graph extends Panel {
 
@@ -30,14 +28,12 @@ class Graph extends Panel {
         const BORDER = 2;
         const B2 = BORDER * 2;
         const squares = new Canvas(SIZE, SIZE);
-        const iris = new Iris();
         squares.ctx.clearRect(0, 0, squares.width, squares.height);
-        squares.ctx.globalAlpha = 0.4;
-        squares.ctx.fillStyle = iris.setHex(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+        squares.ctx.fillStyle = 'rgb(255, 255, 255)';
+        squares.ctx.globalAlpha = 0.04;
         squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
         squares.ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-        squares.ctx.globalAlpha = 0.5;
-        squares.ctx.fillStyle = iris.setHex(ColorScheme.color(TRAIT.BUTTON_DARK)).cssString();
+        squares.ctx.globalAlpha = 0.02;
         squares.ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
         squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
         this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
