@@ -9,10 +9,7 @@ const MIN_H = 100;
 class Node extends Div {
 
     #resizers = {};
-    #scale = 1;
     #snapToGrid = true;
-    #offsetX = 0;
-    #offsetY = 0;
 
     constructor({
         width = 300,
@@ -85,38 +82,27 @@ class Node extends Div {
             }
             function onPointerMove(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
-                const diffX = (event.pageX - downX) * (1 / self.#scale);
-                const diffY = (event.pageY - downY) * (1 / self.#scale);
+                const scale = self.getScale();
+                const diffX = (event.pageX - downX) * (1 / scale);
+                const diffY = (event.pageY - downY) * (1 / scale);
                 if (resizer.hasClassWithString('Left')) {
                     const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
-                    const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
-                    const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
-                    const newLeft = (rect.left + (rect.width - newWidth)) + (diffAfter - diffBefore);
+                    const newLeft = rect.left + (rect.width - newWidth);
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
                     const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
-                    const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
-                    const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
-                    const newTop = (rect.top + (rect.height - newHeight)) + (diffAfter - diffBefore);
+                    const newTop = rect.top + (rect.height - newHeight);
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
                     const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
-                    const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
-                    const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
-                    const newLeft = rect.left - (diffAfter - diffBefore);
-                    self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
                     const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H);
-                    const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
-                    const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
-                    const newTop = rect.top - (diffAfter - diffBefore);
-                    self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
             }
@@ -140,57 +126,23 @@ class Node extends Div {
         this.onPointerDown(selectNode);
     }
 
-    /** Applies a zoom scale */
-    setScale(scale, offsetX = 0, offsetY = 0, snapToGrid) {
-        if (snapToGrid !== undefined) this.#snapToGrid = snapToGrid;
-        const self = this;
-        function roundNearest(x, increment = GRID_SIZE) {
-            if (! self.#snapToGrid) return x;
-            return Math.ceil(x / increment) * increment;
-        }
-        if (snapToGrid !== undefined) this.#snapToGrid = snapToGrid;
-        if (scale == null || Number.isNaN(scale)) scale = 1;
-        const computed = getComputedStyle(this.dom);
-        const fullWidth = parseFloat(computed.width);
-        const fullHeight = parseFloat(computed.height);
-        const widthNowDiff = (fullWidth - (fullWidth * this.#scale)) / 2;
-        const widthNewDiff = (fullWidth - (fullWidth * scale)) / 2;
-        const heightNowDiff = (fullHeight - (fullHeight * this.#scale)) / 2;
-        const heightNewDiff = (fullHeight - (fullHeight * scale)) / 2;
-        let left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
-        let top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
-
-        //
-        let ox = roundNearest((offsetX - this.#offsetX) * this.#scale);
-        let oy = roundNearest((offsetY - this.#offsetY) * this.#scale);
-        console.log(ox, oy);
-        //
-
-        left += ox;
-        top += oy;
-
-        this.setStyle('left', `${left}px`);
-        this.setStyle('top', `${top}px`);
-        this.setStyle('transform', `scale(${scale})`);
-        this.#scale = scale;
-        this.#offsetX = offsetX;
-        this.#offsetY = offsetY;
+    getScale() {
+        return ((this.parent && this.parent.getScale) ? this.parent.getScale() : 1);
     }
 
-    /**
-     * Turns a resizing handle on / off
-     *
-     * @param {RESIZERS} resizerName
-     * @param {Boolean} enable
-     */
+    snap(enabled = true) {
+        this.#snapToGrid = enabled;
+    }
+
+    snapToGrid() {
+        return this.#snapToGrid;
+    }
+
+    /** Turns a resizing handle on / off */
     toggleResize(resizerName, enable = true) {
         if (! resizerName) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
-    }
-
-    wantsSnap() {
-        return this.#snapToGrid;
     }
 
 }

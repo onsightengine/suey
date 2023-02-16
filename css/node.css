@@ -26,6 +26,7 @@
 
 .GraphGrid {
     pointer-events: none;
+    background-repeat: repeat;
 }
 
 .GraphNodes {

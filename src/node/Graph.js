@@ -25,12 +25,14 @@ class Graph extends Panel {
         // Init Style
         onMouseZoom();
 
+        // Scale Getter
+        this.nodes.getScale = function() { return self.#scale; };
+
         // Zoom
         function onMouseZoom(event) {
             if (event) {
                 event.preventDefault();
-			    const delta = event.deltaY * 0.002;
-                self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
+                self.zoomTo(self.#scale - (event.deltaY * 0.002), event.clientX, event.clientY);
             }
             self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
             self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
@@ -50,18 +52,21 @@ class Graph extends Panel {
         return this.#scale;
     }
 
-    scaleNodes(zoom, offsetX, offsetY) {
-        function roundNearest(x, increment = GRID_SIZE) {
-            return Math.ceil(x / increment) * increment;
-        }
-        if (this.#snapToGrid) {
-            offsetX = roundNearest(offsetX, GRID_SIZE);
-            offsetY = roundNearest(offsetY, GRID_SIZE);
-        }
+    snap(enabled = true) {
+        this.#snapToGrid = enabled;
+        this.traverseNodes((node) => node.snap(enabled));
+    }
+
+    snapToGrid() {
+        return this.#snapToGrid;
+    }
+
+    traverseNodes(callback) {
+        if (typeof callback !== 'function') return;
         for (let i = 0; i < this.nodes.children.length; i++) {
             const node = this.nodes.children[i];
             if (! node || ! node.isNode) continue;
-            node.setScale(zoom, offsetX, offsetY, this.#snapToGrid);
+            callback(node);
         }
     }
 
@@ -69,8 +74,17 @@ class Graph extends Panel {
         const rect = this.dom.getBoundingClientRect();
         if (clientX == undefined) clientX = rect.width / 2;
         if (clientY == undefined) clientY = rect.height / 2;
+
+        // Set Scale
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
-        this.scaleNodes(zoom, clientX, clientY);
+        this.nodes.setStyle('transform', `scale(${zoom})`);
+
+        // Align Grid
+        const diffX = (rect.width - (rect.width * zoom)) / 2;
+        const diffY = (rect.height - (rect.height * zoom)) / 2;
+        this.grid.setStyle('background-position', `left ${diffX}px top ${diffY}px`);
+
+        // Save
         this.#scale = zoom;
     }
 

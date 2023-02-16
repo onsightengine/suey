@@ -15,7 +15,7 @@ class TitleBar extends Div {
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
         this.setTitle(title);
 
-        if (draggable) Draggable.enable(this, parent, { limitToWindow: true });
+        if (draggable) Draggable.enable(this, parent, true /* limitToWindow */);
     }
 
     setTitle(title = '') {
