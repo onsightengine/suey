@@ -10,7 +10,9 @@ class Draggable {
         topElement.classList.add("BringToTop");
     }
 
-    static enable(element, parent = element, { limitToWindow = false, snapToGrid = false }) {
+    static enable(element, parent = element, {
+        limitToWindow = false,
+    } = {}) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
 
@@ -18,8 +20,8 @@ class Draggable {
         let scaleX, scaleY;
         let computed = getComputedStyle(dragElement);
 
-        function roundNearest(x, increment = GRID_SIZE){
-            if (! snapToGrid) return x;
+        function roundNearest(x, increment = GRID_SIZE) {
+            if (! element.wantsSnap || ! element.wantsSnap()) return x;
             return Math.ceil(x / increment) * increment;
         }
 

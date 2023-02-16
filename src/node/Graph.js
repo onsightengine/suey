@@ -8,6 +8,7 @@ import { IMAGE_NODE_GRID } from '../constants.js';
 class Graph extends Panel {
 
     #scale = 1;
+    #snapToGrid = true;
 
     constructor() {
         super();
@@ -21,17 +22,16 @@ class Graph extends Panel {
         this.minimap = new Canvas().setClass('MiniMap');
         this.add(this.bg, this.grid, this.nodes, this.lines, this.minimap);
 
-        // Style
+        // Init Style
         onMouseZoom();
 
         // Zoom
         function onMouseZoom(event) {
-			let delta = 0;
             if (event) {
                 event.preventDefault();
-			    delta = event.deltaY * 0.002;
+			    const delta = event.deltaY * 0.002;
+                self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
             }
-			self.zoomTo(self.#scale - delta);
             self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
             self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
             self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
@@ -44,31 +44,33 @@ class Graph extends Panel {
             panels.forEach(el => el.classList.remove('NodeSelected'));
         }
         this.onPointerDown(onPointerDown);
-
-        ///// TEMP
-
-        this.addNode();
-    }
-
-    addNode() {
-
-        const node1 = new Node();
-        const node2 = new Node({ x: 500, y: 300 });
-
-        this.nodes.add(node1, node2);
-
     }
 
     getScale() {
         return this.#scale;
     }
 
-    zoomTo(zoom, clientX = this.dom.clientX, clientY = this.dom.clientY) {
-        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+    scaleNodes(zoom, offsetX, offsetY) {
+        function roundNearest(x, increment = GRID_SIZE) {
+            return Math.ceil(x / increment) * increment;
+        }
+        if (this.#snapToGrid) {
+            offsetX = roundNearest(offsetX, GRID_SIZE);
+            offsetY = roundNearest(offsetY, GRID_SIZE);
+        }
         for (let i = 0; i < this.nodes.children.length; i++) {
             const node = this.nodes.children[i];
-            if (node && node.isNode) node.setScale(zoom);
+            if (! node || ! node.isNode) continue;
+            node.setScale(zoom, offsetX, offsetY, this.#snapToGrid);
         }
+    }
+
+    zoomTo(zoom, clientX, clientY) {
+        const rect = this.dom.getBoundingClientRect();
+        if (clientX == undefined) clientX = rect.width / 2;
+        if (clientY == undefined) clientY = rect.height / 2;
+        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+        this.scaleNodes(zoom, clientX, clientY);
         this.#scale = zoom;
     }
 

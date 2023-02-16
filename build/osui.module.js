@@ -1247,14 +1247,16 @@ class Draggable {
         panels.forEach(el => { if (el !== topElement) el.classList.remove('BringToTop'); });
         topElement.classList.add("BringToTop");
     }
-    static enable(element, parent = element, { limitToWindow = false, snapToGrid = false }) {
+    static enable(element, parent = element, {
+        limitToWindow = false,
+    } = {}) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
         let downX, downY, rect = {};
         let scaleX, scaleY;
         let computed = getComputedStyle(dragElement);
-        function roundNearest(x, increment = GRID_SIZE){
-            if (! snapToGrid) return x;
+        function roundNearest(x, increment = GRID_SIZE) {
+            if (! element.wantsSnap || ! element.wantsSnap()) return x;
             return Math.ceil(x / increment) * increment;
         }
         function onPointerDown(event) {
@@ -3705,7 +3707,9 @@ const MIN_H = 100;
 class Node extends Div {
     #resizers = {};
     #scale = 1;
-    #round = true;
+    #snapToGrid = true;
+    #offsetX = 0;
+    #offsetY = 0;
     constructor({
         width = 300,
         height = 200,
@@ -3740,8 +3744,8 @@ class Node extends Div {
             let downX, downY;
             let computed = getComputedStyle(this.dom);
             let rect = {};
-            function roundNearest(x, increment = GRID_SIZE){
-                if (! self.#round) return x;
+            function roundNearest(x, increment = GRID_SIZE) {
+                if (! self.#snapToGrid) return x;
                 return Math.ceil(x / increment) * increment;
             }
             function onPointerDown(event) {
@@ -3807,7 +3811,7 @@ class Node extends Div {
         }
         this.setStyle('left', `${parseFloat(x)}px`, 'top', `${parseFloat(y)}px`);
         this.setStyle('width', `${parseFloat(width)}px`, 'height', `${parseFloat(height)}px`);
-        Draggable.enable(self.dom, self.dom, { snapToGrid: true });
+        Draggable.enable(self);
         function selectNode() {
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
@@ -3815,7 +3819,14 @@ class Node extends Div {
         }
         this.onPointerDown(selectNode);
     }
-    setScale(scale) {
+    setScale(scale, offsetX = 0, offsetY = 0, snapToGrid) {
+        if (snapToGrid !== undefined) this.#snapToGrid = snapToGrid;
+        const self = this;
+        function roundNearest(x, increment = GRID_SIZE) {
+            if (! self.#snapToGrid) return x;
+            return Math.ceil(x / increment) * increment;
+        }
+        if (snapToGrid !== undefined) this.#snapToGrid = snapToGrid;
         if (scale == null || Number.isNaN(scale)) scale = 1;
         const computed = getComputedStyle(this.dom);
         const fullWidth = parseFloat(computed.width);
@@ -3824,22 +3835,33 @@ class Node extends Div {
         const widthNewDiff = (fullWidth - (fullWidth * scale)) / 2;
         const heightNowDiff = (fullHeight - (fullHeight * this.#scale)) / 2;
         const heightNewDiff = (fullHeight - (fullHeight * scale)) / 2;
-        const left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
-        const top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
+        let left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
+        let top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
+        let ox = roundNearest((offsetX - this.#offsetX) * this.#scale);
+        let oy = roundNearest((offsetY - this.#offsetY) * this.#scale);
+        console.log(ox, oy);
+        left += ox;
+        top += oy;
         this.setStyle('left', `${left}px`);
         this.setStyle('top', `${top}px`);
         this.setStyle('transform', `scale(${scale})`);
         this.#scale = scale;
+        this.#offsetX = offsetX;
+        this.#offsetY = offsetY;
     }
     toggleResize(resizerName, enable = true) {
         if (! resizerName) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
     }
+    wantsSnap() {
+        return this.#snapToGrid;
+    }
 }
 
 class Graph extends Panel {
     #scale = 1;
+    #snapToGrid = true;
     constructor() {
         super();
         const self = this;
@@ -3851,12 +3873,11 @@ class Graph extends Panel {
         this.add(this.bg, this.grid, this.nodes, this.lines, this.minimap);
         onMouseZoom();
         function onMouseZoom(event) {
-			let delta = 0;
             if (event) {
                 event.preventDefault();
-			    delta = event.deltaY * 0.002;
+			    const delta = event.deltaY * 0.002;
+                self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
             }
-			self.zoomTo(self.#scale - delta);
             self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
             self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
             self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
@@ -3867,22 +3888,30 @@ class Graph extends Panel {
             panels.forEach(el => el.classList.remove('NodeSelected'));
         }
         this.onPointerDown(onPointerDown);
-        this.addNode();
-    }
-    addNode() {
-        const node1 = new Node();
-        const node2 = new Node({ x: 500, y: 300 });
-        this.nodes.add(node1, node2);
     }
     getScale() {
         return this.#scale;
     }
-    zoomTo(zoom, clientX = this.dom.clientX, clientY = this.dom.clientY) {
-        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+    scaleNodes(zoom, offsetX, offsetY) {
+        function roundNearest(x, increment = GRID_SIZE) {
+            return Math.ceil(x / increment) * increment;
+        }
+        if (this.#snapToGrid) {
+            offsetX = roundNearest(offsetX, GRID_SIZE);
+            offsetY = roundNearest(offsetY, GRID_SIZE);
+        }
         for (let i = 0; i < this.nodes.children.length; i++) {
             const node = this.nodes.children[i];
-            if (node && node.isNode) node.setScale(zoom);
+            if (! node || ! node.isNode) continue;
+            node.setScale(zoom, offsetX, offsetY, this.#snapToGrid);
         }
+    }
+    zoomTo(zoom, clientX, clientY) {
+        const rect = this.dom.getBoundingClientRect();
+        if (clientX == undefined) clientX = rect.width / 2;
+        if (clientY == undefined) clientY = rect.height / 2;
+        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+        this.scaleNodes(zoom, clientX, clientY);
         this.#scale = zoom;
     }
 }

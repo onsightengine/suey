@@ -10,7 +10,9 @@ class Node extends Div {
 
     #resizers = {};
     #scale = 1;
-    #round = true;
+    #snapToGrid = true;
+    #offsetX = 0;
+    #offsetY = 0;
 
     constructor({
         width = 300,
@@ -56,8 +58,8 @@ class Node extends Div {
             let downX, downY;
             let computed = getComputedStyle(this.dom);
             let rect = {};
-            function roundNearest(x, increment = GRID_SIZE){
-                if (! self.#round) return x;
+            function roundNearest(x, increment = GRID_SIZE) {
+                if (! self.#snapToGrid) return x;
                 return Math.ceil(x / increment) * increment;
             }
             function onPointerDown(event) {
@@ -127,7 +129,7 @@ class Node extends Div {
         this.setStyle('width', `${parseFloat(width)}px`, 'height', `${parseFloat(height)}px`);
 
         // Draggable
-        Draggable.enable(self.dom, self.dom, { snapToGrid: true });
+        Draggable.enable(self);
 
         // Selectable
         function selectNode() {
@@ -139,7 +141,14 @@ class Node extends Div {
     }
 
     /** Applies a zoom scale */
-    setScale(scale) {
+    setScale(scale, offsetX = 0, offsetY = 0, snapToGrid) {
+        if (snapToGrid !== undefined) this.#snapToGrid = snapToGrid;
+        const self = this;
+        function roundNearest(x, increment = GRID_SIZE) {
+            if (! self.#snapToGrid) return x;
+            return Math.ceil(x / increment) * increment;
+        }
+        if (snapToGrid !== undefined) this.#snapToGrid = snapToGrid;
         if (scale == null || Number.isNaN(scale)) scale = 1;
         const computed = getComputedStyle(this.dom);
         const fullWidth = parseFloat(computed.width);
@@ -148,12 +157,24 @@ class Node extends Div {
         const widthNewDiff = (fullWidth - (fullWidth * scale)) / 2;
         const heightNowDiff = (fullHeight - (fullHeight * this.#scale)) / 2;
         const heightNewDiff = (fullHeight - (fullHeight * scale)) / 2;
-        const left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
-        const top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
+        let left = ((((parseFloat(computed.left) + widthNowDiff) / this.#scale)) * scale) - widthNewDiff;
+        let top = ((((parseFloat(computed.top) + heightNowDiff) / this.#scale)) * scale) - heightNewDiff;
+
+        //
+        let ox = roundNearest((offsetX - this.#offsetX) * this.#scale);
+        let oy = roundNearest((offsetY - this.#offsetY) * this.#scale);
+        console.log(ox, oy);
+        //
+
+        left += ox;
+        top += oy;
+
         this.setStyle('left', `${left}px`);
         this.setStyle('top', `${top}px`);
         this.setStyle('transform', `scale(${scale})`);
         this.#scale = scale;
+        this.#offsetX = offsetX;
+        this.#offsetY = offsetY;
     }
 
     /**
@@ -166,6 +187,10 @@ class Node extends Div {
         if (! resizerName) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
+    }
+
+    wantsSnap() {
+        return this.#snapToGrid;
     }
 
 }
