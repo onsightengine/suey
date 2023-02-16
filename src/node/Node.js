@@ -1,7 +1,8 @@
 import { Div } from '../core/Div.js';
 import { Draggable } from '../interactive/Draggable.js';
-import { GRID_SIZE } from '../constants.js';
-import { RESIZERS } from '../constants.js';
+import { Span } from '../core/Span.js';
+import { VectorBox } from '../layout/VectorBox.js';
+import { GRID_SIZE, RESIZERS } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;
@@ -12,8 +13,8 @@ class Node extends Div {
     #snapToGrid = true;
 
     constructor({
-        width = 300,
-        height = 200,
+        width = 200,
+        height = 150,
         x = 0,
         y = 0,
         resizers = [
@@ -23,16 +24,18 @@ class Node extends Div {
     } = {}) {
         super();
         const self = this;
-
         this.setClass('Panel');
         this.addClass('Node');
-        this.contents = function() { return this; }
 
         this.isNode = true;
 
-        // Border
+        // Children
+        const background = new Div().addClass('NodeBackground');
+        const panel = new Div().addClass('NodePanel');
+        const border = new Div().addClass('NodeBorder');
         const sizers = new Div().addClass('NodeResizers');
-        this.add(sizers);
+        this.addToSelf(background, panel, border, sizers);
+        this.contents = function() { return panel; }
 
         // Stacking
         this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
@@ -143,6 +146,18 @@ class Node extends Div {
         if (! resizerName) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
+    }
+
+    /******************** NODE BUILDING */
+
+    createHeader(text = '', iconUrl, addToContents = true) {
+        const header = new Div().setClass('NodeHeaderTitle');
+        const icon = new VectorBox(iconUrl);
+        header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
+        header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
+        header.add(header.iconHolder, header.textHolder);
+        if (addToContents) this.add(header);
+        return header;
     }
 
 }

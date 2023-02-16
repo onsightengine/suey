@@ -1,7 +1,10 @@
 /***** GRAPH *****/
+
 .MiniMap {
     position: absolute;
     background-color: rgba(var(--background-dark), 0.8);
+    border: var(--border-size) solid rgb(var(--icon));
+    border-radius: var(--border-radius-inner);
     top: var(--pad-large);
     right: var(--pad-large);
     width: 20%;
@@ -10,7 +13,7 @@
     cursor: auto;
 }
 
-.GraphInput, .GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {
+.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {
     position: absolute;
     top: 0;
 	left: 0;
@@ -22,15 +25,12 @@
 
 .GraphInput {
     background: transparent;
-}
-
-.GraphBackground {
-    pointer-events: none;
-    background-color: rgba(var(--background-dark), 1);
+    z-index: -1; /* GraphInput */
 }
 
 .GraphGrid {
     pointer-events: none;
+    background-color: rgba(var(--background-dark));
     background-repeat: repeat;
 }
 
@@ -46,27 +46,105 @@
 /***** NODE *****/
 
 .Node {
-    display: flex;
     position: absolute;
-    background-color: rgba(var(--background-light), 1);
-    border: var(--border-small) solid rgb(var(--icon));
-    border-radius: var(--border-radius-inner);
+    background-color: transparent;
+    border: none;
     margin: 0;
-    padding: 0.15em;
     cursor: inherit;
+    overflow: visible;
 }
 
-.Node.NodeSelected {
-    border: var(--border-small) solid rgb(var(--complement));
+.Node:hover, .Node.NodeSelected {
+    filter: brightness(120%);
+}
+
+.NodeBackground {
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: 0.5em;
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+	margin: calc(var(--border-micro) * -2);
+    padding: 0;
+}
+
+.Node.NodeSelected .NodeBackground {
+    background-color: rgba(var(--icon-dark), 0.5);
+}
+
+.NodePanel {
+    display: block;
+    background-color: rgba(var(--button-light), 1);
+    border-radius: var(--border-radius-inner);
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: 0;
+	padding: 0;
+    cursor: inherit;
+    overflow: hidden;
+}
+
+.NodeBorder {
+    pointer-events: none;
+    border: var(--border-small) solid transparent;
+    border-radius: var(--border-radius-inner);
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: 0;
+	padding: 0;
+}
+
+.Node.NodeSelected .NodeBorder {
+    border: var(--border-small) solid rgb(var(--icon));
 }
 
 .NodeResizers {
     position: absolute;
     opacity: 0;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    left: 0; top: 0; right: 0; bottom: 0;
     margin: calc(var(--resize-size) / -2);
+    padding: 0;
     z-index: 100; /* NodeResizers */
+}
+
+/***** COMPONENTS *****/
+
+.NodeHeaderTitle {
+    background-color: rgb(var(--icon-dark));
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-top: var(--border-small) solid rgba(var(--white), 0.2);
+    border-bottom: var(--border-small) solid rgba(var(--black), 0.2);
+    width: 100%;
+    height: 2em;
+    margin: 0;
+    padding: var(--pad-small) 0.5em;		/* vertical | horizontal */
+    text-shadow: var(--negative) var(--pixel) rgba(20, 20, 20, 0.5);
+}
+
+.NodeHeaderIcon > * {
+    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20, 20, 20, 0.5));
+}
+
+.NodeHeaderIcon {
+    position: absolute;
+    left: 1.0em;
+    top: 0.25em;
+    width: 1.2em;
+    height: 1.2em;
+    opacity: 0.5;
+}
+
+.NodeHeaderText {
+    flex-grow: 1;
+    flex-shrink: 2;
+    color: rgba(var(--text), 1.0);
+    font-size: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 0.5em;
 }

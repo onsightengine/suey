@@ -26,6 +26,7 @@ class Draggable {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            eventElement.setPointerCapture(event.pointerId);
             downX = event.pageX;
             downY = event.pageY;
             computed = getComputedStyle(dragElement);
@@ -43,6 +44,7 @@ class Draggable {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            eventElement.releasePointerCapture(event.pointerId);
             eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
             eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
             eventElement.style.cursor = 'inherit';

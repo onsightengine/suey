@@ -6,18 +6,15 @@
  * @source      https://github.com/onsightengine/osui
  * @version     v0.1.9
  */
-var img$3 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
+var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
 
-var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.574%2c400.264c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0l-84.496%2c-84.496l-84.496%2c84.496c-12.567%2c12.566 -33.513%2c12.566 -46.079%2c0c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079l84.496%2c-84.496l-84.496%2c-84.496c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079c12.566%2c-12.567 261.15%2c215.071 261.15%2c215.071c12.566%2c12.566 12.566%2c33.511 0%2c46.079Z' style='fill-opacity:0.25%3b'/%3e%3cpath d='M386.575%2c386.834c-12.567%2c12.568 -33.513%2c12.568 -46.079%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.497%2c84.498c12.566%2c12.566 12.566%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
+var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.574%2c400.264c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0l-84.496%2c-84.496l-84.496%2c84.496c-12.567%2c12.566 -33.513%2c12.566 -46.079%2c0c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079l84.496%2c-84.496l-84.496%2c-84.496c-12.566%2c-12.567 -12.566%2c-33.513 0%2c-46.079c12.566%2c-12.567 261.15%2c215.071 261.15%2c215.071c12.566%2c12.566 12.566%2c33.511 0%2c46.079Z' style='fill-opacity:0.25%3b'/%3e%3cpath d='M386.575%2c386.834c-12.567%2c12.568 -33.513%2c12.568 -46.079%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.497%2c84.498c12.566%2c12.566 12.566%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
 
-var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
+var img = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
 
-var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAFFWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICAgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIgogICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgeG1wOkNyZWF0ZURhdGU9IjIwMjMtMDItMTVUMTk6NDk6MDctMDgwMCIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDItMTVUMjA6MDA6MTctMDg6MDAiCiAgIHhtcDpNZXRhZGF0YURhdGU9IjIwMjMtMDItMTVUMjA6MDA6MTctMDg6MDAiCiAgIHBob3Rvc2hvcDpEYXRlQ3JlYXRlZD0iMjAyMy0wMi0xNVQxOTo0OTowNy0wODAwIgogICBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIgogICBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiCiAgIGV4aWY6UGl4ZWxYRGltZW5zaW9uPSI1MCIKICAgZXhpZjpQaXhlbFlEaW1lbnNpb249IjUwIgogICBleGlmOkNvbG9yU3BhY2U9IjEiCiAgIHRpZmY6SW1hZ2VXaWR0aD0iNTAiCiAgIHRpZmY6SW1hZ2VMZW5ndGg9IjUwIgogICB0aWZmOlJlc29sdXRpb25Vbml0PSIyIgogICB0aWZmOlhSZXNvbHV0aW9uPSI3Mi8xIgogICB0aWZmOllSZXNvbHV0aW9uPSI3Mi8xIj4KICAgPHhtcE1NOkhpc3Rvcnk+CiAgICA8cmRmOlNlcT4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0icHJvZHVjZWQiCiAgICAgIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFmZmluaXR5IERlc2lnbmVyIDIgMi4wLjQiCiAgICAgIHN0RXZ0OndoZW49IjIwMjMtMDItMTVUMjA6MDA6MTctMDg6MDAiLz4KICAgIDwvcmRmOlNlcT4KICAgPC94bXBNTTpIaXN0b3J5PgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KPD94cGFja2V0IGVuZD0iciI/PhEJS5AAAAGBaUNDUHNSR0IgSUVDNjE5NjYtMi4xAAAokXWR3yuDURjHP9uImKZILpSlUWp+TS1ulEmopTVThpvttR9qP97ed0vLrXK7osSNXxf8Bdwq10oRKbnlmrhBr+c1Ncme03nO53zP8zyd8xywhlJKWq/qh3QmpwUnfM658Lyz5hEL7bTQR3dE0dXRQMBPRXu7kWixqx6zVuW4f61+KaYrYKkVHlFULSc8Kexfyakmbwo3K8nIkvCxsFuTCwpfm3q0xE8mJ0r8YbIWCo6BtVHYmfjF0V+sJLW0sLwcVzqVV37uY77EHsvMzsjaIbMNnSAT+HAyxThjeBlgWLyXHjz0yo4K+f3f+dNkJVcRr1JAY5kESXK4Rc1L9ZiscdFjMlIUzP7/7aseH/SUqtt9UP1gGC+dULMBn0XDeN83jM8DsN3DWaacn92DoVfRi2XNtQuONTg5L2vRLThdh9Y7NaJFviWbTGs8Ds9H0BCGpkuoWyj17Oecw1sIrcpXXcD2DnRJvGPxC7KHaAiUK+Q5AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAY0lEQVRoge3aQQ2AQBAEwQVD618dmCChculSMP2fa3efOcEJIbv73H+P+EohmkI0hWgK0RSiKURTiKYQTSGaQjSFaArRFKIpRFOIphBNIZpCNIVoCtEUoilEU4jmOuGvNTPzAkM0BpErr7acAAAAAElFTkSuQmCC";
-
-const IMAGE_CHECK = img$3;
-const IMAGE_CLOSE = img$2;
-const IMAGE_EMPTY = img$1;
-const IMAGE_NODE_GRID = img;
+const IMAGE_CHECK = img$2;
+const IMAGE_CLOSE = img$1;
+const IMAGE_EMPTY = img;
 const GRID_SIZE = 25;
 const TOOLTIP_Y_OFFSET = '0.3em';
 const BACKGROUNDS = {
@@ -1260,6 +1257,7 @@ class Draggable {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            eventElement.setPointerCapture(event.pointerId);
             downX = event.pageX;
             downY = event.pageY;
             computed = getComputedStyle(dragElement);
@@ -1276,6 +1274,7 @@ class Draggable {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            eventElement.releasePointerCapture(event.pointerId);
             eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
             eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
             eventElement.style.cursor = 'inherit';
@@ -2845,10 +2844,17 @@ class Break extends Element {
 }
 
 class Canvas extends Element {
-    constructor() {
-        super(document.createElement('canvas'));
+    constructor(width = 300, height = 150) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        super(canvas);
         this.ctx = this.dom.getContext('2d');
     }
+    get width() { return this.dom.width; }
+    set width(x) { this.dom.width = x; }
+    get height() { return this.dom.height; }
+    set height(x) { this.dom.height = x; }
 }
 
 class TreeList extends Div {
@@ -3695,14 +3701,155 @@ class ToolbarSpacer extends Element {
     }
 }
 
+class Graph extends Panel {
+    #scale = 1;
+    #snapToGrid = true;
+    #offsetX = 0;
+    #offsetY = 0;
+    constructor() {
+        super();
+        const self = this;
+        this.input = new Div().setClass('GraphInput');
+        this.grid = new Div().setClass('GraphGrid');
+		this.nodes = new Div().setClass('GraphNodes');
+        this.lines = new Canvas().setClass('GraphLines');
+        this.minimap = new Canvas().setClass('MiniMap');
+        this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
+        const SIZE = GRID_SIZE * 4;
+        const HALF = SIZE / 2;
+        const BORDER = 2;
+        const B2 = BORDER * 2;
+        const squares = new Canvas(SIZE, SIZE);
+        const iris = new Iris();
+        squares.ctx.clearRect(0, 0, squares.width, squares.height);
+        squares.ctx.globalAlpha = 0.4;
+        squares.ctx.fillStyle = iris.setHex(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+        squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.globalAlpha = 0.5;
+        squares.ctx.fillStyle = iris.setHex(ColorScheme.color(TRAIT.BUTTON_DARK)).cssString();
+        squares.ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+        this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
+        this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        this.nodes.getScale = function() { return self.#scale; };
+        function onMouseZoom(event) {
+            if (event) {
+                event.preventDefault();
+                const delta = (event.deltaY * 0.002);
+                self.zoomTo(self.#scale - delta, event.clientX, event.clientY, delta);
+            }
+            self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale * 2)}px`);
+            self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
+		};
+        this.onWheel(onMouseZoom);
+        let grabbing = false;
+        let spaceKey = false;
+        function onKeyDown(event) {
+            if (event.code === 'Space') {
+                spaceKey = true;
+                self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
+                self.input.setStyle('z-index', '100');
+            }
+        }
+        function onKeyUp(event) {
+            if (event.code === 'Space') {
+                spaceKey = false;
+                self.dom.style.cursor = 'auto';
+                self.input.setStyle('z-index', '-1');
+            }
+        }
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+        let downX, downY;
+        let offx, offy;
+        function onPointerDown(event) {
+            const panels = document.querySelectorAll(`.NodeSelected`);
+            panels.forEach(el => el.classList.remove('NodeSelected'));
+            if (event.button === 0 && ! spaceKey) return;
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.setPointerCapture(event.pointerId);
+            grabbing = true;
+            downX = event.pageX;
+            downY = event.pageY;
+            offx = self.#offsetX;
+            offy = self.#offsetY;
+            self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+            self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+            self.dom.style.cursor = 'grabbing';
+        }
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.releasePointerCapture(event.pointerId);
+            grabbing = false;
+            self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+            self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            self.dom.style.cursor = (spaceKey) ? 'grab' : 'auto';
+        }
+        function onPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            const diffX = (event.pageX - downX) * (1 / self.#scale);
+            const diffY = (event.pageY - downY) * (1 / self.#scale);
+            self.#offsetX = (offx + diffX);
+            self.#offsetY = (offy + diffY);
+            self.zoomTo();
+        }
+        this.input.onPointerDown(onPointerDown);
+    }
+    getScale() {
+        return this.#scale;
+    }
+    snap(enabled = true) {
+        this.#snapToGrid = enabled;
+        this.traverseNodes((node) => node.snap(enabled));
+    }
+    snapToGrid() {
+        return this.#snapToGrid;
+    }
+    traverseNodes(callback) {
+        if (typeof callback !== 'function') return;
+        for (let i = 0; i < this.nodes.children.length; i++) {
+            const node = this.nodes.children[i];
+            if (! node || ! node.isNode) continue;
+            callback(node);
+        }
+    }
+    zoomTo(zoom, clientX, clientY, delta = 0) {
+        if (zoom === undefined) zoom = this.#scale;
+        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+        const rect = this.dom.getBoundingClientRect();
+        clientX = (clientX == undefined) ? rect.right - (rect.width / 2) : clientX;
+        clientY = (clientY == undefined) ? rect.bottom - (rect.height / 2) : clientY;
+        const nodeRect = this.nodes.dom.getBoundingClientRect();
+        clientX -= nodeRect.left;
+        clientY -= nodeRect.top;
+        const diffW = (nodeRect.width - ((nodeRect.width / this.#scale) * zoom)) / 2;
+        const diffH = (nodeRect.height - ((nodeRect.height / this.#scale) * zoom)) / 2;
+        const percentX = ((nodeRect.width / 2) - clientX) / (nodeRect.width / 2);
+        const percentY = ((nodeRect.height / 2) - clientY) / (nodeRect.height / 2);
+        this.#offsetX -= (diffW * percentX);
+        this.#offsetY -= (diffH * percentY);
+        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
+        const diffX = (rect.width - (rect.width * zoom)) / 2;
+        const diffY = (rect.height - (rect.height * zoom)) / 2;
+        const ox = this.#offsetX * zoom;
+        const oy = this.#offsetY * zoom;
+        this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
+        this.#scale = zoom;
+    }
+}
+
 const MIN_W = 100;
 const MIN_H = 100;
 class Node extends Div {
     #resizers = {};
     #snapToGrid = true;
     constructor({
-        width = 300,
-        height = 200,
+        width = 200,
+        height = 150,
         x = 0,
         y = 0,
         resizers = [
@@ -3714,10 +3861,13 @@ class Node extends Div {
         const self = this;
         this.setClass('Panel');
         this.addClass('Node');
-        this.contents = function() { return this; };
         this.isNode = true;
+        const background = new Div().addClass('NodeBackground');
+        const panel = new Div().addClass('NodePanel');
+        const border = new Div().addClass('NodeBorder');
         const sizers = new Div().addClass('NodeResizers');
-        this.add(sizers);
+        this.addToSelf(background, panel, border, sizers);
+        this.contents = function() { return panel; };
         this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
         this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
         this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
@@ -3812,132 +3962,14 @@ class Node extends Div {
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
     }
-}
-
-class Graph extends Panel {
-    #scale = 1;
-    #snapToGrid = true;
-    #offsetX = 0;
-    #offsetY = 0;
-    constructor() {
-        super();
-        const self = this;
-        this.input = new Div().setClass('GraphInput');
-        this.bg = new Div().setClass('GraphBackground');
-        this.grid = new Div().setClass('GraphGrid');
-		this.nodes = new Div().setClass('GraphNodes');
-        this.lines = new Canvas().setClass('GraphLines');
-        this.minimap = new Canvas().setClass('MiniMap');
-        this.add(this.input, this.bg, this.grid, this.nodes, this.lines, this.minimap);
-        onMouseZoom();
-        this.nodes.getScale = function() { return self.#scale; };
-        function onMouseZoom(event) {
-            if (event) {
-                event.preventDefault();
-                const delta = (event.deltaY * 0.002);
-                self.zoomTo(self.#scale - delta, event.clientX, event.clientY, delta);
-            }
-            self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
-            self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
-            self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
-		};
-        this.onWheel(onMouseZoom);
-        let grabbing = false;
-        let spaceKey = false;
-        function onKeyDown(event) {
-            if (event.code === 'Space') {
-                spaceKey = true;
-                self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
-                self.input.setStyle('z-index', '100');
-            }
-        }
-        function onKeyUp(event) {
-            if (event.code === 'Space') {
-                spaceKey = false;
-                self.dom.style.cursor = 'auto';
-                self.input.setStyle('z-index', '0');
-            }
-        }
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('keyup', onKeyUp);
-        let downX, downY;
-        let offx, offy;
-        function onPointerDown(event) {
-            const panels = document.querySelectorAll(`.NodeSelected`);
-            panels.forEach(el => el.classList.remove('NodeSelected'));
-            if (event.button === 0 && ! spaceKey) return;
-            event.stopPropagation();
-            event.preventDefault();
-            self.dom.setPointerCapture(event.pointerId);
-            grabbing = true;
-            downX = event.pageX;
-            downY = event.pageY;
-            offx = self.#offsetX;
-            offy = self.#offsetY;
-            self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-            self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-            self.dom.style.cursor = 'grabbing';
-        }
-        function onPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            self.dom.releasePointerCapture(event.pointerId);
-            grabbing = false;
-            self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-            self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            self.dom.style.cursor = (spaceKey) ? 'grab' : 'auto';
-        }
-        function onPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            const diffX = (event.pageX - downX) * (1 / self.#scale);
-            const diffY = (event.pageY - downY) * (1 / self.#scale);
-            self.#offsetX = (offx + diffX);
-            self.#offsetY = (offy + diffY);
-            self.zoomTo();
-        }
-        this.input.onPointerDown(onPointerDown);
-    }
-    getScale() {
-        return this.#scale;
-    }
-    snap(enabled = true) {
-        this.#snapToGrid = enabled;
-        this.traverseNodes((node) => node.snap(enabled));
-    }
-    snapToGrid() {
-        return this.#snapToGrid;
-    }
-    traverseNodes(callback) {
-        if (typeof callback !== 'function') return;
-        for (let i = 0; i < this.nodes.children.length; i++) {
-            const node = this.nodes.children[i];
-            if (! node || ! node.isNode) continue;
-            callback(node);
-        }
-    }
-    zoomTo(zoom, clientX, clientY, delta = 0) {
-        if (zoom === undefined) zoom = this.#scale;
-        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
-        const rect = this.dom.getBoundingClientRect();
-        clientX = (clientX == undefined) ? rect.right - (rect.width / 2) : clientX;
-        clientY = (clientY == undefined) ? rect.bottom - (rect.height / 2) : clientY;
-        const nodeRect = this.nodes.dom.getBoundingClientRect();
-        clientX -= nodeRect.left;
-        clientY -= nodeRect.top;
-        const diffW = (nodeRect.width - ((nodeRect.width / this.#scale) * zoom)) / 2;
-        const diffH = (nodeRect.height - ((nodeRect.height / this.#scale) * zoom)) / 2;
-        const percentX = ((nodeRect.width / 2) - clientX) / (nodeRect.width / 2);
-        const percentY = ((nodeRect.height / 2) - clientY) / (nodeRect.height / 2);
-        this.#offsetX -= (diffW * percentX);
-        this.#offsetY -= (diffH * percentY);
-        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
-        const diffX = (rect.width - (rect.width * zoom)) / 2;
-        const diffY = (rect.height - (rect.height * zoom)) / 2;
-        const ox = this.#offsetX * zoom;
-        const oy = this.#offsetY * zoom;
-        this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
-        this.#scale = zoom;
+    createHeader(text = '', iconUrl, addToContents = true) {
+        const header = new Div().setClass('NodeHeaderTitle');
+        const icon = new VectorBox(iconUrl);
+        header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
+        header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
+        header.add(header.iconHolder, header.textHolder);
+        if (addToContents) this.add(header);
+        return header;
     }
 }
 
@@ -3996,8 +4028,8 @@ var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    
 var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--border-radius-inner);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: var(--pad-x-large);\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n    box-shadow: var(--pop-out-shadow);\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--border-radius-small);\n}\n.TreeList .Option.DragTop {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** GRAPH *****/\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n}\n\n.GraphBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 1);\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    display: flex;\n    position: absolute;\n    background-color: rgba(var(--background-light), 1);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    margin: 0;\n    padding: 0.15em;\n    cursor: inherit;\n}\n\n.Node.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    z-index: 100; /* NodeResizers */\n}\n";
-var stylesheet$2="/***** GRAPH *****/\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n}\n\n.GraphBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 1);\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    display: flex;\n    position: absolute;\n    background-color: rgba(var(--background-light), 1);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    margin: 0;\n    padding: 0.15em;\n    cursor: inherit;\n}\n\n.Node.NodeSelected {\n    border: var(--border-small) solid rgb(var(--complement));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    z-index: 100; /* NodeResizers */\n}\n";
+var css_248z$2 = "/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    border: var(--border-size) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(0, 0, 0, 0.35);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--icon-dark), 0.5);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-light), 1);\n    border-radius: var(--border-radius-inner);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--border-radius-inner);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-color: rgb(var(--icon-dark));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    border-top: var(--border-small) solid rgba(var(--white), 0.2);\n    border-bottom: var(--border-small) solid rgba(var(--black), 0.2);\n    width: 100%;\n    height: 2em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.25em;\n    width: 1.2em;\n    height: 1.2em;\n    opacity: 0.5;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
+var stylesheet$2="/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.8);\n    border: var(--border-size) solid rgb(var(--icon));\n    border-radius: var(--border-radius-inner);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(0, 0, 0, 0.35);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--icon-dark), 0.5);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-light), 1);\n    border-radius: var(--border-radius-inner);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--border-radius-inner);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-color: rgb(var(--icon-dark));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    border-top: var(--border-small) solid rgba(var(--white), 0.2);\n    border-bottom: var(--border-small) solid rgba(var(--black), 0.2);\n    width: 100%;\n    height: 2em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.25em;\n    width: 1.2em;\n    height: 1.2em;\n    opacity: 0.5;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = "/***** .PanelButton *****/\n\n.PanelButton {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.PanelButton:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.PanelButton:active {\n    box-shadow: var(--sunk-in-shadow);\n    filter: brightness(100%);\n}\n\n/***** .CloseButton *****/\n\n.CloseButton {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    opacity: 0;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.CloseButton.ItemShown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover {\n    background-color: #e24c4b;\n}\n\n.CloseButton.ItemHidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseImage {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover .CloseImage {\n    opacity: 1.0;\n}\n\n/***** .TitleBar *****/\n\n.TitleBar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/***** .Window *****/\n\n.Window {\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: 200; /* Window */\n}\n\n.Window.BringToTop {\n    z-index: 201; /* Window */\n}\n\n.Window.BringToTop .TitleBar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";
@@ -4008,4 +4040,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-image:\n        linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--box-radius);\n    */\n\n    border-radius: var(--box-radius);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.Tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_NODE_GRID, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };

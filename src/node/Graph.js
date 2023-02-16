@@ -1,9 +1,9 @@
 import { Canvas } from '../core/Canvas.js';
+import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
-import { Node } from './Node.js';
+import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRID_SIZE } from '../constants.js';
-import { IMAGE_NODE_GRID } from '../constants.js';
+import { GRID_SIZE, TRAIT } from '../constants.js';
 
 class Graph extends Panel {
 
@@ -18,15 +18,30 @@ class Graph extends Panel {
 
         // Elements
         this.input = new Div().setClass('GraphInput');
-        this.bg = new Div().setClass('GraphBackground');
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
         this.minimap = new Canvas().setClass('MiniMap');
-        this.add(this.input, this.bg, this.grid, this.nodes, this.lines, this.minimap);
+        this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
 
-        // Init Style
-        onMouseZoom();
+        // Grid
+        const SIZE = GRID_SIZE * 4;
+        const HALF = SIZE / 2;
+        const BORDER = 2;
+        const B2 = BORDER * 2;
+        const squares = new Canvas(SIZE, SIZE);
+        const iris = new Iris();
+        squares.ctx.clearRect(0, 0, squares.width, squares.height);
+        squares.ctx.globalAlpha = 0.4;
+        squares.ctx.fillStyle = iris.setHex(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+        squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.globalAlpha = 0.5;
+        squares.ctx.fillStyle = iris.setHex(ColorScheme.color(TRAIT.BUTTON_DARK)).cssString();
+        squares.ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+        this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
+        this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
 
         // Scale Getter
         this.nodes.getScale = function() { return self.#scale; };
@@ -38,8 +53,7 @@ class Graph extends Panel {
                 const delta = (event.deltaY * 0.002);
                 self.zoomTo(self.#scale - delta, event.clientX, event.clientY, delta);
             }
-            self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
-            self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
+            self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale * 2)}px`);
             self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
 		};
         this.onWheel(onMouseZoom);
@@ -58,7 +72,7 @@ class Graph extends Panel {
             if (event.code === 'Space') {
                 spaceKey = false;
                 self.dom.style.cursor = 'auto';
-                self.input.setStyle('z-index', '0');
+                self.input.setStyle('z-index', '-1');
             }
         }
         document.addEventListener('keydown', onKeyDown);

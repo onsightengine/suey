@@ -1,11 +1,9 @@
 import imageCheck from '../files/images/check.svg';
 import imageClose from '../files/images/close.svg';
 import imageEmpty from '../files/images/empty.svg';
-import imageNodeGrid from '../files/images/node-grid.png';
 export const IMAGE_CHECK = imageCheck;
 export const IMAGE_CLOSE = imageClose;
 export const IMAGE_EMPTY = imageEmpty;
-export const IMAGE_NODE_GRID = imageNodeGrid;
 
 export const GRID_SIZE = 25;
 
