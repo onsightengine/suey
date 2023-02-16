@@ -1,3 +1,4 @@
+import { GRID_SIZE } from '../constants.js';
 
 class Draggable {
 
@@ -9,23 +10,33 @@ class Draggable {
         topElement.classList.add("BringToTop");
     }
 
-    static enable(element, parent = element, limitToWindow = false) {
+    static enable(element, parent = element, { limitToWindow = false, snapToGrid = false }) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
 
-        let downX, downY, rect;
-        let startX, startY;
+        let downX, downY, rect = {};
+        let scaleX, scaleY;
         let computed = getComputedStyle(dragElement);
+
+        function roundNearest(x, increment = GRID_SIZE){
+            if (! snapToGrid) return x;
+            return Math.ceil(x / increment) * increment;
+        }
+
         function onPointerDown(event) {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
             downX = event.pageX;
             downY = event.pageY;
-            rect = dragElement.getBoundingClientRect();
             computed = getComputedStyle(dragElement);
-            startX = parseFloat(computed.left);
-            startY = parseFloat(computed.top);
+            rect.left = parseFloat(computed.left);
+            rect.top = parseFloat(computed.top);
+            rect.width = parseFloat(computed.width);
+            rect.height = parseFloat(computed.height);
+            const matrix = new DOMMatrix(computed.transform);
+            scaleX = matrix.a;
+            scaleY = matrix.d;
             eventElement.ownerDocument.addEventListener('pointermove', onPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
             eventElement.style.cursor = 'move';
@@ -45,10 +56,12 @@ class Draggable {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
-            const diffX = (event.pageX - downX);
-            const diffY = (event.pageY - downY);
-            let newLeft = startX + diffX;
-            let newTop = startY + diffY;
+            const diffX = event.pageX - downX;
+            const diffY = event.pageY - downY;
+            const widthDiff = ((rect.width - (rect.width * scaleX)) / 2) % (GRID_SIZE * scaleX);
+            const heightDiff = ((rect.height - (rect.height * scaleY)) / 2) % (GRID_SIZE * scaleY);
+            let newLeft = roundNearest(rect.left + diffX, GRID_SIZE * scaleX) - widthDiff;
+            let newTop = roundNearest(rect.top + diffY, GRID_SIZE * scaleY) - heightDiff;
             if (limitToWindow) {
                 newLeft = Math.min(window.innerWidth - rect.width, newLeft);
                 newTop = Math.min(window.innerHeight - rect.height, newTop);

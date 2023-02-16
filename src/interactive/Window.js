@@ -47,6 +47,7 @@ class Window extends Panel {
             let downX, downY, rect;
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                resizer.dom.setPointerCapture(event.pointerId);
                 Draggable.bringToTop(self.dom);
                 downX = event.pageX;
                 downY = event.pageY;
@@ -56,6 +57,7 @@ class Window extends Panel {
             }
             function onPointerUp(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
                 self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
             }

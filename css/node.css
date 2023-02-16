@@ -1,3 +1,4 @@
+/***** GRAPH *****/
 .MiniMap {
     position: absolute;
     background-color: rgba(var(--background-dark), 0.8);
@@ -8,7 +9,7 @@
     z-index: 101; /* GraphMap */
 }
 
-.GraphNodes, .GraphLines {
+.GraphBackground, .GraphNodes, .GraphGrid, .GraphLines {
     position: absolute;
     top: 0;
 	left: 0;
@@ -18,32 +19,48 @@
 	padding: 0;
 }
 
+.GraphBackground {
+    pointer-events: none;
+    background-color: rgba(var(--background-dark), 1);
+}
+
+.GraphGrid {
+    pointer-events: none;
+}
+
 .GraphNodes {
     background-color: transparent;
 }
 
 .GraphLines {
     pointer-events: none;
-    background-color: rgba(0, 0, 255, 0.05);
     z-index: 100; /* GraphLines */
 }
 
+
+/***** NODE *****/
+
 .Node {
+    display: flex;
     position: absolute;
+    background-color: rgba(var(--background-light), 1);
+    border: var(--border-small) solid rgb(var(--icon));
+    border-radius: var(--border-radius-inner);
+    margin: 0;
+    padding: 0.15em;
 }
 
-/* Simple */
-.Node.SimplePanel {
-    background-color: rgba(var(--background-light), 1);
-}
-.Node.SimplePanel.NodeSelected {
+.Node.NodeSelected {
     border: var(--border-small) solid rgb(var(--complement));
 }
 
-/* Fancy */
-.Node .FancyPanelBorder {
-    background-color: rgba(var(--background-light), 1);
-}
-.Node.BringToTop .FancyPanelOuter {
-    filter: drop-shadow(0 0 0.25em rgba(var(--complement), 1.0));
+.NodeResizers {
+    position: absolute;
+    opacity: 0;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: calc(var(--resize-size) / -2);
+    z-index: 100; /* NodeResizers */
 }

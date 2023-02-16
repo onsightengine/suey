@@ -1,19 +1,18 @@
-import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Draggable } from '../interactive/Draggable.js';
-import { Panel, PANEL_STYLES } from '../panels/Panel.js';
+import { GRID_SIZE } from '../constants.js';
 import { RESIZERS } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;
 
-class Node extends Panel {
+class Node extends Div {
 
     #resizers = {};
     #scale = 1;
+    #round = true;
 
     constructor({
-        style = PANEL_STYLES.SIMPLE,
         width = 300,
         height = 200,
         x = 0,
@@ -23,11 +22,28 @@ class Node extends Panel {
             RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
         ],
     } = {}) {
-        super({ style, bringToTop: true });
-        this.addClass('Node');
+        super();
         const self = this;
 
+        this.setClass('Panel');
+        this.addClass('Node');
+        this.contents = function() { return this; }
+
         this.isNode = true;
+
+        // Border
+        const sizers = new Div().addClass('NodeResizers');
+        this.add(sizers);
+
+        // Stacking
+        this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
+        this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
+        this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
+        this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
+
+        // Disable context menu
+        function onContextMenu(event) { event.preventDefault(); }
+        this.onContextMenu(onContextMenu);
 
         // Resizers
         for (let key in RESIZERS) {
@@ -35,13 +51,19 @@ class Node extends Panel {
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
             resizer.setPointerEvents('none');
-            this.addToSelf(resizer);
+            sizers.add(resizer);
             this.#resizers[resizerName] = resizer;
             let downX, downY;
             let computed = getComputedStyle(this.dom);
             let rect = {};
+            function roundNearest(x, increment = GRID_SIZE){
+                if (! self.#round) return x;
+                return Math.ceil(x / increment) * increment;
+            }
             function onPointerDown(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                resizer.dom.setPointerCapture(event.pointerId);
+                selectNode();
                 Draggable.bringToTop(self.dom);
                 downX = event.pageX;
                 downY = event.pageY;
@@ -55,6 +77,7 @@ class Node extends Panel {
             }
             function onPointerUp(event) {
                 if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
                 self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
             }
@@ -63,7 +86,7 @@ class Node extends Panel {
                 const diffX = (event.pageX - downX) * (1 / self.#scale);
                 const diffY = (event.pageY - downY) * (1 / self.#scale);
                 if (resizer.hasClassWithString('Left')) {
-                    const newWidth = Math.max(rect.width - diffX, MIN_W);
+                    const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
                     const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
                     const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
                     const newLeft = (rect.left + (rect.width - newWidth)) + (diffAfter - diffBefore);
@@ -71,7 +94,7 @@ class Node extends Panel {
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
-                    const newHeight = Math.max(rect.height - diffY, MIN_H);
+                    const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
                     const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
                     const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
                     const newTop = (rect.top + (rect.height - newHeight)) + (diffAfter - diffBefore);
@@ -79,7 +102,7 @@ class Node extends Panel {
                     self.setStyle('height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(MIN_W, rect.width + diffX);
+                    const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
                     const diffBefore = (rect.width - (rect.width * self.#scale)) / 2;
                     const diffAfter = (newWidth - (newWidth * self.#scale)) / 2;
                     const newLeft = rect.left - (diffAfter - diffBefore);
@@ -87,7 +110,7 @@ class Node extends Panel {
                     self.setStyle('width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(MIN_H, rect.height + diffY);
+                    const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H);
                     const diffBefore = (rect.height - (rect.height * self.#scale)) / 2;
                     const diffAfter = (newHeight - (newHeight * self.#scale)) / 2;
                     const newTop = rect.top - (diffAfter - diffBefore);
@@ -104,14 +127,15 @@ class Node extends Panel {
         this.setStyle('width', `${parseFloat(width)}px`, 'height', `${parseFloat(height)}px`);
 
         // Draggable
-        Draggable.enable(self.dom, self.dom);
+        Draggable.enable(self.dom, self.dom, { snapToGrid: true });
 
         // Selectable
-        this.dom.addEventListener('pointerdown', (event) => {
+        function selectNode() {
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
             self.addClass('NodeSelected');
-        });
+        }
+        this.onPointerDown(selectNode);
     }
 
     /** Applies a zoom scale */

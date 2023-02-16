@@ -2,6 +2,7 @@ import { Canvas } from '../core/Canvas.js';
 import { Div } from '../core/Div.js';
 import { Node } from './Node.js';
 import { Panel } from '../panels/Panel.js';
+import { GRID_SIZE } from '../constants.js';
 import { IMAGE_NODE_GRID } from '../constants.js';
 
 class Graph extends Panel {
@@ -13,27 +14,27 @@ class Graph extends Panel {
         const self = this;
 
         // Elements
-		this.minimap = new Canvas().setClass('MiniMap');
-        this.nodes = new Div().setClass('GraphNodes')
+        this.bg = new Div().setClass('GraphBackground');
+        this.grid = new Div().setClass('GraphGrid');
+		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
-        this.add(this.minimap, this.nodes, this.lines);
+        this.minimap = new Canvas().setClass('MiniMap');
+        this.add(this.bg, this.grid, this.nodes, this.lines, this.minimap);
 
         // Style
-        this.nodes.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
-        this.nodes.setStyle('background-size', `20px`);
+        onMouseZoom();
 
         // Zoom
         function onMouseZoom(event) {
-			event.preventDefault();
-			event.stopImmediatePropagation();
-			const delta = event.deltaY * .003;
-			self.zoomTo(self.#scale - delta);
-            if (self.#scale > 0.5) {
-                this.nodes.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
-                self.nodes.setStyle('background-size', `${(20 * self.#scale)}px`);
-            } else {
-                this.nodes.setStyle('background-image', `none`);
+			let delta = 0;
+            if (event) {
+                event.preventDefault();
+			    delta = event.deltaY * 0.002;
             }
+			self.zoomTo(self.#scale - delta);
+            self.grid.setStyle('background-image', `url('${IMAGE_NODE_GRID}')`);
+            self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale)}px`);
+            self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
 		};
         this.onWheel(onMouseZoom);
 
@@ -63,12 +64,7 @@ class Graph extends Panel {
     }
 
     zoomTo(zoom, clientX = this.dom.clientX, clientY = this.dom.clientY) {
-        zoom = Math.min(Math.max(zoom, 0.1), 2);
-
-        // this.nodes.dom.scrollLeft -= (clientX / this.#scale) - (clientX / zoom);
-        // this.nodes.dom.scrollTop -= (clientY / this.#scale) - (clientY / zoom);
-        // this.nodes.setStyle('transform', `scale(${zoom})`);
-
+        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
         for (let i = 0; i < this.nodes.children.length; i++) {
             const node = this.nodes.children[i];
             if (node && node.isNode) node.setScale(zoom);

@@ -7,6 +7,8 @@ export const IMAGE_CLOSE = imageClose;
 export const IMAGE_EMPTY = imageEmpty;
 export const IMAGE_NODE_GRID = imageNodeGrid;
 
+export const GRID_SIZE = 25;
+
 export const TOOLTIP_Y_OFFSET = '0.3em';
 
 export const BACKGROUNDS = {

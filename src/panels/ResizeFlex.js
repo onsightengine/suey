@@ -60,6 +60,7 @@ class ResizeFlex extends Panel {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            resizer.dom.setPointerCapture(event.pointerId);
             downX = event.clientX;
             downY = event.clientY;
             downW = this.parent.getWidth();
@@ -72,6 +73,7 @@ class ResizeFlex extends Panel {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            resizer.dom.releasePointerCapture(event.pointerId);
             this.dom.ownerDocument.removeEventListener('pointermove', this._onPointerMove);
             this.dom.ownerDocument.removeEventListener('pointerup', this._onPointerUp);
         }
