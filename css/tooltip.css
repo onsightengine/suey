@@ -3,12 +3,12 @@
     color: rgba(var(--highlight), 1);
 
     /* NEW: Dark, Flat Box */
-    background: rgba(var(--background-dark), 1.0);
+    background-color: rgba(var(--background-dark), 1.0);
     border: solid var(--border-small) rgba(var(--icon), 1);
 
     /* OLD: Raised Icon Color Button
-    background-image:
-        linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));
+    background-color: transparent;
+    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));
     border-radius: var(--box-radius);
     */
 
