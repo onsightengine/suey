@@ -90,7 +90,7 @@
     height: var(--menu-icon-size);
     width: var(--menu-icon-size);
     flex: 0 0 auto;
-    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));
+    filter: var(--drop-shadow);
 }
 
 /* Text */

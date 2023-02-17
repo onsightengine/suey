@@ -47,12 +47,10 @@
 
 .MiniAssetBox:focus > *, .MiniAssetBox:active > * {
     filter: brightness(100%);
-    /* filter: brightness(125%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 150deg)); */
 }
 
 .MiniAssetBox:hover > * {
     filter: brightness(150%);
-    /* filter: brightness(125%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 150deg)); */
 }
 
 /********** .DockerLeft / .DockerRight **********/
@@ -138,6 +136,10 @@
 
 .ShadowBox:not(.NoShadow) > * {
     filter: var(--drop-shadow);
+}
+
+.Button:hover .ShadowBox:not(.NoShadow) > * {
+    filter: drop-shadow(0 0 var(--pad-x-small) black);
 }
 
 /********** .VectorBox **********/

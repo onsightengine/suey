@@ -96,10 +96,9 @@
     --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */
 
     /* Box Shadows */
-    --pop-out-shadow:       inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.75);
-    --sunk-in-shadow:       inset 0 0.07143em 0.14286em 0 rgba(var(--shadow), 0.75);
+    --pop-out-shadow:       inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--midlight), 0.75);
+    --sunk-in-shadow:       inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75);
 
     /* Filters */
-    --drop-shadow:          drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20, 20, 20, 1.0));
-
+    --drop-shadow:          drop-shadow(var(--negative) var(--pixel) var(--pad-micro) rgba(0, 0, 0, 0.75));
 }

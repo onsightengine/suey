@@ -24,7 +24,7 @@
 }
 
 .PropertyHeaderIcon > * {
-    filter: drop-shadow(var(--negative) var(--pixel) 0.075em rgba(20,20,20,0.5));
+    filter: var(--drop-shadow);
 }
 
 .PropertyHeaderIcon {
