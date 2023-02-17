@@ -52,6 +52,7 @@
     margin: 0;
     cursor: inherit;
     overflow: visible;
+    outline: none; /* macOS */
 }
 
 .Node:hover, .Node.NodeSelected {
@@ -69,7 +70,7 @@
 }
 
 .Node.NodeSelected .NodeBackground {
-    background-color: rgba(var(--icon-dark), 0.35);
+    background-color: rgba(var(--shadow), 0.75);
 }
 
 .NodePanel {

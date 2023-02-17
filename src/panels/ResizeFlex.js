@@ -70,7 +70,6 @@ class ResizeFlex extends Panel {
         }
 
         function onPointerUp(event) {
-            if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
             resizer.dom.releasePointerCapture(event.pointerId);
@@ -79,7 +78,6 @@ class ResizeFlex extends Panel {
         }
 
         function onPointerMove(event) {
-            if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
 

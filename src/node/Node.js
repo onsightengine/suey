@@ -27,15 +27,18 @@ class Node extends Div {
             RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
             RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
         ],
+        snapToGrid = true,
     } = {}) {
         super();
         const self = this;
         this.setClass('Panel');
         this.addClass('Node');
+        this.dom.setAttribute('tabindex', '-1'); /* enable mouse focus, needs >= 0 for keyboard focus */
 
         this.isNode = true;
 
         this.#color.set(color);
+        this.#snapToGrid = snapToGrid;
 
         // Children
         const background = new Div().addClass('NodeBackground');
@@ -55,6 +58,12 @@ class Node extends Div {
         function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
 
+        // Snapping
+        function roundNearest(decimal, increment = GRID_SIZE) {
+            if (! self.#snapToGrid) return decimal;
+            return Math.ceil(decimal / increment) * increment;
+        }
+
         // Resizers
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
@@ -66,12 +75,10 @@ class Node extends Div {
             let downX, downY;
             let computed = getComputedStyle(this.dom);
             let rect = {};
-            function roundNearest(x, increment = GRID_SIZE) {
-                if (! self.#snapToGrid) return x;
-                return Math.ceil(x / increment) * increment;
-            }
             function onPointerDown(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                if (! event.isPrimary) return;
+                event.stopPropagation();
+                event.preventDefault();
                 resizer.dom.setPointerCapture(event.pointerId);
                 selectNode();
                 Draggable.bringToTop(self.dom);
@@ -86,13 +93,15 @@ class Node extends Div {
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
             }
             function onPointerUp(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                event.stopPropagation();
+                event.preventDefault();
                 resizer.dom.releasePointerCapture(event.pointerId);
                 self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
             }
             function onPointerMove(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                event.stopPropagation();
+                event.preventDefault();
                 const scale = self.getScale();
                 const diffX = (event.pageX - downX) * (1 / scale);
                 const diffY = (event.pageY - downY) * (1 / scale);
@@ -122,8 +131,12 @@ class Node extends Div {
         }
 
         // Initial Size
-        this.setStyle('left', `${parseFloat(x)}px`, 'top', `${parseFloat(y)}px`);
-        this.setStyle('width', `${parseFloat(width)}px`, 'height', `${parseFloat(height)}px`);
+        this.setStyle(
+            'left', `${roundNearest(parseFloat(x))}px`,
+            'top', `${roundNearest(parseFloat(y))}px`,
+            'width', `${parseFloat(width)}px`,
+            'height', `${parseFloat(height)}px`,
+        );
 
         // Draggable
         Draggable.enable(self);

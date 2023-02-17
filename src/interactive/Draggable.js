@@ -15,20 +15,24 @@ class Draggable {
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
 
         let downX, downY, rect = {};
+        let lastX, lastY;
         let computed = getComputedStyle(dragElement);
 
-        function roundNearest(x, increment = GRID_SIZE) {
-            if (! element.snapToGrid || ! element.snapToGrid()) return x;
-            return Math.ceil(x / increment) * increment;
+        function roundNearest(decimal, increment = GRID_SIZE) {
+            if (! element.snapToGrid || ! element.snapToGrid()) return decimal;
+            return Math.ceil(decimal / increment) * increment;
         }
 
         function onPointerDown(event) {
             if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            eventElement.focus();
             eventElement.setPointerCapture(event.pointerId);
             downX = event.pageX;
             downY = event.pageY;
+            lastX = event.pageX;
+            lastY = event.pageY;
             computed = getComputedStyle(dragElement);
             rect.left = parseFloat(computed.left);
             rect.top = parseFloat(computed.top);
@@ -41,7 +45,6 @@ class Draggable {
         }
 
         function onPointerUp(event) {
-            if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
             eventElement.releasePointerCapture(event.pointerId);
@@ -51,12 +54,15 @@ class Draggable {
         }
 
         function onPointerMove(event) {
-            if (! event.isPrimary) return;
             event.stopPropagation();
             event.preventDefault();
+            if (event.isTrusted) { /* not generated programmatically */
+                lastX = event.pageX;
+                lastY = event.pageY;
+            }
             const scale = ((element && element.getScale) ? element.getScale() : 1);
-            const diffX = (event.pageX - downX) * (1 / scale);
-            const diffY = (event.pageY - downY) * (1 / scale);
+            const diffX = (lastX - downX) * (1 / scale);
+            const diffY = (lastY - downY) * (1 / scale);
             let newLeft = roundNearest(rect.left + diffX);
             let newTop = roundNearest(rect.top + diffY);
             if (limitToWindow) {

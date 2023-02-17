@@ -7,12 +7,13 @@ class Graph extends Panel {
 
     #scale = 1;
     #snapToGrid = true;
-    #offsetX = 0;
-    #offsetY = 0;
+    #offset = { x: 0, y: 0 };
 
-    constructor() {
+    constructor(snapToGrid = true) {
         super();
         const self = this;
+
+        this.#snapToGrid = snapToGrid;
 
         // Elements
         this.input = new Div().setClass('GraphInput');
@@ -79,8 +80,7 @@ class Graph extends Panel {
         document.addEventListener('keyup', onKeyUp);
 
         // Translate
-        let downX, downY;
-        let offx, offy;
+        let downX, downY, offset = { x: 0, y: 0 };
         function onPointerDown(event) {
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => el.classList.remove('NodeSelected'));
@@ -91,8 +91,8 @@ class Graph extends Panel {
             grabbing = true;
             downX = event.pageX;
             downY = event.pageY;
-            offx = self.#offsetX;
-            offy = self.#offsetY;
+            offset.x = self.#offset.x;
+            offset.y = self.#offset.y;
             self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
             self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
             self.dom.style.cursor = 'grabbing';
@@ -111,8 +111,8 @@ class Graph extends Panel {
             event.preventDefault();
             const diffX = (event.pageX - downX) * (1 / self.#scale);
             const diffY = (event.pageY - downY) * (1 / self.#scale);
-            self.#offsetX = (offx + diffX);
-            self.#offsetY = (offy + diffY);
+            self.#offset.x = (offset.x + diffX);
+            self.#offset.y = (offset.y + diffY);
             self.zoomTo();
         }
         this.input.onPointerDown(onPointerDown);
@@ -141,13 +141,14 @@ class Graph extends Panel {
         const rect = this.nodes.dom.getBoundingClientRect();
         const targetX = (xMax > xMin) ? xMin + ((xMax - xMin) / 2) : (rect.width / 2);
         const targetY = (yMax > yMin) ? yMin + ((yMax - yMin) / 2) : (rect.height / 2);
-        this.#offsetX = (rect.width / 2) - targetX;
-        this.#offsetY = (rect.height / 2) - targetY;
+        this.#offset.x = (rect.width / 2) - targetX;
+        this.#offset.y = (rect.height / 2) - targetY;
         this.zoomTo(1);
     }
 
     snap(enabled = true) {
         this.#snapToGrid = enabled;
+        // Apply to children nodes
         this.traverseNodes((node) => node.snap(enabled));
     }
 
@@ -157,6 +158,7 @@ class Graph extends Panel {
 
     traverseNodes(callback) {
         if (typeof callback !== 'function') return;
+        if (! this.nodes) return;
         for (let i = 0; i < this.nodes.children.length; i++) {
             const node = this.nodes.children[i];
             if (! node || ! node.isNode) continue;
@@ -171,7 +173,7 @@ class Graph extends Panel {
         // Scroll To
         if (clientX !== undefined && clientY !== undefined) {
             const before = this.nodes.dom.getBoundingClientRect();
-            this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
+            this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
             const after = this.nodes.dom.getBoundingClientRect();
             clientX -= before.left;
             clientY -= before.top;
@@ -179,20 +181,20 @@ class Graph extends Panel {
             const shiftH = after.top - before.top;
             const dw = clientX - ((clientX / this.#scale) * zoom);
             const dh = clientY - ((clientY / this.#scale) * zoom);
-            this.#offsetX -= ((shiftW - dw) / zoom);
-            this.#offsetY -= ((shiftH - dh) / zoom);
+            this.#offset.x -= ((shiftW - dw) / zoom);
+            this.#offset.y -= ((shiftH - dh) / zoom);
         }
 
         // Set Scale
-        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
+        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
         this.#scale = zoom;
 
         // Align Grid
         const rect = this.dom.getBoundingClientRect();
         const diffX = (rect.width - (rect.width * zoom)) / 2;
         const diffY = (rect.height - (rect.height * zoom)) / 2;
-        const ox = this.#offsetX * zoom;
-        const oy = this.#offsetY * zoom;
+        const ox = this.#offset.x * zoom;
+        const oy = this.#offset.y * zoom;
         this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
         this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');

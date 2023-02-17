@@ -143,6 +143,7 @@
 /* Right side of Property Box flex fill when using multiple controls */
 .PropertyTinyRow {
     --min-width: 2em;
+
     flex: 2 2 var(--min-width);
     min-height: 1.7em;
     min-width: var(--min-width);

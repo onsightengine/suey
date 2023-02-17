@@ -9,8 +9,9 @@ class TreeList extends Div {
         const self = this;
         this.setClass('TreeList');
 
-        // Settings
-        this.dom.tabIndex = 0; /* enable user focus (keyup event doesn't work without setting tabIndex) */
+        // Enable user focus (keyup event doesn't work without setting tabIndex)
+        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
+        this.dom.setAttribute('tabindex', '0');
 
         // Properties
         this.multiSelect = multiSelect;
