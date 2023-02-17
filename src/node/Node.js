@@ -5,7 +5,7 @@ import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
 import { GRID_SIZE, RESIZERS } from '../constants.js';
 
-const MIN_W = 100;
+const MIN_W = 200;
 const MIN_H = 100;
 
 const _color1 = new Iris();

@@ -3,7 +3,7 @@
 .MiniMap {
     position: absolute;
     background-color: rgba(var(--background-dark), 0.8);
-    border: var(--border-size) solid rgb(var(--icon));
+    border: var(--border-small) solid rgb(var(--icon));
     border-radius: var(--border-radius-inner);
     top: var(--pad-large);
     right: var(--pad-large);
@@ -60,7 +60,7 @@
 
 .NodeBackground {
     pointer-events: none;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(var(--background-dark), 0.75);
     border-radius: 0.5em;
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
@@ -129,6 +129,8 @@
     margin: auto;
     border-top: solid var(--border-small) rgba(var(--white), 0.1);
     border-bottom: solid var(--border-small) rgba(var(--black), 0.1);
+    border-left: solid var(--border-small) rgba(var(--black), 0.1);
+    border-right: solid var(--border-small) rgba(var(--black), 0.1);
 }
 
 .NodeHeaderIcon > * {

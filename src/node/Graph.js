@@ -44,13 +44,9 @@ class Graph extends Panel {
 
         // Zoom
         function onMouseZoom(event) {
-            if (event) {
-                event.preventDefault();
-                const delta = (event.deltaY * 0.002);
-                self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
-            }
-            self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale * 2)}px`);
-            self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
+            event.preventDefault();
+            const delta = (event.deltaY * 0.002);
+            self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
 		};
         this.onWheel(onMouseZoom);
 
@@ -64,6 +60,7 @@ class Graph extends Panel {
         let grabbing = false;
         let spaceKey = false;
         function onKeyDown(event) {
+            if (self.dom.style.display === 'none') return;
             if (event.code === 'Space') {
                 spaceKey = true;
                 self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
@@ -71,6 +68,7 @@ class Graph extends Panel {
             }
         }
         function onKeyUp(event) {
+            if (self.dom.style.display === 'none') return;
             if (event.code === 'Space') {
                 spaceKey = false;
                 self.dom.style.cursor = 'auto';
@@ -124,6 +122,30 @@ class Graph extends Panel {
         return this.#scale;
     }
 
+    resetView() {
+        let xMin = Infinity, xMax = -Infinity;
+        let yMin = Infinity, yMax = -Infinity;
+        function expandRect(node) {
+            const computed = getComputedStyle(node.dom);
+            const left = parseFloat(computed.left);
+            const top = parseFloat(computed.top);
+            const right = left + parseFloat(computed.width);
+            const bottom = top + parseFloat(computed.height);
+            xMin = Math.min(xMin, left);
+            yMin = Math.min(yMin, top);
+            xMax = Math.max(xMax, right);
+            yMax = Math.max(yMax, bottom);
+        }
+        this.traverseNodes(expandRect);
+        this.zoomTo(1);
+        const rect = this.nodes.dom.getBoundingClientRect();
+        const targetX = (xMax > xMin) ? xMin + ((xMax - xMin) / 2) : (rect.width / 2);
+        const targetY = (yMax > yMin) ? yMin + ((yMax - yMin) / 2) : (rect.height / 2);
+        this.#offsetX = (rect.width / 2) - targetX;
+        this.#offsetY = (rect.height / 2) - targetY;
+        this.zoomTo(1);
+    }
+
     snap(enabled = true) {
         this.#snapToGrid = enabled;
         this.traverseNodes((node) => node.snap(enabled));
@@ -146,13 +168,11 @@ class Graph extends Panel {
         if (zoom === undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
 
-        // Before rect & after new zoom rect
-        const before = this.nodes.dom.getBoundingClientRect();
-        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
-        const after = this.nodes.dom.getBoundingClientRect();
-
         // Scroll To
         if (clientX !== undefined && clientY !== undefined) {
+            const before = this.nodes.dom.getBoundingClientRect();
+            this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
+            const after = this.nodes.dom.getBoundingClientRect();
             clientX -= before.left;
             clientY -= before.top;
             const shiftW = after.left - before.left;
@@ -165,6 +185,7 @@ class Graph extends Panel {
 
         // Set Scale
         this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
+        this.#scale = zoom;
 
         // Align Grid
         const rect = this.dom.getBoundingClientRect();
@@ -173,9 +194,8 @@ class Graph extends Panel {
         const ox = this.#offsetX * zoom;
         const oy = this.#offsetY * zoom;
         this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
-
-        // Save
-        this.#scale = zoom;
+        this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
     }
 
 }
