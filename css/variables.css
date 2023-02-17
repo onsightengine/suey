@@ -17,60 +17,54 @@
     color-scheme: light dark;
 
     /* Scheme Colors */
-    --shadow:             0,   0,   0;          /* black for dark theme, white for light theme */
-    --darklight:         16,  16,  16;
-    --background-dark:   24,  24,  24;
-    --background-light:  32,  32,  32;
-    --button-dark:       40,  40,  40;
-    --button-light:      60,  60,  60;
-    --midlight:          85,  85,  85;
-    --text-dark:        100, 100, 100;
-    --text:             190, 190, 190;
-    --text-light:       225, 225, 225;
-    --highlight:        255, 255, 255;
-    --icon-dark:          0,  90,  87;          /* #005A57 icon darkened            dark classic aqua */
-    --icon:               0, 180, 175;          /* #00B4AF icon color               classic aqua */
-    --icon-light:        90, 255, 250;          /* #5AFFFA icon brightened          light clasic aqua */
-    --complement:       255, 113,   0;          /* #FF7100 icon shifted 180°        orange */
-    --triadic1:         216,   0, 127;          /* #D8007F icon shifted 120°        pink */
-    --triadic2:         165, 243,   0;          /* #A5F300 complement shifted 120°  lime green */
-    --triadic3:         113,  25, 185;          /* #7119B9 icon shifted 90°         purple */
-    --triadic4:         255, 253,  84;          /* #FFFD54 complement shifted 90°   yellow */
-    --triadic5:         232,  51,  37;          /* #E83325 icon shifted 150°        red */
-    --triadic6:         100, 216,  64;          /* #64D840 complement shifted 150°  green */
+    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */
+    --darklight:             16,  16,  16;
+    --background-dark:       24,  24,  24;
+    --background-light:      32,  32,  32;
+    --button-dark:           40,  40,  40;
+    --button-light:          60,  60,  60;
+    --midlight:              85,  85,  85;
+    --text-dark:            100, 100, 100;
+    --text:                 190, 190, 190;
+    --text-light:           225, 225, 225;
+    --highlight:            255, 255, 255;
+    --icon-dark:              0,  90,  87;      /* #005A57 icon darkened            dark classic aqua */
+    --icon:                   0, 180, 175;      /* #00B4AF icon color               classic aqua */
+    --icon-light:            90, 255, 250;      /* #5AFFFA icon brightened          light clasic aqua */
+    --complement:           255, 113,   0;      /* #FF7100 icon shifted 180°        orange */
+    --triadic1:             216,   0, 127;      /* #D8007F icon shifted 120°        pink */
+    --triadic2:             165, 243,   0;      /* #A5F300 complement shifted 120°  lime green */
+    --triadic3:             113,  25, 185;      /* #7119B9 icon shifted 90°         purple */
+    --triadic4:             255, 253,  84;      /* #FFFD54 complement shifted 90°   yellow */
+    --triadic5:             232,  51,  37;      /* #E83325 icon shifted 150°        red */
+    --triadic6:             100, 216,  64;      /* #64D840 complement shifted 150°  green */
 
     /* Basic Colors */
-    --white:            255, 255, 255;
-    --gray:             128, 128, 128;
-    --black:              0,   0,   0;
+    --white:                255, 255, 255;
+    --gray:                 128, 128, 128;
+    --black:                  0,   0,   0;
 
     /* Hue Rotation for Icon Color */
-    --rotate-hue:           0deg;               /* Changes to represent how many degrees new icon color is from Aqua */
+    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */
 
-    /* Panel Transparency */
+    /* Transparency */
     --panel-transparency:   1.0;
 
-    /* Styles */
+    /* Font */
     font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px)
     --base-size:            10px;               /* Gui designed to scale from this original font size */
+    --font-size:			14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */
     --font-family:          'Roboto', Helvetica, Arial, sans-serif;
-    --font-size:			14px;               /* Current font size */
-    --font-size-larger:		calc(var(--font-size) + ((var(--font-size)) * 0.2));
 
+    /* Sizes */
     --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */
-    --negative:            -0.07143em;          /*  1px @ font size 1.4em (14px) */
-
-    --edge-thickness:       0.35714em;          /*  5px @ font size 1.4em (14px) */
+    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */
 
     --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */
     --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */
-    --border-size:          0.21429em;          /*  3px @ font size 1.4em (14px) */
-    --border-radius-micro:  0.21429em;          /*  3px @ font size 1.4em (14px) */
-    --border-radius-small:  0.28571em;          /*  4px @ font size 1.4em (14px) */
-    --border-radius-inner:  0.42857em;          /*  6px @ font size 1.4em (14px) */
-    --border-radius-outer:	0.71429em;          /* 10px @ font size 1.4em (14px) */
 
-    --box-radius:           0.42857em;          /*  6px @ font size 1.4em (14px) */
+    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */
+    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */
 
     --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */
     --pad-x-small:          0.14286em;          /*  2px; */
@@ -78,27 +72,20 @@
     --pad-smallish:         0.28571em;          /*  4px; */
     --pad-medium:           0.35714em;          /*  5px; */
     --pad-large:            0.71429em;          /* 10px; */
-    --pad-x-large:          1.00000em;          /* 14px; */
 
     --arrow-size:           0.4em;              /* Dropdown arrow */
-    --asset-width:          3.2em;
-    --asset-height:         3.2em;
+    --asset-size:           3.2em;              /* AssetBox size */
     --button-size:          2.65em;             /* Toolbar button size */
     --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */
-    --resize-size:          1.00000em;          /* 14px, panel resizer thickness */
-    --ticksHeight:          20%;                /* Slider tick height */
+    --resize-size:          1.0em;              /* 14px, panel resizer thickness */
+    --tab-size:             2.5em;              /* Tab button diameter */
 
+    /* Timing */
     --menu-timing:          0.2s;               /* ..in seconds */
-    --menu-size:            1.0em;              /* 140px (10.0 * 10px * 1.4) @ font size 1.4em / 14px */
-    --menu-icon-size:       1.5em;              /* og: 1.3em */
-    --tab-timing:           200ms;              /* */
-    --tab-size:             2.5em;              /* */
     --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */
 
-    /* Box Shadows */
-    --pop-out-shadow:       inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--midlight), 0.75);
-    --sunk-in-shadow:       inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75);
+    /* Drop Shadows:        'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */
 
     /* Filters */
-    --drop-shadow:          drop-shadow(var(--negative) var(--pixel) var(--pad-micro) rgba(0, 0, 0, 0.75));
+    --drop-shadow:          drop-shadow(var(--minus) var(--pixel) var(--pad-micro) rgba(0, 0, 0, 0.75));
 }

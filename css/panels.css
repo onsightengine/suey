@@ -12,19 +12,24 @@
 }
 
 .SimplePanel {
+    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */
+
     background-color: rgba(var(--background-light), var(--panel-transparency));
     border: var(--border-small) solid rgb(var(--icon));
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     margin: calc(var(--edge-thickness) + var(--pad-x-small));
 }
 
 .FancyPanelOuter {
-    height: 100%;/*calc(100% - ((var(--edge-thickness) * 20)));*/
+    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */
+    --border-radius-outer:  0.71429em;      /* 10px @ font size 1.4em (14px) */
+
+    height: 100%;
 
     background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));
     border-radius: var(--border-radius-outer);
     box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);
-    padding: var(--edge-thickness);     /* outside of border padding */
+    padding: var(--edge-thickness); /* outside of border padding */
     overflow: hidden;
 
     /* Need for scroll bars to appear on proper layer */
@@ -34,11 +39,11 @@
 }
 
 .FancyPanelBorder {
-    height: 100%;/*calc(100% - ((var(--border-small) * 2) + (var(--pad-medium) * 2)));*/
+    height: 100%;
 
     background-color: rgba(var(--background-light), var(--panel-transparency));
     border: var(--border-small) solid rgb(var(--icon));
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     padding: var(--pad-small);
     overflow: hidden;
 
@@ -48,10 +53,10 @@
 }
 
 .FancyPanelInside {
-    height: 100%;/*calc(100% - ((var(--pad-small) * 2)));*/
+    height: 100%;
     width: 100%;
     background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));
-    border-radius: var(--border-radius-small);
+    border-radius: var(--radius-small);
     margin: 0;
     padding: var(--pad-x-small) 0;
     overflow: hidden;
@@ -71,7 +76,7 @@
 .Resizer {
     position: absolute;
     pointer-events: none;
-    opacity: 0.0;                           /* NOTE: increase to see Resizers */
+    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */
     z-index: 99; /* Resizer */
 }
 
@@ -162,11 +167,11 @@
 
 .Shrinkable {
     border: solid var(--border-small) rgba(var(--shadow), 0.25);
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     margin-left: var(--pad-x-small);
     margin-right: var(--pad-small);
     margin-bottom: var(--pad-small);
-    box-shadow: var(--pop-out-shadow);
+    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
     overflow: hidden;
 }
 
@@ -182,10 +187,10 @@
     cursor: pointer;
     color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--icon), 0.35);
-    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 
-    border-top-left-radius: var(--border-radius-small);
-    border-top-right-radius: var(--border-radius-small);
+    border-top-left-radius: var(--radius-small);
+    border-top-right-radius: var(--radius-small);
     padding: var(--pad-small);
     padding-left: 0.5em;
     padding-right: var(--pad-large);
@@ -241,7 +246,7 @@
     z-index: 101; /* ShrinkArrow */
     border: var(--arrow-size) solid transparent;
     border-color: rgba(var(--text)) transparent transparent transparent;
-    transition: transform 0.2s;
+    transition: transform var(--menu-timing);
 }
 .Shrinkable.Expanded .ShrinkTitle .ShrinkArrow {
     transform: translateY(-25%) scale(1.0, -1.0);
@@ -253,8 +258,8 @@
 .ShrinkBody {
     display: flex;
     flex-wrap: wrap;
-    border-bottom-left-radius: var(--border-radius-small);
-    border-bottom-right-radius: var(--border-radius-small);
+    border-bottom-left-radius: var(--radius-small);
+    border-bottom-right-radius: var(--radius-small);
     padding: var(--pad-small);
     overflow: hidden;
     pointer-events: auto;
@@ -302,14 +307,16 @@
 }
 
 .Tabs.LeftSide {
-    left: calc((var(--tab-size)/-2.0) + 0.3em);
+    left: calc((var(--tab-size) / -2.0) + 0.3em);
 }
 
 .Tabs.RightSide {
-    left: calc(100% - ((var(--tab-size)/2.0) + 0.65em));
+    left: calc(100% - ((var(--tab-size) / 2.0) + 0.65em));
 }
 
-.Tabs .Tab {
+.TabButton {
+    --tab-timing: 200ms;
+
     width: var(--tab-size);
     height: var(--tab-size);
     display: flex;
@@ -323,42 +330,40 @@
     margin-top: -0.2em;
     margin-bottom: -0.2em;
     transform: scale(70%);
-
-    /* transition: margin 0 ease-in-out, transform 0 ease-in-out; */
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
 }
 
-.Tabs .Tab.Selected {
+.TabButton.Selected {
     color: rgba(var(--highlight), 1.0);
     margin-top: var(--pad-x-small);
     margin-bottom: var(--pad-x-small);
     transform: scale(100%);
 }
 
-.Tabs .Tab > .VectorBox {
+.TabButton > .VectorBox {
     filter: contrast(75%) grayscale(100%) brightness(75%);
 }
 
-.Tabs .Tab:hover > * {
+.TabButton:hover > * {
     filter: brightness(120%);
 }
 
-.Tabs .Tab.Selected:hover > * {
+.TabButton.Selected:hover > * {
     filter: brightness(120%);
 }
 
-.Tabs .Tab.Selected > * {
+.TabButton.Selected > * {
     filter: none;
 }
 
 /* On Click */
-.Tabs .Tab:active > .TabIcon {
+.TabButton:active > .TabIcon {
     box-shadow:
         0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */
         inset -1px  1px 1px 1px rgba(var(--black), 0.5),
         inset  1px -1px 1px 1px rgba(var(--black), 0.25);
 }
-.Tabs .Tab:active > .VectorBox {
+.TabButton:active > .VectorBox {
     transform: translate(-1px, 1px);
 }
 
@@ -379,12 +384,12 @@
     justify-content: center;
 }
 
-.Tabs .Tab.Selected .TabIcon {
+.TabButton.Selected .TabIcon {
     border: 0.15em solid rgb(var(--icon));
 }
 
 /* Tab Image */
-.Tabs .Tab .VectorBox {
+.TabButton .VectorBox {
     position: absolute;
     border-radius: var(--tab-size);
     background-color: rgba(var(--darklight), 1.0);
@@ -395,12 +400,15 @@
 }
 
 /* Tab Image SVG Shadow */
-.Tabs .Tab .VectorBox > * {
+.TabButton .VectorBox > * {
     filter: var(--drop-shadow);
 }
 
 /* Title Bar Class for top of Tabbed Panel */
 .TabTitle {
+    --font-size-increase:   1.3;
+    --border-radius-title:  0.35714em;
+
     position: relative;
     display: block;
     flex-shrink: 0; /* don't allow title to shrink */
@@ -408,20 +416,18 @@
     background-color: transparent;
     background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
     border: 0;
-    border-radius: var(--border-radius-micro);
-    outline: solid var(--border-small) rgba(var(--shadow), 0.25);
-    /* pop-out-shadow */
-    box-shadow:
-        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
-    text-shadow: var(--negative) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);
+    border-radius: calc(var(--border-radius-title) / var(--font-size-increase));
+    outline: solid calc(var(--border-small) / var(--font-size-increase)) rgba(var(--shadow), 0.25);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);
     text-align: center;
     overflow: hidden;
 
-    font-size: 130%;
+    font-size: calc(100% * var(--font-size-increase));
     margin: var(--pad-small);
-    margin-top: 0;
-    margin-bottom: var(--pad-smallish);
+    margin-top: var(--pad-micro);
     padding-top: var(--pad-medium);
     padding-bottom: var(--pad-medium);
 }
@@ -454,7 +460,7 @@
     z-index: 101; /* TitleArrow */
     border: 0.5em solid transparent;
     border-color: rgba(var(--text)) transparent transparent transparent;
-    transition: transform 0.2s;
+    transition: transform var(--menu-timing);
 }
 .Titled.Expanded .TabTitle .TitleArrow {
     transform: translateY(-25%) scale(1.0, -1.0);

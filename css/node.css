@@ -4,7 +4,7 @@
     position: absolute;
     background-color: rgba(var(--background-dark), 0.8);
     border: var(--border-small) solid rgb(var(--icon));
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     top: var(--pad-large);
     right: var(--pad-large);
     width: 20%;
@@ -75,7 +75,7 @@
 .NodePanel {
     display: block;
     background-color: rgba(var(--button-dark), 1);
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
     margin: 0;
@@ -88,7 +88,7 @@
 .NodeBorder {
     pointer-events: none;
     border: var(--border-small) solid transparent;
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
     margin: 0;

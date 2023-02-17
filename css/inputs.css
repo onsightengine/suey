@@ -6,7 +6,7 @@ input {
     box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.25);
 
     border: var(--border-micro) solid rgba(var(--shadow), 0.5);
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
     outline: var(--border-micro) solid rgba(var(--shadow), 0.0);
     padding: var(--pad-x-small) var(--pad-smallish);
     vertical-align: middle;
@@ -66,17 +66,15 @@ input[type=number] {
     color: rgba(var(--text-light), 1);
 
     border: var(--border-micro) solid rgba(var(--shadow), 0.75);
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
     outline: var(--border-small) solid rgba(var(--darklight), 0.0);
 
     background-color: rgba(var(--button-dark), 0.75);
     background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
-
-    /* pop-out-shadow */
-    box-shadow:
-        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
-    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 
     font-size: var(--font-size);
     margin: 0;
@@ -99,13 +97,13 @@ input[type=number] {
     color: rgba(var(--icon), 1);
     background-color: rgba(var(--background-dark), 0.5);
     background-image: none;
-    box-shadow: var(--sunk-in-shadow);
+    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */
 }
 
 .Button.Selected {
     background-color: rgba(var(--shadow), 1.0);
     background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.20), rgba(var(--icon), 0.20));
-    box-shadow: var(--sunk-in-shadow);
+    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */
 }
 
 .Button:disabled {
@@ -119,7 +117,7 @@ input[type=number] {
 /* Little borderless buttons */
 .BorderlessButton {
     border: none;
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
     background: transparent;
     box-shadow: none;
     outline: none;
@@ -130,18 +128,16 @@ input[type=number] {
 
 .BorderlessButton:not(.Selected):enabled:hover {
     background-image: linear-gradient(to bottom, rgba(var(--white), 0.1), rgba(var(--white), 0.2));
-    /* pop-out-shadow */
-    box-shadow:
-        inset var(--negative) var(--pixel) var(--pixel) 0 rgba(var(--white), 0.25),
-        inset var(--pixel) var(--negative) var(--pixel) 0 rgba(var(--black), 0.25);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) 0 rgba(var(--white), 0.25),
+        inset var(--pixel) var(--minus) var(--pixel) 0 rgba(var(--black), 0.25);
 }
 
 .BorderlessButton:not(.Selected):enabled:active {
     background-image: linear-gradient(to bottom, rgba(var(--black), 0.2), rgba(var(--black), 0.1));
-    /* pop-out-shadow */
-    box-shadow:
-        inset var(--negative) var(--pixel) var(--pixel) 0 rgba(var(--black), 0.5),
-        inset var(--pixel) var(--negative) var(--pixel) 0 rgba(var(--black), 0.5);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) 0 rgba(var(--black), 0.5),
+        inset var(--pixel) var(--minus) var(--pixel) 0 rgba(var(--black), 0.5);
 }
 
 /********** ELEMENT: Input.Checkbox **********/
@@ -171,7 +167,7 @@ input[type=number] {
     color: rgba(var(--text), 1);
     background-image: none;
     background-color: rgba(var(--background-dark), 0.5);
-    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.35); /* sunk-in-shadow */
+    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.35); /* sunk-in-shadow */
     left: 0;
     top: 50%;
     width: 2.0em;
@@ -179,7 +175,7 @@ input[type=number] {
     border-radius: 1.0em;
     border: var(--border-micro) solid rgba(var(--shadow), 1.0);
     transform: translateY(-50%);
-    transition: transform 0.25s;
+    transition: transform var(--menu-timing);
 }
 
 /* Visible Background: Checked */
@@ -209,7 +205,7 @@ input[type=number] {
     background-color: rgba(var(--text-light), 0.8);
     border-radius: 1em;
     transform: translate(0, -50%);
-    transition: transform 0.25s;
+    transition: transform var(--menu-timing);
 }
 
 /* Button: Checked */
@@ -217,7 +213,7 @@ input[type=number] {
     /* background-color: rgba(var(--highlight), 0.7); */
     box-shadow: 0px 0px 3px 2px rgba(var(--shadow), 0.5); /* drop shadow */
     transform: translate(0.75em, -50%);
-    transition: transform 0.25s;
+    transition: transform var(--menu-timing);
 }
 
 /* Button: Hover, Unchecked */
@@ -253,7 +249,7 @@ input[type=number] {
     width: calc(100% - 0.5em);
     height: 1.1em;
     border: var(--border-micro) solid rgba(var(--shadow), 0.75);
-    border-radius: var(--border-radius-small);
+    border-radius: var(--radius-small);
 }
 
 /********** CLASS: .DropArrow (adds a little down arrow on right side of element) **********/
@@ -273,7 +269,7 @@ input[type=number] {
     z-index: 101; /* DropArrow */
     border: var(--arrow-size) solid transparent;
     border-color: rgba(var(--text-light)) transparent transparent transparent;
-    transition: all 0.2s;
+    transition: all var(--menu-timing);
 }
 .DropArrow:hover::after, .DropArrow.Selected::after {
     border-color: rgba(var(--highlight)) transparent transparent transparent;
@@ -328,7 +324,7 @@ input[type=number] {
         rgba(var(--background-dark), 0.5) calc(var(--middle) * 100%), rgba(var(--background-dark), 0.5) 100%);
     border: var(--border-micro) solid transparent;
     border: var(--border-micro) solid rgba(var(--shadow), 1.0);
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     outline: var(--border-micro) solid transparent;
 
     cursor: pointer;
@@ -340,10 +336,12 @@ input[type=number] {
         rgba(var(--darklight), 0.5) calc(var(--middle) * 100%), rgba(var(--darklight), 0.5) 100%);
     border: var(--border-micro) solid transparent;
     border: var(--border-micro) solid rgba(var(--shadow), 1.0);
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     outline: var(--border-micro) solid transparent;
 }
-.Slider:active { cursor: ew-resize; }
+.Slider:active {
+    cursor: ew-resize;
+}
 
 /* Safari / Chrome Thumb */
 .Slider::-webkit-slider-thumb {
@@ -355,10 +353,9 @@ input[type=number] {
     border-radius: 50%;
     background-color: rgba(var(--shadow), 1.0);
     background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.8), rgba(var(--icon-dark), 0.8));
-    /* pop-out-shadow */
-    box-shadow:
-        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
 }
 .Slider::-webkit-slider-thumb:hover, .Slider::-webkit-slider-thumb:active {
     background-color: rgba(var(--shadow), 1.0);
@@ -374,10 +371,9 @@ input[type=number] {
     border-radius: 50%;
     background-color: rgba(var(--shadow), 1.0);
     background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.8), rgba(var(--icon-dark), 0.8));
-    /* pop-out-shadow */
-    box-shadow:
-        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
 }
 .Slider::-moz-range-thumb:hover, .Slider::-moz-range-thumb:active {
     background-color: rgba(var(--shadow), 1.0);
@@ -391,9 +387,9 @@ textarea {
     color: rgba(var(--text), 1);
     background-color: #222;
     border: var(--pixel) solid rgba(var(--shadow), 1);
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
     outline: none; /* for macos */
-    padding: var(--border-size) var(--pad-large);
+    padding: var(--pad-small) var(--pad-large);
     tab-size: 4;
     white-space: pre;
     word-wrap: normal;

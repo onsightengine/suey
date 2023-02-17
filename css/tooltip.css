@@ -9,15 +9,15 @@
     /* OLD: Raised Icon Color Button
     background-color: transparent;
     background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
     */
 
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
     box-shadow:
         0px 0px 3px 2px rgba(var(--shadow), 0.75),
-        inset var(--negative) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--negative) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
-    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
     padding: 0.3em 1.1em;
     pointer-events: none;
 

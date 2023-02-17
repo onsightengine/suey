@@ -16,11 +16,11 @@
     font-size: 110%;
     background-color: rgba(var(--icon), 0.35);
     border: solid var(--border-small) rgba(var(--shadow), 0.65);
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     margin: var(--pad-small) 0.25em;		/* vertical | horizontal */
     padding: var(--pad-small) 0.5em;		/* vertical | horizontal */
-    box-shadow: inset 0 0.07143em 0.14286em 0 rgba(var(--midlight), 0.5); /* pop-out-shadow */
-    text-shadow: var(--negative) var(--pixel) rgba(var(--shadow), 0.5);
+    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
+    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 }
 
 .PropertyHeaderIcon > * {
@@ -83,7 +83,7 @@
     text-transform: capitalize;
 }
 .LeftTabSpacing {
-    padding-left: var(--pad-x-large);
+    padding-left: 1em;
 }
 
 .PropertyRight {
@@ -182,8 +182,8 @@
     background-color: rgba(var(--background-dark), 0.25);
 
     border: solid var(--border-small) rgba(var(--shadow), 0.25);
-    border-radius: var(--border-radius-small);
-    box-shadow: var(--pop-out-shadow);
+    border-radius: var(--radius-small);
+    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
 
     margin: var(--pad-x-small);
 
@@ -210,7 +210,7 @@
     background-color: rgba(var(--icon-light), 0.4);
     border-top: var(--border-small) solid rgba(var(--shadow), 0.25);
     border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);
-    border-radius: var(--border-radius-small);
+    border-radius: var(--radius-small);
 }
 .TreeList .Option.ActiveTop {
     border-bottom: var(--border-small) solid transparent;
@@ -225,7 +225,7 @@
 
 .TreeList .Option.Drag {
     border: var(--border-small) solid rgba(var(--icon-light), 1.0);
-    border-radius: var(--border-radius-small);
+    border-radius: var(--radius-small);
 }
 .TreeList .Option.DragTop {
     border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);

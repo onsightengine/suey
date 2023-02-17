@@ -21,7 +21,7 @@
     cursor: pointer;
 
     border: var(--border-small) solid transparent;
-    border-radius: var(--border-radius-inner);
+    border-radius: var(--radius-large);
     margin: var(--pad-x-small);
 
     outline: none; /* for macos */
@@ -29,14 +29,14 @@
 
 .MiniAssetBox {
     /* Minimum Icon Size: */
-    min-width: var(--asset-width);
-    min-height: var(--asset-height);
+    min-width: var(--asset-size);
+    min-height: var(--asset-size);
 }
 
 .MiniAssetBox:hover {
     background-color: rgba(var(--highlight), 0.15);
     border: var(--border-small) solid rgba(var(--shadow), 0.5);
-    border-radius: var(--box-radius);
+    border-radius: var(--radius-large);
 }
 
 .MiniAssetBox:active, .MiniAssetBox:focus {

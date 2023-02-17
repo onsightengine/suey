@@ -103,15 +103,13 @@ class Tabbed extends ResizeFlex {
         if (this.tabs == undefined) return this;
         const self = this;
 
-        // Disable animations while rebuilding
-        if (wasClicked !== true) {
-            Css.setVariable('--tab-timing', '0');
-        }
-
         // Find tab / panel by id
         const tab = this.tabs.find(function(item) { return (item.dom.id === id && item.count === count); });
         const panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
         if (tab && panel) {
+            // Disable animations while rebuilding
+            if (! wasClicked) Css.setVariable('--tab-timing', '0', tab.dom);
+
             // Deselect current selection
             const currentTab = this.tabs.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
@@ -138,9 +136,7 @@ class Tabbed extends ResizeFlex {
             }
 
             // Re-enable animationss
-            if (wasClicked !== true) {
-                setTimeout(() => { Css.setVariable('--tab-timing', '200ms'); }, 50);
-            };
+            if (! wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', tab.dom), 50);
 
             return true;
         }
@@ -175,11 +171,8 @@ class Tabbed extends ResizeFlex {
         side = String(side).toLowerCase();
         this.tabsDiv.removeClass('LeftSide');
         this.tabsDiv.removeClass('RightSide');
-        if (side === TAB_SIDES.RIGHT) {
-            this.tabsDiv.addClass('RightSide');
-        } else {
-            this.tabsDiv.addClass('LeftSide');
-        }
+        if (side === TAB_SIDES.RIGHT) this.tabsDiv.addClass('RightSide');
+        else this.tabsDiv.addClass('LeftSide');
     }
 
     tabIndex(id) {
@@ -195,22 +188,19 @@ class TabButton extends Div {
     constructor(parent, label, icon, bgColor = undefined) {
         super();
         const self = this;
-        this.setClass('Tab');
+        this.setClass('TabButton');
         this.setCursor('default');
 
         // Icon / Label
-
         this.iconVector = new VectorBox(icon);
         this.iconBorder = new Div().setClass('TabIcon');
         this.add(this.iconVector, this.iconBorder);
-        // this.add(new Text(label).setClass('TabText'));
         this.setLabel = function(label) {
             self.iconBorder.dom.setAttribute('tooltip', label);
         }
         this.setLabel(label);
 
         // Background Color
-
         if (bgColor !== undefined && bgColor !== null) {
             let m, r, g, b;
 

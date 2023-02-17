@@ -25,12 +25,18 @@ class Css {
         return getComputedStyle(rootElement).getPropertyValue(variable);
     }
 
-    /** Sets a CSS variable by name, hyphens optional */
-    static setVariable(variable, valueAsString) {
+    /**
+     * Sets a CSS variable by name
+     *
+     * @param {*} variable variable name, first two hypens optional
+     * @param {*} valueAsString new css variable value as string
+     * @param {*} element Optional, will apply to 'root' element if not defined
+     */
+    static setVariable(variable, valueAsString, element) {
         variable = String(variable);
         if (! variable.startsWith('--')) variable = '--' + variable;
-        const rootElement = document.querySelector(':root');
-		rootElement.style.setProperty(variable, valueAsString);
+        element = element ?? document.querySelector(':root');
+		element.style.setProperty(variable, valueAsString);
     }
 
     /******************** FONT / GUI SIZING ********************/
