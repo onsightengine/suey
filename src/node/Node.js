@@ -178,7 +178,7 @@ class Node extends Div {
         if (color !== undefined) this.#color.set(color);
         const colorLight = _color2.set(this.#color).darken(1.3).rgbString();
         const colorDark = _color1.set(this.#color).darken(0.7).rgbString();
-        if (this.header) this.header.setStyle('background-image', `linear-gradient(to bottom, rgba(${colorLight}, 0.5), rgba(${colorDark}, 0.5))`);
+        if (this.header) this.header.setStyle('background-image', `linear-gradient(to bottom, rgba(${colorLight}, 0.75), rgba(${colorDark}, 0.75))`);
     }
 
 }

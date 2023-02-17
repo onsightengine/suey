@@ -47,12 +47,18 @@ class Graph extends Panel {
             if (event) {
                 event.preventDefault();
                 const delta = (event.deltaY * 0.002);
-                self.zoomTo(self.#scale - delta, event.clientX, event.clientY, delta);
+                self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
             }
             self.grid.setStyle('background-size', `${(GRID_SIZE * self.#scale * 2)}px`);
             self.grid.setStyle('opacity', (self.#scale < 1) ? (self.#scale * self.#scale) : '1');
 		};
         this.onWheel(onMouseZoom);
+
+        // Window Resize
+        function onWindowResize() {
+            self.zoomTo(self.#scale);
+        }
+        window.addEventListener('resize', onWindowResize);
 
         // Keys
         let grabbing = false;
@@ -136,30 +142,32 @@ class Graph extends Panel {
         }
     }
 
-    zoomTo(zoom, clientX, clientY, delta = 0) {
+    zoomTo(zoom, clientX, clientY) {
         if (zoom === undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
 
-        // Client X / Y
-        const rect = this.dom.getBoundingClientRect();
-        clientX = (clientX == undefined) ? rect.right - (rect.width / 2) : clientX;
-        clientY = (clientY == undefined) ? rect.bottom - (rect.height / 2) : clientY;
-        const nodeRect = this.nodes.dom.getBoundingClientRect();
-        clientX -= nodeRect.left;
-        clientY -= nodeRect.top;
+        // Before rect & after new zoom rect
+        const before = this.nodes.dom.getBoundingClientRect();
+        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
+        const after = this.nodes.dom.getBoundingClientRect();
 
-        // Scrolling
-        const diffW = (nodeRect.width - ((nodeRect.width / this.#scale) * zoom)) / 2;
-        const diffH = (nodeRect.height - ((nodeRect.height / this.#scale) * zoom)) / 2;
-        const percentX = ((nodeRect.width / 2) - clientX) / (nodeRect.width / 2);
-        const percentY = ((nodeRect.height / 2) - clientY) / (nodeRect.height / 2);
-        this.#offsetX -= (diffW * percentX);
-        this.#offsetY -= (diffH * percentY);
+        // Scroll To
+        if (clientX !== undefined && clientY !== undefined) {
+            clientX -= before.left;
+            clientY -= before.top;
+            const shiftW = after.left - before.left;
+            const shiftH = after.top - before.top;
+            const dw = clientX - ((clientX / this.#scale) * zoom);
+            const dh = clientY - ((clientY / this.#scale) * zoom);
+            this.#offsetX -= ((shiftW - dw) / zoom);
+            this.#offsetY -= ((shiftH - dh) / zoom);
+        }
 
         // Set Scale
         this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offsetX}px, ${this.#offsetY}px)`);
 
         // Align Grid
+        const rect = this.dom.getBoundingClientRect();
         const diffX = (rect.width - (rect.width * zoom)) / 2;
         const diffY = (rect.height - (rect.height * zoom)) / 2;
         const ox = this.#offsetX * zoom;
