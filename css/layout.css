@@ -138,10 +138,6 @@
     filter: var(--drop-shadow);
 }
 
-.Button:hover .ShadowBox:not(.NoShadow) > * {
-    filter: drop-shadow(0 0 var(--pad-x-small) black);
-}
-
 /********** .VectorBox **********/
 
 .VectorBox {

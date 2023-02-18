@@ -25,7 +25,7 @@ class Graph extends Panel {
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
-        this.minimap = new Canvas().setClass('MiniMap');
+        this.minimap = new Canvas(1024, 1024).setClass('MiniMap');
         this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
 
         // Nodes Parent Prototype

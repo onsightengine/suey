@@ -164,7 +164,7 @@
     background-repeat: no-repeat;
 
     background-color: rgba(var(--shadow), 1.0);
-    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));
+    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));
     border: 0;
     border-radius: var(--radius-large);
     box-shadow: /* pop-out-shadow */
@@ -193,7 +193,7 @@
 
 .ToolbarButton:not(.Selected):enabled:hover {
     background-color: rgba(var(--shadow), 0.4);
-    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.7), rgba(var(--icon), 0.7));
+    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.75), rgba(var(--icon), 0.75));
     box-shadow:
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.3),
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
@@ -201,9 +201,37 @@
 
 .ToolbarButton:not(.Selected):enabled:active,
 .ToolbarButton.Selected:enabled {
+    background-color: rgba(20, 20, 20, 0.4);
+    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.25), rgba(var(--icon), 0.25));
+    box-shadow: inset 0 0 var(--pad-smallish) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
+}
+
+.GrayButton {
+    background-color: rgba(128, 128, 128, 1.0);
+    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.65), rgba(var(--midlight), 0.45));
+}
+.GrayButton:not(.Selected):enabled:hover {
+    background-color: rgba(192, 192, 192, 1.0);
+    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.65), rgba(var(--midlight), 0.45));
+}
+.GrayButton:not(.Selected):enabled:active,
+.GrayButton.Selected:enabled {
+    background-color: black;
+    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.65), rgba(var(--midlight), 0.45));
+}
+
+.ComplementButton {
     background-color: rgba(var(--shadow), 1.0);
-    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.15), rgba(var(--icon), 0.15));
-    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */
+    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.85), rgba(var(--complement), 0.65));
+}
+.ComplementButton:not(.Selected):enabled:hover {
+    background-color: rgba(var(--highlight), 0.2);
+    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.95), rgba(var(--complement), 0.75));
+}
+.ComplementButton:not(.Selected):enabled:active,
+.ComplementButton.Selected:enabled {
+    background-color: black;
+    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.55), rgba(var(--complement), 0.35));
 }
 
 .ToolbarButton:disabled {
@@ -244,22 +272,6 @@
     border-radius: 0;
     margin-left: 0;
     margin-right: 0;
-}
-
-.SpecialButton {
-    background-color: rgba(var(--shadow), 1.0);
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.85), rgba(var(--complement), 0.7));
-}
-
-.SpecialButton:not(.Selected):enabled:hover {
-    background-color: rgba(var(--highlight), 0.2);
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.95), rgba(var(--complement), 0.8));
-}
-
-.SpecialButton:not(.Selected):enabled:active,
-.SpecialButton.Selected:enabled {
-    background-color: rgba(var(--shadow), 1.0);
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.5), rgba(var(--complement), 0.35));
 }
 
 /********** .ToolbarSeparator / .ToolbarSpacer **********/
