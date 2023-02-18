@@ -46,6 +46,7 @@
 /***** NODE *****/
 
 .Node {
+    pointer-events: all;
     position: absolute;
     background-color: transparent;
     border: none;
@@ -53,6 +54,11 @@
     cursor: inherit;
     overflow: visible;
     outline: none; /* macOS */
+    z-index: 0; /* Node */
+}
+
+.Node.BringToTop {
+    z-index: 1; /* Node.BringToTop */
 }
 
 .Node:hover, .Node.NodeSelected {

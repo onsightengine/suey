@@ -36,7 +36,6 @@ class Button extends Element {
         this.dom.addEventListener('destroy', function() {
             if (self.attachedMenu) self.detachMenu();
         }, { once: true });
-
     }
 
     /** Attaches a PopUp menu to Button */

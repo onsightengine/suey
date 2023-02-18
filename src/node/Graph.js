@@ -122,6 +122,41 @@ class Graph extends Panel {
         return this.#scale;
     }
 
+    drawMiniMap() {
+        if (! this.minimap) return;
+        if (this.dom.style.display === 'none') return;
+
+        // this.minimap = new Canvas().setClass('MiniMap');
+        // squares.ctx.clearRect(0, 0, squares.width, squares.height);
+        // squares.ctx.fillStyle = 'rgb(255, 255, 255)';
+        // squares.ctx.globalAlpha = 0.04;
+        // squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+
+        const map = this.minimap;
+        const ctx = map.ctx;
+        ctx.clearRect(0, 0, map.width, map.height);
+
+
+
+    }
+
+    /* Updates list of all node rects in Graph */
+    nodeRects() {
+        // const
+        // function expandRect(node) {
+        //     const computed = getComputedStyle(node.dom);
+        //     const left = parseFloat(computed.left);
+        //     const top = parseFloat(computed.top);
+        //     const right = left + parseFloat(computed.width);
+        //     const bottom = top + parseFloat(computed.height);
+        //     xMin = Math.min(xMin, left);
+        //     yMin = Math.min(yMin, top);
+        //     xMax = Math.max(xMax, right);
+        //     yMax = Math.max(yMax, bottom);
+        // }
+        // this.traverseNodes(expandRect);
+    }
+
     resetView() {
         let xMin = Infinity, xMax = -Infinity;
         let yMin = Infinity, yMax = -Infinity;

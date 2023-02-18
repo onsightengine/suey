@@ -187,6 +187,32 @@ class Element {
     /********** CSS **********/
 
     setStyle(/* style, value, style, value, etc. */) {
+        /***** ALL AT ONCE */
+        // const styles = {};
+        // let changed = false;
+
+        // // Parse existing inline style string to object
+        // let styleText = this.dom.getAttribute('style');
+        // let regex = /\s*([a-z\-]+)\s*:\s*((?:[^;]*url\(.*?\)[^;]*|[^;]*)*)\s*(?:;|$)/gi;
+        // let match;
+        // while (match = regex.exec(styleText)) styles[match[1]] = match[2].trim();
+
+        // // Update new values
+        // for (let i = 0, l = arguments.length; i < l; i += 2) {
+        //     const style = arguments[i + 0].replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+        //     const value = arguments[i + 1];
+        //     if (styles[style] !== value) {
+        //         styles[style] = value;
+        //         changed = true;
+        //     }
+        // }
+        // if (! changed) return this;
+
+        // // Rebuild style string
+        // styleText = Object.entries(styles).map(([k, v]) => `${k}: ${v}`).join('; ');
+        // this.dom.setAttribute('style', styleText);
+
+        /***** ORIGINAL */
         for (let i = 0, l = arguments.length; i < l; i += 2) {
             const style = arguments[i];
             const value = arguments[i + 1];

@@ -16,6 +16,9 @@ class Node extends Div {
     #resizers = {};
     #snapToGrid = true;
     #color = new Iris();
+    #observer = undefined;
+    #rect = {};
+    #needsUpdate = true;
 
     constructor({
         width = 200,
@@ -31,10 +34,13 @@ class Node extends Div {
     } = {}) {
         super();
         const self = this;
-        this.setClass('Panel');
         this.addClass('Node');
-        this.dom.setAttribute('tabindex', '-1'); /* enable mouse focus, needs >= 0 for keyboard focus */
 
+        // Enable mouse focus, needs >= 0 for keyboard focus
+        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
+        this.dom.setAttribute('tabindex', '-1');
+
+        // Properties
         this.isNode = true;
 
         this.#color.set(color);
@@ -73,22 +79,19 @@ class Node extends Div {
             sizers.add(resizer);
             this.#resizers[resizerName] = resizer;
             let downX, downY;
-            let computed = getComputedStyle(this.dom);
             let rect = {};
             function onPointerDown(event) {
                 if (! event.isPrimary) return;
                 event.stopPropagation();
                 event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
                 selectNode();
-                Draggable.bringToTop(self.dom);
+                resizer.dom.setPointerCapture(event.pointerId);
                 downX = event.pageX;
                 downY = event.pageY;
-                computed = getComputedStyle(self.dom);
-                rect.left = parseFloat(computed.left);
-                rect.top = parseFloat(computed.top);
-                rect.width = parseFloat(computed.width);
-                rect.height = parseFloat(computed.height);
+                rect.left = self.left;
+                rect.top = self.top;
+                rect.width = self.width;
+                rect.height = self.height;
                 self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
             }
@@ -108,14 +111,12 @@ class Node extends Div {
                 if (resizer.hasClassWithString('Left')) {
                     const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
                     const newLeft = rect.left + (rect.width - newWidth);
-                    self.setStyle('left', `${newLeft}px`);
-                    self.setStyle('width', `${newWidth}px`);
+                    self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
                 }
                 if (resizer.hasClassWithString('Top')) {
                     const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
                     const newTop = rect.top + (rect.height - newHeight);
-                    self.setStyle('top', `${newTop}px`);
-                    self.setStyle('height', `${newHeight}px`);
+                    self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
                 }
                 if (resizer.hasClassWithString('Right')) {
                     const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
@@ -130,6 +131,18 @@ class Node extends Div {
             this.toggleResize(resizerName, resizers.includes(resizerName));
         }
 
+        // Style Observer
+        let styleTimeout = undefined;
+        function observeStyle(mutations) {
+            mutations.forEach((mutationRecord) => {
+                self.#needsUpdate = true;
+                clearTimeout(styleTimeout);
+                styleTimeout = setTimeout(() => self.#updateSizes(), 10);
+            });
+        }
+        const observer = new MutationObserver(observeStyle);
+        observer.observe(this.dom, { attributes : true, attributeFilter : ['style'] });
+
         // Initial Size
         this.setStyle(
             'left', `${roundNearest(parseFloat(x))}px`,
@@ -143,12 +156,41 @@ class Node extends Div {
 
         // Selectable
         function selectNode() {
+            Draggable.bringToTop(self.dom);
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
             self.addClass('NodeSelected');
         }
         this.onPointerDown(selectNode);
+
+        // Destroy
+        this.dom.addEventListener('destroy', function() {
+            if (self.#observer) self.#observer.disconnect();
+        }, { once: true });
     }
+
+    /******************** RECT */
+
+    #updateSizes() {
+        const computed = getComputedStyle(this.dom);
+        const rect = this.#rect;
+        rect.left = parseFloat(computed.left);
+        rect.top = parseFloat(computed.top);
+        rect.width = parseFloat(computed.width);
+        rect.height = parseFloat(computed.height);
+        rect.right = rect.left + rect.width;
+        rect.bottom = rect.top + rect.height;
+        this.#needsUpdate = false;
+    }
+
+    get left()   { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.left; }
+    get top()    { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.top; }
+    get width()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.width; }
+    get height() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.height; }
+    get right()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.right; }
+    get bottom() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.bottom; }
+
+    /******************** SCALE / SNAP / RESIZE */
 
     getScale() {
         return ((this.parent && this.parent.getScale) ? this.parent.getScale() : 1);
