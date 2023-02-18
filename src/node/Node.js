@@ -16,8 +16,7 @@ class Node extends Div {
     #resizers = {};
     #snapToGrid = true;
     #color = new Iris();
-    #observer = undefined;
-    #rect = {};
+    #style = {};
     #needsUpdate = true;
 
     constructor({
@@ -40,9 +39,10 @@ class Node extends Div {
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
         this.dom.setAttribute('tabindex', '-1');
 
-        // Properties
+        // Prototype
         this.isNode = true;
 
+        // Properties
         this.#color.set(color);
         this.#snapToGrid = snapToGrid;
 
@@ -133,15 +133,12 @@ class Node extends Div {
 
         // Style Observer
         let styleTimeout = undefined;
-        function observeStyle(mutations) {
-            mutations.forEach((mutationRecord) => {
-                self.#needsUpdate = true;
-                clearTimeout(styleTimeout);
-                styleTimeout = setTimeout(() => self.#updateSizes(), 10);
-            });
-        }
-        const observer = new MutationObserver(observeStyle);
-        observer.observe(this.dom, { attributes : true, attributeFilter : ['style'] });
+        const observer = new MutationObserver(() => {
+            self.#needsUpdate = true;
+            clearTimeout(styleTimeout);
+            styleTimeout = setTimeout(() => self.#updateSizes(), 50);
+        });
+        observer.observe(this.dom, { attributes: true, attributeFilter: [ 'style', 'class' ] });
 
         // Initial Size
         this.setStyle(
@@ -165,7 +162,7 @@ class Node extends Div {
 
         // Destroy
         this.dom.addEventListener('destroy', function() {
-            if (self.#observer) self.#observer.disconnect();
+            if (observer) observer.disconnect();
         }, { once: true });
     }
 
@@ -173,27 +170,30 @@ class Node extends Div {
 
     #updateSizes() {
         const computed = getComputedStyle(this.dom);
-        const rect = this.#rect;
-        rect.left = parseFloat(computed.left);
-        rect.top = parseFloat(computed.top);
-        rect.width = parseFloat(computed.width);
-        rect.height = parseFloat(computed.height);
-        rect.right = rect.left + rect.width;
-        rect.bottom = rect.top + rect.height;
+        const style = this.#style;
+        style.left = parseFloat(computed.left);
+        style.top = parseFloat(computed.top);
+        style.width = parseFloat(computed.width);
+        style.height = parseFloat(computed.height);
+        style.right = style.left + style.width;
+        style.bottom = style.top + style.height;
+        style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
+        if (this.parent && this.parent.isNodeGraph) this.parent.drawMiniMap();
     }
 
-    get left()   { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.left; }
-    get top()    { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.top; }
-    get width()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.width; }
-    get height() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.height; }
-    get right()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.right; }
-    get bottom() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.bottom; }
+    get left()   { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.left; }
+    get top()    { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.top; }
+    get width()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.width; }
+    get height() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.height; }
+    get right()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.right; }
+    get bottom() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.bottom; }
+    get zIndex() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.zIndex; }
 
     /******************** SCALE / SNAP / RESIZE */
 
     getScale() {
-        return ((this.parent && this.parent.getScale) ? this.parent.getScale() : 1);
+        return ((this.parent && this.parent.isNodeGraph) ? this.parent.getScale() : 1);
     }
 
     snap(enabled = true) {
@@ -234,6 +234,10 @@ class Node extends Div {
         const colorLight = _color2.set(this.#color).darken(1.3).rgbString();
         const colorDark = _color1.set(this.#color).darken(0.7).rgbString();
         if (this.header) this.header.setStyle('background-image', `linear-gradient(to bottom, rgba(${colorLight}, 0.75), rgba(${colorDark}, 0.75))`);
+    }
+
+    colorString() {
+        return this.#color.cssString();
     }
 
 }

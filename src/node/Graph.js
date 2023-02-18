@@ -13,6 +13,7 @@ class Graph extends Panel {
         super();
         const self = this;
 
+        // Properties
         this.#snapToGrid = snapToGrid;
 
         // Elements
@@ -22,6 +23,11 @@ class Graph extends Panel {
         this.lines = new Canvas().setClass('GraphLines');
         this.minimap = new Canvas().setClass('MiniMap');
         this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
+
+        // Nodes Parent Prototype
+        this.nodes.isNodeGraph = true;
+        this.nodes.getScale = function() { return self.#scale; };
+        this.nodes.drawMiniMap = function() { self.drawMiniMap(); };
 
         // Grid
         const SIZE = GRID_SIZE * 4;
@@ -39,9 +45,6 @@ class Graph extends Panel {
         squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
         this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
-
-        // Scale Getter
-        this.nodes.getScale = function() { return self.#scale; };
 
         // Zoom
         function onMouseZoom(event) {
@@ -126,65 +129,68 @@ class Graph extends Panel {
         if (! this.minimap) return;
         if (this.dom.style.display === 'none') return;
 
-        // this.minimap = new Canvas().setClass('MiniMap');
-        // squares.ctx.clearRect(0, 0, squares.width, squares.height);
-        // squares.ctx.fillStyle = 'rgb(255, 255, 255)';
-        // squares.ctx.globalAlpha = 0.04;
-        // squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+        // Rects
+        const bounds = this.nodeBounds();
+        const view = this.dom.getBoundingClientRect();
+        if (! bounds.isFinite) return;
+        const BUFFER = 200;
+        bounds.x.min -= BUFFER; bounds.x.max += BUFFER;
+        bounds.y.min -= BUFFER; bounds.y.max += BUFFER;
 
+        // Draw
         const map = this.minimap;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
-
-
-
+        ctx.globalAlpha = 0.75;
+        this.traverseNodes((node) => {
+            ctx.fillStyle = node.colorString();
+            const x = map.width * ((node.left - bounds.x.min) / bounds.width());
+            const w = map.width * (node.width / bounds.width());
+            const y = map.height * ((node.top - bounds.y.min) / bounds.height());
+            const h = map.height * (node.height / bounds.height());
+            ctx.fillRect(x, y, w, h);
+        });
     }
 
-    /* Updates list of all node rects in Graph */
-    nodeRects() {
-        // const
-        // function expandRect(node) {
-        //     const computed = getComputedStyle(node.dom);
-        //     const left = parseFloat(computed.left);
-        //     const top = parseFloat(computed.top);
-        //     const right = left + parseFloat(computed.width);
-        //     const bottom = top + parseFloat(computed.height);
-        //     xMin = Math.min(xMin, left);
-        //     yMin = Math.min(yMin, top);
-        //     xMax = Math.max(xMax, right);
-        //     yMax = Math.max(yMax, bottom);
-        // }
-        // this.traverseNodes(expandRect);
+    nodeBounds() {
+        const bounds = {
+            x: { min: Infinity, max: -Infinity },
+            y: { min: Infinity, max: -Infinity },
+            isFinite: false,
+        };
+        this.traverseNodes((node) => {
+            bounds.x.min = Math.min(bounds.x.min, node.left);
+            bounds.x.max = Math.max(bounds.x.max, node.right);
+            bounds.y.min = Math.min(bounds.y.min, node.top);
+            bounds.y.max = Math.max(bounds.y.max, node.bottom);
+        });
+        if ((bounds.x.max > bounds.x.min) && (bounds.y.max > bounds.y.min)) {
+            bounds.isFinite = true;
+            bounds.center = function() {
+                const x = bounds.x.min + ((bounds.x.max - bounds.x.min) / 2);
+                const y = bounds.y.min + ((bounds.y.max - bounds.y.min) / 2);
+                return { x, y };
+            };
+            bounds.width = () => { return (bounds.x.max - bounds.x.min); };
+            bounds.height = () => { return (bounds.y.max - bounds.y.min); };
+        }
+        return bounds;
     }
 
     resetView() {
-        let xMin = Infinity, xMax = -Infinity;
-        let yMin = Infinity, yMax = -Infinity;
-        function expandRect(node) {
-            const computed = getComputedStyle(node.dom);
-            const left = parseFloat(computed.left);
-            const top = parseFloat(computed.top);
-            const right = left + parseFloat(computed.width);
-            const bottom = top + parseFloat(computed.height);
-            xMin = Math.min(xMin, left);
-            yMin = Math.min(yMin, top);
-            xMax = Math.max(xMax, right);
-            yMax = Math.max(yMax, bottom);
-        }
-        this.traverseNodes(expandRect);
+        const bounds = this.nodeBounds();
         this.zoomTo(1);
         const rect = this.nodes.dom.getBoundingClientRect();
-        const targetX = (xMax > xMin) ? xMin + ((xMax - xMin) / 2) : (rect.width / 2);
-        const targetY = (yMax > yMin) ? yMin + ((yMax - yMin) / 2) : (rect.height / 2);
+        const targetX = bounds.isFinite ? bounds.center().x : rect.width / 2;
+        const targetY = bounds.isFinite ? bounds.center().y : rect.height / 2;
         this.#offset.x = (rect.width / 2) - targetX;
         this.#offset.y = (rect.height / 2) - targetY;
-        this.zoomTo(1);
+        this.zoomTo(1.0);
     }
 
     snap(enabled = true) {
         this.#snapToGrid = enabled;
-        // Apply to children nodes
-        this.traverseNodes((node) => node.snap(enabled));
+        this.traverseNodes((node) => node.snap(enabled)); /* apply to child nodes */
     }
 
     snapToGrid() {
@@ -194,10 +200,11 @@ class Graph extends Panel {
     traverseNodes(callback) {
         if (typeof callback !== 'function') return;
         if (! this.nodes) return;
-        for (let i = 0; i < this.nodes.children.length; i++) {
-            const node = this.nodes.children[i];
-            if (! node || ! node.isNode) continue;
-            callback(node);
+        const nodes = this.nodes.children;
+        nodes.sort((x, y) => x.zIndex - y.zIndex); /* sort zIndex low to high */
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            if (node && node.isNode) callback(node);
         }
     }
 
@@ -233,6 +240,9 @@ class Graph extends Panel {
         this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
         this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
+
+        // Redraw
+        this.drawMiniMap();
     }
 
 }

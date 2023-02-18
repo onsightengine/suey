@@ -3712,6 +3712,9 @@ class Graph extends Panel {
         this.lines = new Canvas().setClass('GraphLines');
         this.minimap = new Canvas().setClass('MiniMap');
         this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
+        this.nodes.isNodeGraph = true;
+        this.nodes.getScale = function() { return self.#scale; };
+        this.nodes.drawMiniMap = function() { self.drawMiniMap(); };
         const SIZE = GRID_SIZE * 4;
         const HALF = SIZE / 2;
         const BORDER = 2;
@@ -3727,7 +3730,6 @@ class Graph extends Panel {
         squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
         this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
-        this.nodes.getScale = function() { return self.#scale; };
         function onMouseZoom(event) {
             event.preventDefault();
             const delta = (event.deltaY * 0.002);
@@ -3801,34 +3803,58 @@ class Graph extends Panel {
     drawMiniMap() {
         if (! this.minimap) return;
         if (this.dom.style.display === 'none') return;
+        const bounds = this.nodeBounds();
+        const view = this.dom.getBoundingClientRect();
+        if (! bounds.isFinite) return;
+        const BUFFER = 200;
+        bounds.x.min -= BUFFER; bounds.x.max += BUFFER;
+        bounds.y.min -= BUFFER; bounds.y.max += BUFFER;
         const map = this.minimap;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
+        ctx.globalAlpha = 0.75;
+        this.traverseNodes((node) => {
+            ctx.fillStyle = node.colorString();
+            const x = map.width * ((node.left - bounds.x.min) / bounds.width());
+            const w = map.width * (node.width / bounds.width());
+            const y = map.height * ((node.top - bounds.y.min) / bounds.height());
+            const h = map.height * (node.height / bounds.height());
+            ctx.fillRect(x, y, w, h);
+        });
     }
-    nodeRects() {
+    nodeBounds() {
+        const bounds = {
+            x: { min: Infinity, max: -Infinity },
+            y: { min: Infinity, max: -Infinity },
+            isFinite: false,
+        };
+        this.traverseNodes((node) => {
+            bounds.x.min = Math.min(bounds.x.min, node.left);
+            bounds.x.max = Math.max(bounds.x.max, node.right);
+            bounds.y.min = Math.min(bounds.y.min, node.top);
+            bounds.y.max = Math.max(bounds.y.max, node.bottom);
+        });
+        if ((bounds.x.max > bounds.x.min) && (bounds.y.max > bounds.y.min)) {
+            bounds.isFinite = true;
+            bounds.center = function() {
+                const x = bounds.x.min + ((bounds.x.max - bounds.x.min) / 2);
+                const y = bounds.y.min + ((bounds.y.max - bounds.y.min) / 2);
+                return { x, y };
+            };
+            bounds.width = () => { return (bounds.x.max - bounds.x.min); };
+            bounds.height = () => { return (bounds.y.max - bounds.y.min); };
+        }
+        return bounds;
     }
     resetView() {
-        let xMin = Infinity, xMax = -Infinity;
-        let yMin = Infinity, yMax = -Infinity;
-        function expandRect(node) {
-            const computed = getComputedStyle(node.dom);
-            const left = parseFloat(computed.left);
-            const top = parseFloat(computed.top);
-            const right = left + parseFloat(computed.width);
-            const bottom = top + parseFloat(computed.height);
-            xMin = Math.min(xMin, left);
-            yMin = Math.min(yMin, top);
-            xMax = Math.max(xMax, right);
-            yMax = Math.max(yMax, bottom);
-        }
-        this.traverseNodes(expandRect);
+        const bounds = this.nodeBounds();
         this.zoomTo(1);
         const rect = this.nodes.dom.getBoundingClientRect();
-        const targetX = (xMax > xMin) ? xMin + ((xMax - xMin) / 2) : (rect.width / 2);
-        const targetY = (yMax > yMin) ? yMin + ((yMax - yMin) / 2) : (rect.height / 2);
+        const targetX = bounds.isFinite ? bounds.center().x : rect.width / 2;
+        const targetY = bounds.isFinite ? bounds.center().y : rect.height / 2;
         this.#offset.x = (rect.width / 2) - targetX;
         this.#offset.y = (rect.height / 2) - targetY;
-        this.zoomTo(1);
+        this.zoomTo(1.0);
     }
     snap(enabled = true) {
         this.#snapToGrid = enabled;
@@ -3840,10 +3866,11 @@ class Graph extends Panel {
     traverseNodes(callback) {
         if (typeof callback !== 'function') return;
         if (! this.nodes) return;
-        for (let i = 0; i < this.nodes.children.length; i++) {
-            const node = this.nodes.children[i];
-            if (! node || ! node.isNode) continue;
-            callback(node);
+        const nodes = this.nodes.children;
+        nodes.sort((x, y) => x.zIndex - y.zIndex);
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            if (node && node.isNode) callback(node);
         }
     }
     zoomTo(zoom, clientX, clientY) {
@@ -3872,6 +3899,7 @@ class Graph extends Panel {
         this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
         this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
+        this.drawMiniMap();
     }
 }
 
@@ -3883,8 +3911,7 @@ class Node extends Div {
     #resizers = {};
     #snapToGrid = true;
     #color = new Iris();
-    #observer = undefined;
-    #rect = {};
+    #style = {};
     #needsUpdate = true;
     constructor({
         width = 200,
@@ -3981,15 +4008,12 @@ class Node extends Div {
             this.toggleResize(resizerName, resizers.includes(resizerName));
         }
         let styleTimeout = undefined;
-        function observeStyle(mutations) {
-            mutations.forEach((mutationRecord) => {
-                self.#needsUpdate = true;
-                clearTimeout(styleTimeout);
-                styleTimeout = setTimeout(() => self.#updateSizes(), 10);
-            });
-        }
-        const observer = new MutationObserver(observeStyle);
-        observer.observe(this.dom, { attributes : true, attributeFilter : ['style'] });
+        const observer = new MutationObserver(() => {
+            self.#needsUpdate = true;
+            clearTimeout(styleTimeout);
+            styleTimeout = setTimeout(() => self.#updateSizes(), 50);
+        });
+        observer.observe(this.dom, { attributes: true, attributeFilter: [ 'style', 'class' ] });
         this.setStyle(
             'left', `${roundNearest(parseFloat(x))}px`,
             'top', `${roundNearest(parseFloat(y))}px`,
@@ -4005,28 +4029,31 @@ class Node extends Div {
         }
         this.onPointerDown(selectNode);
         this.dom.addEventListener('destroy', function() {
-            if (self.#observer) self.#observer.disconnect();
+            if (observer) observer.disconnect();
         }, { once: true });
     }
     #updateSizes() {
         const computed = getComputedStyle(this.dom);
-        const rect = this.#rect;
-        rect.left = parseFloat(computed.left);
-        rect.top = parseFloat(computed.top);
-        rect.width = parseFloat(computed.width);
-        rect.height = parseFloat(computed.height);
-        rect.right = rect.left + rect.width;
-        rect.bottom = rect.top + rect.height;
+        const style = this.#style;
+        style.left = parseFloat(computed.left);
+        style.top = parseFloat(computed.top);
+        style.width = parseFloat(computed.width);
+        style.height = parseFloat(computed.height);
+        style.right = style.left + style.width;
+        style.bottom = style.top + style.height;
+        style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
+        if (this.parent && this.parent.isNodeGraph) this.parent.drawMiniMap();
     }
-    get left()   { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.left; }
-    get top()    { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.top; }
-    get width()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.width; }
-    get height() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.height; }
-    get right()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.right; }
-    get bottom() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#rect.bottom; }
+    get left()   { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.left; }
+    get top()    { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.top; }
+    get width()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.width; }
+    get height() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.height; }
+    get right()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.right; }
+    get bottom() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.bottom; }
+    get zIndex() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.zIndex; }
     getScale() {
-        return ((this.parent && this.parent.getScale) ? this.parent.getScale() : 1);
+        return ((this.parent && this.parent.isNodeGraph) ? this.parent.getScale() : 1);
     }
     snap(enabled = true) {
         this.#snapToGrid = enabled;
@@ -4057,6 +4084,9 @@ class Node extends Div {
         const colorLight = _color2.set(this.#color).darken(1.3).rgbString();
         const colorDark = _color1.set(this.#color).darken(0.7).rgbString();
         if (this.header) this.header.setStyle('background-image', `linear-gradient(to bottom, rgba(${colorLight}, 0.75), rgba(${colorDark}, 0.75))`);
+    }
+    colorString() {
+        return this.#color.cssString();
     }
 }
 
