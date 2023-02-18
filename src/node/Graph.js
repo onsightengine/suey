@@ -1,7 +1,11 @@
 import { Canvas } from '../core/Canvas.js';
+import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
+import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRID_SIZE } from '../constants.js';
+import { GRID_SIZE, TRAIT } from '../constants.js';
+
+const _color = new Iris();
 
 class Graph extends Panel {
 
@@ -129,26 +133,60 @@ class Graph extends Panel {
         if (! this.minimap) return;
         if (this.dom.style.display === 'none') return;
 
-        // Rects
+        // Bounds
         const bounds = this.nodeBounds();
-        const view = this.dom.getBoundingClientRect();
         if (! bounds.isFinite) return;
         const BUFFER = 200;
         bounds.x.min -= BUFFER; bounds.x.max += BUFFER;
         bounds.y.min -= BUFFER; bounds.y.max += BUFFER;
 
-        // Draw
+        // Clear
         const map = this.minimap;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
+
+        // Aspect Ratio
+        let canvasWidth = map.width;
+        let canvasHeight = map.height;
+        let adjustX = 0, adjustY = 0;
+        const ratioX = map.width / bounds.width();
+        const ratioY = (map.height / bounds.height()) * this.minimap.ratio();
+        if (ratioX > ratioY) {
+            canvasWidth *= (ratioY / ratioX);
+            adjustX = (canvasWidth - map.width) / 2;
+        } else {
+            canvasHeight *= (ratioX / ratioY);
+            adjustY = (canvasHeight - map.height) / 2;
+        }
+
+        // Draw View
+        const rect = this.dom.getBoundingClientRect();
+        if (rect) {
+            const scaled = {};
+            const centerX = rect.left + ((rect.right - rect.left) / 2);
+            const centerY = rect.top + ((rect.bottom - rect.top) / 2);
+            scaled.left = (centerX - ((rect.width / this.#scale) / 2)) - this.#offset.x;
+            scaled.top = (centerY - ((rect.height / this.#scale) / 2)) - this.#offset.y;
+            scaled.width = rect.width / this.#scale;
+            scaled.height = rect.height / this.#scale;
+            ctx.globalAlpha = 0.5;
+            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            const x = canvasWidth * ((scaled.left - bounds.x.min) / bounds.width());
+            const w = canvasWidth * (scaled.width / bounds.width());
+            const y = canvasHeight * ((scaled.top - bounds.y.min) / bounds.height());
+            const h = canvasHeight * (scaled.height / bounds.height());
+            ctx.fillRect(x - adjustX, y - adjustY, w, h);
+        }
+
+        // Draw Nodes
         ctx.globalAlpha = 0.75;
         this.traverseNodes((node) => {
             ctx.fillStyle = node.colorString();
-            const x = map.width * ((node.left - bounds.x.min) / bounds.width());
-            const w = map.width * (node.width / bounds.width());
-            const y = map.height * ((node.top - bounds.y.min) / bounds.height());
-            const h = map.height * (node.height / bounds.height());
-            ctx.fillRect(x, y, w, h);
+            const x = canvasWidth * ((node.left - bounds.x.min) / bounds.width());
+            const w = canvasWidth * (node.width / bounds.width());
+            const y = canvasHeight * ((node.top - bounds.y.min) / bounds.height());
+            const h = canvasHeight * (node.height / bounds.height());
+            ctx.fillRect(x - adjustX, y - adjustY, w, h);
         });
     }
 

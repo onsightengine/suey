@@ -136,7 +136,7 @@ class Node extends Div {
         const observer = new MutationObserver(() => {
             self.#needsUpdate = true;
             clearTimeout(styleTimeout);
-            styleTimeout = setTimeout(() => self.#updateSizes(), 50);
+            styleTimeout = setTimeout(() => self.#updateSizes(), 4);
         });
         observer.observe(this.dom, { attributes: true, attributeFilter: [ 'style', 'class' ] });
 
@@ -169,6 +169,7 @@ class Node extends Div {
     /******************** RECT */
 
     #updateSizes() {
+        if (! this.#needsUpdate) return;
         const computed = getComputedStyle(this.dom);
         const style = this.#style;
         style.left = parseFloat(computed.left);
@@ -182,13 +183,13 @@ class Node extends Div {
         if (this.parent && this.parent.isNodeGraph) this.parent.drawMiniMap();
     }
 
-    get left()   { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.left; }
-    get top()    { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.top; }
-    get width()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.width; }
-    get height() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.height; }
-    get right()  { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.right; }
-    get bottom() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.bottom; }
-    get zIndex() { if (this.#needsUpdate) { this.#updateSizes(); } return this.#style.zIndex; }
+    get left()   { this.#updateSizes(); return this.#style.left; }
+    get top()    { this.#updateSizes(); return this.#style.top; }
+    get width()  { this.#updateSizes(); return this.#style.width; }
+    get height() { this.#updateSizes(); return this.#style.height; }
+    get right()  { this.#updateSizes(); return this.#style.right; }
+    get bottom() { this.#updateSizes(); return this.#style.bottom; }
+    get zIndex() { this.#updateSizes(); return this.#style.zIndex; }
 
     /******************** SCALE / SNAP / RESIZE */
 

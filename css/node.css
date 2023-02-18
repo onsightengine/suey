@@ -2,7 +2,7 @@
 
 .MiniMap {
     position: absolute;
-    background-color: rgba(var(--background-dark), 0.8);
+    background-color: rgba(var(--background-dark), 0.5);
     border: var(--border-small) solid rgb(var(--icon));
     border-radius: var(--radius-large);
     top: var(--pad-large);

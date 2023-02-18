@@ -18,6 +18,11 @@ class Canvas extends Element {
     get height() { return this.dom.height; }
     set height(x) { this.dom.height = x; }
 
+    ratio() {
+        const rect = this.dom.getBoundingClientRect();
+        return ((this.dom.width / this.dom.height) / (rect.width / rect.height));
+    }
+
 }
 
 export { Canvas };
