@@ -40,7 +40,6 @@
 //		AssetBox                div                     .AssetBox, .MiniAssetBox
 //      Docker                  div                     .DockerLeft, .DockerRight
 //		FlexBox                 div                     -
-//		FlexBreak               div                     -
 //      FlexSpacer              span                    -
 //      Row                     div                     .Row
 //      ShadowBox               div                     .ShadowBox
@@ -119,7 +118,6 @@ export { AbsoluteBox } from './layout/AbsoluteBox.js';
 export { AssetBox } from './layout/AssetBox.js';
 export { Docker } from './layout/Docker.js';
 export { FlexBox } from './layout/FlexBox.js';
-export { FlexBreak } from './layout/FlexBreak.js';
 export { FlexSpacer } from './layout/FlexSpacer.js';
 export { Row } from './layout/Row.js';
 export { ShadowBox } from './layout/ShadowBox.js';

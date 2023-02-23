@@ -46,7 +46,9 @@ class Window extends Panel {
             this.#resizers[resizerName] = resizer;
             let downX, downY, rect;
             function onPointerDown(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                if (! event.isPrimary) return;
+                event.stopPropagation();
+                event.preventDefault();
                 resizer.dom.setPointerCapture(event.pointerId);
                 Draggable.bringToTop(self.dom);
                 downX = event.pageX;
@@ -56,13 +58,15 @@ class Window extends Panel {
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
             }
             function onPointerUp(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                event.stopPropagation();
+                event.preventDefault();
                 resizer.dom.releasePointerCapture(event.pointerId);
                 self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
             }
             function onPointerMove(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                event.stopPropagation();
+                event.preventDefault();
                 const diffX = event.pageX - downX;
                 const diffY = event.pageY - downY;
                 if (self.#resizeMode === RESIZE_MODE.FIXED) {

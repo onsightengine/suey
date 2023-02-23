@@ -75,26 +75,27 @@ class Node extends Div {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
-            resizer.setPointerEvents('none');
-            sizers.add(resizer);
-            this.#resizers[resizerName] = resizer;
+
             let downX, downY;
             let rect = {};
+
             function onPointerDown(event) {
                 if (! event.isPrimary) return;
                 event.stopPropagation();
                 event.preventDefault();
-                selectNode();
                 resizer.dom.setPointerCapture(event.pointerId);
                 downX = event.pageX;
                 downY = event.pageY;
+                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+
                 rect.left = self.left;
                 rect.top = self.top;
                 rect.width = self.width;
                 rect.height = self.height;
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                selectNode();
             }
+
             function onPointerUp(event) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -102,6 +103,7 @@ class Node extends Div {
                 self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
             }
+
             function onPointerMove(event) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -127,8 +129,12 @@ class Node extends Div {
                     self.setStyle('height', `${newHeight}px`);
                 }
             }
+
             resizer.dom.addEventListener('pointerdown', onPointerDown);
+            resizer.setPointerEvents('none');
+            this.#resizers[resizerName] = resizer;
             this.toggleResize(resizerName, resizers.includes(resizerName));
+            sizers.add(resizer);
         }
 
         // Style Observer
@@ -207,7 +213,7 @@ class Node extends Div {
 
     /** Turns a resizing handle on / off */
     toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
+        if (! resizerName || ! this.#resizers[resizerName]) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
     }

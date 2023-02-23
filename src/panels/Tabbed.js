@@ -2,6 +2,7 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
 import { ResizeFlex } from './ResizeFlex.js';
+import { RESIZERS } from '../constants.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
@@ -12,10 +13,20 @@ export const TAB_SIDES = {
 class Tabbed extends ResizeFlex {
 
     constructor({
-        style = PANEL_STYLES.FANCY,
         tabSide = TAB_SIDES.RIGHT,
-     } = {}) {
-        super({ style });
+        style = PANEL_STYLES.FANCY,
+        resizers = [
+            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
+            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
+        ],
+        startWidth = null,
+        startHeight = null,
+        minWidth = 0,
+        maxWidth = Infinity,
+        minHeight = 0,
+        maxHeight = Infinity,
+    } = {}) {
+        super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
         this.setName('Tabbed');
         this.addClass('Tabbed');
 
@@ -76,7 +87,7 @@ class Tabbed extends ResizeFlex {
                 self.setContentsStyle('minHeight', ((2.2 * self.tabs.length) + 0.4) + 'em');
             }
 
-            return tab;
+            return panel;
         };
 
     } // end ctor

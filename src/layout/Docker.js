@@ -12,11 +12,13 @@ export const CORNERS = {
 
 class Docker extends Div {
 
+    #corners = {};
+
     constructor() {
         super();
+        const self = this;
 
-        // Build
-        const cornerDivs = {};
+        // Build Corners
         let zIndex = 1;
         for (let key in CORNERS) {
             const cornerName = CORNERS[key];
@@ -27,67 +29,53 @@ class Docker extends Div {
 
             // Bring Corner to top on 'Click' event
             let clickedOnCorner = false;
-            corner.dom.addEventListener('pointerdown', event => clickedOnCorner = true);
-            corner.dom.addEventListener('pointerup', function(event) {
-                if (clickedOnCorner) {
-                    // Decrease all zIndex values
-                    for (let cornerDiv in cornerDivs) {
-                        const style = getComputedStyle(cornerDivs[cornerDiv].dom);
-                        let computedZ = style.getPropertyValue('z-index');
-                        if (computedZ > 1) computedZ--;
-                        cornerDivs[cornerDiv].setStyle('zIndex', `${computedZ}`);
-                    };
-
-                    // Set clicked corner to highest zIndex value
-                    corner.setStyle('zIndex', `${Object.keys(cornerDivs).length}`);
-                }
+            corner.dom.addEventListener('pointerdown', () => clickedOnCorner = true);
+            corner.dom.addEventListener('pointerup', function() {
+                if (! clickedOnCorner) return;
+                // Decrease all zIndex values
+                for (let cornerDiv in self.#corners) {
+                    const style = getComputedStyle(self.#corners[cornerDiv].dom);
+                    let computedZ = style.getPropertyValue('z-index');
+                    if (computedZ > 1) computedZ--;
+                    self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
+                };
+                // Bring to front
+                corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
+                // Reset
                 clickedOnCorner = false;
             });
 
             // Add to Docker
-            cornerDivs[cornerName] = corner;
+            this.#corners[cornerName] = corner;
             this.add(corner);
         }
+    }
 
-        // Add Dock
-        this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
-            cornerDivs[cornerName].add(osuiElement);
+    addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
+        if (! dockPanel) return;
+        const corner = this.getCorner(cornerName);
+        corner.add(dockPanel);
 
-            if (osuiElement.isElement && osuiElement.hasClass('Tabbed')) {
-                if (cornerName.includes('Right')) osuiElement.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('Left')) osuiElement.setTabSide(TAB_SIDES.RIGHT);
+        // Watch for Resize
+        dockPanel.dom.addEventListener('resized', () => {
+            corner.dom.dispatchEvent(new Event('resized'));
+        });
+
+        if (dockPanel.isElement) {
+            if (dockPanel.hasClass('Tabbed')) {
+                if (cornerName.includes('Right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
+                if (cornerName.includes('Left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
             }
-
-            if (osuiElement.isElement && osuiElement.hasClass('ResizeFlex')) {
-                osuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
-                osuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
-                // // TEMP: No vertical resizing for now...
-                // osuiElement.toggleResize(RESIZERS.TOP, cornerName.includes('Bottom'));
-                // osuiElement.toggleResize(RESIZERS.BOTTOM, cornerName.includes('Top'));
-                // osuiElement.toggleResize(RESIZERS.TOP_LEFT, cornerName.includes('BottomRight'));
-                // osuiElement.toggleResize(RESIZERS.TOP_RIGHT, cornerName.includes('BottomLeft'));
-                // osuiElement.toggleResize(RESIZERS.BOTTOM_RIGHT, cornerName.includes('TopLeft'));
-                // osuiElement.toggleResize(RESIZERS.BOTTOM_LEFT, cornerName.includes('TopRight'));
+            if (dockPanel.hasClass('ResizeFlex')) {
+                dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
+                dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
             }
         }
+    }
 
-        // Signals
-        function windowResizeCallback() {
-            let bottomLeftHeight = 0;
-            for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {
-                bottomLeftHeight += cornerDivs[CORNERS.BOTTOM_LEFT].children[i].getHeight();
-            }
-            let newHeightEm = parseFloat(Css.toEm(bottomLeftHeight)) - 0.175;
-            cornerDivs[CORNERS.TOP_LEFT].setStyle('bottom', `${newHeightEm}em`);
-        }
-
-        signals.windowResize.add(windowResizeCallback);
-
-        this.dom.addEventListener('destroy', function() {
-            signals.windowResize.remove(windowResizeCallback);
-        }, { once: true });
-
-    } // end ctor
+    getCorner(cornerName = CORNERS.TOP_LEFT) {
+        return this.#corners[cornerName];
+    }
 
 }
 

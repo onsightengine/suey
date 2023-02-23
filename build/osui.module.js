@@ -1509,96 +1509,106 @@ class PropertyList extends Div {
 
 class ResizeFlex extends Panel {
     #resizers = {};
+    #startWidth = null;
+    #startHeight = null;
+    #minWidth = 0;
+    #maxWidth = Infinity;
+    #minHeight = 0;
+    #maxHeight = Infinity;
     constructor({
         style = PANEL_STYLES.FANCY,
+        resizers = [
+            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
+            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
+        ],
+        startWidth = null,
+        startHeight = null,
+        minWidth = 0,
+        maxWidth = Infinity,
+        minHeight = 0,
+        maxHeight = Infinity,
     } = {}) {
         super({ style });
+        const self = this;
         this.addClass('ResizeFlex');
+        this.#startWidth = startWidth;
+        this.#minWidth = minWidth;
+        this.#maxWidth = maxWidth;
+        this.#startHeight = startHeight;
+        this.#minHeight = minHeight;
+        this.#maxHeight = maxHeight;
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
-            this.addToSelf(resizer);
+            let downX, downY;
+            let rect = {};
+            function onPointerDown(event) {
+                if (! event.isPrimary) return;
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.setPointerCapture(event.pointerId);
+                downX = event.pageX;
+                downY = event.pageY;
+                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                rect.width = self.getWidth();
+                rect.height = self.getHeight();
+            }
+            function onPointerUp(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
+                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            }
+            function onPointerMove(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                let diffX = event.pageX - downX;
+                let diffY = event.pageY - downY;
+                if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
+                if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
+                if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
+                if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
+                if (window.signals) signals.windowResize.dispatch();
+            }
+            resizer.dom.addEventListener('pointerdown', onPointerDown);
+            resizer.setPointerEvents('none');
             this.#resizers[resizerName] = resizer;
+            this.toggleResize(resizerName, resizers.includes(resizerName));
+            this.addToSelf(resizer);
         }
-        this.setXSizes();
-        this.setYSizes();
     }
     changeWidth(width) {
-        if (width == null) return;
-        width = parseFloat(width);
-        width = Math.min(Math.max(width, this.minWidth), this.maxWidth).toFixed(1);
-        this.setWidth(Css.toEm(width, this.dom));
+        if (typeof width !== 'number' || Number.isNaN(width) || ! Number.isFinite(width)) width = this.#startWidth;
+        if (width == null) {
+            this.dom.style.removeProperty('width');
+            return null;
+        }
+        const scaledMinWidth = this.#minWidth * Css.guiScale(this.dom);
+        const scaledMaxWidth = this.#maxWidth * Css.guiScale(this.dom);
+        width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
+        this.setStyle('width', Css.toEm(width, this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+        return width;
     }
     changeHeight(height) {
-        if (height == null) return;
-        height = parseFloat(height);
-        height = Math.min(Math.max(height, this.minHeight), this.maxHeight).toFixed(1);
-        this.setHeight(Css.toEm(height, this.dom));
+        if (typeof height !== 'number' || Number.isNaN(height) || ! Number.isFinite(height)) height = this.#startHeight;
+        if (height == null) {
+            this.dom.style.removeProperty('height');
+            return null;
+        }
+        const scaledMinHeight = this.#minHeight * Css.guiScale(this.dom);
+        const scaledMaxHeight = this.#maxHeight * Css.guiScale(this.dom);
+        height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
+        this.setStyle('height', Css.toEm(height, this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+        return height;
     }
-    setXSizes(start = null, min = 0, max = Infinity) {
-        this.minWidth = min;
-        this.maxWidth = max;
-        this.defaultWidth = start;
-    }
-    setYSizes(start = null, min = 0, max = Infinity) {
-        this.minHeight = min;
-        this.maxHeight = max;
-        this.defaultHeight = start;
-    }
-    toggleResize(resizerName, enabled) {
-        const resizer = this.#resizers[resizerName];
-        let downX, downY;
-        let downW, downH;
-        function onPointerDown(event) {
-            if (! event.isPrimary) return;
-            event.stopPropagation();
-            event.preventDefault();
-            resizer.dom.setPointerCapture(event.pointerId);
-            downX = event.clientX;
-            downY = event.clientY;
-            downW = this.parent.getWidth();
-            downH = this.parent.getHeight();
-            this.dom.ownerDocument.addEventListener('pointermove', this._onPointerMove);
-            this.dom.ownerDocument.addEventListener('pointerup', this._onPointerUp);
-        }
-        function onPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            resizer.dom.releasePointerCapture(event.pointerId);
-            this.dom.ownerDocument.removeEventListener('pointermove', this._onPointerMove);
-            this.dom.ownerDocument.removeEventListener('pointerup', this._onPointerUp);
-        }
-        function onPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            let newWidth = downW;
-            let newHeight = downH;
-            let diffX = event.clientX - downX;
-            let diffY = event.clientY - downY;
-            if (this.hasClassWithString('Left')) newWidth = downW - diffX;
-            if (this.hasClassWithString('Right')) newWidth = downW + diffX;
-            if (this.hasClassWithString('Top')) newHeight = downH - diffY;
-            if (this.hasClassWithString('Bottom')) newHeight = downH + diffY;
-            if (newWidth < this.parent.minWidth * Css.guiScale(this.dom)) newWidth = this.parent.minWidth * Css.guiScale(this.dom);
-            if (newWidth > this.parent.maxWidth * Css.guiScale(this.dom)) newWidth = this.parent.maxWidth * Css.guiScale(this.dom);
-            if (newHeight < this.parent.minHeight * Css.guiScale(this.dom)) newHeight = this.parent.minHeight * Css.guiScale(this.dom);
-            if (newHeight > this.parent.maxHeight * Css.guiScale(this.dom)) newHeight = this.parent.maxHeight * Css.guiScale(this.dom);
-            if (downW !== newWidth) this.parent.changeWidth(newWidth);
-            if (downH !== newHeight) this.parent.changeHeight(newHeight);
-            if (window.signals) signals.windowResize.dispatch();
-        }
-        if (enabled && resizer.resizeEnabled !== true) {
-            if (resizer._onPointerDown === undefined) resizer._onPointerDown = onPointerDown.bind(resizer);
-            if (resizer._onPointerMove === undefined) resizer._onPointerMove = onPointerMove.bind(resizer);
-            if (resizer._onPointerUp === undefined) resizer._onPointerUp = onPointerUp.bind(resizer);
-            resizer.dom.addEventListener('pointerdown', resizer._onPointerDown);
-            resizer.setPointerEvents('auto');
-        } else if (! enabled && resizer.resizeEnabled === true) {
-            resizer.dom.removeEventListener('pointerdown', resizer._onPointerDown);
-            resizer.setPointerEvents('none');
-        }
-        resizer.resizeEnabled = enabled;
+    toggleResize(resizerName, enable = true) {
+        if (! resizerName || ! this.#resizers[resizerName]) return;
+        this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
     }
 }
@@ -3266,7 +3276,9 @@ class Window extends Panel {
             this.#resizers[resizerName] = resizer;
             let downX, downY, rect;
             function onPointerDown(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                if (! event.isPrimary) return;
+                event.stopPropagation();
+                event.preventDefault();
                 resizer.dom.setPointerCapture(event.pointerId);
                 Draggable.bringToTop(self.dom);
                 downX = event.pageX;
@@ -3276,13 +3288,15 @@ class Window extends Panel {
                 self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
             }
             function onPointerUp(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                event.stopPropagation();
+                event.preventDefault();
                 resizer.dom.releasePointerCapture(event.pointerId);
                 self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
                 self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
             }
             function onPointerMove(event) {
-                if (! event.isPrimary) { return; } event.stopPropagation(); event.preventDefault();
+                event.stopPropagation();
+                event.preventDefault();
                 const diffX = event.pageX - downX;
                 const diffY = event.pageY - downY;
                 if (self.#resizeMode === RESIZE_MODE.FIXED) {
@@ -3406,10 +3420,20 @@ const TAB_SIDES = {
 };
 class Tabbed extends ResizeFlex {
     constructor({
-        style = PANEL_STYLES.FANCY,
         tabSide = TAB_SIDES.RIGHT,
-     } = {}) {
-        super({ style });
+        style = PANEL_STYLES.FANCY,
+        resizers = [
+            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
+            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
+        ],
+        startWidth = null,
+        startHeight = null,
+        minWidth = 0,
+        maxWidth = Infinity,
+        minHeight = 0,
+        maxHeight = Infinity,
+    } = {}) {
+        super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
         this.setName('Tabbed');
         this.addClass('Tabbed');
         const self = this;
@@ -3450,7 +3474,7 @@ class Tabbed extends ResizeFlex {
             if (self.tabsDiv.hasClass('LeftSide') || self.tabsDiv.hasClass('RightSide')) {
                 self.setContentsStyle('minHeight', ((2.2 * self.tabs.length) + 0.4) + 'em');
             }
-            return tab;
+            return panel;
         };
     }
     selectFirst() {
@@ -3596,9 +3620,10 @@ const CORNERS = {
     BOTTOM_RIGHT:   'BottomRight',
 };
 class Docker extends Div {
+    #corners = {};
     constructor() {
         super();
-        const cornerDivs = {};
+        const self = this;
         let zIndex = 1;
         for (let key in CORNERS) {
             const cornerName = CORNERS[key];
@@ -3607,45 +3632,42 @@ class Docker extends Div {
             corner.setStyle('zIndex', `${zIndex}`);
             zIndex++;
             let clickedOnCorner = false;
-            corner.dom.addEventListener('pointerdown', event => clickedOnCorner = true);
-            corner.dom.addEventListener('pointerup', function(event) {
-                if (clickedOnCorner) {
-                    for (let cornerDiv in cornerDivs) {
-                        const style = getComputedStyle(cornerDivs[cornerDiv].dom);
-                        let computedZ = style.getPropertyValue('z-index');
-                        if (computedZ > 1) computedZ--;
-                        cornerDivs[cornerDiv].setStyle('zIndex', `${computedZ}`);
-                    };
-                    corner.setStyle('zIndex', `${Object.keys(cornerDivs).length}`);
-                }
+            corner.dom.addEventListener('pointerdown', () => clickedOnCorner = true);
+            corner.dom.addEventListener('pointerup', function() {
+                if (! clickedOnCorner) return;
+                for (let cornerDiv in self.#corners) {
+                    const style = getComputedStyle(self.#corners[cornerDiv].dom);
+                    let computedZ = style.getPropertyValue('z-index');
+                    if (computedZ > 1) computedZ--;
+                    self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
+                };
+                corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
                 clickedOnCorner = false;
             });
-            cornerDivs[cornerName] = corner;
+            this.#corners[cornerName] = corner;
             this.add(corner);
         }
-        this.addDock = function(osuiElement, cornerName = CORNERS.TOP_LEFT) {
-            cornerDivs[cornerName].add(osuiElement);
-            if (osuiElement.isElement && osuiElement.hasClass('Tabbed')) {
-                if (cornerName.includes('Right')) osuiElement.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('Left')) osuiElement.setTabSide(TAB_SIDES.RIGHT);
+    }
+    addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
+        if (! dockPanel) return;
+        const corner = this.getCorner(cornerName);
+        corner.add(dockPanel);
+        dockPanel.dom.addEventListener('resized', () => {
+            corner.dom.dispatchEvent(new Event('resized'));
+        });
+        if (dockPanel.isElement) {
+            if (dockPanel.hasClass('Tabbed')) {
+                if (cornerName.includes('Right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
+                if (cornerName.includes('Left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
             }
-            if (osuiElement.isElement && osuiElement.hasClass('ResizeFlex')) {
-                osuiElement.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
-                osuiElement.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
+            if (dockPanel.hasClass('ResizeFlex')) {
+                dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
+                dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
             }
-        };
-        function windowResizeCallback() {
-            let bottomLeftHeight = 0;
-            for (let i = 0; i < cornerDivs[CORNERS.BOTTOM_LEFT].children.length; i++) {
-                bottomLeftHeight += cornerDivs[CORNERS.BOTTOM_LEFT].children[i].getHeight();
-            }
-            let newHeightEm = parseFloat(Css.toEm(bottomLeftHeight)) - 0.175;
-            cornerDivs[CORNERS.TOP_LEFT].setStyle('bottom', `${newHeightEm}em`);
         }
-        signals.windowResize.add(windowResizeCallback);
-        this.dom.addEventListener('destroy', function() {
-            signals.windowResize.remove(windowResizeCallback);
-        }, { once: true });
+    }
+    getCorner(cornerName = CORNERS.TOP_LEFT) {
+        return this.#corners[cornerName];
     }
 }
 
@@ -3653,15 +3675,6 @@ class FlexBox extends Element {
     constructor() {
         super(document.createElement('div'));
         this.addClass('FlexBox');
-    }
-}
-
-class FlexBreak extends Div {
-    constructor() {
-        super();
-        this.setStyle('flexBasis', '100%');
-        this.setStyle('flexGrow', '1');
-        this.setStyle('height', '0');
     }
 }
 
@@ -3985,25 +3998,22 @@ class Node extends Div {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
-            resizer.setPointerEvents('none');
-            sizers.add(resizer);
-            this.#resizers[resizerName] = resizer;
             let downX, downY;
             let rect = {};
             function onPointerDown(event) {
                 if (! event.isPrimary) return;
                 event.stopPropagation();
                 event.preventDefault();
-                selectNode();
                 resizer.dom.setPointerCapture(event.pointerId);
                 downX = event.pageX;
                 downY = event.pageY;
+                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
                 rect.left = self.left;
                 rect.top = self.top;
                 rect.width = self.width;
                 rect.height = self.height;
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                selectNode();
             }
             function onPointerUp(event) {
                 event.stopPropagation();
@@ -4038,7 +4048,10 @@ class Node extends Div {
                 }
             }
             resizer.dom.addEventListener('pointerdown', onPointerDown);
+            resizer.setPointerEvents('none');
+            this.#resizers[resizerName] = resizer;
             this.toggleResize(resizerName, resizers.includes(resizerName));
+            sizers.add(resizer);
         }
         let styleTimeout = undefined;
         const observer = new MutationObserver(() => {
@@ -4096,7 +4109,7 @@ class Node extends Div {
         return this.#snapToGrid;
     }
     toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
+        if (! resizerName || ! this.#resizers[resizerName]) return;
         this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
         return this;
     }
@@ -4191,4 +4204,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.Tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexBreak, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, ResizeFlex, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };
