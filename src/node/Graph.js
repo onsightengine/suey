@@ -113,7 +113,7 @@ class Graph extends Panel {
                 const selected = document.querySelectorAll(`.NodeSelected`);
                 selected.forEach(el => el.classList.remove('NodeSelected'));
                 self.bandbox.setStyle('display', 'block');
-                rubberBandBox(event.clientX, event.clientY);
+                updateRubberBandBox(event.clientX, event.clientY);
             }
             if (grabbing || selecting) {
                 event.stopPropagation();
@@ -148,18 +148,37 @@ class Graph extends Panel {
                 self.#offset.y = (offset.y + diffY);
                 self.zoomTo();
             } else if (selecting) {
-                rubberBandBox(event.clientX, event.clientY);
+                updateRubberBandBox(event.clientX, event.clientY);
             }
         }
-        function rubberBandBox(toX, toY) {
-            const xMin = Math.min(startPoint.x, toX);
-            const yMin = Math.min(startPoint.y, toY);
+        function updateRubberBandBox(toX, toY) {
+            // Set rubber band box size
+            const left = Math.min(startPoint.x, toX);
+            const top = Math.min(startPoint.y, toY);
+            const width = Math.abs(startPoint.x - toX);
+            const height = Math.abs(startPoint.y - toY);
             self.bandbox.setStyle(
-                'left', `${xMin}px`,
-                'top', `${yMin}px`,
-                'width', `${Math.abs(startPoint.x - toX)}px`,
-                'height', `${Math.abs(startPoint.y - toY)}px`,
+                'left', `${left}px`,
+                'top', `${top}px`,
+                'width', `${width}px`,
+                'height', `${height}px`,
             );
+            // Translate to node coordinates
+            const xMin = (left - self.#offset.x) / self.#scale;
+            const yMin = (top - self.#offset.y) / self.#scale;
+            const xMax = ((left + width) - self.#offset.x) / self.#scale;
+            const yMax = ((top + height) - self.#offset.y) / self.#scale;
+            function rubberbandIntersect(node) {
+                return xMax >= node.left && xMin <= node.right && yMin <= node.bottom && yMax >= node.top;
+            }
+            // Select
+            const selected = [];
+            const nodes = self.getNodes();
+            nodes.forEach((node) => { if (rubberbandIntersect(node)) selected.push(node); });
+            nodes.forEach((node) => {
+                if (selected.includes(node)) node.addClass('NodeSelected');
+                else node.removeClass('NodeSelected');
+            });
         }
         this.input.onPointerDown(onPointerDown);
 
@@ -191,7 +210,7 @@ class Graph extends Panel {
             }
             self.drawMiniMap();
         }
-        Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
+        Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.TOP ], resizerDown, resizerMove);
 
         // Minimap Pointer Events
         let translating = false;

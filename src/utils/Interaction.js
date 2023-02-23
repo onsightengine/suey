@@ -67,7 +67,7 @@ class Interaction extends Button {
         topElement.classList.add("BringToTop");
     }
 
-    static makeDraggable(element, parent = element, limitToWindow = false) {
+    static makeDraggable(element, parent = element, limitToWindow = false, onDown = () => {}, onMove = () => {}) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
         let downX, downY, rect = {};
@@ -96,6 +96,8 @@ class Interaction extends Button {
             eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
             eventElement.style.cursor = 'move';
             Interaction.bringToTop(dragElement);
+            /* CUSTOM CALLBACK */
+            onDown();
         }
         function onPointerUp(event) {
             event.stopPropagation();
@@ -125,6 +127,8 @@ class Interaction extends Button {
             }
             dragElement.style.left = `${newLeft}px`;
             dragElement.style.top = `${newTop}px`;
+            /* CUSTOM CALLBACK */
+            onMove(diffX, diffY);
         }
         eventElement.addEventListener('pointerdown', onPointerDown);
     }

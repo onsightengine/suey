@@ -50,7 +50,7 @@
     background-color: rgba(var(--background-dark), 0.5);
     border: var(--border-small) solid rgba(var(--icon), 0.75);
     border-radius: var(--radius-large);
-    top: var(--pad-large);
+    bottom: var(--pad-large);
     right: var(--pad-large);
     width: 20%;
     height: 20%;

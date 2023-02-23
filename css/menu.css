@@ -176,9 +176,6 @@
     margin-right: var(--pad-x-small);
     opacity: 1.0;
     overflow: hidden;
-    box-shadow: /* pop-out-shadow */
-        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
-        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
 }
 
 /* Background */
@@ -187,10 +184,13 @@
     left: 0; right: 0; top: 0; bottom: 0;
     margin: 0;
     background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));
     border-radius: var(--radius-large);
     border: none;
     outline: none; /* for macos */
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
     z-index: -1;
 }
 
@@ -211,14 +211,20 @@
 
 /* Gray Background */
 .GrayButton:enabled .ButtonBackground {
-    background-color: white;
-    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.4), rgba(var(--midlight), 1.0));
+    filter: grayscale(90%);
+}
+.GrayButton:not(.Selected):enabled:hover .ButtonBackground {
+    filter: brightness(125%) grayscale(90%);
+}
+.GrayButton:not(.Selected):enabled:active .ButtonBackground,
+.GrayButton.Selected:enabled .ButtonBackground {
+    filter: brightness(50%) grayscale(90%);
 }
 
 /* Complement Background */
 .ComplementButton:enabled .ButtonBackground {
     background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));
+    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));
 }
 
 /* Disabled Button */
@@ -235,17 +241,31 @@
 }
 
 /* Left / Middle / Right */
-.ButtonLeft, .ButtonMiddle,
-.ButtonLeft .ButtonBackground, .ButtonMiddle .ButtonBackground {
+.ButtonLeft, .ButtonLeft .ButtonBackground {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
+    box-shadow: /* pop-out-shadow */
+        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),
+        inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);
 }
-.ButtonRight, .ButtonMiddle,
-.ButtonRight .ButtonBackground, .ButtonMiddle .ButtonBackground {
+.ButtonMiddle, .ButtonMiddle .ButtonBackground {
+    border-radius: 0;
+    margin-right: 0;
+    margin-left: 0;
+    box-shadow: /* pop-out-shadow */
+        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);
+}
+.ButtonRight, .ButtonRight .ButtonBackground {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin-left: 0;
+    box-shadow: /* pop-out-shadow */
+        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),
+        inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);
 }
 
 /********** .ToolbarSeparator / .ToolbarSpacer **********/

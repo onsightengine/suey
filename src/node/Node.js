@@ -17,6 +17,7 @@ class Node extends Div {
     #color = new Iris();
     #style = {};
     #needsUpdate = true;
+    #startPosition = { x: 0, y: 0 };
 
     constructor({
         width = 200,
@@ -118,11 +119,28 @@ class Node extends Div {
             'height', `${parseFloat(height)}px`,
         );
 
-        // Dragging
-        Interaction.makeDraggable(self);
+        // Dragging (Handle Multiple)
+        const dragNodes = [];
+        function onDragDown() {
+            dragNodes.length = 0;
+            if (! self.graph) return;
+            self.graph.getNodes().forEach((node) => {
+                if (node.hasClass('NodeSelected')) {
+                    dragNodes.push(node);
+                    node.setStartPosition(node.left, node.top);
+                }
+            });
+        }
+        function onDragMove(diffX, diffY) {
+            dragNodes.forEach((node) => {
+                node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
+                node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
+            });
+        }
+        Interaction.makeDraggable(self, self, false, onDragDown, onDragMove);
 
         // Selectable
-        function selectNode() {
+        function onDownSelect() {
             // Bring to top
             if (self.graph) {
                 const nodes = self.graph.getNodes();
@@ -132,11 +150,13 @@ class Node extends Div {
                 }
             }
             // Select
-            const selected = document.querySelectorAll(`.NodeSelected`);
-            selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
-            self.addClass('NodeSelected');
+            if (! self.hasClass('NodeSelected')) {
+                const selected = document.querySelectorAll(`.NodeSelected`);
+                selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
+                self.addClass('NodeSelected');
+            }
         }
-        this.onPointerDown(selectNode);
+        this.onPointerDown(onDownSelect);
 
         // Focus
         function focusOn() {
@@ -186,6 +206,9 @@ class Node extends Div {
     getScale() {
         return (this.graph ? this.graph.getScale() : 1.0);
     }
+
+    getStartPosition() { return this.#startPosition; }
+    setStartPosition(x = 0, y = 0) { this.#startPosition.x = x; this.#startPosition.y = y; }
 
     get snapToGrid() { return this.#snapToGrid; }
     set snapToGrid(enabled = true) { this.#snapToGrid = enabled; }
