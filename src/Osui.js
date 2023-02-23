@@ -55,7 +55,6 @@
 //
 //  PANELS
 //      Panel                   div                     .Panel
-//      ResizeFlex              div                     .ResizeFlex
 //      Shrinkable              div                     .Shrinkable
 //      Stacked                 div                     .Stacked
 //      Tabbed                  div                     .Tabbed
@@ -138,7 +137,6 @@ export { Node } from './node/Node.js';
 
 // Panels
 export { Panel } from './panels/Panel.js';
-export { ResizeFlex } from './panels/ResizeFlex.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Tabbed } from './panels/Tabbed.js';
 export { Titled } from './panels/Titled.js';

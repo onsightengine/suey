@@ -16,6 +16,7 @@ class Window extends Panel {
 
     #resizeMode = RESIZE_MODE.FIXED;
     #resizers = {};
+    #resizerEnabled = {};
     #lastKnownRect;
     #maximized = false;
 
@@ -24,14 +25,12 @@ class Window extends Panel {
         resizeMode = RESIZE_MODE.FIXED,
         width = 600,
         height = 600,
-        resizers = [
-            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
-            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
-        ],
+        resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
     } = {}) {
         super({ style, bringToTop: true });
-        this.addClass('Window');
         const self = this;
+        this.addClass('Window');
+        this.addClass('Resizeable');
 
         this.isWindow = true;
         this.#resizeMode = resizeMode;
@@ -41,10 +40,8 @@ class Window extends Panel {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
-            resizer.setPointerEvents('none');
-            this.addToSelf(resizer);
-            this.#resizers[resizerName] = resizer;
-            let downX, downY, rect;
+            let downX, downY, rect = {};
+
             function onPointerDown(event) {
                 if (! event.isPrimary) return;
                 event.stopPropagation();
@@ -102,6 +99,11 @@ class Window extends Panel {
                 }
             }
             resizer.dom.addEventListener('pointerdown', onPointerDown);
+            this.#resizers[resizerName] = resizer;
+            this.addToSelf(resizer);
+        }
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
             this.toggleResize(resizerName, resizers.includes(resizerName));
         }
 
@@ -163,15 +165,19 @@ class Window extends Panel {
         }
     }
 
-    /**
-     * Turns a resizing handle on / off
-     *
-     * @param {RESIZERS} resizerName
-     * @param {Boolean} enable
-     */
+    /** Turns a resizing handle on / off */
     toggleResize(resizerName, enable = true) {
         if (! resizerName) return;
-        this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
+        this.#resizerEnabled[resizerName] = enable;
+        function toggleDisplay(element, display) {
+            if (! element) return;
+            element.setStyle('display', display ? '' : 'none');
+        }
+        toggleDisplay(this.#resizers[resizerName], enable);
+        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
+        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
+        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
+        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
         return this;
     }
 

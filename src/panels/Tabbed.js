@@ -1,7 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
-import { ResizeFlex } from './ResizeFlex.js';
 import { RESIZERS } from '../constants.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
@@ -10,15 +9,21 @@ export const TAB_SIDES = {
     RIGHT:		'right',
 }
 
-class Tabbed extends ResizeFlex {
+class Tabbed extends Panel {
+
+    #resizers = {};
+    #resizerEnabled = {};
+    #startWidth = null;
+    #startHeight = null;
+    #minWidth = 0;
+    #maxWidth = Infinity;
+    #minHeight = 0;
+    #maxHeight = Infinity;
 
     constructor({
         tabSide = TAB_SIDES.RIGHT,
         style = PANEL_STYLES.FANCY,
-        resizers = [
-            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
-            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
-        ],
+        resizers = [],
         startWidth = null,
         startHeight = null,
         minWidth = 0,
@@ -27,16 +32,62 @@ class Tabbed extends ResizeFlex {
         maxHeight = Infinity,
     } = {}) {
         super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
+        const self = this;
         this.setName('Tabbed');
         this.addClass('Tabbed');
+        this.addClass('Resizeable');
 
-        const self = this;
+        // Properties
+        this.#startWidth = startWidth;
+        this.#minWidth = minWidth;
+        this.#maxWidth = maxWidth;
+        this.#startHeight = startHeight;
+        this.#minHeight = minHeight;
+        this.#maxHeight = maxHeight;
 
         // Public Properties
         this.tabs = [];
         this.panels = [];
         this.selectedId = '';
         this.selectedCount = 0;
+
+        // Resizers
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            const className = `Resizer${resizerName}`;
+            const resizer = new Div().addClass('Resizer').addClass(className);
+            let downX, downY, rect = {};
+
+            function onPointerDown(event) {
+                resizer.dom.setPointerCapture(event.pointerId);
+                downX = event.pageX;
+                downY = event.pageY;
+                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                rect.width = self.getWidth();
+                rect.height = self.getHeight();
+            }
+            function onPointerUp(event) {
+                resizer.dom.releasePointerCapture(event.pointerId);
+                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            }
+            function onPointerMove(event) {
+                const diffX = event.pageX - downX;
+                const diffY = event.pageY - downY;
+                if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
+                if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
+                if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
+                if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
+            }
+            resizer.dom.addEventListener('pointerdown', onPointerDown);
+            this.#resizers[resizerName] = resizer;
+            this.addToSelf(resizer);
+        }
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            this.toggleResize(resizerName, resizers.includes(resizerName));
+        }
 
         // Children Elements
         this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
@@ -90,9 +141,55 @@ class Tabbed extends ResizeFlex {
             return panel;
         };
 
-    } // end ctor
+    }
 
-    /******************** METHODS ********************/
+    /******************** RESIZE ********************/
+
+    changeWidth(width) {
+        if (typeof width !== 'number' || Number.isNaN(width) || ! Number.isFinite(width)) width = this.#startWidth;
+        if (width == null) {
+            this.dom.style.removeProperty('width');
+            return null;
+        }
+        const scaledMinWidth = this.#minWidth * Css.guiScale(this.dom);
+        const scaledMaxWidth = this.#maxWidth * Css.guiScale(this.dom);
+        width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
+        this.setStyle('width', Css.toEm(width, this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+        return width;
+    }
+
+    changeHeight(height) {
+        if (typeof height !== 'number' || Number.isNaN(height) || ! Number.isFinite(height)) height = this.#startHeight;
+        if (height == null) {
+            this.dom.style.removeProperty('height');
+            return null;
+        }
+        const scaledMinHeight = this.#minHeight * Css.guiScale(this.dom);
+        const scaledMaxHeight = this.#maxHeight * Css.guiScale(this.dom);
+        height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
+        this.setStyle('height', Css.toEm(height, this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+        return height;
+    }
+
+    /** Turns a resizing handle on / off */
+    toggleResize(resizerName, enable = true) {
+        if (! resizerName) return;
+        this.#resizerEnabled[resizerName] = enable;
+        function toggleDisplay(element, display) {
+            if (! element) return;
+            element.setStyle('display', display ? '' : 'none');
+        }
+        toggleDisplay(this.#resizers[resizerName], enable);
+        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
+        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
+        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
+        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
+        return this;
+    }
+
+    /******************** TABS ********************/
 
     /** Select first tab */
     selectFirst() {
@@ -274,15 +371,12 @@ class TabButton extends Div {
         }
 
         // Events
-
         function onClick() {
             parent.selectTab(self.dom.id, self.count, true);
-            if (window.signals) signals.windowResize.dispatch();
+            parent.dom.dispatchEvent(new Event('resized'));
         }
-
         this.onClick(onClick);
-
-    } // end ctor
+    }
 
 }
 

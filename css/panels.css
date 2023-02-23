@@ -66,97 +66,6 @@
     flex-direction: column;
 }
 
-/********** .ResizeFlex / Resizers **********/
-
-.ResizeFlex {
-    position: relative;
-    max-height: 100%;
-}
-
-.Resizer {
-    position: absolute;
-    pointer-events: none;
-    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */
-    z-index: 99; /* Resizer */
-}
-
-.ResizerLeft {
-    background-color: rgb(255, 0, 0);
-    left: 0;
-    top: 0;
-    width: var(--resize-size);
-    height: 100%;
-    margin-top: 0;
-    cursor: col-resize;
-}
-
-.ResizerTopLeft {
-    background-color: rgb(255, 255, 0);
-    top: 0;
-    left: 0;
-    width: var(--resize-size);
-    height: var(--resize-size);
-    cursor: nwse-resize;
-    z-index: 100; /* Resizer Corner */
-}
-
-.ResizerTop {
-    background-color: rgb(0, 255, 0);
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: var(--resize-size);
-    cursor: row-resize;
-}
-
-.ResizerTopRight {
-    background-color: rgb(0, 255, 255);
-    top: 0;
-    left: calc(100% - (var(--resize-size)));
-    width: var(--resize-size);
-    height: var(--resize-size);
-    cursor: nesw-resize;
-    z-index: 100; /* Resizer Corner */
-}
-
-.ResizerRight {
-    background-color: rgb(0, 0, 255);
-    top: 0;
-    left: calc(100% - (var(--resize-size)));
-    width: var(--resize-size);
-    height: 100%;
-    cursor: col-resize;
-}
-
-.ResizerBottomRight {
-    background-color: rgb(255, 0, 255);
-    left: calc(100% - (var(--resize-size)));
-    width: var(--resize-size);
-    height: var(--resize-size);
-    top: calc(100% - (var(--resize-size)));
-    cursor: nwse-resize;
-    z-index: 100; /* Resizer Corner */
-}
-
-.ResizerBottom {
-    background-color: rgb(255, 255, 255);
-    left: 0;
-    width: 100%;
-    height: var(--resize-size);
-    top: calc(100% - (var(--resize-size)));
-    cursor: row-resize;
-}
-
-.ResizerBottomLeft {
-    background-color: rgb(0, 0, 0);
-    left: 0;
-    width: var(--resize-size);
-    height: var(--resize-size);
-    top: calc(100% - (var(--resize-size)));
-    cursor: nesw-resize;
-    z-index: 100; /* Resizer Corner */
-}
-
 /********** .Scroller ********/
 
 .Scroller {
@@ -272,6 +181,8 @@
 /********** .Tabbed **********/
 
 .Tabbed {
+    position: relative;
+    max-height: 100%;
     padding: var(--pad-small);
 }
 

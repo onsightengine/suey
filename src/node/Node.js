@@ -14,6 +14,7 @@ const _color2 = new Iris();
 class Node extends Div {
 
     #resizers = {};
+    #resizerEnabled = {};
     #snapToGrid = true;
     #color = new Iris();
     #style = {};
@@ -25,15 +26,13 @@ class Node extends Div {
         x = 0,
         y = 0,
         color = 0x888888,
-        resizers = [
-            RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT,
-            RESIZERS.TOP_LEFT, RESIZERS.TOP_RIGHT, RESIZERS.BOTTOM_LEFT, RESIZERS.BOTTOM_RIGHT,
-        ],
+        resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
         snapToGrid = true,
     } = {}) {
         super();
         const self = this;
         this.addClass('Node');
+        this.addClass('Resizeable');
 
         // Enable mouse focus, needs >= 0 for keyboard focus
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
@@ -75,9 +74,7 @@ class Node extends Div {
             const resizerName = RESIZERS[key];
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
-
-            let downX, downY;
-            let rect = {};
+            let downX, downY, rect = {};
 
             function onPointerDown(event) {
                 if (! event.isPrimary) return;
@@ -131,10 +128,12 @@ class Node extends Div {
             }
 
             resizer.dom.addEventListener('pointerdown', onPointerDown);
-            resizer.setPointerEvents('none');
             this.#resizers[resizerName] = resizer;
-            this.toggleResize(resizerName, resizers.includes(resizerName));
             sizers.add(resizer);
+        }
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            this.toggleResize(resizerName, resizers.includes(resizerName));
         }
 
         // Style Observer
@@ -213,8 +212,17 @@ class Node extends Div {
 
     /** Turns a resizing handle on / off */
     toggleResize(resizerName, enable = true) {
-        if (! resizerName || ! this.#resizers[resizerName]) return;
-        this.#resizers[resizerName].setPointerEvents((enable) ? 'auto' : 'none');
+        if (! resizerName) return;
+        this.#resizerEnabled[resizerName] = enable;
+        function toggleDisplay(element, display) {
+            if (! element) return;
+            element.setStyle('display', display ? '' : 'none');
+        }
+        toggleDisplay(this.#resizers[resizerName], enable);
+        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
+        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
+        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
+        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
         return this;
     }
 

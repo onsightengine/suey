@@ -279,6 +279,13 @@ class Graph extends Panel {
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
         this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
 
+        // Hide Resizers
+        const resizeables = document.querySelectorAll(`.Resizeable`);
+        resizeables.forEach(el => {
+            if (zoom < 0.5) el.classList.add('TooSmall');
+            else el.classList.remove('TooSmall');
+        });
+
         // Redraw
         this.drawMiniMap();
     }

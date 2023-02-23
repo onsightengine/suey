@@ -27,11 +27,8 @@ class Docker extends Div {
             corner.setStyle('zIndex', `${zIndex}`);
             zIndex++;
 
-            // Bring Corner to top on 'Click' event
-            let clickedOnCorner = false;
-            corner.dom.addEventListener('pointerdown', () => clickedOnCorner = true);
-            corner.dom.addEventListener('pointerup', function() {
-                if (! clickedOnCorner) return;
+            // Bring corner div to top on 'Click' event
+            corner.dom.addEventListener('pointerdown', function() {
                 // Decrease all zIndex values
                 for (let cornerDiv in self.#corners) {
                     const style = getComputedStyle(self.#corners[cornerDiv].dom);
@@ -41,8 +38,6 @@ class Docker extends Div {
                 };
                 // Bring to front
                 corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
-                // Reset
-                clickedOnCorner = false;
             });
 
             // Add to Docker
@@ -66,7 +61,7 @@ class Docker extends Div {
                 if (cornerName.includes('Right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
                 if (cornerName.includes('Left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
             }
-            if (dockPanel.hasClass('ResizeFlex')) {
+            if (dockPanel.hasClass('Resizeable')) {
                 dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
                 dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
             }
