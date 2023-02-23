@@ -161,127 +161,67 @@
 /************ .ToolbarButton **********/
 
 .ToolbarButton {
-    background-repeat: no-repeat;
-
-    background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));
+    display: flex;
+    cursor: pointer;
+    background-color: transparent;
     border: none;
     border-radius: var(--radius-large);
-    box-shadow: /* pop-out-shadow */
-        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
     outline: none; /* for macos */
-
     position: relative;
     height: var(--button-size);
     width: var(--button-size);
     min-height: var(--button-size);
     min-width: var(--button-size);
-
     margin-left: var(--pad-x-small);
     margin-right: var(--pad-x-small);
-
     opacity: 1.0;
-    overflow: visible;
-    display: flex;
+    overflow: hidden;
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
 }
 
-/* Holds ShadowBox */
-.ToolbarButtonOverflowContainer {
+/* Background */
+.ButtonBackground {
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
     margin: 0;
-    background-color: transparent;
+    background-color: rgb(var(--darkness));
+    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));
+    border-radius: var(--radius-large);
+    border: none;
     outline: none; /* for macos */
-    overflow: hidden;
+    z-index: -1;
 }
 
 /* Hover */
-.ToolbarButton:not(.Selected):enabled:hover > * {
+.ToolbarButton:not(.Selected):enabled:hover .ButtonBackground {
     filter: brightness(125%);
-}
-.ToolbarButton:not(.Selected):enabled:hover {
-    background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.75), rgba(var(--icon), 0.75));
-    box-shadow:
-        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.3),
-        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
 }
 
 /* Active / Selected */
 .ToolbarButton:not(.Selected):enabled:active,
 .ToolbarButton.Selected:enabled {
-    background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--icon), 0.5), rgba(var(--icon-dark), 0.5));
-    box-shadow: inset 0 0 var(--pad-smallish) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
+    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
+}
+.ToolbarButton:not(.Selected):enabled:active .ButtonBackground,
+.ToolbarButton.Selected:enabled .ButtonBackground {
+    filter: brightness(50%) grayscale(20%);
 }
 
-/* Selected Border */
-.ToolbarButton:not(.Selected):enabled:active::after,
-.ToolbarButton.Selected:enabled::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; top: 0; bottom: 0;
-    margin: -1px;
-    background-color: transparent;
-    border: var(--border-micro) solid rgba(var(--black), 0.35);
-    border-radius: var(--radius-large);
-}
-.ButtonLeft:not(.Selected):enabled:active::after,
-.ButtonLeft.Selected:enabled::after {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    margin-right: 0;
-}
-.ButtonRight:not(.Selected):enabled:active::after,
-.ButtonRight.Selected:enabled::after {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    margin-left: 0;
-}
-.ButtonMiddle:not(.Selected):enabled:active::after,
-.ButtonMiddle.Selected:enabled::after {
-    border-radius: 0;
-    margin-left: 0;
-    margin-right: 0;
-}
-
-.GrayButton {
-    background-color: rgb(200, 200, 200);
-    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.7), rgba(var(--midlight), 1.0));
-}
-.GrayButton:not(.Selected):enabled:hover {
+/* Gray Background */
+.GrayButton:enabled .ButtonBackground {
     background-color: white;
-    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.6), rgba(var(--midlight), 0.9));
-}
-.GrayButton:not(.Selected):enabled:active,
-.GrayButton.Selected:enabled {
-    background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.65), rgba(var(--midlight), 0.45));
-}
-.GrayButton:not(.Selected):enabled:active::after,
-.GrayButton.Selected:enabled::after {
-    border: var(--border-micro) solid rgba(var(--black), 0.35);
+    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.4), rgba(var(--midlight), 1.0));
 }
 
-.ComplementButton {
+/* Complement Background */
+.ComplementButton:enabled .ButtonBackground {
     background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.85), rgba(var(--complement), 0.65));
-}
-.ComplementButton:not(.Selected):enabled:hover {
-    background-color: white;
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.95), rgba(var(--complement), 0.75));
-}
-.ComplementButton:not(.Selected):enabled:active,
-.ComplementButton.Selected:enabled {
-    background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.65), rgba(var(--complement), 0.45));
-}
-.ComplementButton:not(.Selected):enabled:active::after,
-.ComplementButton.Selected:enabled::after {
-    border: var(--border-micro) solid rgba(var(--black), 0.35);
+    background-image: linear-gradient(to bottom left, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));
 }
 
+/* Disabled Button */
 .ToolbarButton:disabled {
     background-color: rgba(var(--button-dark), var(--panel-transparency));
     background-image: linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05));
@@ -294,35 +234,23 @@
     filter: contrast(75%) grayscale(100%) brightness(50%);
 }
 
-.ToolbarButton.ButtonLeft, .ToolbarButton.ButtonMiddle {
-    margin-right: 0;
-}
-.ToolbarButton.ButtonRight, .ToolbarButton.ButtonMiddle {
-    margin-left: 0;
-}
-
-.ButtonLeft {
+/* Left / Middle / Right */
+.ButtonLeft, .ButtonMiddle,
+.ButtonLeft .ButtonBackground, .ButtonMiddle .ButtonBackground {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
 }
-.ButtonRight {
-    border-left: 0;
+.ButtonRight, .ButtonMiddle,
+.ButtonRight .ButtonBackground, .ButtonMiddle .ButtonBackground {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin-left: 0;
-}
-.ButtonMiddle {
-    border-left: 0;
-    border-radius: 0;
-    margin-left: 0;
-    margin-right: 0;
 }
 
 /********** .ToolbarSeparator / .ToolbarSpacer **********/
 
 .ToolbarSeparator {
-    /* background-color: rgba(var(--shadow), 0.5); */
     border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);
     border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);
     border-top: 0;

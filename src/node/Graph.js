@@ -9,7 +9,8 @@ import { GRID_SIZE, RESIZERS, TRAIT } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;
-const MAP_BUFFER = 200;
+const MAP_BUFFER = 100;
+const MIN_MAP_SIZE = 1200;
 
 const _color = new Iris();
 
@@ -34,15 +35,16 @@ class Graph extends Panel {
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
+        this.bandbox = new Div().setClass('GraphBandBox');
         this.minimap = new Div().setClass('MiniMap');
-        this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
+        this.add(this.input, this.grid, this.nodes, this.lines, this.bandbox, this.minimap);
 
         // MiniMap
         this.mapCanvas = new Canvas(1024, 1024).setClass('MiniMapCanvas');
         const mapResizers = new Div().addClass('MiniMapResizers');
         this.minimap.add(this.mapCanvas, mapResizers);
 
-        // Grid
+        // Draw Grid Image
         const SIZE = GRID_SIZE * 4;
         const HALF = SIZE / 2;
         const BORDER = 2;
@@ -59,7 +61,7 @@ class Graph extends Panel {
         this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
 
-        // Zoom
+        // Mouse Wheel Zoom
         function onMouseZoom(event) {
             event.preventDefault();
             const delta = (event.deltaY * 0.002);
@@ -73,8 +75,8 @@ class Graph extends Panel {
         }
         window.addEventListener('resize', onWindowResize);
 
-        // Keys
-        let grabbing = false;
+        // Key Events
+        let grabbing = false, selecting = false;
         let spaceKey = false;
         function onKeyDown(event) {
             if (self.dom.style.display === 'none') return;
@@ -95,45 +97,73 @@ class Graph extends Panel {
         document.addEventListener('keydown', onKeyDown);
         document.addEventListener('keyup', onKeyUp);
 
-        // Translate
-        let downX, downY, offset = { x: 0, y: 0 };
+        // Pointer Events (Translate, Select)
+        let offset = { x: 0, y: 0 };
+        let startPoint = { x: 0, y: 0 };
         function onPointerDown(event) {
-            const selected = document.querySelectorAll(`.NodeSelected`);
-            selected.forEach(el => el.classList.remove('NodeSelected'));
-            if (event.button === 0 && ! spaceKey) return;
-            event.stopPropagation();
-            event.preventDefault();
-            self.dom.setPointerCapture(event.pointerId);
-            grabbing = true;
-            downX = event.pageX;
-            downY = event.pageY;
-            offset.x = self.#offset.x;
-            offset.y = self.#offset.y;
-            self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-            self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-            self.dom.style.cursor = 'grabbing';
+            startPoint.x = event.clientX;
+            startPoint.y = event.clientY;
+            if (event.button === 2 || (event.button === 0 && spaceKey)) {
+                grabbing = true;
+                self.dom.style.cursor = 'grabbing';
+                offset.x = self.#offset.x;
+                offset.y = self.#offset.y;
+            } else if (event.button === 0) {
+                selecting = true;
+                const selected = document.querySelectorAll(`.NodeSelected`);
+                selected.forEach(el => el.classList.remove('NodeSelected'));
+                self.bandbox.setStyle('display', 'block');
+                rubberBandBox(event.clientX, event.clientY);
+            }
+            if (grabbing || selecting) {
+                event.stopPropagation();
+                event.preventDefault();
+                self.dom.setPointerCapture(event.pointerId);
+                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+            }
         }
         function onPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
             self.dom.releasePointerCapture(event.pointerId);
-            grabbing = false;
+            if (grabbing) {
+                self.dom.style.cursor = (spaceKey) ? 'grab' : 'auto';
+                grabbing = false;
+            }
+            if (selecting) {
+                self.bandbox.setStyle('display', 'none');
+                selecting = false;
+            }
             self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
             self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            self.dom.style.cursor = (spaceKey) ? 'grab' : 'auto';
         }
         function onPointerMove(event) {
             event.stopPropagation();
             event.preventDefault();
-            const diffX = (event.pageX - downX) * (1 / self.#scale);
-            const diffY = (event.pageY - downY) * (1 / self.#scale);
-            self.#offset.x = (offset.x + diffX);
-            self.#offset.y = (offset.y + diffY);
-            self.zoomTo();
+            if (grabbing) {
+                const diffX = (event.clientX - startPoint.x) * (1 / self.#scale);
+                const diffY = (event.clientY - startPoint.y) * (1 / self.#scale);
+                self.#offset.x = (offset.x + diffX);
+                self.#offset.y = (offset.y + diffY);
+                self.zoomTo();
+            } else if (selecting) {
+                rubberBandBox(event.clientX, event.clientY);
+            }
+        }
+        function rubberBandBox(toX, toY) {
+            const xMin = Math.min(startPoint.x, toX);
+            const yMin = Math.min(startPoint.y, toY);
+            self.bandbox.setStyle(
+                'left', `${xMin}px`,
+                'top', `${yMin}px`,
+                'width', `${Math.abs(startPoint.x - toX)}px`,
+                'height', `${Math.abs(startPoint.y - toY)}px`,
+            );
         }
         this.input.onPointerDown(onPointerDown);
 
-        // Resize Minimap
+        // Minimap Resizers
         let rect = {};
         function resizerDown() {
             rect = self.minimap.dom.getBoundingClientRect();
@@ -163,16 +193,14 @@ class Graph extends Panel {
         }
         Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
 
-        // Pointer Minimap
+        // Minimap Pointer Events
         let translating = false;
         function calculateOffset(clientX, clientY) {
             const rect = self.minimap.dom.getBoundingClientRect();
             const nodes = self.nodes.dom.getBoundingClientRect();
-            let downX = clientX - rect.left;
-            let downY = clientY - rect.top;
-            let percentX = ((rect.width / 2) - downX) / (rect.width / 2);
-            let percentY = ((rect.height / 2) - downY) / (rect.height / 2);
-            const bounds = self.nodeBounds(MAP_BUFFER);
+            let percentX = ((rect.width / 2) - (clientX - rect.left)) / (rect.width / 2);
+            let percentY = ((rect.height / 2) - (clientY - rect.top)) / (rect.height / 2);
+            const bounds = self.nodeBounds(MAP_BUFFER, self.nodes.children, MIN_MAP_SIZE);
             if (! bounds.isFinite) return;
             // Empty space on top and bottom
             if (self.#drawWidth > self.#drawHeight) {
@@ -254,7 +282,7 @@ class Graph extends Panel {
         });
     }
 
-    nodeBounds(buffer = 0, nodes = this.nodes.children) {
+    nodeBounds(buffer = 0, nodes = this.nodes.children, minSize = undefined) {
         const bounds = {
             x: { min: Infinity, max: -Infinity },
             y: { min: Infinity, max: -Infinity },
@@ -275,8 +303,22 @@ class Graph extends Panel {
             };
             bounds.width = () => { return (bounds.x.max - bounds.x.min); };
             bounds.height = () => { return (bounds.y.max - bounds.y.min); };
+
             bounds.x.min -= buffer; bounds.x.max += buffer;
             bounds.y.min -= buffer; bounds.y.max += buffer;
+
+            if (minSize) {
+                if (bounds.width() < minSize) {
+                    const addX = (minSize - bounds.width()) / 2;
+                    bounds.x.min -= addX;
+                    bounds.x.max += addX;
+                }
+                if (bounds.height() < minSize) {
+                    const addY = (minSize - bounds.height()) / 2;
+                    bounds.y.min -= addY;
+                    bounds.y.max += addY;
+                }
+            }
         }
         return bounds;
     }
@@ -299,7 +341,7 @@ class Graph extends Panel {
         if (this.dom.style.display === 'none') return;
 
         // Bounds
-        const bounds = this.nodeBounds(MAP_BUFFER);
+        const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
         if (! bounds.isFinite) return;
 
         // Clear
@@ -323,25 +365,33 @@ class Graph extends Panel {
 
         // Draw View
         const rect = this.dom.getBoundingClientRect();
-        if (rect) {
-            const scaled = {};
-            const centerX = rect.left + ((rect.right - rect.left) / 2);
-            const centerY = rect.top + ((rect.bottom - rect.top) / 2);
-            scaled.left = (centerX - ((rect.width / this.#scale) / 2)) - this.#offset.x;
-            scaled.top = (centerY - ((rect.height / this.#scale) / 2)) - this.#offset.y;
-            scaled.width = rect.width / this.#scale;
-            scaled.height = rect.height / this.#scale;
-            ctx.globalAlpha = 0.5;
-            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-            const x = this.#drawWidth * ((scaled.left - bounds.x.min) / bounds.width());
-            const w = this.#drawWidth * (scaled.width / bounds.width());
-            const y = this.#drawHeight * ((scaled.top - bounds.y.min) / bounds.height());
-            const h = this.#drawHeight * (scaled.height / bounds.height());
-            ctx.fillRect(x - adjustX, y - adjustY, w, h);
-        }
+        const scaled = {};
+        const centerX = rect.left + ((rect.right - rect.left) / 2);
+        const centerY = rect.top + ((rect.bottom - rect.top) / 2);
+        scaled.left = (centerX - ((rect.width / this.#scale) / 2)) - this.#offset.x;
+        scaled.top = (centerY - ((rect.height / this.#scale) / 2)) - this.#offset.y;
+        scaled.width = rect.width / this.#scale;
+        scaled.height = rect.height / this.#scale;
+        const x = (this.#drawWidth * ((scaled.left - bounds.x.min) / bounds.width())) - adjustX;
+        const y = (this.#drawHeight * ((scaled.top - bounds.y.min) / bounds.height())) - adjustY;
+        const w = this.#drawWidth * (scaled.width / bounds.width());
+        const h = this.#drawHeight * (scaled.height / bounds.height());
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+        ctx.fillRect(x, y, w, h);
+        const widthScale = this.minimap.getWidth() / this.mapCanvas.width;
+        const heightScale = this.minimap.getHeight() / this.mapCanvas.height;
+        ctx.globalAlpha = 0.75;
+        ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.TRIADIC1)).cssString();
+        ctx.lineWidth = 2 / widthScale;
+        ctx.beginPath(); ctx.moveTo(x + 0, y); ctx.lineTo(x + 0, y + h); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + w, y); ctx.lineTo(x + w, y + h); ctx.stroke();
+        ctx.lineWidth = 2 / heightScale;
+        ctx.beginPath(); ctx.moveTo(x, y + 0); ctx.lineTo(x + w, y + 0); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.stroke();
+        ctx.globalAlpha = 0.5;
 
         // Draw Nodes
-        const RADIUS = 10;
         ctx.globalAlpha = 0.75;
         this.traverseNodes((node) => {
             ctx.fillStyle = node.colorString();
@@ -350,7 +400,7 @@ class Graph extends Panel {
             const y = this.#drawHeight * ((node.top - bounds.y.min) / bounds.height());
             const h = this.#drawHeight * (node.height / bounds.height());
             ctx.beginPath();
-            ctx.roundRect(x - adjustX, y - adjustY, w, h, 0); // RADIUS * (w / node.width));
+            ctx.roundRect(x - adjustX, y - adjustY, w, h, 0);
             ctx.fill();
         });
     }
@@ -365,7 +415,7 @@ class Graph extends Panel {
     centerView(resetZoom = true, animate = true) {
         const selected = [];
         this.traverseNodes((node) => { if (node.hasClass('NodeSelected')) selected.push(node); });
-        const bounds = this.nodeBounds(0, (selected.length > 0) ? selected : this.nodes.childre);
+        const bounds = this.nodeBounds(0, (selected.length > 0) ? selected : this.nodes.children);
         this.focusView(bounds.center().x, bounds.center().y, resetZoom, animate);
     }
 

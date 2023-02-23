@@ -36,12 +36,19 @@
     pointer-events: none;
 }
 
+.GraphBandBox {
+    position: absolute;
+    display: none;
+    background-color: rgba(var(--icon), 0.2);
+    border: solid var(--border-small) rgba(var(--icon), 0.75);
+}
+
 /***** MINIMAP *****/
 
 .MiniMap {
     position: absolute;
     background-color: rgba(var(--background-dark), 0.5);
-    border: var(--border-small) solid rgb(var(--icon));
+    border: var(--border-small) solid rgba(var(--icon), 0.75);
     border-radius: var(--radius-large);
     top: var(--pad-large);
     right: var(--pad-large);

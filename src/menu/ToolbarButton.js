@@ -6,7 +6,7 @@ class ToolbarButton extends Button {
 
     constructor(innerHtml, position /* left, middle, right */) {
         super(innerHtml)
-        this.addClass('ToolbarButton');
+        this.setClass('ToolbarButton');
 
         switch (position) {
             case 'left': this.addClass('ButtonLeft'); break;
@@ -14,10 +14,9 @@ class ToolbarButton extends Button {
             case 'right': this.addClass('ButtonRight'); break;
         }
 
-        const overflowContainer = new Div().setClass('ToolbarButtonOverflowContainer');
+        const buttonBackground = new Div().addClass('ButtonBackground');
         const buttonImageHolder = new ShadowBox();
-        overflowContainer.add(buttonImageHolder);
-        this.add(overflowContainer);
+        this.add(buttonBackground, buttonImageHolder);
         this.contents = function() { return buttonImageHolder };
     }
 
