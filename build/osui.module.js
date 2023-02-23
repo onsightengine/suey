@@ -839,63 +839,6 @@ class ColorScheme {
     }
 }
 
-class Utils {
-    static isChildOf(element, possibleParent) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.isSameNode(possibleParent)) return true;
-            parent = parent.parentElement;
-        }
-        return false;
-    }
-    static isChildOfElementWithClass(element, className) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.classList.contains(className)) return true;
-            parent = parent.parentElement;
-        }
-        return false;
-    }
-    static parentElementWithClass(element, className) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.classList.contains(className)) return parent;
-            parent = parent.parentElement;
-        }
-        return undefined;
-    }
-    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        if (applyToSelf) applyFunction(element);
-        for (let i = 0; i < element.children.length; i++) {
-            Utils.traverse(element.children[i], applyFunction, true);
-        }
-    }
-    static parentScroller(element) {
-        if (! element) return null;
-        if (element.isElement && element.dom) element = element.dom;
-        if (element.scrollHeight > element.clientHeight) {
-            return element;
-        } else {
-            return Utils.parentScroller(element.parentElement);
-        }
-    }
-    static scrollIntoView(element) {
-        const parent = Utils.parentScroller(element);
-        if (parent) {
-            const onePixel = parseInt(Css.toPx('0.2em'));
-            if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
-                parent.scrollTop = element.offsetTop - parent.offsetTop - onePixel;
-            } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
-                parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
-            }
-        }
-    }
-}
-
 class Element {
     constructor(dom) {
         const self = this;
@@ -1172,10 +1115,403 @@ events.forEach(function(event) {
     };
 });
 
+class Button extends Element {
+    constructor(innerHtml) {
+        super(document.createElement('button'));
+        this.setStyle('pointerEvents', 'all');
+        const self = this;
+        this.setClass('Button');
+        this.dom.innerHTML = innerHtml ?? '';
+        this.attachedMenu = undefined;
+        this.menuOffsetX = 0;
+        this.menuOffsetY = 0;
+        this.alignMenu = ALIGN.LEFT;
+        this.overflowMenu = OVERFLOW.RIGHT;
+        Object.defineProperty(this, 'disabled', {
+            get: function() { return (this.dom) ? this.dom.disabled : true; },
+            set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
+        });
+        function hideTooltip() {
+            const hideEvent = new Event('hidetooltip', { bubbles: true });
+            self.dom.dispatchEvent(hideEvent);
+        }
+        this.onPointerDown(hideTooltip);
+        this.dom.addEventListener('destroy', function() {
+            if (self.attachedMenu) self.detachMenu();
+        }, { once: true });
+    }
+    attachMenu(osuiMenu) {
+        const self = this;
+        if (osuiMenu.hasClass('Menu') === false) return this;
+        this.addClass('MenuButton');
+        this.attachedMenu = osuiMenu;
+        document.body.appendChild(osuiMenu.dom);
+        this.dom.addEventListener('pointerdown', onPointerDown);
+        const observer = new MutationObserver((mutations, observer) => {
+            if (document.contains(this.dom)) {
+                popMenu();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
+        window.addEventListener('resize', popMenu);
+        function popMenu() {
+            const popped = Popper.popUnder(
+                osuiMenu.dom,
+                self.dom,
+                self.alignMenu,
+                self.menuOffsetX,
+                self.menuOffsetY,
+                self.overflowMenu
+            );
+            if (popped === POSITION.UNDER) {
+                osuiMenu.removeClass('SlideUp');
+                osuiMenu.addClass('SlideDown');
+            } else {
+                osuiMenu.removeClass('SlideDown');
+                osuiMenu.addClass('SlideUp');
+            }
+        }
+        function onPointerDown(event) {
+            if (self.hasClass('Selected') === false) {
+                self.addClass('Selected');
+                popMenu();
+                if (self.dom) osuiMenu.showMenu(self.dom);
+            }
+        };
+        this.detachMenu = function() {
+            if (self.hasClass('MenuButton') === false) return;
+            self.removeClass('MenuButton');
+            window.removeEventListener('resize', popMenu);
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.attachedMenu.destroy();
+            document.body.removeChild(self.attachedMenu.dom);
+            self.attachedMenu = undefined;
+        };
+    }
+}
+
 class Div extends Element {
     constructor(innerHtml) {
         super(document.createElement('div'));
         this.setInnerHtml(innerHtml);
+    }
+}
+
+class Image extends Element {
+    constructor(imageUrl, width = null, height = null, draggable = false) {
+        const imageDom = document.createElement('img');
+        imageDom.onerror = () => imageDom.style.visibility = 'hidden';
+        function setImage(fromImage) {
+            if (typeof fromImage === 'string' && (fromImage.includes('<svg') || fromImage.includes('<SVG'))) {
+                const blob = new Blob([ fromImage ], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                imageDom.src = url;
+                imageDom.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
+            } else {
+                imageDom.src = fromImage;
+            }
+        }
+        setImage(imageUrl);
+        if (! draggable) imageDom.ondragstart = () => { return false };
+        if (width != undefined) imageDom.style.width = Css.parseSize(width);
+        if (height != undefined) imageDom.style.height = Css.parseSize(height);
+        super(imageDom);
+        this.setClass('Image');
+        this.setImage = function(imageUrl) {
+            setImage(imageUrl);
+        };
+    }
+}
+
+class VectorBox extends Div {
+    constructor() {
+        super();
+        this.setClass('VectorBox');
+        let args = arguments;
+        if (arguments.length === 0) {
+            args = [ IMAGE_EMPTY ];
+        } else if (arguments.length === 1 && Array.isArray(arguments[0])) {
+            args = arguments[0];
+        }
+        for (let i = 0; i < args.length; i++) {
+            const newImage = this.addImage(args[i]);
+            if (i === 0) this.img = newImage;
+        }
+    }
+    addImage(imageUrl) {
+        const stretchX = '100%';
+        const stretchY = '100%';
+        if (imageUrl === undefined || imageUrl === '') imageUrl = IMAGE_EMPTY;
+        const newImage = new Image(imageUrl, stretchX, stretchY, false );
+        this.add(newImage);
+        if (! this.img) this.img = newImage;
+        return newImage;
+    }
+    enableDragging() {
+        for (let j = 0; j < this.contents().children.length; j++) {
+            this.contents().children[j].dom.ondragstart = () => {};
+        }
+    }
+    setImage(imageUrl) {
+        this.img.setImage(imageUrl);
+    }
+}
+
+class ShadowBox extends Div {
+    constructor() {
+        super();
+        this.setClass('ShadowBox');
+        let args = arguments;
+        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
+        for (let i = 0; i < args.length; i++) {
+            let argument = args[i];
+            if (argument !== undefined && argument.isElement === true) {
+                this.add(argument);
+            } else {
+                this.add(new VectorBox(argument));
+            }
+        }
+    }
+    noShadow() {
+        this.addClass('NoShadow');
+        return this;
+    }
+}
+
+const CLOSE_SIDES = {
+    LEFT:		'left',
+    RIGHT:		'right',
+    BOTH:       'both',
+    NONE:       'none',
+};
+class Interaction extends Button {
+    static addCloseButton(closeElement, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
+        if (! closeElement || ! closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
+        const button = new Button().setClass('CloseButton').addClass('PanelButton');
+        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
+        button.add(closeImageBox);
+        button.dom.setAttribute('tooltip', 'Close Panel');
+        button.setStyle(
+            'min-height', `${scale}em`,
+            'min-width', `${scale}em`,
+        );
+        const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset}em`;
+        button.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
+        button.setStyle((closeSide === CLOSE_SIDES.LEFT) ? 'left' : 'right', sideways);
+        if (closeSide === CLOSE_SIDES.BOTH) {
+            let lastSide = CLOSE_SIDES.RIGHT;
+            closeElement.dom.addEventListener('pointermove', function(event) {
+                const rect = closeElement.dom.getBoundingClientRect();
+                const middle = rect.left + (rect.width / 2);
+                const x = event.pageX;
+                let changeSide = CLOSE_SIDES.NONE;
+                if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) changeSide = CLOSE_SIDES.RIGHT;
+                else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) changeSide = CLOSE_SIDES.LEFT;
+                if (changeSide !== CLOSE_SIDES.NONE) {
+                    button.addClass('ItemHidden');
+                    setTimeout(() => {
+                        button.dom.style.removeProperty('left');
+                        button.dom.style.removeProperty('right');
+                        button.setStyle(changeSide, sideways);
+                        button.removeClass('ItemHidden');
+                    }, 100);
+                    lastSide = changeSide;
+                }
+            });
+        }
+        button.dom.addEventListener('click', () => closeElement.hide());
+        closeElement.dom.addEventListener('pointerenter', () => button.addClass('ItemShown'));
+        closeElement.dom.addEventListener('pointerleave', () => button.removeClass('ItemShown'));
+        closeElement.addToSelf(button);
+    }
+    static bringToTop(element, withClass = 'Panel') {
+        const topElement = (element && element.isElement) ? element.dom : element;
+        const panels = document.querySelectorAll(`.${withClass}`);
+        panels.forEach(el => { if (el !== topElement) el.classList.remove('BringToTop'); });
+        topElement.classList.add("BringToTop");
+    }
+    static makeDraggable(element, parent = element, limitToWindow = false) {
+        const eventElement = (element && element.isElement) ? element.dom : element;
+        const dragElement = (parent && parent.isElement) ? parent.dom : parent;
+        let downX, downY, rect = {};
+        let lastX, lastY;
+        let computed = getComputedStyle(dragElement);
+        function roundNearest(decimal, increment = GRID_SIZE) {
+            if (! element.snapToGrid || ! element.snapToGrid()) return decimal;
+            return Math.ceil(decimal / increment) * increment;
+        }
+        function onPointerDown(event) {
+            if (! event.isPrimary) return;
+            event.stopPropagation();
+            event.preventDefault();
+            eventElement.focus();
+            eventElement.setPointerCapture(event.pointerId);
+            downX = event.pageX;
+            downY = event.pageY;
+            lastX = event.pageX;
+            lastY = event.pageY;
+            computed = getComputedStyle(dragElement);
+            rect.left = parseFloat(computed.left);
+            rect.top = parseFloat(computed.top);
+            rect.width = parseFloat(computed.width);
+            rect.height = parseFloat(computed.height);
+            eventElement.ownerDocument.addEventListener('pointermove', onPointerMove);
+            eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
+            eventElement.style.cursor = 'move';
+            Interaction.bringToTop(dragElement);
+        }
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            eventElement.releasePointerCapture(event.pointerId);
+            eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
+            eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            eventElement.style.cursor = 'inherit';
+        }
+        function onPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (event.isTrusted) {
+                lastX = event.pageX;
+                lastY = event.pageY;
+            }
+            const scale = ((element && element.getScale) ? element.getScale() : 1);
+            const diffX = (lastX - downX) * (1 / scale);
+            const diffY = (lastY - downY) * (1 / scale);
+            let newLeft = roundNearest(rect.left + diffX);
+            let newTop = roundNearest(rect.top + diffY);
+            if (limitToWindow) {
+                newLeft = Math.min(window.innerWidth - rect.width, newLeft);
+                newTop = Math.min(window.innerHeight - rect.height, newTop);
+                newLeft = Math.max(0, newLeft);
+                newTop = Math.max(0, newTop);
+            }
+            dragElement.style.left = `${newLeft}px`;
+            dragElement.style.top = `${newTop}px`;
+        }
+        eventElement.addEventListener('pointerdown', onPointerDown);
+    }
+    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
+        if (! resizeElement || ! resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
+        if (! addToElement || ! addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
+        resizeElement.addClass('Resizeable');
+        const resizerDivs = {};
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            const className = `Resizer${resizerName}`;
+            const resizer = new Div().addClass('Resizer').addClass(className);
+            let downX, downY, lastX, lastY;
+            function onPointerDown(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.setPointerCapture(event.pointerId);
+                downX = event.pageX;
+                downY = event.pageY;
+                lastX = event.pageX;
+                lastY = event.pageY;
+                resizeElement.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                resizeElement.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                onDown();
+            }
+            function onPointerUp(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
+                resizeElement.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+                resizeElement.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            }
+            function onPointerMove(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (event.isTrusted) {
+                    lastX = event.pageX;
+                    lastY = event.pageY;
+                }
+                const diffX = lastX - downX;
+                const diffY = lastY - downY;
+                onMove(resizer, diffX, diffY);
+            }
+            resizer.dom.addEventListener('pointerdown', onPointerDown);
+            resizerDivs[resizerName] = resizer;
+            addToElement.addToSelf(resizer);
+        }
+        const resizerEnabled = {};
+        resizeElement.toggleResize = function(resizerName, enable = true) {
+            if (! resizerName) return;
+            resizerEnabled[resizerName] = enable;
+            function toggleDisplay(element, display) {
+                if (! element) return;
+                element.setStyle('display', display ? '' : 'none');
+            }
+            toggleDisplay(resizerDivs[resizerName], enable);
+            toggleDisplay(resizerDivs[RESIZERS.TOP_LEFT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.LEFT]);
+            toggleDisplay(resizerDivs[RESIZERS.TOP_RIGHT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.RIGHT]);
+            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_LEFT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.LEFT]);
+            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
+            return resizeElement;
+        };
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
+        }
+    }
+}
+
+class Utils {
+    static isChildOf(element, possibleParent) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.isSameNode(possibleParent)) return true;
+            parent = parent.parentElement;
+        }
+        return false;
+    }
+    static isChildOfElementWithClass(element, className) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.classList.contains(className)) return true;
+            parent = parent.parentElement;
+        }
+        return false;
+    }
+    static parentElementWithClass(element, className) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.classList.contains(className)) return parent;
+            parent = parent.parentElement;
+        }
+        return undefined;
+    }
+    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        if (applyToSelf) applyFunction(element);
+        for (let i = 0; i < element.children.length; i++) {
+            Utils.traverse(element.children[i], applyFunction, true);
+        }
+    }
+    static parentScroller(element) {
+        if (! element) return null;
+        if (element.isElement && element.dom) element = element.dom;
+        if (element.scrollHeight > element.clientHeight) {
+            return element;
+        } else {
+            return Utils.parentScroller(element.parentElement);
+        }
+    }
+    static scrollIntoView(element) {
+        const parent = Utils.parentScroller(element);
+        if (parent) {
+            const onePixel = parseInt(Css.toPx('0.2em'));
+            if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
+                parent.scrollTop = element.offsetTop - parent.offsetTop - onePixel;
+            } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
+                parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
+            }
+        }
     }
 }
 
@@ -1237,76 +1573,6 @@ class FlexSpacer extends Span {
     }
 }
 
-class Draggable {
-    static bringToTop(element, withClass = 'Panel') {
-        const topElement = (element && element.isElement) ? element.dom : element;
-        const panels = document.querySelectorAll(`.${withClass}`);
-        panels.forEach(el => { if (el !== topElement) el.classList.remove('BringToTop'); });
-        topElement.classList.add("BringToTop");
-    }
-    static enable(element, parent = element, limitToWindow = false) {
-        const eventElement = (element && element.isElement) ? element.dom : element;
-        const dragElement = (parent && parent.isElement) ? parent.dom : parent;
-        let downX, downY, rect = {};
-        let lastX, lastY;
-        let computed = getComputedStyle(dragElement);
-        function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! element.snapToGrid || ! element.snapToGrid()) return decimal;
-            return Math.ceil(decimal / increment) * increment;
-        }
-        function onPointerDown(event) {
-            if (! event.isPrimary) return;
-            event.stopPropagation();
-            event.preventDefault();
-            eventElement.focus();
-            eventElement.setPointerCapture(event.pointerId);
-            downX = event.pageX;
-            downY = event.pageY;
-            lastX = event.pageX;
-            lastY = event.pageY;
-            computed = getComputedStyle(dragElement);
-            rect.left = parseFloat(computed.left);
-            rect.top = parseFloat(computed.top);
-            rect.width = parseFloat(computed.width);
-            rect.height = parseFloat(computed.height);
-            eventElement.ownerDocument.addEventListener('pointermove', onPointerMove);
-            eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
-            eventElement.style.cursor = 'move';
-            Draggable.bringToTop(dragElement);
-        }
-        function onPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            eventElement.releasePointerCapture(event.pointerId);
-            eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
-            eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            eventElement.style.cursor = 'inherit';
-        }
-        function onPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (event.isTrusted) {
-                lastX = event.pageX;
-                lastY = event.pageY;
-            }
-            const scale = ((element && element.getScale) ? element.getScale() : 1);
-            const diffX = (lastX - downX) * (1 / scale);
-            const diffY = (lastY - downY) * (1 / scale);
-            let newLeft = roundNearest(rect.left + diffX);
-            let newTop = roundNearest(rect.top + diffY);
-            if (limitToWindow) {
-                newLeft = Math.min(window.innerWidth - rect.width, newLeft);
-                newTop = Math.min(window.innerHeight - rect.height, newTop);
-                newLeft = Math.max(0, newLeft);
-                newTop = Math.max(0, newTop);
-            }
-            dragElement.style.left = `${newLeft}px`;
-            dragElement.style.top = `${newTop}px`;
-        }
-        eventElement.addEventListener('pointerdown', onPointerDown);
-    }
-}
-
 const PANEL_STYLES = {
     NONE:       'none',
     SIMPLE:     'simple',
@@ -1337,9 +1603,9 @@ class Panel extends Div {
         this.onContextMenu(onContextMenu);
         if (bringToTop) {
             this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-            this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
-            this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
-            this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
+            this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
+            this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
+            this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
         }
     }
 }
@@ -1356,66 +1622,6 @@ class Text extends Span {
         super(innerHtml);
         this.setClass('Text');
         this.setCursor('default');
-    }
-}
-
-class Image extends Element {
-    constructor(imageUrl, width = null, height = null, draggable = false) {
-        const imageDom = document.createElement('img');
-        imageDom.onerror = () => imageDom.style.visibility = 'hidden';
-        function setImage(fromImage) {
-            if (typeof fromImage === 'string' && (fromImage.includes('<svg') || fromImage.includes('<SVG'))) {
-                const blob = new Blob([ fromImage ], { type: 'image/svg+xml' });
-                const url = URL.createObjectURL(blob);
-                imageDom.src = url;
-                imageDom.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
-            } else {
-                imageDom.src = fromImage;
-            }
-        }
-        setImage(imageUrl);
-        if (! draggable) imageDom.ondragstart = () => { return false };
-        if (width != undefined) imageDom.style.width = Css.parseSize(width);
-        if (height != undefined) imageDom.style.height = Css.parseSize(height);
-        super(imageDom);
-        this.setClass('Image');
-        this.setImage = function(imageUrl) {
-            setImage(imageUrl);
-        };
-    }
-}
-
-class VectorBox extends Div {
-    constructor() {
-        super();
-        this.setClass('VectorBox');
-        let args = arguments;
-        if (arguments.length === 0) {
-            args = [ IMAGE_EMPTY ];
-        } else if (arguments.length === 1 && Array.isArray(arguments[0])) {
-            args = arguments[0];
-        }
-        for (let i = 0; i < args.length; i++) {
-            const newImage = this.addImage(args[i]);
-            if (i === 0) this.img = newImage;
-        }
-    }
-    addImage(imageUrl) {
-        const stretchX = '100%';
-        const stretchY = '100%';
-        if (imageUrl === undefined || imageUrl === '') imageUrl = IMAGE_EMPTY;
-        const newImage = new Image(imageUrl, stretchX, stretchY, false );
-        this.add(newImage);
-        if (! this.img) this.img = newImage;
-        return newImage;
-    }
-    enableDragging() {
-        for (let j = 0; j < this.contents().children.length; j++) {
-            this.contents().children[j].dom.ondragstart = () => {};
-        }
-    }
-    setImage(imageUrl) {
-        this.img.setImage(imageUrl);
     }
 }
 
@@ -1557,72 +1763,6 @@ class Shrinkable extends Panel {
     }
 }
 
-class Resizeable {
-    static enable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
-        if (! resizeElement || ! resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
-        if (! addToElement || ! addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
-        const resizerDivs = {};
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
-            let downX, downY, lastX, lastY;
-            function onPointerDown(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
-                downX = event.pageX;
-                downY = event.pageY;
-                lastX = event.pageX;
-                lastY = event.pageY;
-                resizeElement.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                resizeElement.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                onDown();
-            }
-            function onPointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                resizeElement.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                resizeElement.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            }
-            function onPointerMove(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                if (event.isTrusted) {
-                    lastX = event.pageX;
-                    lastY = event.pageY;
-                }
-                const diffX = lastX - downX;
-                const diffY = lastY - downY;
-                onMove(resizer, diffX, diffY);
-            }
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
-            resizerDivs[resizerName] = resizer;
-            addToElement.addToSelf(resizer);
-        }
-        const resizerEnabled = {};
-        resizeElement.toggleResize = function(resizerName, enable = true) {
-            if (! resizerName) return;
-            resizerEnabled[resizerName] = enable;
-            function toggleDisplay(element, display) {
-                if (! element) return;
-                element.setStyle('display', display ? '' : 'none');
-            }
-            toggleDisplay(resizerDivs[resizerName], enable);
-            toggleDisplay(resizerDivs[RESIZERS.TOP_LEFT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.LEFT]);
-            toggleDisplay(resizerDivs[RESIZERS.TOP_RIGHT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.RIGHT]);
-            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_LEFT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.LEFT]);
-            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
-            return resizeElement;
-        };
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
-        }
-    }
-}
-
 const TAB_SIDES = {
     LEFT:		'left',
     RIGHT:		'right',
@@ -1649,7 +1789,6 @@ class Tabbed extends Panel {
         const self = this;
         this.setName('Tabbed');
         this.addClass('Tabbed');
-        this.addClass('Resizeable');
         this.#startWidth = startWidth;
         this.#minWidth = minWidth;
         this.#maxWidth = maxWidth;
@@ -1672,7 +1811,7 @@ class Tabbed extends Panel {
             if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
             if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
         }
-        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
         this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
         this.panelsDiv = new Div().setClass('TabPanels');
         this.add(this.tabsDiv);
@@ -1901,82 +2040,6 @@ class Titled extends Div {
     }
     toggle() {
         this.setExpanded(! this.isExpanded);
-    }
-}
-
-class Button extends Element {
-    constructor(innerHtml) {
-        super(document.createElement('button'));
-        this.setStyle('pointerEvents', 'all');
-        const self = this;
-        this.setClass('Button');
-        this.dom.innerHTML = innerHtml ?? '';
-        this.attachedMenu = undefined;
-        this.menuOffsetX = 0;
-        this.menuOffsetY = 0;
-        this.alignMenu = ALIGN.LEFT;
-        this.overflowMenu = OVERFLOW.RIGHT;
-        Object.defineProperty(this, 'disabled', {
-            get: function() { return (this.dom) ? this.dom.disabled : true; },
-            set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
-        });
-        function hideTooltip() {
-            const hideEvent = new Event('hidetooltip', { bubbles: true });
-            self.dom.dispatchEvent(hideEvent);
-        }
-        this.onPointerDown(hideTooltip);
-        this.dom.addEventListener('destroy', function() {
-            if (self.attachedMenu) self.detachMenu();
-        }, { once: true });
-    }
-    attachMenu(osuiMenu) {
-        const self = this;
-        if (osuiMenu.hasClass('Menu') === false) return this;
-        this.addClass('MenuButton');
-        this.attachedMenu = osuiMenu;
-        document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        const observer = new MutationObserver((mutations, observer) => {
-            if (document.contains(this.dom)) {
-                popMenu();
-                observer.disconnect();
-            }
-        });
-        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
-        window.addEventListener('resize', popMenu);
-        function popMenu() {
-            const popped = Popper.popUnder(
-                osuiMenu.dom,
-                self.dom,
-                self.alignMenu,
-                self.menuOffsetX,
-                self.menuOffsetY,
-                self.overflowMenu
-            );
-            if (popped === POSITION.UNDER) {
-                osuiMenu.removeClass('SlideUp');
-                osuiMenu.addClass('SlideDown');
-            } else {
-                osuiMenu.removeClass('SlideDown');
-                osuiMenu.addClass('SlideUp');
-            }
-        }
-        function onPointerDown(event) {
-            if (self.hasClass('Selected') === false) {
-                self.addClass('Selected');
-                popMenu();
-                if (self.dom) osuiMenu.showMenu(self.dom);
-            }
-        };
-        this.detachMenu = function() {
-            if (self.hasClass('MenuButton') === false) return;
-            self.removeClass('MenuButton');
-            window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', onPointerDown);
-            self.attachedMenu.destroy();
-            document.body.removeChild(self.attachedMenu.dom);
-            self.attachedMenu = undefined;
-        };
     }
 }
 
@@ -3359,96 +3422,6 @@ class TextArea extends Element {
     }
 }
 
-class ShadowBox extends Div {
-    constructor() {
-        super();
-        this.setClass('ShadowBox');
-        let args = arguments;
-        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
-        for (let i = 0; i < args.length; i++) {
-            let argument = args[i];
-            if (argument !== undefined && argument.isElement === true) {
-                this.add(argument);
-            } else {
-                this.add(new VectorBox(argument));
-            }
-        }
-    }
-    noShadow() {
-        this.addClass('NoShadow');
-        return this;
-    }
-}
-
-const CLOSE_SIDES = {
-    LEFT:		'left',
-    RIGHT:		'right',
-    BOTH:       'both',
-    NONE:       'none',
-};
-class CloseButton extends Button {
-    constructor(parent, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
-        if (! parent || ! parent.isElement) return console.warn(`CloseButton: Missing parent element`);
-        super();
-        const self = this;
-        this.setClass('CloseButton');
-        this.addClass('PanelButton');
-        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
-        this.add(closeImageBox);
-        this.dom.setAttribute('tooltip', 'Close Panel');
-        this.setStyle(
-            'min-height', `${scale}em`,
-            'min-width', `${scale}em`,
-        );
-        const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset}em`;
-        this.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
-        this.setStyle((closeSide === CLOSE_SIDES.LEFT) ? 'left' : 'right', sideways);
-        if (closeSide === CLOSE_SIDES.BOTH) {
-            let lastSide = CLOSE_SIDES.RIGHT;
-            parent.dom.addEventListener('pointermove', function(event) {
-                const rect = parent.dom.getBoundingClientRect();
-                const middle = rect.left + (rect.width / 2);
-                const x = event.pageX;
-                let changeSide = CLOSE_SIDES.NONE;
-                if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) changeSide = CLOSE_SIDES.RIGHT;
-                else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) changeSide = CLOSE_SIDES.LEFT;
-                if (changeSide !== CLOSE_SIDES.NONE) {
-                    self.addClass('ItemHidden');
-                    setTimeout(() => {
-                        self.dom.style.removeProperty('left');
-                        self.dom.style.removeProperty('right');
-                        self.setStyle(changeSide, sideways);
-                        self.removeClass('ItemHidden');
-                    }, 100);
-                    lastSide = changeSide;
-                }
-            });
-        }
-        this.dom.addEventListener('click', () => parent.hide());
-        parent.dom.addEventListener('pointerenter', () => self.addClass('ItemShown'));
-        parent.dom.addEventListener('pointerleave', () => self.removeClass('ItemShown'));
-    }
-}
-
-class TitleBar extends Div {
-    constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (! parent || ! parent.isElement) return console.warn(`TitleBar: Missing parent element`);
-        super();
-        this.setClass('TitleBar');
-        this.addClass('PanelButton');
-        this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
-        this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
-        this.setTitle(title);
-        if (draggable) Draggable.enable(this, parent, true );
-    }
-    setTitle(title = '') {
-        this.setInnerHtml(title);
-        let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));
-        width += parseFloat(Css.toPx('4em'));
-        this.setStyle('width', Css.toEm(`${width}px`));
-    }
-}
-
 class AbsoluteBox extends Div {
     constructor() {
         super();
@@ -3706,7 +3679,7 @@ class Graph extends Panel {
             }
             self.drawMiniMap();
         }
-        Resizeable.enable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
+        Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
     }
     getScale() {
         return this.#scale;
@@ -3868,7 +3841,6 @@ class Node extends Div {
         super();
         const self = this;
         this.addClass('Node');
-        this.addClass('Resizeable');
         this.dom.setAttribute('tabindex', '-1');
         this.isNode = true;
         this.#color.set(color);
@@ -3880,9 +3852,9 @@ class Node extends Div {
         this.addToSelf(background, panel, border, sizers);
         this.contents = function() { return panel; };
         this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-        this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
-        this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
-        this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
+        this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
+        this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
+        this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
         function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
         function roundNearest(decimal, increment = GRID_SIZE) {
@@ -3920,7 +3892,7 @@ class Node extends Div {
                 self.setStyle('height', `${newHeight}px`);
             }
         }
-        Resizeable.enable(this, sizers, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(this, sizers, resizers, resizerDown, resizerMove);
         let styleTimeout = undefined;
         const observer = new MutationObserver(() => {
             self.#needsUpdate = true;
@@ -3934,9 +3906,9 @@ class Node extends Div {
             'width', `${parseFloat(width)}px`,
             'height', `${parseFloat(height)}px`,
         );
-        Draggable.enable(self);
+        Interaction.makeDraggable(self);
         function selectNode() {
-            Draggable.bringToTop(self.dom);
+            Interaction.bringToTop(self.dom);
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
             self.addClass('NodeSelected');
@@ -4010,6 +3982,7 @@ class Window extends Panel {
     #resizeMode = RESIZE_MODE.FIXED;
     #lastKnownRect;
     #maximized = false;
+    #titleBar = undefined;
     constructor({
         style = PANEL_STYLES.FANCY,
         resizeMode = RESIZE_MODE.FIXED,
@@ -4020,12 +3993,11 @@ class Window extends Panel {
         super({ style, bringToTop: true });
         const self = this;
         this.addClass('Window');
-        this.addClass('Resizeable');
         this.isWindow = true;
         this.#resizeMode = resizeMode;
         let rect = {};
         function resizerDown() {
-            Draggable.bringToTop(self.dom);
+            Interaction.bringToTop(self.dom);
             rect = self.dom.getBoundingClientRect();
         }
         function resizerMove(resizer, diffX, diffY) {
@@ -4061,7 +4033,7 @@ class Window extends Panel {
                 if (resizer.hasClassWithString('Bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
         }
-        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
         this.setStyle('left', '0', 'top', '0');
         if (resizeMode === RESIZE_MODE.FIXED) {
             this.setStyle('width', `${parseInt(width)}px`);
@@ -4080,6 +4052,17 @@ class Window extends Panel {
             }
         });
         this.dom.addEventListener('displayed', () => self.center(), { once: true });
+    }
+    addTitleBar(title = '', draggable = false, scale = 1.3) {
+        if (! this.#titleBar) {
+            this.#titleBar = new TitleBar(this, title, draggable, scale);
+            this.addToSelf(this.#titleBar);
+        } else {
+            this.#titleBar.setTitle(title);
+        }
+    }
+    setTitle(title = '') {
+        if (this.#titleBar) this.#titleBar.setTitle(title);
     }
     center() {
         const side = (window.innerWidth - this.getWidth()) / 2;
@@ -4108,6 +4091,24 @@ class Window extends Panel {
             this.dom.style.removeProperty('bottom');
             this.#maximized = false;
         }
+    }
+}
+class TitleBar extends Div {
+    constructor(parent, title = '', draggable = false, scale = 1.3) {
+        if (! parent || ! parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+        super();
+        this.setClass('TitleBar');
+        this.addClass('PanelButton');
+        this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
+        this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
+        this.setTitle(title);
+        if (draggable) Interaction.makeDraggable(this, parent, true );
+    }
+    setTitle(title = '') {
+        this.setInnerHtml(title);
+        let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));
+        width += parseFloat(Css.toPx('4em'));
+        this.setStyle('width', Css.toEm(`${width}px`));
     }
 }
 
@@ -4178,4 +4179,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.Tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Draggable, Dropdown, Element, FlexBox, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, Resizeable, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Interaction, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };

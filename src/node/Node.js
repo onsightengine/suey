@@ -1,7 +1,6 @@
 import { Div } from '../core/Div.js';
-import { Draggable } from '../interactive/Draggable.js';
+import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
-import { Resizeable } from '../interactive/Resizeable.js';
 import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
 import { GRID_SIZE, RESIZERS } from '../constants.js';
@@ -31,7 +30,6 @@ class Node extends Div {
         super();
         const self = this;
         this.addClass('Node');
-        this.addClass('Resizeable');
 
         // Enable mouse focus, needs >= 0 for keyboard focus
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
@@ -54,9 +52,9 @@ class Node extends Div {
 
         // Stacking
         this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-        this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
-        this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
-        this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
+        this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
+        this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
+        this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
 
         // Disable context menu
         function onContextMenu(event) { event.preventDefault(); }
@@ -100,7 +98,7 @@ class Node extends Div {
                 self.setStyle('height', `${newHeight}px`);
             }
         }
-        Resizeable.enable(this, sizers, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(this, sizers, resizers, resizerDown, resizerMove);
 
         // Style Observer
         let styleTimeout = undefined;
@@ -119,12 +117,12 @@ class Node extends Div {
             'height', `${parseFloat(height)}px`,
         );
 
-        // Draggable
-        Draggable.enable(self);
+        // Dragging
+        Interaction.makeDraggable(self);
 
         // Selectable
         function selectNode() {
-            Draggable.bringToTop(self.dom);
+            Interaction.bringToTop(self.dom);
             const panels = document.querySelectorAll(`.NodeSelected`);
             panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
             self.addClass('NodeSelected');

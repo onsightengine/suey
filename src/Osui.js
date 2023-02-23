@@ -31,10 +31,6 @@
 //      TextArea                textarea                .TextArea
 //      TextBox                 input['text']           .TextBox
 //
-//  INTERACTIVE
-//      CloseButton
-//      Window                  div (.Panel)            .Window
-//
 //  LAYOUT
 //      AbsoluteBox             div                     .AbsoluteBox
 //		AssetBox                div                     .AssetBox, .MiniAssetBox
@@ -71,6 +67,7 @@ export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
 
 export { ColorScheme } from './utils/ColorScheme.js';
 export { Css } from './utils/Css.js';
+export { Interaction } from './utils/Interaction.js';
 export { Iris } from './utils/Iris.js';
 export { Popper } from './utils/Popper.js';
 export { Utils } from './utils/Utils.js';
@@ -107,12 +104,6 @@ export { Slider } from './input/Slider.js';
 export { TextArea } from './input/TextArea.js';
 export { TextBox } from './input/TextBox.js';
 
-// Interactive
-export { CloseButton } from './interactive/CloseButton.js';
-export { Draggable } from './interactive/Draggable.js';
-export { Resizeable } from './interactive/Resizeable.js';
-export { TitleBar } from './interactive/TitleBar.js';
-
 // Layout
 export { AbsoluteBox } from './layout/AbsoluteBox.js';
 export { AssetBox } from './layout/AssetBox.js';
@@ -144,7 +135,7 @@ export { Titled } from './panels/Titled.js';
 export { Window } from './panels/Window.js';
 
 // Enums
-export { CLOSE_SIDES } from './interactive/CloseButton.js';
+export { CLOSE_SIDES } from './utils/Interaction.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';

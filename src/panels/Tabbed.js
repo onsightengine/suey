@@ -1,7 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Interaction } from '../utils/Interaction.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
-import { Resizeable } from '../interactive/Resizeable.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
@@ -33,7 +33,6 @@ class Tabbed extends Panel {
         const self = this;
         this.setName('Tabbed');
         this.addClass('Tabbed');
-        this.addClass('Resizeable');
 
         // Properties
         this.#startWidth = startWidth;
@@ -62,7 +61,7 @@ class Tabbed extends Panel {
             if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
             if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
         }
-        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
 
         // Children Elements
         this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');

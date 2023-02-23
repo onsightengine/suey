@@ -1,8 +1,8 @@
 import { Css } from '../utils/Css.js';
-import { Draggable } from '../interactive/Draggable.js';
+import { Div } from '../core/Div.js';
+import { Interaction } from '../utils/Interaction.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
 import { RESIZERS } from '../constants.js';
-import { Resizeable } from '../interactive/Resizeable.js';
 
 export const RESIZE_MODE = {
     FIXED:      'fixed',
@@ -17,6 +17,7 @@ class Window extends Panel {
     #resizeMode = RESIZE_MODE.FIXED;
     #lastKnownRect;
     #maximized = false;
+    #titleBar = undefined;
 
     constructor({
         style = PANEL_STYLES.FANCY,
@@ -28,15 +29,15 @@ class Window extends Panel {
         super({ style, bringToTop: true });
         const self = this;
         this.addClass('Window');
-        this.addClass('Resizeable');
 
+        // Properties
         this.isWindow = true;
         this.#resizeMode = resizeMode;
 
         // Resizers
         let rect = {};
         function resizerDown() {
-            Draggable.bringToTop(self.dom);
+            Interaction.bringToTop(self.dom);
             rect = self.dom.getBoundingClientRect();
         }
         function resizerMove(resizer, diffX, diffY) {
@@ -72,7 +73,7 @@ class Window extends Panel {
                 if (resizer.hasClassWithString('Bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
         }
-        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
 
         // Initial Size
         this.setStyle('left', '0', 'top', '0');
@@ -99,9 +100,24 @@ class Window extends Panel {
         this.dom.addEventListener('displayed', () => self.center(), { once: true });
     }
 
-    /**
-     * Centers 'Window' panel in document window
-     */
+    /******************** WIDGETS */
+
+    addTitleBar(title = '', draggable = false, scale = 1.3) {
+        if (! this.#titleBar) {
+            this.#titleBar = new TitleBar(this, title, draggable, scale);
+            this.addToSelf(this.#titleBar);
+        } else {
+            this.#titleBar.setTitle(title);
+        }
+    }
+
+    setTitle(title = '') {
+        if (this.#titleBar) this.#titleBar.setTitle(title);
+    }
+
+    /******************** POSITION */
+
+    /** Centers 'Window' panel in document window */
     center() {
         const side = (window.innerWidth - this.getWidth()) / 2;
         const top = (window.innerHeight - this.getHeight()) / 2;
@@ -135,3 +151,27 @@ class Window extends Panel {
 }
 
 export { Window };
+
+/******************** INTERNAL ********************/
+
+class TitleBar extends Div {
+    constructor(parent, title = '', draggable = false, scale = 1.3) {
+        if (! parent || ! parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+        super();
+        this.setClass('TitleBar');
+        this.addClass('PanelButton');
+
+        this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
+        this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
+        this.setTitle(title);
+
+        if (draggable) Interaction.makeDraggable(this, parent, true /* limitToWindow */);
+    }
+
+    setTitle(title = '') {
+        this.setInnerHtml(title);
+        let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));
+        width += parseFloat(Css.toPx('4em'));
+        this.setStyle('width', Css.toEm(`${width}px`));
+    }
+}

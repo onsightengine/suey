@@ -1,9 +1,9 @@
 import { Canvas } from '../core/Canvas.js';
 import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
+import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { Resizeable } from '../interactive/Resizeable.js';
 import { GRID_SIZE, RESIZERS, TRAIT } from '../constants.js';
 
 const MIN_W = 100;
@@ -161,7 +161,7 @@ class Graph extends Panel {
             }
             self.drawMiniMap();
         }
-        Resizeable.enable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
+        Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
     }
 
     getScale() {

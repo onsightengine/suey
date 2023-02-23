@@ -1,5 +1,5 @@
 import { Div } from '../core/Div.js';
-import { Draggable } from '../interactive/Draggable.js';
+import { Interaction } from '../utils/Interaction.js';
 
 export const PANEL_STYLES = {
     NONE:       'none',
@@ -39,9 +39,9 @@ class Panel extends Div {
         // Stacking
         if (bringToTop) {
             this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
-            this.dom.addEventListener('focusin', () => Draggable.bringToTop(self.dom));
-            this.dom.addEventListener('displayed', () => Draggable.bringToTop(self.dom));
-            this.dom.addEventListener('pointerdown', () => Draggable.bringToTop(self.dom));
+            this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
+            this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
+            this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
         }
     }
 
