@@ -66,6 +66,7 @@ class ColorScheme {
 
     static updateCSS() {
         Css.setVariable('--shadow',             _clr.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
+        Css.setVariable('--darkness',           _clr.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
         Css.setVariable('--background-dark',    _clr.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
         Css.setVariable('--background-light',   _clr.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
         Css.setVariable('--button-dark',        _clr.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
@@ -89,6 +90,8 @@ class ColorScheme {
         Css.setVariable('--triadic4',           _clr.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
         Css.setVariable('--triadic5',           _clr.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
         Css.setVariable('--triadic6',           _clr.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
+
+        Css.setVariable('--invert',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
 
         // Update necessary hue rotation degrees
         let startHue = _clr.set(0x00b4af).hue();
@@ -148,6 +151,16 @@ class ColorScheme {
                 case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); break;
                 case TRAIT.MIDLIGHT:            _clr.set( 85,  85,  85, 'rgb'); break;
                 case TRAIT.HIGHLIGHT:           _clr.set(255, 255, 255, 'rgb'); break;
+            }
+        }
+
+        // Darkness
+        if (guiColor === TRAIT.DARKNESS) {
+            switch (_background) {
+                case BACKGROUNDS.DARK:      _clr.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr.set(  0,   0,   0, 'rgb');     break;
             }
         }
 

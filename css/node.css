@@ -10,7 +10,7 @@
     width: 20%;
     height: 20%;
     z-index: 101; /* GraphMap */
-    cursor: auto;
+    cursor: grab;
 }
 
 .MiniMapCanvas {
@@ -81,9 +81,13 @@
     filter: brightness(120%);
 }
 
+.Node.TooSmall .Resizer {
+    pointer-events: none;
+}
+
 .NodeBackground {
     pointer-events: none;
-    background-color: rgba(var(--background-dark), 0.75);
+    background-color: rgba(var(--darkness), 0.25);
     border-radius: 0.5em;
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
@@ -92,7 +96,7 @@
 }
 
 .Node.NodeSelected .NodeBackground {
-    background-color: rgba(var(--shadow), 0.75);
+    background-color: rgba(var(--darkness), 0.50);
 }
 
 .NodePanel {
@@ -143,7 +147,7 @@
     height: 1.9em;
     margin: 0;
     padding: var(--pad-small) 0.5em; /* vertical | horizontal */
-    text-shadow: 0 0 var(--pad-small) black;
+    text-shadow: 0 0 var(--pad-small) rgb(var(--shadow));
 }
 
 .NodeHeaderBoxShadow {
@@ -157,7 +161,7 @@
 }
 
 .NodeHeaderIcon > * {
-    filter: drop-shadow(0 0 var(--pad-small) white) invert(1);
+    filter: drop-shadow(0 0 var(--pad-small) white) invert(var(--invert));
 }
 
 .NodeHeaderIcon {

@@ -18,6 +18,7 @@ export const BACKGROUNDS = {
 
 export const TRAIT = {
     SHADOW:             'shadow',
+    DARKNESS:           'darkness',
 
     BACKGROUND_DARK:    'background-dark',
     BACKGROUND_LIGHT:   'background-light',

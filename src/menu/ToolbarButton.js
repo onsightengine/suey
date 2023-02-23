@@ -1,4 +1,5 @@
 import { Button } from '../input/Button.js';
+import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 
 class ToolbarButton extends Button {
@@ -13,8 +14,10 @@ class ToolbarButton extends Button {
             case 'right': this.addClass('ButtonRight'); break;
         }
 
+        const overflowContainer = new Div().setClass('ToolbarButtonOverflowContainer');
         const buttonImageHolder = new ShadowBox();
-        this.add(buttonImageHolder);
+        overflowContainer.add(buttonImageHolder);
+        this.add(overflowContainer);
         this.contents = function() { return buttonImageHolder };
     }
 

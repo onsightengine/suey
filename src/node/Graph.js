@@ -8,6 +8,7 @@ import { GRID_SIZE, RESIZERS, TRAIT } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;
+const MAP_BUFFER = 200;
 
 const _color = new Iris();
 
@@ -16,6 +17,8 @@ class Graph extends Panel {
     #scale = 1;
     #snapToGrid = true;
     #offset = { x: 0, y: 0 };
+    #drawWidth = 0;
+    #drawHeight = 0;
 
     constructor(snapToGrid = true) {
         super();
@@ -162,6 +165,53 @@ class Graph extends Panel {
             self.drawMiniMap();
         }
         Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
+
+        // Pointer Minimap
+        let translating = false;
+        function calculateOffset(clientX, clientY) {
+            const rect = self.minimap.dom.getBoundingClientRect();
+            const nodes = self.nodes.dom.getBoundingClientRect();
+            let downX = clientX - rect.left;
+            let downY = clientY - rect.top;
+            let percentX = ((rect.width / 2) - downX) / (rect.width / 2);
+            let percentY = ((rect.height / 2) - downY) / (rect.height / 2);
+            const bounds = self.nodeBounds(MAP_BUFFER);
+            if (! bounds.isFinite) return;
+            // Empty space on top and bottom
+            if (self.#drawWidth > self.#drawHeight) {
+                const ratio = (self.#drawWidth / self.#drawHeight);
+                let x = bounds.center().x - ((bounds.width() / 2) * percentX);
+                let y = bounds.center().y - ((bounds.height() / 2) * ratio * percentY);
+                self.#offset.x = (nodes.width / 2) - x;
+                self.#offset.y = (nodes.height / 2) - y;
+            // Empty space on sides
+            } else {
+                const ratio = (self.#drawHeight / self.#drawWidth);
+                let x = bounds.center().x - ((bounds.width() / 2) * ratio * percentX);
+                let y = bounds.center().y - ((bounds.height() / 2) * percentY);
+                self.#offset.x = (nodes.width / 2) - x;
+                self.#offset.y = (nodes.height / 2) - y;
+            }
+            self.zoomTo(self.#scale);
+        }
+        function downOnMinimap(event) {
+            self.minimap.dom.setPointerCapture(event.pointerId);
+            self.minimap.setStyle('cursor', 'grabbing');
+            calculateOffset(event.clientX, event.clientY);
+            translating = true;
+        }
+        function moveOnMinimap(event) {
+            if (! translating) return;
+            calculateOffset(event.clientX, event.clientY);
+        }
+        function upOnMinimap(event) {
+            self.minimap.dom.releasePointerCapture(event.pointerId);
+            self.minimap.setStyle('cursor', 'grab');
+            translating = false
+        }
+        this.minimap.onPointerDown(downOnMinimap);
+        this.minimap.onPointerMove(moveOnMinimap);
+        this.minimap.onPointerUp(upOnMinimap);
     }
 
     getScale() {
@@ -173,11 +223,8 @@ class Graph extends Panel {
         if (this.dom.style.display === 'none') return;
 
         // Bounds
-        const bounds = this.nodeBounds();
+        const bounds = this.nodeBounds(MAP_BUFFER);
         if (! bounds.isFinite) return;
-        const BUFFER = 200;
-        bounds.x.min -= BUFFER; bounds.x.max += BUFFER;
-        bounds.y.min -= BUFFER; bounds.y.max += BUFFER;
 
         // Clear
         const map = this.mapCanvas;
@@ -185,17 +232,17 @@ class Graph extends Panel {
         ctx.clearRect(0, 0, map.width, map.height);
 
         // Aspect Ratio
-        let canvasWidth = map.width;
-        let canvasHeight = map.height;
+        this.#drawWidth = map.width;
+        this.#drawHeight = map.height;
         let adjustX = 0, adjustY = 0;
         const ratioX = map.width / bounds.width();
         const ratioY = (map.height / bounds.height()) * this.mapCanvas.ratio();
         if (ratioX > ratioY) {
-            canvasWidth *= (ratioY / ratioX);
-            adjustX = (canvasWidth - map.width) / 2;
+            this.#drawWidth *= (ratioY / ratioX);
+            adjustX = (this.#drawWidth - map.width) / 2;
         } else {
-            canvasHeight *= (ratioX / ratioY);
-            adjustY = (canvasHeight - map.height) / 2;
+            this.#drawHeight *= (ratioX / ratioY);
+            adjustY = (this.#drawHeight - map.height) / 2;
         }
 
         // Draw View
@@ -210,10 +257,10 @@ class Graph extends Panel {
             scaled.height = rect.height / this.#scale;
             ctx.globalAlpha = 0.5;
             ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-            const x = canvasWidth * ((scaled.left - bounds.x.min) / bounds.width());
-            const w = canvasWidth * (scaled.width / bounds.width());
-            const y = canvasHeight * ((scaled.top - bounds.y.min) / bounds.height());
-            const h = canvasHeight * (scaled.height / bounds.height());
+            const x = this.#drawWidth * ((scaled.left - bounds.x.min) / bounds.width());
+            const w = this.#drawWidth * (scaled.width / bounds.width());
+            const y = this.#drawHeight * ((scaled.top - bounds.y.min) / bounds.height());
+            const h = this.#drawHeight * (scaled.height / bounds.height());
             ctx.fillRect(x - adjustX, y - adjustY, w, h);
         }
 
@@ -221,15 +268,15 @@ class Graph extends Panel {
         ctx.globalAlpha = 0.75;
         this.traverseNodes((node) => {
             ctx.fillStyle = node.colorString();
-            const x = canvasWidth * ((node.left - bounds.x.min) / bounds.width());
-            const w = canvasWidth * (node.width / bounds.width());
-            const y = canvasHeight * ((node.top - bounds.y.min) / bounds.height());
-            const h = canvasHeight * (node.height / bounds.height());
+            const x = this.#drawWidth * ((node.left - bounds.x.min) / bounds.width());
+            const w = this.#drawWidth * (node.width / bounds.width());
+            const y = this.#drawHeight * ((node.top - bounds.y.min) / bounds.height());
+            const h = this.#drawHeight * (node.height / bounds.height());
             ctx.fillRect(x - adjustX, y - adjustY, w, h);
         });
     }
 
-    nodeBounds() {
+    nodeBounds(buffer = 0) {
         const bounds = {
             x: { min: Infinity, max: -Infinity },
             y: { min: Infinity, max: -Infinity },
@@ -250,6 +297,8 @@ class Graph extends Panel {
             };
             bounds.width = () => { return (bounds.x.max - bounds.x.min); };
             bounds.height = () => { return (bounds.y.max - bounds.y.min); };
+            bounds.x.min -= buffer; bounds.x.max += buffer;
+            bounds.y.min -= buffer; bounds.y.max += buffer;
         }
         return bounds;
     }
@@ -319,7 +368,7 @@ class Graph extends Panel {
         this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
 
         // Hide Resizers
-        const resizeables = document.querySelectorAll(`.Resizeable`);
+        const resizeables = document.querySelectorAll(`.Node`);
         resizeables.forEach(el => {
             if (zoom < 0.5) el.classList.add('TooSmall');
             else el.classList.remove('TooSmall');

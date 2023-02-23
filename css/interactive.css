@@ -63,10 +63,6 @@
 
 /***** .Resizeable *****/
 
-.Resizeable.TooSmall .Resizer {
-    pointer-events: none;
-}
-
 .Resizer {
     position: absolute;
     pointer-events: all;

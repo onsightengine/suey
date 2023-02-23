@@ -18,6 +18,7 @@
 
     /* Scheme Colors */
     --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */
+    --darkness:               0,   0,   0;      /* lightens as theme lightens */
     --darklight:             16,  16,  16;
     --background-dark:       24,  24,  24;
     --background-light:      32,  32,  32;
@@ -38,6 +39,9 @@
     --triadic4:             255, 253,  84;      /* #FFFD54 complement shifted 90°   yellow */
     --triadic5:             232,  51,  37;      /* #E83325 icon shifted 150°        red */
     --triadic6:             100, 216,  64;      /* #64D840 complement shifted 150°  green */
+
+    /* Theme Multiplier */
+    --invert:               1;                  /* 1: Mid/Dark, 0: Light */
 
     /* Basic Colors */
     --white:                255, 255, 255;
