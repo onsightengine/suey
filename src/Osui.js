@@ -109,8 +109,9 @@ export { TextBox } from './input/TextBox.js';
 
 // Interactive
 export { CloseButton } from './interactive/CloseButton.js';
+export { Draggable } from './interactive/Draggable.js';
+export { Resizeable } from './interactive/Resizeable.js';
 export { TitleBar } from './interactive/TitleBar.js';
-export { Window } from './interactive/Window.js';
 
 // Layout
 export { AbsoluteBox } from './layout/AbsoluteBox.js';
@@ -140,13 +141,14 @@ export { Panel } from './panels/Panel.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Tabbed } from './panels/Tabbed.js';
 export { Titled } from './panels/Titled.js';
+export { Window } from './panels/Window.js';
 
 // Enums
 export { CLOSE_SIDES } from './interactive/CloseButton.js';
 export { CORNERS } from './layout/Docker.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
-export { RESIZE_MODE } from './interactive/Window.js';
+export { RESIZE_MODE } from './panels/Window.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
 // CSS

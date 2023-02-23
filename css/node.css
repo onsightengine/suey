@@ -13,6 +13,22 @@
     cursor: auto;
 }
 
+.MiniMapCanvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    outline: none;
+}
+
+.MiniMapResizers {
+    position: absolute;
+    width: calc(100% + var(--resize-size));
+    height: calc(100% + var(--resize-size));
+    margin: calc(var(--resize-size) / -2);
+    outline: none;
+}
+
 .GraphInput, .GraphGrid, .GraphNodes, .GraphLines {
     position: absolute;
     top: 0;

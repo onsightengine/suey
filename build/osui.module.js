@@ -1557,13 +1557,77 @@ class Shrinkable extends Panel {
     }
 }
 
+class Resizeable {
+    static enable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
+        if (! resizeElement || ! resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
+        if (! addToElement || ! addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
+        const resizerDivs = {};
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            const className = `Resizer${resizerName}`;
+            const resizer = new Div().addClass('Resizer').addClass(className);
+            let downX, downY, lastX, lastY;
+            function onPointerDown(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.setPointerCapture(event.pointerId);
+                downX = event.pageX;
+                downY = event.pageY;
+                lastX = event.pageX;
+                lastY = event.pageY;
+                resizeElement.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
+                resizeElement.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                onDown();
+            }
+            function onPointerUp(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
+                resizeElement.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
+                resizeElement.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            }
+            function onPointerMove(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (event.isTrusted) {
+                    lastX = event.pageX;
+                    lastY = event.pageY;
+                }
+                const diffX = lastX - downX;
+                const diffY = lastY - downY;
+                onMove(resizer, diffX, diffY);
+            }
+            resizer.dom.addEventListener('pointerdown', onPointerDown);
+            resizerDivs[resizerName] = resizer;
+            addToElement.addToSelf(resizer);
+        }
+        const resizerEnabled = {};
+        resizeElement.toggleResize = function(resizerName, enable = true) {
+            if (! resizerName) return;
+            resizerEnabled[resizerName] = enable;
+            function toggleDisplay(element, display) {
+                if (! element) return;
+                element.setStyle('display', display ? '' : 'none');
+            }
+            toggleDisplay(resizerDivs[resizerName], enable);
+            toggleDisplay(resizerDivs[RESIZERS.TOP_LEFT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.LEFT]);
+            toggleDisplay(resizerDivs[RESIZERS.TOP_RIGHT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.RIGHT]);
+            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_LEFT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.LEFT]);
+            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
+            return resizeElement;
+        };
+        for (let key in RESIZERS) {
+            const resizerName = RESIZERS[key];
+            resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
+        }
+    }
+}
+
 const TAB_SIDES = {
     LEFT:		'left',
     RIGHT:		'right',
 };
 class Tabbed extends Panel {
-    #resizers = {};
-    #resizerEnabled = {};
     #startWidth = null;
     #startHeight = null;
     #minWidth = 0;
@@ -1596,41 +1660,19 @@ class Tabbed extends Panel {
         this.panels = [];
         this.selectedId = '';
         this.selectedCount = 0;
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
-            let downX, downY, rect = {};
-            function onPointerDown(event) {
-                resizer.dom.setPointerCapture(event.pointerId);
-                downX = event.pageX;
-                downY = event.pageY;
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                rect.width = self.getWidth();
-                rect.height = self.getHeight();
-            }
-            function onPointerUp(event) {
-                resizer.dom.releasePointerCapture(event.pointerId);
-                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            }
-            function onPointerMove(event) {
-                const diffX = event.pageX - downX;
-                const diffY = event.pageY - downY;
-                if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
-                if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
-                if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
-                if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
-            }
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
-            this.#resizers[resizerName] = resizer;
-            this.addToSelf(resizer);
+        let rect = {};
+        function resizerDown() {
+            rect.width = self.getWidth();
+            rect.height = self.getHeight();
+            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
         }
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            this.toggleResize(resizerName, resizers.includes(resizerName));
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
         }
+        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
         this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
         this.panelsDiv = new Div().setClass('TabPanels');
         this.add(this.tabsDiv);
@@ -1692,20 +1734,6 @@ class Tabbed extends Panel {
         this.setStyle('height', Css.toEm(height, this.dom));
         this.dom.dispatchEvent(new Event('resized'));
         return height;
-    }
-    toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
-        this.#resizerEnabled[resizerName] = enable;
-        function toggleDisplay(element, display) {
-            if (! element) return;
-            element.setStyle('display', display ? '' : 'none');
-        }
-        toggleDisplay(this.#resizers[resizerName], enable);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        return this;
     }
     selectFirst() {
         if (this.tabs.length > 0) {
@@ -3421,163 +3449,6 @@ class TitleBar extends Div {
     }
 }
 
-const RESIZE_MODE = {
-    FIXED:      'fixed',
-    STRETCH:    'stretch',
-};
-const MIN_W$1 = 300;
-const MIN_H$1 = 150;
-class Window extends Panel {
-    #resizeMode = RESIZE_MODE.FIXED;
-    #resizers = {};
-    #resizerEnabled = {};
-    #lastKnownRect;
-    #maximized = false;
-    constructor({
-        style = PANEL_STYLES.FANCY,
-        resizeMode = RESIZE_MODE.FIXED,
-        width = 600,
-        height = 600,
-        resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
-    } = {}) {
-        super({ style, bringToTop: true });
-        const self = this;
-        this.addClass('Window');
-        this.addClass('Resizeable');
-        this.isWindow = true;
-        this.#resizeMode = resizeMode;
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
-            let downX, downY, rect = {};
-            function onPointerDown(event) {
-                if (! event.isPrimary) return;
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
-                Draggable.bringToTop(self.dom);
-                downX = event.pageX;
-                downY = event.pageY;
-                rect = self.dom.getBoundingClientRect();
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-            }
-            function onPointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            }
-            function onPointerMove(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                const diffX = event.pageX - downX;
-                const diffY = event.pageY - downY;
-                if (self.#resizeMode === RESIZE_MODE.FIXED) {
-                    if (resizer.hasClassWithString('Left')) {
-                        const newLeft = Math.max(0, Math.min(rect.right - MIN_W$1, rect.left + diffX));
-                        const newWidth = rect.right - newLeft;
-                        self.setStyle('left', `${newLeft}px`);
-                        self.setStyle('width', `${newWidth}px`);
-                    }
-                    if (resizer.hasClassWithString('Top')) {
-                        const newTop = Math.max(0, Math.min(rect.bottom - MIN_H$1, rect.top + diffY));
-                        const newHeight = rect.bottom - newTop;
-                        self.setStyle('top', `${newTop}px`);
-                        self.setStyle('height', `${newHeight}px`);
-                    }
-                    if (resizer.hasClassWithString('Right')) {
-                        const newWidth = Math.min(Math.max(MIN_W$1, rect.width + diffX), window.innerWidth - rect.left);
-                        self.setStyle('width', `${newWidth}px`);
-                    }
-                    if (resizer.hasClassWithString('Bottom')) {
-                        const newHeight = Math.min(Math.max(MIN_H$1, rect.height + diffY), window.innerHeight - rect.top);
-                        self.setStyle('height', `${newHeight}px`);
-                    }
-                } else if (self.#resizeMode === RESIZE_MODE.STRETCH) {
-                    const newLeft = Math.max(0, rect.left + diffX);
-                    const newTop = Math.max(0, rect.top + diffY);
-                    const newRight = Math.min(window.innerWidth - (rect.left + MIN_W$1), Math.max(0, (window.innerWidth - rect.right) - diffX));
-                    const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H$1), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
-                    if (resizer.hasClassWithString('Left')) self.setStyle('left', `${newLeft}px`);
-                    if (resizer.hasClassWithString('Top')) self.setStyle('top', `${newTop}px`);
-                    if (resizer.hasClassWithString('Right')) self.setStyle('right', `${newRight}px`);
-                    if (resizer.hasClassWithString('Bottom')) self.setStyle('bottom', `${newBottom}px`);
-                }
-            }
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
-            this.#resizers[resizerName] = resizer;
-            this.addToSelf(resizer);
-        }
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            this.toggleResize(resizerName, resizers.includes(resizerName));
-        }
-        this.setStyle('left', '0', 'top', '0');
-        if (resizeMode === RESIZE_MODE.FIXED) {
-            this.setStyle('width', `${parseInt(width)}px`);
-            this.setStyle('height', `${parseInt(height)}px`);
-        } else if (resizeMode === RESIZE_MODE.STRETCH) {
-            if (String(width).includes('%')) this.setStyle('right', `${window.innerWidth - (window.innerWidth * (parseFloat(width)/100))}px`);
-            else this.setStyle('right', `${window.innerWidth - parseInt(Css.toPx(width))}px`);
-            if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
-            else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
-        }
-        window.addEventListener('resize', () => {
-            const rect = self.dom.getBoundingClientRect();
-            if (resizeMode === RESIZE_MODE.FIXED) {
-                if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
-                if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
-            }
-        });
-        this.dom.addEventListener('displayed', () => self.center(), { once: true });
-    }
-    center() {
-        const side = (window.innerWidth - this.getWidth()) / 2;
-        const top = (window.innerHeight - this.getHeight()) / 2;
-        this.setStyle('left', `${side}px`, 'top', `${top}px`);
-        if (this.#resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', `${side}px`, 'bottom', `${top}px`);
-    }
-    toggleMinMax() {
-        if (! this.#maximized) {
-            this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.setStyle('left', `0`);
-            this.setStyle('right', `0`);
-            this.setStyle('top', `0`);
-            this.setStyle('bottom', `0`);
-            this.dom.style.removeProperty('width');
-            this.dom.style.removeProperty('height');
-            this.#maximized = true;
-        } else {
-            const newLeft = Math.max(0, Math.min(window.innerWidth - this.#lastKnownRect.width, this.#lastKnownRect.left));
-            const newTop = Math.max(0, Math.min(window.innerHeight - this.#lastKnownRect.height, this.#lastKnownRect.top));
-            this.setStyle('left', `${newLeft}px`);
-            this.setStyle('top', `${newTop}px`);
-            this.setStyle('width', `${this.#lastKnownRect.width}px`);
-            this.setStyle('height', `${this.#lastKnownRect.height}px`);
-            this.dom.style.removeProperty('right');
-            this.dom.style.removeProperty('bottom');
-            this.#maximized = false;
-        }
-    }
-    toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
-        this.#resizerEnabled[resizerName] = enable;
-        function toggleDisplay(element, display) {
-            if (! element) return;
-            element.setStyle('display', display ? '' : 'none');
-        }
-        toggleDisplay(this.#resizers[resizerName], enable);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        return this;
-    }
-}
-
 class AbsoluteBox extends Div {
     constructor() {
         super();
@@ -3622,7 +3493,7 @@ class Docker extends Div {
             const corner = new Div().addClass('DockerCorner').addClass(className);
             corner.setStyle('zIndex', `${zIndex}`);
             zIndex++;
-            corner.dom.addEventListener('pointerdown', function() {
+            function bringCornerToTop() {
                 for (let cornerDiv in self.#corners) {
                     const style = getComputedStyle(self.#corners[cornerDiv].dom);
                     let computedZ = style.getPropertyValue('z-index');
@@ -3630,7 +3501,9 @@ class Docker extends Div {
                     self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
                 };
                 corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
-            });
+            }
+            corner.dom.addEventListener('pointerdown', bringCornerToTop);
+            corner.dom.addEventListener('clicked', bringCornerToTop);
             this.#corners[cornerName] = corner;
             this.add(corner);
         }
@@ -3702,6 +3575,8 @@ class ToolbarSpacer extends Element {
     }
 }
 
+const MIN_W$2 = 100;
+const MIN_H$2 = 100;
 const _color = new Iris();
 class Graph extends Panel {
     #scale = 1;
@@ -3715,8 +3590,11 @@ class Graph extends Panel {
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
-        this.minimap = new Canvas(1024, 1024).setClass('MiniMap');
+        this.minimap = new Div().setClass('MiniMap');
         this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
+        this.mapCanvas = new Canvas(1024, 1024).setClass('MiniMapCanvas');
+        const mapResizers = new Div().addClass('MiniMapResizers');
+        this.minimap.add(this.mapCanvas, mapResizers);
         this.nodes.isNodeGraph = true;
         this.nodes.getScale = function() { return self.#scale; };
         this.nodes.drawMiniMap = function() { self.drawMiniMap(); };
@@ -3801,26 +3679,54 @@ class Graph extends Panel {
             self.zoomTo();
         }
         this.input.onPointerDown(onPointerDown);
+        let rect = {};
+        function resizerDown() {
+            rect = self.minimap.dom.getBoundingClientRect();
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('Left')) {
+                const newLeft = Math.max(0, Math.min(rect.right - MIN_W$2, rect.left + diffX));
+                const newWidth = rect.right - newLeft;
+                self.minimap.setStyle('left', `${newLeft}px`);
+                self.minimap.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Top')) {
+                const newTop = Math.max(0, Math.min(rect.bottom - MIN_H$2, rect.top + diffY));
+                const newHeight = rect.bottom - newTop;
+                self.minimap.setStyle('top', `${newTop}px`);
+                self.minimap.setStyle('height', `${newHeight}px`);
+            }
+            if (resizer.hasClassWithString('Right')) {
+                const newWidth = Math.min(Math.max(MIN_W$2, rect.width + diffX), window.innerWidth - rect.left);
+                self.minimap.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Bottom')) {
+                const newHeight = Math.min(Math.max(MIN_H$2, rect.height + diffY), window.innerHeight - rect.top);
+                self.minimap.setStyle('height', `${newHeight}px`);
+            }
+            self.drawMiniMap();
+        }
+        Resizeable.enable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
     }
     getScale() {
         return this.#scale;
     }
     drawMiniMap() {
-        if (! this.minimap) return;
+        if (! this.mapCanvas) return;
         if (this.dom.style.display === 'none') return;
         const bounds = this.nodeBounds();
         if (! bounds.isFinite) return;
         const BUFFER = 200;
         bounds.x.min -= BUFFER; bounds.x.max += BUFFER;
         bounds.y.min -= BUFFER; bounds.y.max += BUFFER;
-        const map = this.minimap;
+        const map = this.mapCanvas;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
         let canvasWidth = map.width;
         let canvasHeight = map.height;
         let adjustX = 0, adjustY = 0;
         const ratioX = map.width / bounds.width();
-        const ratioY = (map.height / bounds.height()) * this.minimap.ratio();
+        const ratioY = (map.height / bounds.height()) * this.mapCanvas.ratio();
         if (ratioX > ratioY) {
             canvasWidth *= (ratioY / ratioX);
             adjustX = (canvasWidth - map.width) / 2;
@@ -3941,13 +3847,11 @@ class Graph extends Panel {
     }
 }
 
-const MIN_W = 200;
-const MIN_H = 100;
+const MIN_W$1 = 200;
+const MIN_H$1 = 100;
 const _color1 = new Iris();
 const _color2 = new Iris();
 class Node extends Div {
-    #resizers = {};
-    #resizerEnabled = {};
     #snapToGrid = true;
     #color = new Iris();
     #style = {};
@@ -3985,66 +3889,38 @@ class Node extends Div {
             if (! self.#snapToGrid) return decimal;
             return Math.ceil(decimal / increment) * increment;
         }
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
-            let downX, downY, rect = {};
-            function onPointerDown(event) {
-                if (! event.isPrimary) return;
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
-                downX = event.pageX;
-                downY = event.pageY;
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                rect.left = self.left;
-                rect.top = self.top;
-                rect.width = self.width;
-                rect.height = self.height;
-                selectNode();
-            }
-            function onPointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            }
-            function onPointerMove(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                const scale = self.getScale();
-                const diffX = (event.pageX - downX) * (1 / scale);
-                const diffY = (event.pageY - downY) * (1 / scale);
-                if (resizer.hasClassWithString('Left')) {
-                    const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
-                    const newLeft = rect.left + (rect.width - newWidth);
-                    self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
-                }
-                if (resizer.hasClassWithString('Top')) {
-                    const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
-                    const newTop = rect.top + (rect.height - newHeight);
-                    self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
-                }
-                if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
-                    self.setStyle('width', `${newWidth}px`);
-                }
-                if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H);
-                    self.setStyle('height', `${newHeight}px`);
-                }
-            }
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
-            this.#resizers[resizerName] = resizer;
-            sizers.add(resizer);
+        let rect = {};
+        function resizerDown() {
+            rect.left = self.left;
+            rect.top = self.top;
+            rect.width = self.width;
+            rect.height = self.height;
+            selectNode();
         }
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            this.toggleResize(resizerName, resizers.includes(resizerName));
+        function resizerMove(resizer, diffX, diffY) {
+            const scale = self.getScale();
+            diffX *= (1 / scale);
+            diffY *= (1 / scale);
+            if (resizer.hasClassWithString('Left')) {
+                const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W$1);
+                const newLeft = rect.left + (rect.width - newWidth);
+                self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Top')) {
+                const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H$1);
+                const newTop = rect.top + (rect.height - newHeight);
+                self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
+            }
+            if (resizer.hasClassWithString('Right')) {
+                const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W$1);
+                self.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Bottom')) {
+                const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H$1);
+                self.setStyle('height', `${newHeight}px`);
+            }
         }
+        Resizeable.enable(this, sizers, resizers, resizerDown, resizerMove);
         let styleTimeout = undefined;
         const observer = new MutationObserver(() => {
             self.#needsUpdate = true;
@@ -4100,20 +3976,6 @@ class Node extends Div {
     snapToGrid() {
         return this.#snapToGrid;
     }
-    toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
-        this.#resizerEnabled[resizerName] = enable;
-        function toggleDisplay(element, display) {
-            if (! element) return;
-            element.setStyle('display', display ? '' : 'none');
-        }
-        toggleDisplay(this.#resizers[resizerName], enable);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        return this;
-    }
     createHeader(text = '', iconUrl, addToContents = true) {
         if (this.header) return undefined;
         const header = new Div().setClass('NodeHeaderTitle');
@@ -4135,6 +3997,117 @@ class Node extends Div {
     }
     colorString() {
         return this.#color.cssString();
+    }
+}
+
+const RESIZE_MODE = {
+    FIXED:      'fixed',
+    STRETCH:    'stretch',
+};
+const MIN_W = 300;
+const MIN_H = 150;
+class Window extends Panel {
+    #resizeMode = RESIZE_MODE.FIXED;
+    #lastKnownRect;
+    #maximized = false;
+    constructor({
+        style = PANEL_STYLES.FANCY,
+        resizeMode = RESIZE_MODE.FIXED,
+        width = 600,
+        height = 600,
+        resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
+    } = {}) {
+        super({ style, bringToTop: true });
+        const self = this;
+        this.addClass('Window');
+        this.addClass('Resizeable');
+        this.isWindow = true;
+        this.#resizeMode = resizeMode;
+        let rect = {};
+        function resizerDown() {
+            Draggable.bringToTop(self.dom);
+            rect = self.dom.getBoundingClientRect();
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (self.#resizeMode === RESIZE_MODE.FIXED) {
+                if (resizer.hasClassWithString('Left')) {
+                    const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
+                    const newWidth = rect.right - newLeft;
+                    self.setStyle('left', `${newLeft}px`);
+                    self.setStyle('width', `${newWidth}px`);
+                }
+                if (resizer.hasClassWithString('Top')) {
+                    const newTop = Math.max(0, Math.min(rect.bottom - MIN_H, rect.top + diffY));
+                    const newHeight = rect.bottom - newTop;
+                    self.setStyle('top', `${newTop}px`);
+                    self.setStyle('height', `${newHeight}px`);
+                }
+                if (resizer.hasClassWithString('Right')) {
+                    const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), window.innerWidth - rect.left);
+                    self.setStyle('width', `${newWidth}px`);
+                }
+                if (resizer.hasClassWithString('Bottom')) {
+                    const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
+                    self.setStyle('height', `${newHeight}px`);
+                }
+            } else if (self.#resizeMode === RESIZE_MODE.STRETCH) {
+                const newLeft = Math.max(0, rect.left + diffX);
+                const newTop = Math.max(0, rect.top + diffY);
+                const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
+                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
+                if (resizer.hasClassWithString('Left')) self.setStyle('left', `${newLeft}px`);
+                if (resizer.hasClassWithString('Top')) self.setStyle('top', `${newTop}px`);
+                if (resizer.hasClassWithString('Right')) self.setStyle('right', `${newRight}px`);
+                if (resizer.hasClassWithString('Bottom')) self.setStyle('bottom', `${newBottom}px`);
+            }
+        }
+        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
+        this.setStyle('left', '0', 'top', '0');
+        if (resizeMode === RESIZE_MODE.FIXED) {
+            this.setStyle('width', `${parseInt(width)}px`);
+            this.setStyle('height', `${parseInt(height)}px`);
+        } else if (resizeMode === RESIZE_MODE.STRETCH) {
+            if (String(width).includes('%')) this.setStyle('right', `${window.innerWidth - (window.innerWidth * (parseFloat(width)/100))}px`);
+            else this.setStyle('right', `${window.innerWidth - parseInt(Css.toPx(width))}px`);
+            if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
+            else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
+        }
+        window.addEventListener('resize', () => {
+            const rect = self.dom.getBoundingClientRect();
+            if (resizeMode === RESIZE_MODE.FIXED) {
+                if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
+                if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
+            }
+        });
+        this.dom.addEventListener('displayed', () => self.center(), { once: true });
+    }
+    center() {
+        const side = (window.innerWidth - this.getWidth()) / 2;
+        const top = (window.innerHeight - this.getHeight()) / 2;
+        this.setStyle('left', `${side}px`, 'top', `${top}px`);
+        if (this.#resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', `${side}px`, 'bottom', `${top}px`);
+    }
+    toggleMinMax() {
+        if (! this.#maximized) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.setStyle('left', `0`);
+            this.setStyle('right', `0`);
+            this.setStyle('top', `0`);
+            this.setStyle('bottom', `0`);
+            this.dom.style.removeProperty('width');
+            this.dom.style.removeProperty('height');
+            this.#maximized = true;
+        } else {
+            const newLeft = Math.max(0, Math.min(window.innerWidth - this.#lastKnownRect.width, this.#lastKnownRect.left));
+            const newTop = Math.max(0, Math.min(window.innerHeight - this.#lastKnownRect.height, this.#lastKnownRect.top));
+            this.setStyle('left', `${newLeft}px`);
+            this.setStyle('top', `${newTop}px`);
+            this.setStyle('width', `${this.#lastKnownRect.width}px`);
+            this.setStyle('height', `${this.#lastKnownRect.height}px`);
+            this.dom.style.removeProperty('right');
+            this.dom.style.removeProperty('bottom');
+            this.#maximized = false;
+        }
     }
 }
 
@@ -4193,8 +4166,8 @@ var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    
 var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--radius-large);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: var(--drop-shadow);\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: 1em;\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.DragTop {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node.BringToTop {\n    z-index: 1; /* Node.BringToTop */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 0.75);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--shadow), 0.75);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) black;\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(1);\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
-var stylesheet$2="/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node.BringToTop {\n    z-index: 1; /* Node.BringToTop */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 0.75);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--shadow), 0.75);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) black;\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(1);\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
+var css_248z$2 = "/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node.BringToTop {\n    z-index: 1; /* Node.BringToTop */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 0.75);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--shadow), 0.75);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) black;\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(1);\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
+var stylesheet$2="/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: auto;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node.BringToTop {\n    z-index: 1; /* Node.BringToTop */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark), 0.75);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--shadow), 0.75);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) black;\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(1);\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = "/***** .PanelButton *****/\n\n.PanelButton {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.PanelButton:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.PanelButton:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** .CloseButton *****/\n\n.CloseButton {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    opacity: 0;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.CloseButton.ItemShown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover {\n    background-color: #e24c4b;\n}\n\n.CloseButton.ItemHidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseImage {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover .CloseImage {\n    opacity: 1.0;\n}\n\n/***** .Resizeable *****/\n\n.Resizeable.TooSmall .Resizer {\n    pointer-events: none;\n}\n\n.Resizer {\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.ResizerLeft {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: 100%;\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.ResizerTopLeft {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.ResizerTop {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.ResizerTopRight {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.ResizerRight {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: 100%;\n    cursor: col-resize;\n}\n\n.ResizerBottomRight {\n    background-color: rgb(255, 0, 255);\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.ResizerBottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.ResizerBottomLeft {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n/***** .TitleBar *****/\n\n.TitleBar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/***** .Window *****/\n\n.Window {\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: 200; /* Window */\n}\n\n.Window.BringToTop {\n    z-index: 201; /* Window */\n}\n\n.Window.BringToTop .TitleBar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";
@@ -4205,4 +4178,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.Tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, CloseButton, Color, ColorScheme, Css, Div, Docker, Draggable, Dropdown, Element, FlexBox, FlexSpacer, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, Node, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, Resizeable, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, TitleBar, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };

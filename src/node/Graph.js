@@ -3,7 +3,11 @@ import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRID_SIZE, TRAIT } from '../constants.js';
+import { Resizeable } from '../interactive/Resizeable.js';
+import { GRID_SIZE, RESIZERS, TRAIT } from '../constants.js';
+
+const MIN_W = 100;
+const MIN_H = 100;
 
 const _color = new Iris();
 
@@ -25,8 +29,13 @@ class Graph extends Panel {
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
         this.lines = new Canvas().setClass('GraphLines');
-        this.minimap = new Canvas(1024, 1024).setClass('MiniMap');
+        this.minimap = new Div().setClass('MiniMap');
         this.add(this.input, this.grid, this.nodes, this.lines, this.minimap);
+
+        // MiniMap
+        this.mapCanvas = new Canvas(1024, 1024).setClass('MiniMapCanvas');
+        const mapResizers = new Div().addClass('MiniMapResizers');
+        this.minimap.add(this.mapCanvas, mapResizers);
 
         // Nodes Parent Prototype
         this.nodes.isNodeGraph = true;
@@ -123,6 +132,36 @@ class Graph extends Panel {
             self.zoomTo();
         }
         this.input.onPointerDown(onPointerDown);
+
+        // Resize Minimap
+        let rect = {};
+        function resizerDown() {
+            rect = self.minimap.dom.getBoundingClientRect();
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('Left')) {
+                const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
+                const newWidth = rect.right - newLeft;
+                self.minimap.setStyle('left', `${newLeft}px`);
+                self.minimap.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Top')) {
+                const newTop = Math.max(0, Math.min(rect.bottom - MIN_H, rect.top + diffY));
+                const newHeight = rect.bottom - newTop;
+                self.minimap.setStyle('top', `${newTop}px`);
+                self.minimap.setStyle('height', `${newHeight}px`);
+            }
+            if (resizer.hasClassWithString('Right')) {
+                const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), window.innerWidth - rect.left);
+                self.minimap.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Bottom')) {
+                const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
+                self.minimap.setStyle('height', `${newHeight}px`);
+            }
+            self.drawMiniMap();
+        }
+        Resizeable.enable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.BOTTOM ], resizerDown, resizerMove);
     }
 
     getScale() {
@@ -130,7 +169,7 @@ class Graph extends Panel {
     }
 
     drawMiniMap() {
-        if (! this.minimap) return;
+        if (! this.mapCanvas) return;
         if (this.dom.style.display === 'none') return;
 
         // Bounds
@@ -141,7 +180,7 @@ class Graph extends Panel {
         bounds.y.min -= BUFFER; bounds.y.max += BUFFER;
 
         // Clear
-        const map = this.minimap;
+        const map = this.mapCanvas;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
 
@@ -150,7 +189,7 @@ class Graph extends Panel {
         let canvasHeight = map.height;
         let adjustX = 0, adjustY = 0;
         const ratioX = map.width / bounds.width();
-        const ratioY = (map.height / bounds.height()) * this.minimap.ratio();
+        const ratioY = (map.height / bounds.height()) * this.mapCanvas.ratio();
         if (ratioX > ratioY) {
             canvasWidth *= (ratioY / ratioX);
             adjustX = (canvasWidth - map.width) / 2;

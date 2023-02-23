@@ -28,17 +28,17 @@ class Docker extends Div {
             zIndex++;
 
             // Bring corner div to top on 'Click' event
-            corner.dom.addEventListener('pointerdown', function() {
-                // Decrease all zIndex values
+            function bringCornerToTop() {
                 for (let cornerDiv in self.#corners) {
                     const style = getComputedStyle(self.#corners[cornerDiv].dom);
                     let computedZ = style.getPropertyValue('z-index');
                     if (computedZ > 1) computedZ--;
                     self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
                 };
-                // Bring to front
                 corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
-            });
+            }
+            corner.dom.addEventListener('pointerdown', bringCornerToTop);
+            corner.dom.addEventListener('clicked', bringCornerToTop);
 
             // Add to Docker
             this.#corners[cornerName] = corner;
@@ -51,7 +51,6 @@ class Docker extends Div {
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
 
-        // Watch for Resize
         dockPanel.dom.addEventListener('resized', () => {
             corner.dom.dispatchEvent(new Event('resized'));
         });

@@ -1,6 +1,7 @@
 import { Div } from '../core/Div.js';
 import { Draggable } from '../interactive/Draggable.js';
 import { Iris } from '../utils/Iris.js';
+import { Resizeable } from '../interactive/Resizeable.js';
 import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
 import { GRID_SIZE, RESIZERS } from '../constants.js';
@@ -13,8 +14,6 @@ const _color2 = new Iris();
 
 class Node extends Div {
 
-    #resizers = {};
-    #resizerEnabled = {};
     #snapToGrid = true;
     #color = new Iris();
     #style = {};
@@ -70,71 +69,38 @@ class Node extends Div {
         }
 
         // Resizers
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
-            let downX, downY, rect = {};
-
-            function onPointerDown(event) {
-                if (! event.isPrimary) return;
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
-                downX = event.pageX;
-                downY = event.pageY;
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-
-                rect.left = self.left;
-                rect.top = self.top;
-                rect.width = self.width;
-                rect.height = self.height;
-                selectNode();
-            }
-
-            function onPointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            }
-
-            function onPointerMove(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                const scale = self.getScale();
-                const diffX = (event.pageX - downX) * (1 / scale);
-                const diffY = (event.pageY - downY) * (1 / scale);
-                if (resizer.hasClassWithString('Left')) {
-                    const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
-                    const newLeft = rect.left + (rect.width - newWidth);
-                    self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
-                }
-                if (resizer.hasClassWithString('Top')) {
-                    const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
-                    const newTop = rect.top + (rect.height - newHeight);
-                    self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
-                }
-                if (resizer.hasClassWithString('Right')) {
-                    const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
-                    self.setStyle('width', `${newWidth}px`);
-                }
-                if (resizer.hasClassWithString('Bottom')) {
-                    const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H);
-                    self.setStyle('height', `${newHeight}px`);
-                }
-            }
-
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
-            this.#resizers[resizerName] = resizer;
-            sizers.add(resizer);
+        let rect = {};
+        function resizerDown() {
+            rect.left = self.left;
+            rect.top = self.top;
+            rect.width = self.width;
+            rect.height = self.height;
+            selectNode();
         }
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            this.toggleResize(resizerName, resizers.includes(resizerName));
+        function resizerMove(resizer, diffX, diffY) {
+            const scale = self.getScale();
+            diffX *= (1 / scale);
+            diffY *= (1 / scale);
+            if (resizer.hasClassWithString('Left')) {
+                const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
+                const newLeft = rect.left + (rect.width - newWidth);
+                self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Top')) {
+                const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
+                const newTop = rect.top + (rect.height - newHeight);
+                self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
+            }
+            if (resizer.hasClassWithString('Right')) {
+                const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
+                self.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('Bottom')) {
+                const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H);
+                self.setStyle('height', `${newHeight}px`);
+            }
         }
+        Resizeable.enable(this, sizers, resizers, resizerDown, resizerMove);
 
         // Style Observer
         let styleTimeout = undefined;
@@ -208,22 +174,6 @@ class Node extends Div {
 
     snapToGrid() {
         return this.#snapToGrid;
-    }
-
-    /** Turns a resizing handle on / off */
-    toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
-        this.#resizerEnabled[resizerName] = enable;
-        function toggleDisplay(element, display) {
-            if (! element) return;
-            element.setStyle('display', display ? '' : 'none');
-        }
-        toggleDisplay(this.#resizers[resizerName], enable);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        return this;
     }
 
     /******************** NODE BUILDING */

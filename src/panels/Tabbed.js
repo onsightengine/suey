@@ -1,7 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
-import { RESIZERS } from '../constants.js';
+import { Resizeable } from '../interactive/Resizeable.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
@@ -11,8 +11,6 @@ export const TAB_SIDES = {
 
 class Tabbed extends Panel {
 
-    #resizers = {};
-    #resizerEnabled = {};
     #startWidth = null;
     #startHeight = null;
     #minWidth = 0;
@@ -52,42 +50,19 @@ class Tabbed extends Panel {
         this.selectedCount = 0;
 
         // Resizers
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
-            let downX, downY, rect = {};
-
-            function onPointerDown(event) {
-                resizer.dom.setPointerCapture(event.pointerId);
-                downX = event.pageX;
-                downY = event.pageY;
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
-                rect.width = self.getWidth();
-                rect.height = self.getHeight();
-            }
-            function onPointerUp(event) {
-                resizer.dom.releasePointerCapture(event.pointerId);
-                self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
-            }
-            function onPointerMove(event) {
-                const diffX = event.pageX - downX;
-                const diffY = event.pageY - downY;
-                if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
-                if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
-                if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
-                if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
-            }
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
-            this.#resizers[resizerName] = resizer;
-            this.addToSelf(resizer);
+        let rect = {};
+        function resizerDown() {
+            rect.width = self.getWidth();
+            rect.height = self.getHeight();
+            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
         }
-        for (let key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            this.toggleResize(resizerName, resizers.includes(resizerName));
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
         }
+        Resizeable.enable(this, this, resizers, resizerDown, resizerMove);
 
         // Children Elements
         this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
@@ -171,22 +146,6 @@ class Tabbed extends Panel {
         this.setStyle('height', Css.toEm(height, this.dom));
         this.dom.dispatchEvent(new Event('resized'));
         return height;
-    }
-
-    /** Turns a resizing handle on / off */
-    toggleResize(resizerName, enable = true) {
-        if (! resizerName) return;
-        this.#resizerEnabled[resizerName] = enable;
-        function toggleDisplay(element, display) {
-            if (! element) return;
-            element.setStyle('display', display ? '' : 'none');
-        }
-        toggleDisplay(this.#resizers[resizerName], enable);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_LEFT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.TOP_RIGHT], this.#resizerEnabled[RESIZERS.TOP] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_LEFT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.LEFT]);
-        toggleDisplay(this.#resizers[RESIZERS.BOTTOM_RIGHT], this.#resizerEnabled[RESIZERS.BOTTOM] && this.#resizerEnabled[RESIZERS.RIGHT]);
-        return this;
     }
 
     /******************** TABS ********************/
