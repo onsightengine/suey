@@ -223,8 +223,6 @@
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
     margin: -1px;
-    margin-left: 0;
-    margin-right: 0;
     background-color: transparent;
     border: var(--border-micro) solid rgba(var(--black), 0.35);
     border-radius: var(--radius-large);
@@ -233,24 +231,28 @@
 .ButtonLeft.Selected:enabled::after {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    margin-right: 0;
 }
 .ButtonRight:not(.Selected):enabled:active::after,
 .ButtonRight.Selected:enabled::after {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    margin-left: 0;
 }
 .ButtonMiddle:not(.Selected):enabled:active::after,
 .ButtonMiddle.Selected:enabled::after {
     border-radius: 0;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .GrayButton {
-    background-color: rgba(192, 192, 192, 1.0);
-    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.5), rgba(var(--midlight), 0.9));
+    background-color: rgb(200, 200, 200);
+    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.7), rgba(var(--midlight), 1.0));
 }
 .GrayButton:not(.Selected):enabled:hover {
     background-color: white;
-    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.5), rgba(var(--midlight), 0.9));
+    background-image: linear-gradient(to bottom left, rgba(var(--midlight), 0.6), rgba(var(--midlight), 0.9));
 }
 .GrayButton:not(.Selected):enabled:active,
 .GrayButton.Selected:enabled {

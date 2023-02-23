@@ -98,8 +98,8 @@ class Graph extends Panel {
         // Translate
         let downX, downY, offset = { x: 0, y: 0 };
         function onPointerDown(event) {
-            const panels = document.querySelectorAll(`.NodeSelected`);
-            panels.forEach(el => el.classList.remove('NodeSelected'));
+            const selected = document.querySelectorAll(`.NodeSelected`);
+            selected.forEach(el => el.classList.remove('NodeSelected'));
             if (event.button === 0 && ! spaceKey) return;
             event.stopPropagation();
             event.preventDefault();
@@ -362,19 +362,19 @@ class Graph extends Panel {
      *
      * @param {*} resetZoom reset scale to 1.0?
      */
-    centerView(resetZoom = true) {
+    centerView(resetZoom = true, animate = true) {
         const selected = [];
         this.traverseNodes((node) => { if (node.hasClass('NodeSelected')) selected.push(node); });
         const bounds = this.nodeBounds(0, (selected.length > 0) ? selected : this.nodes.childre);
-        this.focusView(bounds.center().x, bounds.center().y, resetZoom);
+        this.focusView(bounds.center().x, bounds.center().y, resetZoom, animate);
     }
 
-    focusView(targetX, targetY, resetZoom = false) {
+    focusView(targetX, targetY, resetZoom = false, animate = true) {
         if (targetX == null || targetY == null) return;
         const rect = this.nodes.dom.getBoundingClientRect();
         this.#offset.x = ((rect.width / 2) / this.#scale) - targetX;
         this.#offset.y = ((rect.height / 2) / this.#scale) - targetY;
-        this.zoomTo((resetZoom) ? 1.0 : undefined, true /* animate */);
+        this.zoomTo((resetZoom) ? 1.0 : undefined, animate);
     }
 
     zoomTo(zoom, animate = false, clientX, clientY) {

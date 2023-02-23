@@ -75,7 +75,7 @@ class Interaction extends Button {
         let computed = getComputedStyle(dragElement);
         function roundNearest(decimal, increment = GRID_SIZE) {
             if (! element.snapToGrid) return decimal;
-            return Math.ceil(decimal / increment) * increment;
+            return Math.round(decimal / increment) * increment;
         }
         function onPointerDown(event) {
             if (! event.isPrimary) return;

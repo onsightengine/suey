@@ -64,7 +64,7 @@ class Node extends Div {
         // Snapping
         function roundNearest(decimal, increment = GRID_SIZE) {
             if (! self.#snapToGrid) return decimal;
-            return Math.ceil(decimal / increment) * increment;
+            return Math.round(decimal / increment) * increment;
         }
 
         // Resizers
@@ -169,7 +169,8 @@ class Node extends Div {
         style.bottom = style.top + style.height;
         style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
-        if (this.graph) this.graph.drawMiniMap();
+        const self = this;
+        if (this.graph) setTimeout(() => self.graph.drawMiniMap(), 20);
     }
 
     get left()   { this.#updateSizes(); return this.#style.left; }
