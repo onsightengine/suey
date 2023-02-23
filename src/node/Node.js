@@ -39,6 +39,7 @@ class Node extends Div {
         this.isNode = true;
 
         // Properties
+        this.graph = undefined;
         this.#color.set(color);
         this.#snapToGrid = snapToGrid;
 
@@ -103,7 +104,7 @@ class Node extends Div {
         // Style Observer
         let styleTimeout = undefined;
         const observer = new MutationObserver(() => {
-            self.#needsUpdate = true;
+            self.needsUpdate = true;
             clearTimeout(styleTimeout);
             styleTimeout = setTimeout(() => self.#updateSizes(), 4);
         });
@@ -122,12 +123,28 @@ class Node extends Div {
 
         // Selectable
         function selectNode() {
-            Interaction.bringToTop(self.dom);
-            const panels = document.querySelectorAll(`.NodeSelected`);
-            panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
+            // Bring to top
+            if (self.graph) {
+                const nodes = self.graph.getNodes();
+                if (self.zIndex !== nodes.length) {
+                    nodes.forEach(node => node.setStyle('zIndex', `${node.zIndex - 1}`));
+                    self.setStyle('zIndex', nodes.length);
+                }
+            }
+            // Select
+            const selected = document.querySelectorAll(`.NodeSelected`);
+            selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
             self.addClass('NodeSelected');
         }
         this.onPointerDown(selectNode);
+
+        // Focus
+        function focusOn() {
+            const centerX = self.left + (self.width / 2);
+            const centerY = self.top + (self.height / 2);
+            if (this.graph) this.graph.focusView(centerX, centerY);
+        }
+        this.onDblClick(focusOn);
 
         // Destroy
         this.dom.addEventListener('destroy', function() {
@@ -136,6 +153,9 @@ class Node extends Div {
     }
 
     /******************** RECT */
+
+    get needsUpdate() { return this.#needsUpdate; }
+    set needsUpdate(update) { this.#needsUpdate = update; }
 
     #updateSizes() {
         if (! this.#needsUpdate) return;
@@ -149,7 +169,7 @@ class Node extends Div {
         style.bottom = style.top + style.height;
         style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
-        if (this.parent && this.parent.isNodeGraph) this.parent.drawMiniMap();
+        if (this.graph) this.graph.drawMiniMap();
     }
 
     get left()   { this.#updateSizes(); return this.#style.left; }
@@ -163,16 +183,11 @@ class Node extends Div {
     /******************** SCALE / SNAP / RESIZE */
 
     getScale() {
-        return ((this.parent && this.parent.isNodeGraph) ? this.parent.getScale() : 1);
+        return (this.graph ? this.graph.getScale() : 1.0);
     }
 
-    snap(enabled = true) {
-        this.#snapToGrid = enabled;
-    }
-
-    snapToGrid() {
-        return this.#snapToGrid;
-    }
+    get snapToGrid() { return this.#snapToGrid; }
+    set snapToGrid(enabled = true) { this.#snapToGrid = enabled; }
 
     /******************** NODE BUILDING */
 

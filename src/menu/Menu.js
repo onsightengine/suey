@@ -51,8 +51,8 @@ class Menu extends Div {
             this.contents().dom.appendChild(this.mouseSvg);
 
             // Update svg size when animation is complete
-            let timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0
-            setTimeout(() => { this.updateMouseArea(); }, timeFloat);
+            const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0
+            setTimeout(() => this.updateMouseArea(), timeFloat);
         }
 
         // Close Menu

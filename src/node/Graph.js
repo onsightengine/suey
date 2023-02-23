@@ -1,5 +1,6 @@
 import { Canvas } from '../core/Canvas.js';
 import { ColorScheme } from '../utils/ColorScheme.js';
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
@@ -17,6 +18,7 @@ class Graph extends Panel {
     #scale = 1;
     #snapToGrid = true;
     #offset = { x: 0, y: 0 };
+    #previous = { x: 0, y: 0 };
     #drawWidth = 0;
     #drawHeight = 0;
 
@@ -40,11 +42,6 @@ class Graph extends Panel {
         const mapResizers = new Div().addClass('MiniMapResizers');
         this.minimap.add(this.mapCanvas, mapResizers);
 
-        // Nodes Parent Prototype
-        this.nodes.isNodeGraph = true;
-        this.nodes.getScale = function() { return self.#scale; };
-        this.nodes.drawMiniMap = function() { self.drawMiniMap(); };
-
         // Grid
         const SIZE = GRID_SIZE * 4;
         const HALF = SIZE / 2;
@@ -66,13 +63,13 @@ class Graph extends Panel {
         function onMouseZoom(event) {
             event.preventDefault();
             const delta = (event.deltaY * 0.002);
-            self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
+            self.zoomTo(self.#scale - delta, false /* animate */, event.clientX, event.clientY);
 		};
         this.onWheel(onMouseZoom);
 
         // Window Resize
         function onWindowResize() {
-            self.zoomTo(self.#scale);
+            self.zoomTo();
         }
         window.addEventListener('resize', onWindowResize);
 
@@ -192,7 +189,7 @@ class Graph extends Panel {
                 self.#offset.x = (nodes.width / 2) - x;
                 self.#offset.y = (nodes.height / 2) - y;
             }
-            self.zoomTo(self.#scale);
+            self.zoomTo();
         }
         function downOnMinimap(event) {
             self.minimap.dom.setPointerCapture(event.pointerId);
@@ -214,9 +211,88 @@ class Graph extends Panel {
         this.minimap.onPointerUp(upOnMinimap);
     }
 
+    /******************** GET / SET */
+
     getScale() {
         return this.#scale;
     }
+
+    get snapToGrid() { return this.#snapToGrid; }
+    set snapToGrid(enabled = true) {
+        this.#snapToGrid = enabled;
+        this.traverseNodes((node) => node.snapToGrid = enabled); /* apply to nodes */
+    }
+
+    /******************** NODES */
+
+    addNode(/* node, node, node, ...*/) {
+        for (let i = 0, l = arguments.length; i < l; i++) {
+            const node = arguments[i];
+            if (this.nodes) {
+                node.graph = this;
+                this.nodes.add(node);
+                node.setStyle('zIndex', this.nodes.children.length);
+            }
+        }
+    }
+
+    getNodes() {
+        return this.nodes.children;
+    }
+
+    removeNode(removeNode) {
+        if (! removeNode || ! removeNode.isElement) return;
+        const currentZ = removeNode.zIndex;
+        const nodes = this.nodes.children;
+        const lengthBefore = nodes.length;
+        nodes.remove(removeNode);
+        const lengthAfter = nodes.length;
+        if (lengthBefore === lengthAfter) return;
+        // Adjust z stack
+        nodes.forEach((node) => {
+            if (node.zIndex > currentZ) node.setStyle('zIndex', `${node.zIndex - 1}`);
+        });
+    }
+
+    nodeBounds(buffer = 0, nodes = this.nodes.children) {
+        const bounds = {
+            x: { min: Infinity, max: -Infinity },
+            y: { min: Infinity, max: -Infinity },
+            isFinite: false,
+        };
+        nodes.forEach((node) => {
+            bounds.x.min = Math.min(bounds.x.min, node.left);
+            bounds.x.max = Math.max(bounds.x.max, node.right);
+            bounds.y.min = Math.min(bounds.y.min, node.top);
+            bounds.y.max = Math.max(bounds.y.max, node.bottom);
+        });
+        if ((bounds.x.max > bounds.x.min) && (bounds.y.max > bounds.y.min)) {
+            bounds.isFinite = true;
+            bounds.center = function() {
+                const x = bounds.x.min + ((bounds.x.max - bounds.x.min) / 2);
+                const y = bounds.y.min + ((bounds.y.max - bounds.y.min) / 2);
+                return { x, y };
+            };
+            bounds.width = () => { return (bounds.x.max - bounds.x.min); };
+            bounds.height = () => { return (bounds.y.max - bounds.y.min); };
+            bounds.x.min -= buffer; bounds.x.max += buffer;
+            bounds.y.min -= buffer; bounds.y.max += buffer;
+        }
+        return bounds;
+    }
+
+    traverseNodes(callback) {
+        if (typeof callback !== 'function') return;
+        if (! this.nodes) return;
+        const nodes = this.nodes.children;
+        nodes.sort((x, y) => x.zIndex - y.zIndex); /* sort zIndex low to high */
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            if (node && node.isNode) callback(node);
+        }
+    }
+
+    /******************** MAP */
 
     drawMiniMap() {
         if (! this.mapCanvas) return;
@@ -265,6 +341,7 @@ class Graph extends Panel {
         }
 
         // Draw Nodes
+        const RADIUS = 10;
         ctx.globalAlpha = 0.75;
         this.traverseNodes((node) => {
             ctx.fillStyle = node.colorString();
@@ -272,77 +349,46 @@ class Graph extends Panel {
             const w = this.#drawWidth * (node.width / bounds.width());
             const y = this.#drawHeight * ((node.top - bounds.y.min) / bounds.height());
             const h = this.#drawHeight * (node.height / bounds.height());
-            ctx.fillRect(x - adjustX, y - adjustY, w, h);
+            ctx.beginPath();
+            ctx.roundRect(x - adjustX, y - adjustY, w, h, 0); // RADIUS * (w / node.width));
+            ctx.fill();
         });
     }
 
-    nodeBounds(buffer = 0) {
-        const bounds = {
-            x: { min: Infinity, max: -Infinity },
-            y: { min: Infinity, max: -Infinity },
-            isFinite: false,
-        };
-        this.traverseNodes((node) => {
-            bounds.x.min = Math.min(bounds.x.min, node.left);
-            bounds.x.max = Math.max(bounds.x.max, node.right);
-            bounds.y.min = Math.min(bounds.y.min, node.top);
-            bounds.y.max = Math.max(bounds.y.max, node.bottom);
-        });
-        if ((bounds.x.max > bounds.x.min) && (bounds.y.max > bounds.y.min)) {
-            bounds.isFinite = true;
-            bounds.center = function() {
-                const x = bounds.x.min + ((bounds.x.max - bounds.x.min) / 2);
-                const y = bounds.y.min + ((bounds.y.max - bounds.y.min) / 2);
-                return { x, y };
-            };
-            bounds.width = () => { return (bounds.x.max - bounds.x.min); };
-            bounds.height = () => { return (bounds.y.max - bounds.y.min); };
-            bounds.x.min -= buffer; bounds.x.max += buffer;
-            bounds.y.min -= buffer; bounds.y.max += buffer;
-        }
-        return bounds;
+    /******************** TRANSFORM */
+
+    /**
+     * Centers on Selected nodes, if there are nodes selected. Otherwise centers on all nodes.
+     *
+     * @param {*} resetZoom reset scale to 1.0?
+     */
+    centerView(resetZoom = true) {
+        const selected = [];
+        this.traverseNodes((node) => { if (node.hasClass('NodeSelected')) selected.push(node); });
+        const bounds = this.nodeBounds(0, (selected.length > 0) ? selected : this.nodes.childre);
+        this.focusView(bounds.center().x, bounds.center().y, resetZoom);
     }
 
-    resetView() {
-        const bounds = this.nodeBounds();
-        this.zoomTo(1);
+    focusView(targetX, targetY, resetZoom = false) {
+        if (targetX == null || targetY == null) return;
         const rect = this.nodes.dom.getBoundingClientRect();
-        const targetX = bounds.isFinite ? bounds.center().x : rect.width / 2;
-        const targetY = bounds.isFinite ? bounds.center().y : rect.height / 2;
-        this.#offset.x = (rect.width / 2) - targetX;
-        this.#offset.y = (rect.height / 2) - targetY;
-        this.zoomTo(1.0);
+        this.#offset.x = ((rect.width / 2) / this.#scale) - targetX;
+        this.#offset.y = ((rect.height / 2) / this.#scale) - targetY;
+        this.zoomTo((resetZoom) ? 1.0 : undefined, true /* animate */);
     }
 
-    snap(enabled = true) {
-        this.#snapToGrid = enabled;
-        this.traverseNodes((node) => node.snap(enabled)); /* apply to child nodes */
-    }
-
-    snapToGrid() {
-        return this.#snapToGrid;
-    }
-
-    traverseNodes(callback) {
-        if (typeof callback !== 'function') return;
-        if (! this.nodes) return;
-        const nodes = this.nodes.children;
-        nodes.sort((x, y) => x.zIndex - y.zIndex); /* sort zIndex low to high */
-        for (let i = 0; i < nodes.length; i++) {
-            const node = nodes[i];
-            if (node && node.isNode) callback(node);
-        }
-    }
-
-    zoomTo(zoom, clientX, clientY) {
+    zoomTo(zoom, animate = false, clientX, clientY) {
         if (zoom === undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+        const nodes = this.nodes;
+        const grid = this.grid;
 
         // Scroll To
-        if (clientX !== undefined && clientY !== undefined) {
-            const before = this.nodes.dom.getBoundingClientRect();
-            this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
-            const after = this.nodes.dom.getBoundingClientRect();
+        if (clientX != undefined && clientY != undefined) {
+            const before = nodes.dom.getBoundingClientRect();
+            nodes.removeClass('GraphAnimate');
+            nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
+            const after = nodes.dom.getBoundingClientRect();
             clientX -= before.left;
             clientY -= before.top;
             const shiftW = after.left - before.left;
@@ -353,9 +399,18 @@ class Graph extends Panel {
             this.#offset.y -= ((shiftH - dh) / zoom);
         }
 
+        // Animate
+        const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0
+        if (animate) {
+            nodes.addClass('GraphAnimate');
+            grid.addClass('GraphAnimate');
+        }
+
         // Set Scale
-        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
+        nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
         this.#scale = zoom;
+        this.#previous.x = this.#offset.x;
+        this.#previous.y = this.#offset.y;
 
         // Align Grid
         const rect = this.dom.getBoundingClientRect();
@@ -363,9 +418,13 @@ class Graph extends Panel {
         const diffY = (rect.height - (rect.height * zoom)) / 2;
         const ox = this.#offset.x * zoom;
         const oy = this.#offset.y * zoom;
-        this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
-        this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
-        this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
+        grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
+        grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
+        setTimeout(() => {
+            nodes.removeClass('GraphAnimate');
+            grid.removeClass('GraphAnimate');
+        }, timeFloat);
 
         // Hide Resizers
         const resizeables = document.querySelectorAll(`.Node`);

@@ -1,5 +1,43 @@
 /***** GRAPH *****/
 
+.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {
+    position: absolute;
+    top: 0;
+	left: 0;
+    width: 100%;
+    height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.GraphInput {
+    background: transparent;
+    z-index: -1; /* GraphInput */
+}
+
+.GraphGrid {
+    pointer-events: none;
+    background-color: rgba(var(--background-dark));
+    background-repeat: repeat;
+    transition: none;
+}
+
+.GraphNodes {
+    pointer-events: none;
+    background-color: transparent;
+    transition: none;
+}
+
+.GraphAnimate {
+    transition: all var(--menu-timing);
+}
+
+.GraphLines {
+    pointer-events: none;
+}
+
+/***** MINIMAP *****/
+
 .MiniMap {
     position: absolute;
     background-color: rgba(var(--background-dark), 0.5);
@@ -29,36 +67,6 @@
     outline: none;
 }
 
-.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {
-    position: absolute;
-    top: 0;
-	left: 0;
-    width: 100%;
-    height: 100%;
-	margin: 0;
-	padding: 0;
-}
-
-.GraphInput {
-    background: transparent;
-    z-index: -1; /* GraphInput */
-}
-
-.GraphGrid {
-    pointer-events: none;
-    background-color: rgba(var(--background-dark));
-    background-repeat: repeat;
-}
-
-.GraphNodes {
-    pointer-events: none;
-    background-color: transparent;
-}
-
-.GraphLines {
-    pointer-events: none;
-}
-
 /***** NODE *****/
 
 .Node {
@@ -71,10 +79,6 @@
     overflow: visible;
     outline: none; /* macOS */
     z-index: 0; /* Node */
-}
-
-.Node.BringToTop {
-    z-index: 1; /* Node.BringToTop */
 }
 
 .Node:hover, .Node.NodeSelected {
@@ -109,7 +113,10 @@
 	padding: 0;
     cursor: inherit;
     overflow: hidden;
-    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;
+    /* box-shadow: 0 0 6px rgb(var(--background-dark)) inset; */
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
 }
 
 .NodeBorder {

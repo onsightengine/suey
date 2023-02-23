@@ -1349,7 +1349,7 @@ class Interaction extends Button {
         let lastX, lastY;
         let computed = getComputedStyle(dragElement);
         function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! element.snapToGrid || ! element.snapToGrid()) return decimal;
+            if (! element.snapToGrid) return decimal;
             return Math.ceil(decimal / increment) * increment;
         }
         function onPointerDown(event) {
@@ -2159,8 +2159,8 @@ class Menu extends Div {
         if (Utils.isChildOfElementWithClass(this.dom, 'Menu')) {
             this.mouseArea.setAttribute('pointer-events', 'none');
             this.contents().dom.appendChild(this.mouseSvg);
-            let timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
-            setTimeout(() => { this.updateMouseArea(); }, timeFloat);
+            const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
+            setTimeout(() => this.updateMouseArea(), timeFloat);
         }
         this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
             this.traverse((child) => {
@@ -3569,6 +3569,7 @@ class Graph extends Panel {
     #scale = 1;
     #snapToGrid = true;
     #offset = { x: 0, y: 0 };
+    #previous = { x: 0, y: 0 };
     #drawWidth = 0;
     #drawHeight = 0;
     constructor(snapToGrid = true) {
@@ -3584,9 +3585,6 @@ class Graph extends Panel {
         this.mapCanvas = new Canvas(1024, 1024).setClass('MiniMapCanvas');
         const mapResizers = new Div().addClass('MiniMapResizers');
         this.minimap.add(this.mapCanvas, mapResizers);
-        this.nodes.isNodeGraph = true;
-        this.nodes.getScale = function() { return self.#scale; };
-        this.nodes.drawMiniMap = function() { self.drawMiniMap(); };
         const SIZE = GRID_SIZE * 4;
         const HALF = SIZE / 2;
         const BORDER = 2;
@@ -3605,11 +3603,11 @@ class Graph extends Panel {
         function onMouseZoom(event) {
             event.preventDefault();
             const delta = (event.deltaY * 0.002);
-            self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
+            self.zoomTo(self.#scale - delta, false , event.clientX, event.clientY);
 		};
         this.onWheel(onMouseZoom);
         function onWindowResize() {
-            self.zoomTo(self.#scale);
+            self.zoomTo();
         }
         window.addEventListener('resize', onWindowResize);
         let grabbing = false;
@@ -3719,7 +3717,7 @@ class Graph extends Panel {
                 self.#offset.x = (nodes.width / 2) - x;
                 self.#offset.y = (nodes.height / 2) - y;
             }
-            self.zoomTo(self.#scale);
+            self.zoomTo();
         }
         function downOnMinimap(event) {
             self.minimap.dom.setPointerCapture(event.pointerId);
@@ -3742,6 +3740,72 @@ class Graph extends Panel {
     }
     getScale() {
         return this.#scale;
+    }
+    get snapToGrid() { return this.#snapToGrid; }
+    set snapToGrid(enabled = true) {
+        this.#snapToGrid = enabled;
+        this.traverseNodes((node) => node.snapToGrid = enabled);
+    }
+    addNode() {
+        for (let i = 0, l = arguments.length; i < l; i++) {
+            const node = arguments[i];
+            if (this.nodes) {
+                node.graph = this;
+                this.nodes.add(node);
+                node.setStyle('zIndex', this.nodes.children.length);
+            }
+        }
+    }
+    getNodes() {
+        return this.nodes.children;
+    }
+    removeNode(removeNode) {
+        if (! removeNode || ! removeNode.isElement) return;
+        const currentZ = removeNode.zIndex;
+        const nodes = this.nodes.children;
+        const lengthBefore = nodes.length;
+        nodes.remove(removeNode);
+        const lengthAfter = nodes.length;
+        if (lengthBefore === lengthAfter) return;
+        nodes.forEach((node) => {
+            if (node.zIndex > currentZ) node.setStyle('zIndex', `${node.zIndex - 1}`);
+        });
+    }
+    nodeBounds(buffer = 0, nodes = this.nodes.children) {
+        const bounds = {
+            x: { min: Infinity, max: -Infinity },
+            y: { min: Infinity, max: -Infinity },
+            isFinite: false,
+        };
+        nodes.forEach((node) => {
+            bounds.x.min = Math.min(bounds.x.min, node.left);
+            bounds.x.max = Math.max(bounds.x.max, node.right);
+            bounds.y.min = Math.min(bounds.y.min, node.top);
+            bounds.y.max = Math.max(bounds.y.max, node.bottom);
+        });
+        if ((bounds.x.max > bounds.x.min) && (bounds.y.max > bounds.y.min)) {
+            bounds.isFinite = true;
+            bounds.center = function() {
+                const x = bounds.x.min + ((bounds.x.max - bounds.x.min) / 2);
+                const y = bounds.y.min + ((bounds.y.max - bounds.y.min) / 2);
+                return { x, y };
+            };
+            bounds.width = () => { return (bounds.x.max - bounds.x.min); };
+            bounds.height = () => { return (bounds.y.max - bounds.y.min); };
+            bounds.x.min -= buffer; bounds.x.max += buffer;
+            bounds.y.min -= buffer; bounds.y.max += buffer;
+        }
+        return bounds;
+    }
+    traverseNodes(callback) {
+        if (typeof callback !== 'function') return;
+        if (! this.nodes) return;
+        const nodes = this.nodes.children;
+        nodes.sort((x, y) => x.zIndex - y.zIndex);
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            if (node && node.isNode) callback(node);
+        }
     }
     drawMiniMap() {
         if (! this.mapCanvas) return;
@@ -3780,6 +3844,7 @@ class Graph extends Panel {
             const h = this.#drawHeight * (scaled.height / bounds.height());
             ctx.fillRect(x - adjustX, y - adjustY, w, h);
         }
+        const RADIUS = 10;
         ctx.globalAlpha = 0.75;
         this.traverseNodes((node) => {
             ctx.fillStyle = node.colorString();
@@ -3787,69 +3852,34 @@ class Graph extends Panel {
             const w = this.#drawWidth * (node.width / bounds.width());
             const y = this.#drawHeight * ((node.top - bounds.y.min) / bounds.height());
             const h = this.#drawHeight * (node.height / bounds.height());
-            ctx.fillRect(x - adjustX, y - adjustY, w, h);
+            ctx.beginPath();
+            ctx.roundRect(x - adjustX, y - adjustY, w, h, 0);
+            ctx.fill();
         });
     }
-    nodeBounds(buffer = 0) {
-        const bounds = {
-            x: { min: Infinity, max: -Infinity },
-            y: { min: Infinity, max: -Infinity },
-            isFinite: false,
-        };
-        this.traverseNodes((node) => {
-            bounds.x.min = Math.min(bounds.x.min, node.left);
-            bounds.x.max = Math.max(bounds.x.max, node.right);
-            bounds.y.min = Math.min(bounds.y.min, node.top);
-            bounds.y.max = Math.max(bounds.y.max, node.bottom);
-        });
-        if ((bounds.x.max > bounds.x.min) && (bounds.y.max > bounds.y.min)) {
-            bounds.isFinite = true;
-            bounds.center = function() {
-                const x = bounds.x.min + ((bounds.x.max - bounds.x.min) / 2);
-                const y = bounds.y.min + ((bounds.y.max - bounds.y.min) / 2);
-                return { x, y };
-            };
-            bounds.width = () => { return (bounds.x.max - bounds.x.min); };
-            bounds.height = () => { return (bounds.y.max - bounds.y.min); };
-            bounds.x.min -= buffer; bounds.x.max += buffer;
-            bounds.y.min -= buffer; bounds.y.max += buffer;
-        }
-        return bounds;
+    centerView(resetZoom = true) {
+        const selected = [];
+        this.traverseNodes((node) => { if (node.hasClass('NodeSelected')) selected.push(node); });
+        const bounds = this.nodeBounds(0, (selected.length > 0) ? selected : this.nodes.childre);
+        this.focusView(bounds.center().x, bounds.center().y, resetZoom);
     }
-    resetView() {
-        const bounds = this.nodeBounds();
-        this.zoomTo(1);
+    focusView(targetX, targetY, resetZoom = false) {
+        if (targetX == null || targetY == null) return;
         const rect = this.nodes.dom.getBoundingClientRect();
-        const targetX = bounds.isFinite ? bounds.center().x : rect.width / 2;
-        const targetY = bounds.isFinite ? bounds.center().y : rect.height / 2;
-        this.#offset.x = (rect.width / 2) - targetX;
-        this.#offset.y = (rect.height / 2) - targetY;
-        this.zoomTo(1.0);
+        this.#offset.x = ((rect.width / 2) / this.#scale) - targetX;
+        this.#offset.y = ((rect.height / 2) / this.#scale) - targetY;
+        this.zoomTo((resetZoom) ? 1.0 : undefined, true );
     }
-    snap(enabled = true) {
-        this.#snapToGrid = enabled;
-        this.traverseNodes((node) => node.snap(enabled));
-    }
-    snapToGrid() {
-        return this.#snapToGrid;
-    }
-    traverseNodes(callback) {
-        if (typeof callback !== 'function') return;
-        if (! this.nodes) return;
-        const nodes = this.nodes.children;
-        nodes.sort((x, y) => x.zIndex - y.zIndex);
-        for (let i = 0; i < nodes.length; i++) {
-            const node = nodes[i];
-            if (node && node.isNode) callback(node);
-        }
-    }
-    zoomTo(zoom, clientX, clientY) {
+    zoomTo(zoom, animate = false, clientX, clientY) {
         if (zoom === undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
-        if (clientX !== undefined && clientY !== undefined) {
-            const before = this.nodes.dom.getBoundingClientRect();
-            this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
-            const after = this.nodes.dom.getBoundingClientRect();
+        const nodes = this.nodes;
+        const grid = this.grid;
+        if (clientX != undefined && clientY != undefined) {
+            const before = nodes.dom.getBoundingClientRect();
+            nodes.removeClass('GraphAnimate');
+            nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
+            const after = nodes.dom.getBoundingClientRect();
             clientX -= before.left;
             clientY -= before.top;
             const shiftW = after.left - before.left;
@@ -3859,16 +3889,27 @@ class Graph extends Panel {
             this.#offset.x -= ((shiftW - dw) / zoom);
             this.#offset.y -= ((shiftH - dh) / zoom);
         }
-        this.nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
+        const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
+        if (animate) {
+            nodes.addClass('GraphAnimate');
+            grid.addClass('GraphAnimate');
+        }
+        nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
         this.#scale = zoom;
+        this.#previous.x = this.#offset.x;
+        this.#previous.y = this.#offset.y;
         const rect = this.dom.getBoundingClientRect();
         const diffX = (rect.width - (rect.width * zoom)) / 2;
         const diffY = (rect.height - (rect.height * zoom)) / 2;
         const ox = this.#offset.x * zoom;
         const oy = this.#offset.y * zoom;
-        this.grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
-        this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
-        this.grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
+        grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
+        grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
+        setTimeout(() => {
+            nodes.removeClass('GraphAnimate');
+            grid.removeClass('GraphAnimate');
+        }, timeFloat);
         const resizeables = document.querySelectorAll(`.Node`);
         resizeables.forEach(el => {
             if (zoom < 0.5) el.classList.add('TooSmall');
@@ -3901,6 +3942,7 @@ class Node extends Div {
         this.addClass('Node');
         this.dom.setAttribute('tabindex', '-1');
         this.isNode = true;
+        this.graph = undefined;
         this.#color.set(color);
         this.#snapToGrid = snapToGrid;
         const background = new Div().addClass('NodeBackground');
@@ -3953,7 +3995,7 @@ class Node extends Div {
         Interaction.makeResizeable(this, sizers, resizers, resizerDown, resizerMove);
         let styleTimeout = undefined;
         const observer = new MutationObserver(() => {
-            self.#needsUpdate = true;
+            self.needsUpdate = true;
             clearTimeout(styleTimeout);
             styleTimeout = setTimeout(() => self.#updateSizes(), 4);
         });
@@ -3966,16 +4008,30 @@ class Node extends Div {
         );
         Interaction.makeDraggable(self);
         function selectNode() {
-            Interaction.bringToTop(self.dom);
-            const panels = document.querySelectorAll(`.NodeSelected`);
-            panels.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
+            if (self.graph) {
+                const nodes = self.graph.getNodes();
+                if (self.zIndex !== nodes.length) {
+                    nodes.forEach(node => node.setStyle('zIndex', `${node.zIndex - 1}`));
+                    self.setStyle('zIndex', nodes.length);
+                }
+            }
+            const selected = document.querySelectorAll(`.NodeSelected`);
+            selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
             self.addClass('NodeSelected');
         }
         this.onPointerDown(selectNode);
+        function focusOn() {
+            const centerX = self.left + (self.width / 2);
+            const centerY = self.top + (self.height / 2);
+            if (this.graph) this.graph.focusView(centerX, centerY);
+        }
+        this.onDblClick(focusOn);
         this.dom.addEventListener('destroy', function() {
             if (observer) observer.disconnect();
         }, { once: true });
     }
+    get needsUpdate() { return this.#needsUpdate; }
+    set needsUpdate(update) { this.#needsUpdate = update; }
     #updateSizes() {
         if (! this.#needsUpdate) return;
         const computed = getComputedStyle(this.dom);
@@ -3988,7 +4044,7 @@ class Node extends Div {
         style.bottom = style.top + style.height;
         style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
-        if (this.parent && this.parent.isNodeGraph) this.parent.drawMiniMap();
+        if (this.graph) this.graph.drawMiniMap();
     }
     get left()   { this.#updateSizes(); return this.#style.left; }
     get top()    { this.#updateSizes(); return this.#style.top; }
@@ -3998,14 +4054,10 @@ class Node extends Div {
     get bottom() { this.#updateSizes(); return this.#style.bottom; }
     get zIndex() { this.#updateSizes(); return this.#style.zIndex; }
     getScale() {
-        return ((this.parent && this.parent.isNodeGraph) ? this.parent.getScale() : 1);
+        return (this.graph ? this.graph.getScale() : 1.0);
     }
-    snap(enabled = true) {
-        this.#snapToGrid = enabled;
-    }
-    snapToGrid() {
-        return this.#snapToGrid;
-    }
+    get snapToGrid() { return this.#snapToGrid; }
+    set snapToGrid(enabled = true) { this.#snapToGrid = enabled; }
     createHeader(text = '', iconUrl, addToContents = true) {
         if (this.header) return undefined;
         const header = new Div().setClass('NodeHeaderTitle');
@@ -4225,8 +4277,8 @@ var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    
 var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--radius-large);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: var(--drop-shadow);\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: 1em;\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.DragTop {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node.BringToTop {\n    z-index: 1; /* Node.BringToTop */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.Node.TooSmall .Resizer {\n    pointer-events: none;\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--darkness), 0.25);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--darkness), 0.50);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) rgb(var(--shadow));\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(var(--invert));\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
-var stylesheet$2="/***** GRAPH *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node.BringToTop {\n    z-index: 1; /* Node.BringToTop */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.Node.TooSmall .Resizer {\n    pointer-events: none;\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--darkness), 0.25);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--darkness), 0.50);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    box-shadow: 0 0 6px rgb(var(--background-dark)) inset;\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) rgb(var(--shadow));\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(var(--invert));\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
+var css_248z$2 = "/***** GRAPH *****/\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n    transition: none;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n    transition: none;\n}\n\n.GraphAnimate {\n    transition: all var(--menu-timing);\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** MINIMAP *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.Node.TooSmall .Resizer {\n    pointer-events: none;\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--darkness), 0.25);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--darkness), 0.50);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    /* box-shadow: 0 0 6px rgb(var(--background-dark)) inset; */\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) rgb(var(--shadow));\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(var(--invert));\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
+var stylesheet$2="/***** GRAPH *****/\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgba(var(--background-dark));\n    background-repeat: repeat;\n    transition: none;\n}\n\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n    transition: none;\n}\n\n.GraphAnimate {\n    transition: all var(--menu-timing);\n}\n\n.GraphLines {\n    pointer-events: none;\n}\n\n/***** MINIMAP *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    top: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border: none;\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    outline: none; /* macOS */\n    z-index: 0; /* Node */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.Node.TooSmall .Resizer {\n    pointer-events: none;\n}\n\n.NodeBackground {\n    pointer-events: none;\n    background-color: rgba(var(--darkness), 0.25);\n    border-radius: 0.5em;\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n\tmargin: calc(var(--border-micro) * -2);\n    padding: 0;\n}\n\n.Node.NodeSelected .NodeBackground {\n    background-color: rgba(var(--darkness), 0.50);\n}\n\n.NodePanel {\n    display: block;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: hidden;\n    /* box-shadow: 0 0 6px rgb(var(--background-dark)) inset; */\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 0.7);\n}\n\n.NodeResizers {\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n    z-index: 100; /* NodeResizers */\n}\n\n/***** COMPONENTS *****/\n\n.NodeHeaderTitle {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    height: 1.9em;\n    margin: 0;\n    padding: var(--pad-small) 0.5em; /* vertical | horizontal */\n    text-shadow: 0 0 var(--pad-small) rgb(var(--shadow));\n}\n\n.NodeHeaderBoxShadow {\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: auto;\n    border-top: solid var(--border-small) rgba(var(--white), 0.1);\n    border-bottom: solid var(--border-small) rgba(var(--black), 0.1);\n    border-left: solid var(--border-small) rgba(var(--black), 0.1);\n    border-right: solid var(--border-small) rgba(var(--black), 0.1);\n}\n\n.NodeHeaderIcon > * {\n    filter: drop-shadow(0 0 var(--pad-small) white) invert(var(--invert));\n}\n\n.NodeHeaderIcon {\n    position: absolute;\n    left: 1.0em;\n    top: 0.175em;\n    width: 1.5em;\n    height: 1.5em;\n    opacity: 0.75;\n}\n\n.NodeHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = "/***** .PanelButton *****/\n\n.PanelButton {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.PanelButton:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.PanelButton:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** .CloseButton *****/\n\n.CloseButton {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    opacity: 0;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.CloseButton.ItemShown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover {\n    background-color: #e24c4b;\n}\n\n.CloseButton.ItemHidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseImage {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.CloseButton:hover .CloseImage {\n    opacity: 1.0;\n}\n\n/***** .Resizeable *****/\n\n.Resizer {\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.ResizerLeft {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: 100%;\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.ResizerTopLeft {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.ResizerTop {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.ResizerTopRight {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.ResizerRight {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: 100%;\n    cursor: col-resize;\n}\n\n.ResizerBottomRight {\n    background-color: rgb(255, 0, 255);\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.ResizerBottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.ResizerBottomLeft {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n/***** .TitleBar *****/\n\n.TitleBar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n/***** .Window *****/\n\n.Window {\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: 200; /* Window */\n}\n\n.Window.BringToTop {\n    z-index: 201; /* Window */\n}\n\n.Window.BringToTop .TitleBar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";
