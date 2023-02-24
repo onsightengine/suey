@@ -15,6 +15,8 @@ export const CLOSE_SIDES = {
     NONE:       'none',
 }
 
+const MOUSE_SLOP = 2;
+
 class Interaction extends Button {
 
     static addCloseButton(closeElement, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
@@ -73,6 +75,7 @@ class Interaction extends Button {
         let downX, downY, rect = {};
         let lastX, lastY;
         let computed = getComputedStyle(dragElement);
+        let minDistance = 0;
         function roundNearest(decimal, increment = GRID_SIZE) {
             if (! element.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
@@ -83,6 +86,7 @@ class Interaction extends Button {
             event.preventDefault();
             eventElement.focus();
             eventElement.setPointerCapture(event.pointerId);
+            minDistance = 0;
             downX = event.pageX;
             downY = event.pageY;
             lastX = event.pageX;
@@ -94,7 +98,6 @@ class Interaction extends Button {
             rect.height = parseFloat(computed.height);
             eventElement.ownerDocument.addEventListener('pointermove', onPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
-            eventElement.style.cursor = 'move';
             Interaction.bringToTop(dragElement);
             /* CUSTOM CALLBACK */
             onDown();
@@ -114,6 +117,10 @@ class Interaction extends Button {
                 lastX = event.pageX;
                 lastY = event.pageY;
             }
+            minDistance = Math.max(minDistance, Math.abs(downX - lastX));
+            minDistance = Math.max(minDistance, Math.abs(downY - lastY));
+            if (minDistance < MOUSE_SLOP) return;
+            eventElement.style.cursor = 'move';
             const scale = ((element && element.getScale) ? element.getScale() : 1);
             const diffX = (lastX - downX) * (1 / scale);
             const diffY = (lastY - downY) * (1 / scale);

@@ -75,7 +75,7 @@ class Node extends Div {
             rect.top = self.top;
             rect.width = self.width;
             rect.height = self.height;
-            selectNode();
+            onDownSelect();
         }
         function resizerMove(resizer, diffX, diffY) {
             const scale = self.getScale();
@@ -120,21 +120,20 @@ class Node extends Div {
         );
 
         // Dragging (Handle Multiple)
-        const dragNodes = [];
+        let watchForSingleClick = false;
+        let singleClickTimer;
         function onDragDown() {
-            dragNodes.length = 0;
+            if (! self.graph) return;
+            self.graph.getNodes().forEach((node) => node.setStartPosition(node.left, node.top));
+        }
+        function onDragMove(diffX, diffY) {
+            watchForSingleClick = false;
             if (! self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
-                    dragNodes.push(node);
-                    node.setStartPosition(node.left, node.top);
+                    node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
+                    node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
                 }
-            });
-        }
-        function onDragMove(diffX, diffY) {
-            dragNodes.forEach((node) => {
-                node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
-                node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
             });
         }
         Interaction.makeDraggable(self, self, false, onDragDown, onDragMove);
@@ -155,14 +154,27 @@ class Node extends Div {
                 selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                 self.addClass('NodeSelected');
             }
+            watchForSingleClick = ! watchForSingleClick;
+            self.dom.ownerDocument.addEventListener('pointerup', onUpSelect);
+        }
+        function onUpSelect() {
+            clearTimeout(singleClickTimer);
+            singleClickTimer = setTimeout(() => {
+                if (watchForSingleClick) {
+                    const selected = document.querySelectorAll(`.NodeSelected`);
+                    selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
+                    self.addClass('NodeSelected');
+                    watchForSingleClick = false;
+                }
+            }, 250);
+            self.dom.ownerDocument.removeEventListener('pointerup', onUpSelect);
         }
         this.onPointerDown(onDownSelect);
 
         // Focus
         function focusOn() {
-            const centerX = self.left + (self.width / 2);
-            const centerY = self.top + (self.height / 2);
-            if (this.graph) this.graph.focusView(centerX, centerY);
+            if (! self.graph) return;
+            self.graph.centerView(false /* resetZoom */, true /* animate */);
         }
         this.onDblClick(focusOn);
 

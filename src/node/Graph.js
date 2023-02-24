@@ -47,17 +47,25 @@ class Graph extends Panel {
         // Draw Grid Image
         const SIZE = GRID_SIZE * 4;
         const HALF = SIZE / 2;
-        const BORDER = 2;
+        const BORDER = 1;
         const B2 = BORDER * 2;
         const squares = new Canvas(SIZE, SIZE);
-        squares.ctx.clearRect(0, 0, squares.width, squares.height);
-        squares.ctx.fillStyle = 'rgb(255, 255, 255)';
-        squares.ctx.globalAlpha = 0.04;
+        squares.ctx.clearRect(0, 0, squares.width, squares.height); /* background: darkness */
+        squares.ctx.globalAlpha = 0.45;
+        squares.ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
         squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
         squares.ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-        squares.ctx.globalAlpha = 0.02;
+        squares.ctx.globalAlpha = 0.4;
+        squares.ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
         squares.ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
         squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+        squares.ctx.globalAlpha = 1;
+        squares.ctx.lineWidth = 4;
+        squares.ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).cssString();
+        squares.ctx.strokeRect(0, 0, HALF, HALF);
+        squares.ctx.strokeRect(HALF, HALF, HALF, HALF);
+        squares.ctx.strokeRect(HALF, 0, HALF, HALF);
+        squares.ctx.strokeRect(0, HALF, HALF, HALF);
         this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
 
@@ -153,8 +161,9 @@ class Graph extends Panel {
         }
         function updateRubberBandBox(toX, toY) {
             // Set rubber band box size
-            const left = Math.min(startPoint.x, toX);
-            const top = Math.min(startPoint.y, toY);
+            const inputRect = self.input.dom.getBoundingClientRect();
+            const left = Math.min(startPoint.x, toX) - inputRect.left;
+            const top = Math.min(startPoint.y, toY) - inputRect.top;
             const width = Math.abs(startPoint.x - toX);
             const height = Math.abs(startPoint.y - toY);
             self.bandbox.setStyle(
@@ -164,10 +173,15 @@ class Graph extends Panel {
                 'height', `${height}px`,
             );
             // Translate to node coordinates
-            const xMin = (left - self.#offset.x) / self.#scale;
-            const yMin = (top - self.#offset.y) / self.#scale;
-            const xMax = ((left + width) - self.#offset.x) / self.#scale;
-            const yMax = ((top + height) - self.#offset.y) / self.#scale;
+            const rect = self.dom.getBoundingClientRect();
+            const centerX = rect.left + ((rect.right - rect.left) / 2);
+            const centerY = rect.top + ((rect.bottom - rect.top) / 2);
+            const percentX = (centerX - left) / centerX;
+            const percentY = (centerY - top) / centerY;
+            const xMin = (centerX - (((rect.width / self.#scale) / 2) * percentX)) - self.#offset.x;
+            const yMin = (centerY - (((rect.height / self.#scale) / 2) * percentY)) - self.#offset.y;
+            const xMax = xMin + (width / self.#scale);
+            const yMax = yMin + (height / self.#scale);
             function rubberbandIntersect(node) {
                 return xMax >= node.left && xMin <= node.right && yMin <= node.bottom && yMax >= node.top;
             }
@@ -401,7 +415,7 @@ class Graph extends Panel {
         const widthScale = this.minimap.getWidth() / this.mapCanvas.width;
         const heightScale = this.minimap.getHeight() / this.mapCanvas.height;
         ctx.globalAlpha = 0.75;
-        ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.TRIADIC1)).cssString();
+        ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.TEXT)).cssString();
         ctx.lineWidth = 2 / widthScale;
         ctx.beginPath(); ctx.moveTo(x + 0, y); ctx.lineTo(x + 0, y + h); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(x + w, y); ctx.lineTo(x + w, y + h); ctx.stroke();

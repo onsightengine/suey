@@ -17,7 +17,7 @@
 
 .GraphGrid {
     pointer-events: none;
-    background-color: rgba(var(--background-dark));
+    background-color: rgb(var(--darkness));
     background-repeat: repeat;
     transition: none;
 }
@@ -98,16 +98,18 @@
 
 .NodeBackground {
     pointer-events: none;
-    background-color: rgba(var(--darkness), 0.25);
+    background-color: rgba(0, 0, 0, 0.35);
     border-radius: 0.5em;
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
-	margin: calc(var(--border-micro) * -2);
+	margin: calc(var(--border-micro) * -1);
     padding: 0;
+    box-shadow: 0 0 2px rgb(var(--black));
 }
 
 .Node.NodeSelected .NodeBackground {
-    background-color: rgba(var(--darkness), 0.50);
+    margin: 0;
+    box-shadow: 0 0 2px rgb(var(--icon-light));
 }
 
 .NodePanel {
@@ -120,7 +122,6 @@
 	padding: 0;
     cursor: inherit;
     overflow: hidden;
-    /* box-shadow: 0 0 6px rgb(var(--background-dark)) inset; */
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
