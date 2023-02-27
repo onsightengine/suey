@@ -81,7 +81,7 @@ class Interaction extends Button {
             return Math.round(decimal / increment) * increment;
         }
         function onPointerDown(event) {
-            if (! event.isPrimary) return;
+            if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
             eventElement.focus();

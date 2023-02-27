@@ -137,6 +137,7 @@ export { Window } from './panels/Window.js';
 // Enums
 export { CLOSE_SIDES } from './utils/Interaction.js';
 export { CORNERS } from './layout/Docker.js';
+export { NODE_TYPES } from './node/Node.js';
 export { PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
 export { RESIZE_MODE } from './panels/Window.js';

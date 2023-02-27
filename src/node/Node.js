@@ -5,6 +5,11 @@ import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
 import { GRID_SIZE, RESIZERS } from '../constants.js';
 
+export const NODE_TYPES = {
+    INPUT:      'input',
+    OUTPUT:     'output',
+};
+
 const MIN_W = 200;
 const MIN_H = 100;
 
@@ -12,6 +17,9 @@ const _color1 = new Iris();
 const _color2 = new Iris();
 
 class Node extends Div {
+
+    #inputs = [];
+    #outputs = [];
 
     #snapToGrid = true;
     #color = new Iris();
@@ -45,12 +53,19 @@ class Node extends Div {
         this.#snapToGrid = snapToGrid;
 
         // Children
-        const background = new Div().addClass('NodeBackground');
         const panel = new Div().addClass('NodePanel');
         const border = new Div().addClass('NodeBorder');
         const sizers = new Div().addClass('NodeResizers');
-        this.addToSelf(background, panel, border, sizers);
+        this.addToSelf(sizers, panel, border);
         this.contents = function() { return panel; }
+
+        // Interior
+        this.header = new Div().setClass('NodeHeaderTitle').setStyle('display', 'none');
+        const lists = new Div().setClass('NodeInterior');
+        this.inputList = new Div().setClass('NodeItemList');
+        this.outputList = new Div().setClass('NodeItemList');
+        lists.add(this.inputList, this.outputList);
+        this.add(this.header, lists);
 
         // Stacking
         this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
@@ -139,7 +154,12 @@ class Node extends Div {
         Interaction.makeDraggable(self, self, false, onDragDown, onDragMove);
 
         // Selectable
-        function onDownSelect() {
+        function onDownSelect(event) {
+            // Forward right click to Graph
+            if (event && event.button !== 0) {
+                if (self.graph) setTimeout(() => self.graph.input.dom.dispatchEvent(event), 0);
+                return;
+            }
             // Bring to top
             if (self.graph) {
                 const nodes = self.graph.getNodes();
@@ -227,18 +247,31 @@ class Node extends Div {
 
     /******************** NODE BUILDING */
 
-    createHeader(text = '', iconUrl, addToContents = true) {
-        if (this.header) return undefined;
-        const header = new Div().setClass('NodeHeaderTitle');
+    addItem(type = NODE_TYPES.INPUT, title = '') {
+        const item = new Div(title).addClass('NodeItem');
+        const point = new Div().addClass('NodeItemPoint');
+        item.add(point);
+        switch (type) {
+            case NODE_TYPES.INPUT:
+                item.addClass('NodeLeft');
+                this.inputList.add(item);
+                break;
+            case NODE_TYPES.OUTPUT:
+                item.addClass('NodeRight');
+                this.outputList.add(item);
+                break;
+        }
+    }
+
+    createHeader(text = '', iconUrl) {
+        if (this.header.children.length > 0) return;
         const icon = new VectorBox(iconUrl);
-        header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
-        header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
+        this.header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
+        this.header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
         const boxShadow = new Div().setClass('NodeHeaderBoxShadow');
-        header.add(header.iconHolder, header.textHolder, boxShadow);
-        if (addToContents) this.add(header);
-        this.header = header;
+        this.header.add(this.header.iconHolder, this.header.textHolder, boxShadow);
         this.applyColor();
-        return header;
+        this.header.setStyle('display', '');
     }
 
     /******************** STYLING */
