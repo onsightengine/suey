@@ -431,11 +431,13 @@ class Graph extends Panel {
             const radiusY = scaleY(radius);
             ctx.fillStyle = color1;
             ctx.beginPath();
-            ctx.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            // ctx.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            ctx.rect(x1 - radiusX, y1 - radiusY, radiusX * 2, radiusY * 2);
             ctx.fill();
             ctx.fillStyle = color2;
             ctx.beginPath();
-            ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            // ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            ctx.rect(x2 - radiusX, y2 - radiusY, radiusX * 2, radiusY * 2);
             ctx.fill();
             drawLine(x1, y1, x2, y2, color1, color2);
         }
@@ -449,9 +451,9 @@ class Graph extends Panel {
             const y2 = this.activePoint.y;
             const color = this.activeItem.node.colorString();
             if (this.activeItem.type === NODE_TYPES.OUTPUT) {
-                drawConnection(x1, y1, x2, y2, rect.width * 0.25, color);
+                drawConnection(x1, y1, x2, y2, rect.width * 0.2, color);
             } else {
-                drawConnection(x2, y2, x1, y1, rect.width * 0.25, color);
+                drawConnection(x2, y2, x1, y1, rect.width * 0.2, color);
             }
         }
         // Node lines

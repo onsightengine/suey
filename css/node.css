@@ -173,18 +173,31 @@
     border-right: solid var(--border-small) rgba(var(--black), 0.1);
 }
 
-.NodeHeaderIcon > * {
-    filter: drop-shadow(0 0 var(--pad-small) white) invert(var(--invert));
+.NodeHeaderIcon .VectorBox {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+    filter: drop-shadow(0 0 var(--pad-x-small) rgb(var(--shadow)));
+}
+
+.NodeHeaderIcon .Image {
+    filter: invert(var(--invert)) opacity(0.9);
 }
 
 .NodeHeaderIcon {
     pointer-events: none;
     position: absolute;
-    left: 1.0em;
-    top: 0.175em;
-    width: 1.5em;
-    height: 1.5em;
-    opacity: 0.75;
+    background-color: rgba(var(--shadow), 0.25);
+    border: none;
+    border-radius: 0.25em;
+    left: 0.2em;
+    top: 0.2em;
+    width: 1.82em;
+    height: 1.42em;
+    opacity: 1;
+    box-shadow: inset 0 0 var(--pad-small) rgba(var(--shadow), 0.5);
 }
 
 .NodeHeaderText {
@@ -253,7 +266,7 @@
     height: 1em;
     background-color: rgba(var(--background-dark), 1);
     border: var(--border-small) solid rgba(var(--button-light), 1);
-    border-radius: 50%;
+    border-radius: 0.3em;
     outline: none;
     top: 50%;
     z-index: 100; /* NodeItemPoint */
