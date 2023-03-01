@@ -55,3 +55,14 @@ export const RESIZERS = {
     BOTTOM_LEFT:	'BottomLeft',
     BOTTOM_RIGHT:	'BottomRight',
 };
+
+export const GRAPH_LINE_TYPES = {
+    STRAIGHT:   'straight',
+    CURVE:      'curve',
+    ZIGZAG:     'zigzag',
+};
+
+export const NODE_TYPES = {
+    INPUT:      'input',
+    OUTPUT:     'output',
+};

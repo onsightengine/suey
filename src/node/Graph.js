@@ -5,7 +5,7 @@ import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRID_SIZE, RESIZERS, TRAIT } from '../constants.js';
+import { GRAPH_LINE_TYPES, GRID_SIZE, NODE_TYPES, RESIZERS, TRAIT } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;
@@ -17,24 +17,26 @@ const _color = new Iris();
 class Graph extends Panel {
 
     #scale = 1;
-    #snapToGrid = true;
     #offset = { x: 0, y: 0 };
     #previous = { x: 0, y: 0 };
     #drawWidth = 0;
     #drawHeight = 0;
+    #curveType = GRAPH_LINE_TYPES.CURVE;
 
     constructor(snapToGrid = true) {
         super();
         const self = this;
 
         // Properties
-        this.#snapToGrid = snapToGrid;
+        this.activeItem = undefined;
+        this.activePoint = { x: 0, y: 0 };
+        this.snapToGrid = snapToGrid;
 
         // Elements
         this.input = new Div().setClass('GraphInput');
         this.grid = new Div().setClass('GraphGrid');
 		this.nodes = new Div().setClass('GraphNodes');
-        this.lines = new Canvas().setClass('GraphLines');
+        this.lines = new Canvas(2048, 2048).setClass('GraphLines');
         this.bandbox = new Div().setClass('GraphBandBox');
         this.minimap = new Div().setClass('MiniMap');
         this.add(this.input, this.grid, this.nodes, this.lines, this.bandbox, this.minimap);
@@ -70,12 +72,12 @@ class Graph extends Panel {
         this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
 
         // Mouse Wheel Zoom
-        function onMouseZoom(event) {
+        function graphMouseZoom(event) {
             event.preventDefault();
             const delta = (event.deltaY * 0.002);
             self.zoomTo(self.#scale - delta, false /* animate */, event.clientX, event.clientY);
 		};
-        this.onWheel(onMouseZoom);
+        this.onWheel(graphMouseZoom);
 
         // Window Resize
         function onWindowResize() {
@@ -86,7 +88,7 @@ class Graph extends Panel {
         // Key Events
         let grabbing = false, selecting = false;
         let spaceKey = false;
-        function onKeyDown(event) {
+        function graphKeyDown(event) {
             if (self.dom.style.display === 'none') return;
             if (event.code === 'Space') {
                 spaceKey = true;
@@ -94,7 +96,7 @@ class Graph extends Panel {
                 self.input.setStyle('z-index', '100');
             }
         }
-        function onKeyUp(event) {
+        function graphKeyUp(event) {
             if (self.dom.style.display === 'none') return;
             if (event.code === 'Space') {
                 spaceKey = false;
@@ -102,13 +104,13 @@ class Graph extends Panel {
                 self.input.setStyle('z-index', '-1');
             }
         }
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('keyup', onKeyUp);
+        document.addEventListener('keydown', graphKeyDown);
+        document.addEventListener('keyup', graphKeyUp);
 
-        // Pointer Events (Translate, Select)
+        // Pointer Events (Translate / Select / RubberBandBox)
         let offset = { x: 0, y: 0 };
         let startPoint = { x: 0, y: 0 };
-        function onPointerDown(event) {
+        function inputPointerDown(event) {
             startPoint.x = event.clientX;
             startPoint.y = event.clientY;
             if (event.button === 2 || (event.button === 0 && spaceKey)) {
@@ -127,11 +129,11 @@ class Graph extends Panel {
                 event.stopPropagation();
                 event.preventDefault();
                 self.dom.setPointerCapture(event.pointerId);
-                self.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                self.dom.ownerDocument.addEventListener('pointermove', inputPointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', inputPointerUp);
             }
         }
-        function onPointerUp(event) {
+        function inputPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
             self.dom.releasePointerCapture(event.pointerId);
@@ -143,10 +145,10 @@ class Graph extends Panel {
                 self.bandbox.setStyle('display', 'none');
                 selecting = false;
             }
-            self.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-            self.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            self.dom.ownerDocument.removeEventListener('pointermove', inputPointerMove);
+            self.dom.ownerDocument.removeEventListener('pointerup', inputPointerUp);
         }
-        function onPointerMove(event) {
+        function inputPointerMove(event) {
             event.stopPropagation();
             event.preventDefault();
             if (grabbing) {
@@ -194,7 +196,7 @@ class Graph extends Panel {
                 else node.removeClass('NodeSelected');
             });
         }
-        this.input.onPointerDown(onPointerDown);
+        this.input.onPointerDown(inputPointerDown);
 
         // Minimap Resizers
         let rect = {};
@@ -223,6 +225,7 @@ class Graph extends Panel {
                 self.minimap.setStyle('height', `${newHeight}px`);
             }
             self.drawMiniMap();
+            self.drawLines();
         }
         Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.TOP ], resizerDown, resizerMove);
 
@@ -252,36 +255,31 @@ class Graph extends Panel {
             }
             self.zoomTo();
         }
-        function downOnMinimap(event) {
+        function mapPointerDown(event) {
             self.minimap.dom.setPointerCapture(event.pointerId);
             self.minimap.setStyle('cursor', 'grabbing');
             calculateOffset(event.clientX, event.clientY);
             translating = true;
         }
-        function moveOnMinimap(event) {
-            if (! translating) return;
-            calculateOffset(event.clientX, event.clientY);
-        }
-        function upOnMinimap(event) {
+        function mapPointerUp(event) {
             self.minimap.dom.releasePointerCapture(event.pointerId);
             self.minimap.setStyle('cursor', 'grab');
             translating = false
         }
-        this.minimap.onPointerDown(downOnMinimap);
-        this.minimap.onPointerMove(moveOnMinimap);
-        this.minimap.onPointerUp(upOnMinimap);
-    }
+        function mapPointerMove(event) {
+            if (! translating) return;
+            calculateOffset(event.clientX, event.clientY);
+        }
+        this.minimap.onPointerDown(mapPointerDown);
+        this.minimap.onPointerUp(mapPointerUp);
+        this.minimap.onPointerMove(mapPointerMove);
+
+    } // end ctor
 
     /******************** GET / SET */
 
     getScale() {
         return this.#scale;
-    }
-
-    get snapToGrid() { return this.#snapToGrid; }
-    set snapToGrid(enabled = true) {
-        this.#snapToGrid = enabled;
-        this.traverseNodes((node) => node.snapToGrid = enabled); /* apply to nodes */
     }
 
     /******************** NODES */
@@ -365,6 +363,103 @@ class Graph extends Panel {
             const node = nodes[i];
             if (node && node.isNode) callback(node);
         }
+    }
+
+    /******************** LINES */
+
+    drawLines() {
+        const LINE_THICKNESS = 4;
+
+        const self = this;
+        const lines = this.lines;
+        const linesRect = lines.dom.getBoundingClientRect();
+        const xMin = linesRect.left;
+        const xMax = linesRect.right;
+        const yMin = linesRect.top;
+        const yMax = linesRect.bottom;
+        const ctx = lines.ctx;
+        ctx.clearRect(0, 0, lines.width, lines.height);
+
+        function scaleX(x) { return (x / linesRect.width) * lines.width; }
+        function scaleY(y) { return (y / linesRect.height) * lines.height; }
+
+        function drawLine(x1, y1, x2, y2, color1, color2 = color1) {
+            ctx.strokeStyle = color1;
+            if (color2 != null && color1 !== color2) {
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, color1);
+                gradient.addColorStop(1, color2);
+                ctx.strokeStyle = gradient;
+            }
+            ctx.lineWidth = LINE_THICKNESS * self.#scale;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            switch (self.#curveType) {
+                case GRAPH_LINE_TYPES.STRAIGHT:
+                    ctx.lineTo(x2, y2);
+                    break;
+                case GRAPH_LINE_TYPES.ZIGZAG:
+                    const xOffset = Math.abs((x2 - x1) * 0.25);
+                    ctx.lineTo(x1 + xOffset, y1);
+                    ctx.lineTo(x2 - xOffset, y2);
+                    ctx.lineTo(x2, y2);
+                    break;
+                case GRAPH_LINE_TYPES.CURVE:
+                default:
+                    const curveOffset = Math.abs((x2 - x1) * 0.5);
+                    ctx.bezierCurveTo(x1 + curveOffset, y1, x2 - curveOffset, y2, x2, y2);
+                    break;
+            }
+            ctx.stroke();
+        }
+
+        function drawConnection(x1, y1, x2, y2, radius = 10, color1 = '#ffffff', color2 = color1) {
+            // Check that line will show
+            const left = (x1 < x2) ? x1 : x2;
+            const right = (x1 < x2) ? x2 : x1;
+            const top = (y1 < y2) ? y1 : y2;
+            const bottom = (y1 < y2) ? y2 : y1;
+            if (! (xMax >= left && xMin <= right && yMin <= bottom && yMax >= top)) return;
+            // Scale points
+            x1 = scaleX(x1);
+            y1 = scaleY(y1);
+            x2 = scaleX(x2);
+            y2 = scaleY(y2);
+            // Draw circles / line
+            ctx.globalAlpha = 1.0;
+            const radiusX = scaleX(radius);
+            const radiusY = scaleY(radius);
+            ctx.fillStyle = color1;
+            ctx.beginPath();
+            ctx.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = color2;
+            ctx.beginPath();
+            ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            ctx.fill();
+            drawLine(x1, y1, x2, y2, color1, color2);
+        }
+
+        // Active line
+        if (this.activeItem) {
+            const rect = this.activeItem.point.dom.getBoundingClientRect();
+            const x1 = rect.left + (rect.width / 2);
+            const y1 = rect.top + (rect.height / 2);
+            const x2 = this.activePoint.x;
+            const y2 = this.activePoint.y;
+            const color = this.activeItem.node.colorString();
+            if (this.activeItem.type === NODE_TYPES.OUTPUT) {
+                drawConnection(x1, y1, x2, y2, rect.width * 0.25, color);
+            } else {
+                drawConnection(x2, y2, x1, y1, rect.width * 0.25, color);
+            }
+        }
+        // Node lines
+        this.traverseNodes((node) => {
+
+
+
+        });
     }
 
     /******************** MAP */
@@ -518,6 +613,7 @@ class Graph extends Panel {
 
         // Redraw
         this.drawMiniMap();
+        this.drawLines();
     }
 
 }

@@ -82,8 +82,7 @@
     background-color: transparent;
     border-radius: var(--radius-large);
     border: none;
-    outline: none; /* macOS */
-    box-shadow: 0 0 var(--pad-x-small) rgb(var(--black));
+    outline: solid var(--pad-micro) rgb(var(--black), 0.5);
     margin: 0;
     cursor: inherit;
     overflow: visible;
@@ -95,7 +94,7 @@
 }
 
 .Node.NodeSelected {
-    box-shadow: 0 0 var(--pad-x-small) rgb(var(--icon-light));
+    outline: solid var(--pad-small) rgb(var(--black), 0.5);
 }
 
 .Node.TooSmall .Resizer {
@@ -126,12 +125,12 @@
     border-radius: var(--radius-large);
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
-    margin: 0;
+    margin: calc(var(--border-small) * -0.5);
 	padding: 0;
 }
 
 .Node.NodeSelected .NodeBorder {
-    border: var(--border-small) solid rgba(var(--icon), 0.7);
+    border: var(--border-small) solid rgba(var(--icon), 1);
 }
 
 .NodeResizers {
@@ -143,7 +142,7 @@
     padding: 0;
 }
 
-/***** HEADER *****/
+/***** NODE HEADER *****/
 
 .NodeHeaderTitle {
     pointer-events: none;
@@ -201,7 +200,7 @@
     padding-left: 0.5em;
 }
 
-/***** LISTS *****/
+/***** NODE ITEMS *****/
 
 .NodeInterior {
     pointer-events: none;
@@ -261,8 +260,7 @@
 }
 
 .Node.NodeSelected .NodeItemPoint {
-    border: var(--border-small) solid rgba(var(--icon), 0.7);
-    box-shadow: 0 0 var(--pad-x-small) rgb(var(--icon-light));
+    border: var(--border-small) solid rgba(var(--icon), 1);
 }
 
 .Node:hover .NodeItemPoint:hover, .Node.NodeSelected .NodeItemPoint:hover {

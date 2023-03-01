@@ -80,7 +80,7 @@ class Interaction extends Button {
             if (! element.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
         }
-        function onPointerDown(event) {
+        function dragPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
@@ -96,21 +96,21 @@ class Interaction extends Button {
             rect.top = parseFloat(computed.top);
             rect.width = parseFloat(computed.width);
             rect.height = parseFloat(computed.height);
-            eventElement.ownerDocument.addEventListener('pointermove', onPointerMove);
-            eventElement.ownerDocument.addEventListener('pointerup', onPointerUp);
+            eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
+            eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
             Interaction.bringToTop(dragElement);
             /* CUSTOM CALLBACK */
             onDown();
         }
-        function onPointerUp(event) {
+        function dragPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
             eventElement.releasePointerCapture(event.pointerId);
-            eventElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
-            eventElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
+            eventElement.ownerDocument.removeEventListener('pointermove', dragPointerMove);
+            eventElement.ownerDocument.removeEventListener('pointerup', dragPointerUp);
             eventElement.style.cursor = 'inherit';
         }
-        function onPointerMove(event) {
+        function dragPointerMove(event) {
             event.stopPropagation();
             event.preventDefault();
             if (event.isTrusted) { /* not generated programmatically */
@@ -137,7 +137,7 @@ class Interaction extends Button {
             /* CUSTOM CALLBACK */
             onMove(diffX, diffY);
         }
-        eventElement.addEventListener('pointerdown', onPointerDown);
+        eventElement.addEventListener('pointerdown', dragPointerDown);
     }
 
     static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
@@ -151,7 +151,8 @@ class Interaction extends Button {
             const className = `Resizer${resizerName}`;
             const resizer = new Div().addClass('Resizer').addClass(className);
             let downX, downY, lastX, lastY;
-            function onPointerDown(event) {
+            function resizePointerDown(event) {
+                if (event.button !== 0) return;
                 event.stopPropagation();
                 event.preventDefault();
                 resizer.dom.setPointerCapture(event.pointerId);
@@ -159,19 +160,19 @@ class Interaction extends Button {
                 downY = event.pageY;
                 lastX = event.pageX;
                 lastY = event.pageY;
-                resizeElement.dom.ownerDocument.addEventListener('pointermove', onPointerMove);
-                resizeElement.dom.ownerDocument.addEventListener('pointerup', onPointerUp);
+                resizeElement.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
+                resizeElement.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
                 /* CUSTOM CALLBACK */
                 onDown();
             }
-            function onPointerUp(event) {
+            function resizePointerUp(event) {
                 event.stopPropagation();
                 event.preventDefault();
                 resizer.dom.releasePointerCapture(event.pointerId);
-                resizeElement.dom.ownerDocument.removeEventListener('pointermove', onPointerMove);
-                resizeElement.dom.ownerDocument.removeEventListener('pointerup', onPointerUp);
+                resizeElement.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
+                resizeElement.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
             }
-            function onPointerMove(event) {
+            function resizePointerMove(event) {
                 event.stopPropagation();
                 event.preventDefault();
                 if (event.isTrusted) { /* not generated programmatically */
@@ -183,7 +184,7 @@ class Interaction extends Button {
                 /* CUSTOM CALLBACK */
                 onMove(resizer, diffX, diffY);
             }
-            resizer.dom.addEventListener('pointerdown', onPointerDown);
+            resizer.dom.addEventListener('pointerdown', resizePointerDown);
             resizerDivs[resizerName] = resizer;
             addToElement.addToSelf(resizer);
         }

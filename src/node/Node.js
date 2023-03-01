@@ -3,12 +3,7 @@ import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
-import { GRID_SIZE, RESIZERS } from '../constants.js';
-
-export const NODE_TYPES = {
-    INPUT:      'input',
-    OUTPUT:     'output',
-};
+import { GRID_SIZE, NODE_TYPES, RESIZERS } from '../constants.js';
 
 const MIN_W = 200;
 const MIN_H = 100;
@@ -17,9 +12,6 @@ const _color1 = new Iris();
 const _color2 = new Iris();
 
 class Node extends Div {
-
-    #inputs = [];
-    #outputs = [];
 
     #snapToGrid = true;
     #color = new Iris();
@@ -90,7 +82,7 @@ class Node extends Div {
             rect.top = self.top;
             rect.width = self.width;
             rect.height = self.height;
-            onDownSelect();
+            nodePointerDown();
         }
         function resizerMove(resizer, diffX, diffY) {
             const scale = self.getScale();
@@ -137,11 +129,11 @@ class Node extends Div {
         // Dragging (Handle Multiple)
         let watchForSingleClick = false;
         let singleClickTimer;
-        function onDragDown() {
+        function dragDown() {
             if (! self.graph) return;
             self.graph.getNodes().forEach((node) => node.setStartPosition(node.left, node.top));
         }
-        function onDragMove(diffX, diffY) {
+        function dragMove(diffX, diffY) {
             watchForSingleClick = false;
             if (! self.graph) return;
             self.graph.getNodes().forEach((node) => {
@@ -151,10 +143,10 @@ class Node extends Div {
                 }
             });
         }
-        Interaction.makeDraggable(self, self, false, onDragDown, onDragMove);
+        Interaction.makeDraggable(self, self, false, dragDown, dragMove);
 
         // Selectable
-        function onDownSelect(event) {
+        function nodePointerDown(event) {
             // Forward right click to Graph
             if (event && event.button !== 0) {
                 if (self.graph) setTimeout(() => self.graph.input.dom.dispatchEvent(event), 0);
@@ -175,9 +167,9 @@ class Node extends Div {
                 self.addClass('NodeSelected');
             }
             watchForSingleClick = ! watchForSingleClick;
-            self.dom.ownerDocument.addEventListener('pointerup', onUpSelect);
+            self.dom.ownerDocument.addEventListener('pointerup', nodePointerUp);
         }
-        function onUpSelect() {
+        function nodePointerUp() {
             clearTimeout(singleClickTimer);
             singleClickTimer = setTimeout(() => {
                 if (watchForSingleClick) {
@@ -187,22 +179,23 @@ class Node extends Div {
                     watchForSingleClick = false;
                 }
             }, 250);
-            self.dom.ownerDocument.removeEventListener('pointerup', onUpSelect);
+            self.dom.ownerDocument.removeEventListener('pointerup', nodePointerUp);
         }
-        this.onPointerDown(onDownSelect);
+        this.onPointerDown(nodePointerDown);
 
-        // Focus
-        function focusOn() {
+        // Double Click (Focus)
+        function nodeDoubleClick() {
             if (! self.graph) return;
             self.graph.centerView(false /* resetZoom */, true /* animate */);
         }
-        this.onDblClick(focusOn);
+        this.onDblClick(nodeDoubleClick);
 
         // Destroy
         this.dom.addEventListener('destroy', function() {
             if (observer) observer.disconnect();
         }, { once: true });
-    }
+
+    } // end ctor
 
     /******************** RECT */
 
@@ -248,9 +241,14 @@ class Node extends Div {
     /******************** NODE BUILDING */
 
     addItem(type = NODE_TYPES.INPUT, title = '') {
+        const self = this;
+        // Create Item
         const item = new Div(title).addClass('NodeItem');
         const point = new Div().addClass('NodeItemPoint');
         item.add(point);
+        item.point = point;
+        item.node = this;
+        item.type = type;
         switch (type) {
             case NODE_TYPES.INPUT:
                 item.addClass('NodeLeft');
@@ -261,6 +259,37 @@ class Node extends Div {
                 this.outputList.add(item);
                 break;
         }
+        // Point Events
+        function pointPointerDown(event) {
+            if (event.button !== 0) return;
+            if (! self.graph) return;
+            event.stopPropagation();
+            event.preventDefault();
+            point.dom.setPointerCapture(event.pointerId);
+            point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
+            point.dom.ownerDocument.addEventListener('pointerup', pointPointerUp);
+            self.graph.activeItem = item;
+            self.graph.activePoint.x = event.clientX;
+            self.graph.activePoint.y = event.clientY;
+            self.graph.drawLines();
+        }
+        function pointPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            point.dom.releasePointerCapture(event.pointerId);
+            self.graph.activeItem = undefined;
+            self.graph.drawLines();
+            point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
+            point.dom.ownerDocument.removeEventListener('pointerup', pointPointerUp);
+        }
+        function pointPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            self.graph.activePoint.x = event.clientX;
+            self.graph.activePoint.y = event.clientY;
+            self.graph.drawLines();
+        }
+        point.onPointerDown(pointPointerDown);
     }
 
     createHeader(text = '', iconUrl) {
