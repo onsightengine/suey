@@ -265,9 +265,9 @@ class Node extends Div {
             if (! self.graph) return;
             event.stopPropagation();
             event.preventDefault();
-            point.dom.setPointerCapture(event.pointerId);
             point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
             point.dom.ownerDocument.addEventListener('pointerup', pointPointerUp);
+            point.addClass('ActiveItem');
             self.graph.activeItem = item;
             self.graph.activePoint.x = event.clientX;
             self.graph.activePoint.y = event.clientY;
@@ -276,7 +276,7 @@ class Node extends Div {
         function pointPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
-            point.dom.releasePointerCapture(event.pointerId);
+            point.removeClass('ActiveItem');
             self.graph.activeItem = undefined;
             self.graph.drawLines();
             point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);

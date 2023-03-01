@@ -94,9 +94,9 @@ class ColorScheme {
         Css.setVariable('--invert',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
 
         // Update necessary hue rotation degrees
-        let startHue = _clr.set(0x00b4af).hue();
-        let newHue = _clr.set(ColorScheme.color(TRAIT.ICON, true /* ignoreSaturation */)).hue();
-        let diffHue = `${newHue - startHue}deg`;
+        const startHue = _clr.set(0x00b4af).hue();
+        const newHue = _clr.set(ColorScheme.color(TRAIT.ICON, true /* ignoreSaturation */)).hue();
+        const diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
 

@@ -21,15 +21,15 @@ class Graph extends Panel {
     #previous = { x: 0, y: 0 };
     #drawWidth = 0;
     #drawHeight = 0;
-    #curveType = GRAPH_LINE_TYPES.CURVE;
 
-    constructor(snapToGrid = true) {
+    constructor(snapToGrid = true, curveType = GRAPH_LINE_TYPES.CURVE) {
         super();
         const self = this;
 
         // Properties
         this.activeItem = undefined;
         this.activePoint = { x: 0, y: 0 };
+        this.curveType = curveType;
         this.snapToGrid = snapToGrid;
 
         // Elements
@@ -394,7 +394,7 @@ class Graph extends Panel {
             ctx.lineWidth = LINE_THICKNESS * self.#scale;
             ctx.beginPath();
             ctx.moveTo(x1, y1);
-            switch (self.#curveType) {
+            switch (self.curveType) {
                 case GRAPH_LINE_TYPES.STRAIGHT:
                     ctx.lineTo(x2, y2);
                     break;
