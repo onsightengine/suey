@@ -276,13 +276,13 @@ class Graph extends Panel {
 
     } // end ctor
 
-    /******************** GET / SET */
+    /******************** GET / SET ********************/
 
     getScale() {
         return this.#scale;
     }
 
-    /******************** NODES */
+    /******************** NODES ********************/
 
     addNode(/* node, node, node, ...*/) {
         for (let i = 0, l = arguments.length; i < l; i++) {
@@ -358,14 +358,16 @@ class Graph extends Panel {
         if (typeof callback !== 'function') return;
         if (! this.nodes) return;
         const nodes = this.nodes.children;
-        nodes.sort((x, y) => x.zIndex - y.zIndex); /* sort zIndex low to high */
+        // Sort by zIndex, low to high
+        nodes.sort((x, y) => x.zIndex - y.zIndex);
+        // Traverse
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
             if (node && node.isNode) callback(node);
         }
     }
 
-    /******************** LINES */
+    /******************** LINES ********************/
 
     drawLines() {
         const LINE_THICKNESS = 4;
@@ -456,6 +458,7 @@ class Graph extends Panel {
                 drawConnection(x2, y2, x1, y1, rect.width * 0.2, color);
             }
         }
+
         // Node lines
         this.traverseNodes((node) => {
 
@@ -464,7 +467,7 @@ class Graph extends Panel {
         });
     }
 
-    /******************** MAP */
+    /******************** MINI MAP ********************/
 
     drawMiniMap() {
         if (! this.mapCanvas) return;
@@ -535,7 +538,7 @@ class Graph extends Panel {
         });
     }
 
-    /******************** TRANSFORM */
+    /******************** TRANSFORM ********************/
 
     /**
      * Centers on Selected nodes, if there are nodes selected. Otherwise centers on all nodes.

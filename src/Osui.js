@@ -126,6 +126,7 @@ export { ToolbarSpacer } from './menu/ToolbarSpacer.js';
 // Node
 export { Graph } from './node/Graph.js';
 export { Node } from './node/Node.js';
+export { NodeItem } from './node/NodeItem.js';
 
 // Panels
 export { Panel } from './panels/Panel.js';

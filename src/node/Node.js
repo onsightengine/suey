@@ -234,56 +234,12 @@ class Node extends Div {
 
     /******************** NODE BUILDING */
 
-    addItem(type = NODE_TYPES.INPUT, title = '') {
-        const self = this;
-        // Create Item
-        const item = new Div(title).addClass('NodeItem');
-        const point = new Div().addClass('NodeItemPoint');
-        item.add(point);
-        item.point = point;
+    addItem(item) {
         item.node = this;
-        item.type = type;
-        switch (type) {
-            case NODE_TYPES.INPUT:
-                item.addClass('NodeLeft');
-                this.inputList.add(item);
-                break;
-            case NODE_TYPES.OUTPUT:
-                item.addClass('NodeRight');
-                this.outputList.add(item);
-                break;
+        switch (item.type) {
+            case NODE_TYPES.INPUT: this.inputList.add(item); break;
+            case NODE_TYPES.OUTPUT: this.outputList.add(item); break;
         }
-        // Point Events
-        function pointPointerDown(event) {
-            if (event.button !== 0) return;
-            if (! self.graph) return;
-            event.stopPropagation();
-            event.preventDefault();
-            point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
-            point.dom.ownerDocument.addEventListener('pointerup', pointPointerUp);
-            point.addClass('ActiveItem');
-            self.graph.activeItem = item;
-            self.graph.activePoint.x = event.clientX;
-            self.graph.activePoint.y = event.clientY;
-            self.graph.drawLines();
-        }
-        function pointPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            point.removeClass('ActiveItem');
-            self.graph.activeItem = undefined;
-            self.graph.drawLines();
-            point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
-            point.dom.ownerDocument.removeEventListener('pointerup', pointPointerUp);
-        }
-        function pointPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            self.graph.activePoint.x = event.clientX;
-            self.graph.activePoint.y = event.clientY;
-            self.graph.drawLines();
-        }
-        point.onPointerDown(pointPointerDown);
     }
 
     createHeader(text = '', iconUrl) {

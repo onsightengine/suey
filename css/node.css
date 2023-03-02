@@ -265,9 +265,8 @@
     border: var(--border-small) solid rgba(var(--icon), 1);
 }
 
-.Node:hover .NodeItemPoint:hover,
-.Node.NodeSelected .NodeItemPoint:hover,
-.NodeItemPoint.ActiveItem {
+.NodeItemPoint.HoverPoint, .Node.NodeSelected .NodeItemPoint.HoverPoint,
+.NodeItemPoint.ActiveItem, .Node.NodeSelected .NodeItemPoint.ActiveItem {
     border: var(--border-small) solid rgba(var(--highlight), 1);
     width: 1.2em;
     height: 1.2em;
