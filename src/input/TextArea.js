@@ -11,10 +11,9 @@ class TextArea extends Element {
         this.dom.setAttribute('autocomplete', 'off');
 
         // Events
-
         function onKeyDown(event) {
             event.stopPropagation();
-            if (event.keyCode === 9) {
+            if (event.code === 'Tab') {
                 event.preventDefault();
                 const cursor = this.selectionStart;
                 this.value = this.value.substring(0, cursor) + '\t' + this.value.substring(cursor);

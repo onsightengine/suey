@@ -23,13 +23,13 @@ class TreeList extends Div {
 
             // Single Select Keypress
             if (! self.multiSelect) {
-                if (event.keyCode === 38 || event.keyCode === 40) {
+                if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
                     let index = self.getIndex(self.selectedValue);
                     if (index === -1) return;
-                    if (event.keyCode === 38 /* up   */) index--;
-                    if (event.keyCode === 40 /* down */) index++;
+                    if (event.code === 'ArrowUp') index--;
+                    if (event.code === 'ArrowDown') index++;
                     if (index >= 0 && index < self.options.length) {
                         self.setValue(self.options[index].value, true);
                         self.dom.dispatchEvent(new Event('change'));
@@ -45,7 +45,7 @@ class TreeList extends Div {
                 }
 
                 // Process Key Codes
-                if (event.keyCode === 38 || event.keyCode === 40) {
+                if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -61,8 +61,8 @@ class TreeList extends Div {
                         let lastValue = values[values.length - 1];
                         let index = self.getIndex(lastValue);
                         if (index === -1) return;
-                        if (event.keyCode === 38 && index + self._shiftAdd > 0) self._shiftAdd--;
-                        if (event.keyCode === 40 && index + self._shiftAdd < self.options.length - 1) self._shiftAdd++;
+                        if (event.code === 'ArrowUp' && index + self._shiftAdd > 0) self._shiftAdd--;
+                        if (event.code === 'ArrowDown' && index + self._shiftAdd < self.options.length - 1) self._shiftAdd++;
                         index += self._shiftAdd;
                         if (index < 0 || index > self.options.length - 1) return;
 
@@ -91,8 +91,8 @@ class TreeList extends Div {
                         let lastValue = values[values.length - 1];
                         let index = self.getIndex(lastValue);
                         if (index === -1) return;
-                        if (event.keyCode === 38 /* up   */) index--;
-                        if (event.keyCode === 40 /* down */) index++;
+                        if (event.code === 'ArrowUp') index--;
+                        if (event.code === 'ArrowDown') index++;
                         if (index >= 0 && index < self.options.length) {
                             self.setValues([ self.options[index].value ], true);
                             self.dom.dispatchEvent(new Event('change'));
@@ -104,9 +104,9 @@ class TreeList extends Div {
 
         /** Handle key up, handles arrow navigation, also prevents native scroll behavior */
         function onKeyUp(event) {
-            switch (event.keyCode) {
-                case 38: /* up */
-                case 40: /* down */
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'ArrowDown':
                     event.preventDefault();
                     event.stopPropagation();
                     if (! event.shiftKey) {

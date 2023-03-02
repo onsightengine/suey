@@ -16,11 +16,9 @@ class TextBox extends Element {
 
         this.setValue(text);
 
-        // Events
-
+        // Key Events
         function onKeyDown(event) {
             event.stopPropagation();
-
             if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
                 if (event.shiftKey) {
@@ -37,7 +35,6 @@ class TextBox extends Element {
 
         this.onKeyDown(onKeyDown);
         this.onKeyUp(onKeyUp);
-
     }
 
     getValue() {

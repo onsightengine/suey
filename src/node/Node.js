@@ -13,7 +13,6 @@ const _color2 = new Iris();
 
 class Node extends Div {
 
-    #snapToGrid = true;
     #color = new Iris();
     #style = {};
     #needsUpdate = true;
@@ -26,7 +25,6 @@ class Node extends Div {
         y = 0,
         color = 0x888888,
         resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
-        snapToGrid = true,
     } = {}) {
         super();
         const self = this;
@@ -42,7 +40,6 @@ class Node extends Div {
         // Properties
         this.graph = undefined;
         this.#color.set(color);
-        this.#snapToGrid = snapToGrid;
 
         // Children
         const panel = new Div().addClass('NodePanel');
@@ -71,7 +68,7 @@ class Node extends Div {
 
         // Snapping
         function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! self.#snapToGrid) return decimal;
+            if (! self.graph || ! self.graph.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
         }
 
@@ -235,9 +232,6 @@ class Node extends Div {
     getStartPosition() { return this.#startPosition; }
     setStartPosition(x = 0, y = 0) { this.#startPosition.x = x; this.#startPosition.y = y; }
 
-    get snapToGrid() { return this.#snapToGrid; }
-    set snapToGrid(enabled = true) { this.#snapToGrid = enabled; }
-
     /******************** NODE BUILDING */
 
     addItem(type = NODE_TYPES.INPUT, title = '') {
@@ -297,8 +291,7 @@ class Node extends Div {
         const icon = new VectorBox(iconUrl);
         this.header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
         this.header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
-        const boxShadow = new Div().setClass('NodeHeaderBoxShadow');
-        this.header.add(this.header.iconHolder, this.header.textHolder, boxShadow);
+        this.header.add(this.header.iconHolder, this.header.textHolder);
         this.applyColor();
         this.header.setStyle('display', '');
     }
