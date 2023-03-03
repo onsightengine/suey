@@ -62,6 +62,11 @@ export const GRAPH_LINE_TYPES = {
     ZIGZAG:     'zigzag',
 };
 
+export const GRAPH_GRID_TYPES = {
+    LINES:      'lines',
+    DOTS:       'dots',
+};
+
 export const NODE_TYPES = {
     INPUT:      'input',
     OUTPUT:     'output',

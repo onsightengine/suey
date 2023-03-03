@@ -5,7 +5,7 @@ import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRAPH_LINE_TYPES, GRID_SIZE, NODE_TYPES, RESIZERS, TRAIT } from '../constants.js';
+import { GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, NODE_TYPES, RESIZERS, TRAIT } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;
@@ -25,7 +25,8 @@ class Graph extends Panel {
 
     constructor({
         snapToGrid = true,
-        curveType = GRAPH_LINE_TYPES.CURVE
+        curveType = GRAPH_LINE_TYPES.CURVE,
+        gridType = GRAPH_GRID_TYPES.LINES,
     } = {}) {
         super();
         const self = this;
@@ -35,6 +36,7 @@ class Graph extends Panel {
         this.connectItem = undefined;               // Item user is trying to connect to
         this.activePoint = { x: 0, y: 0 };
         this.curveType = curveType;
+        this.gridType = gridType;
         this.snapToGrid = snapToGrid;
 
         // Elements
@@ -52,29 +54,7 @@ class Graph extends Panel {
         this.minimap.add(this.mapCanvas, mapResizers);
 
         // Draw Grid Image
-        const SIZE = GRID_SIZE * 4;
-        const HALF = SIZE / 2;
-        const BORDER = 1;
-        const B2 = BORDER * 2;
-        const squares = new Canvas(SIZE, SIZE);
-        squares.ctx.clearRect(0, 0, squares.width, squares.height); /* background: darkness */
-        squares.ctx.globalAlpha = 0.45;
-        squares.ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-        squares.ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
-        squares.ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-        squares.ctx.globalAlpha = 0.4;
-        squares.ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-        squares.ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
-        squares.ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-        squares.ctx.globalAlpha = 1;
-        squares.ctx.lineWidth = 4;
-        squares.ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).cssString();
-        squares.ctx.strokeRect(0, 0, HALF, HALF);
-        squares.ctx.strokeRect(HALF, HALF, HALF, HALF);
-        squares.ctx.strokeRect(HALF, 0, HALF, HALF);
-        squares.ctx.strokeRect(0, HALF, HALF, HALF);
-        this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
-        this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        this.changeGridType(gridType);
 
         // Mouse Wheel Zoom
         function graphMouseZoom(event) {
@@ -374,7 +354,56 @@ class Graph extends Panel {
         }
     }
 
-    /******************** LINES ********************/
+    /******************** DRAW: GRID ********************/
+
+    changeGridType(type = GRAPH_GRID_TYPES.LINES) {
+        const SIZE = GRID_SIZE * 4;
+        const HALF = SIZE / 2;
+        const BORDER = 1;
+        const B2 = BORDER * 2;
+        this.gridType = type;
+        if (type === GRAPH_GRID_TYPES.LINES) {
+            const squares = new Canvas(SIZE, SIZE);
+            const ctx = squares.ctx;
+            ctx.clearRect(0, 0, squares.width, squares.height); /* background: darkness */
+            ctx.globalAlpha = 0.45;
+            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+            ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+            ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+            ctx.globalAlpha = 1;
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).cssString();
+            ctx.strokeRect(0, 0, HALF, HALF);
+            ctx.strokeRect(HALF, HALF, HALF, HALF);
+            ctx.strokeRect(HALF, 0, HALF, HALF);
+            ctx.strokeRect(0, HALF, HALF, HALF);
+            this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
+            this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        } else if (type === GRAPH_GRID_TYPES.DOTS) {
+            const radius = SIZE / 25;
+            const dots = new Canvas(SIZE, SIZE);
+            const ctx = dots.ctx;
+            ctx.globalAlpha = 0.5;
+            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            ctx.fillRect(0, 0, dots.width, dots.height);
+            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    ctx.beginPath();
+                    ctx.ellipse(HALF * i, HALF * j, radius, radius, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            this.grid.setStyle('background-image', `url('${dots.dom.toDataURL()}')`);
+            this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
+        }
+    }
+
+    /******************** DRAW: LINES ********************/
 
     connect() {
         if (this.activeItem && this.connectItem) {
@@ -394,8 +423,10 @@ class Graph extends Panel {
     }
 
     drawLines() {
-        const LINE_THICKNESS = 4;
+        if (! this.lines) return;
+        if (this.dom.style.display === 'none') return;
 
+        const LINE_THICKNESS = 4;
         const self = this;
         const lines = this.lines;
         const linesRect = lines.dom.getBoundingClientRect();
@@ -410,6 +441,10 @@ class Graph extends Panel {
         function scaleY(y) { return (y / linesRect.height) * lines.height; }
 
         function drawLine(x1, y1, x2, y2, color1, color2 = color1) {
+            if (! Number.isFinite(x1) || Number.isNaN(x1)) return;
+            if (! Number.isFinite(x2) || Number.isNaN(x2)) return;
+            if (! Number.isFinite(y1) || Number.isNaN(y1)) return;
+            if (! Number.isFinite(y2) || Number.isNaN(y2)) return;
             ctx.strokeStyle = color1;
             if (color2 != null && color1 !== color2) {
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
@@ -505,7 +540,7 @@ class Graph extends Panel {
         }
     }
 
-    /******************** MINI MAP ********************/
+    /******************** DRAW: MINI MAP ********************/
 
     drawMiniMap() {
         if (! this.mapCanvas) return;

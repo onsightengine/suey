@@ -112,7 +112,7 @@
     overflow: visible;
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
-        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
 }
 
 .NodeBorder {
