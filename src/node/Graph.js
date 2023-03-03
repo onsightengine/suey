@@ -11,7 +11,7 @@ const MIN_W = 100;
 const MIN_H = 100;
 const MAP_BUFFER = 100;
 const MIN_MAP_SIZE = 1200;
-const ANIMATE_INTERVAL = 8; /* ms */
+const ANIMATE_INTERVAL = 4; /* ms */
 
 const _color = new Iris();
 
@@ -608,8 +608,8 @@ class Graph extends Panel {
                 function damp(x, y, lambda, dt) { return lerp(x, y, 1 - Math.exp(- lambda * dt)); }
                 function lerp(x, y, t) { return (1 - t) * x + t * y; }
                 const dt = (performance.now() - self.#animateLast) / 1000;
-                self.#offset.x = damp(self.#offset.x, self.#targetX, 10, dt);
-                self.#offset.y = damp(self.#offset.y, self.#targetY, 10, dt);
+                self.#offset.x = damp(self.#offset.x, self.#targetX, 15, dt);
+                self.#offset.y = damp(self.#offset.y, self.#targetY, 15, dt);
                 self.#startZoom = damp(self.#startZoom, self.#targetZoom, 10, dt);
                 const diffX = Math.abs(self.#offset.x - self.#targetX);
                 const diffY = Math.abs(self.#offset.y - self.#targetY);
