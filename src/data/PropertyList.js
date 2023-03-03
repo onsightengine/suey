@@ -58,9 +58,9 @@ class PropertyList extends Div {
         const header = new Div().setClass('PropertyHeaderTitle');
         const icon = new VectorBox(iconUrl);
         if (enlarge) icon.addClass('EnlargeIcon');
-        header.iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
-        header.textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
-        header.add(header.iconHolder, header.textHolder);
+        const iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
+        const textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
+        header.add(iconHolder, textHolder);
         return header;
     }
 

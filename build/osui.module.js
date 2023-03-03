@@ -1693,9 +1693,9 @@ class PropertyList extends Div {
         const header = new Div().setClass('PropertyHeaderTitle');
         const icon = new VectorBox(iconUrl);
         if (enlarge) icon.addClass('EnlargeIcon');
-        header.iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
-        header.textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
-        header.add(header.iconHolder, header.textHolder);
+        const iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
+        const textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
+        header.add(iconHolder, textHolder);
         return header;
     }
     createRow(title = '', ...controls) {
@@ -3590,10 +3590,14 @@ class Graph extends Panel {
     #previous = { x: 0, y: 0 };
     #drawWidth = 0;
     #drawHeight = 0;
-    constructor(snapToGrid = true, curveType = GRAPH_LINE_TYPES.CURVE) {
+    constructor({
+        snapToGrid = true,
+        curveType = GRAPH_LINE_TYPES.CURVE
+    } = {}) {
         super();
         const self = this;
         this.activeItem = undefined;
+        this.connectItem = undefined;
         this.activePoint = { x: 0, y: 0 };
         this.curveType = curveType;
         this.snapToGrid = snapToGrid;
@@ -3893,6 +3897,17 @@ class Graph extends Panel {
             if (node && node.isNode) callback(node);
         }
     }
+    connect() {
+        if (! this.activeItem) return;
+        if (! this.connectItem) return;
+        const active = this.activeItem;
+        const connect = this.connectItem;
+        if (active.type === NODE_TYPES.OUTPUT) {
+            active.connect(connect);
+        } else if (connect.type === NODE_TYPES.OUTPUT) {
+            connect.connect(active);
+        }
+    }
     drawLines() {
         const LINE_THICKNESS = 4;
         const self = this;
@@ -3972,6 +3987,20 @@ class Graph extends Panel {
             }
         }
         this.traverseNodes((node) => {
+            if (! node.outputList) return;
+            node.outputList.children.forEach((item) => {
+                const rectOut = item.point.dom.getBoundingClientRect();
+                const x1 = rectOut.left + (rectOut.width / 2);
+                const y1 = rectOut.top + (rectOut.height / 2);
+                const color1 = item.node.colorString();
+                item.connections.forEach((input) => {
+                    const rectIn = input.point.dom.getBoundingClientRect();
+                    const x2 = rectIn.left + (rectIn.width / 2);
+                    const y2 = rectIn.top + (rectIn.height / 2);
+                    const color2 = input.node.colorString();
+                    drawConnection(x1, y1, x2, y2, rectIn.width * 0.2, color1, color2);
+                });
+            });
         });
     }
     drawMiniMap() {
@@ -4259,7 +4288,10 @@ class Node extends Div {
         style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
         const self = this;
-        if (this.graph) setTimeout(() => self.graph.drawMiniMap(), 20);
+        if (this.graph) setTimeout(() => {
+            self.graph.drawMiniMap();
+            self.graph.drawLines();
+        }, 20);
     }
     get left()   { this.#updateSizes(); return this.#style.left; }
     get top()    { this.#updateSizes(); return this.#style.top; }
@@ -4283,11 +4315,12 @@ class Node extends Div {
     createHeader(text = '', iconUrl) {
         if (this.header.children.length > 0) return;
         const icon = new VectorBox(iconUrl);
-        this.header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
-        this.header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
-        this.header.add(this.header.iconHolder, this.header.textHolder);
-        this.applyColor();
+        const iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
+        const textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
+        this.header.add(iconHolder, textHolder);
         this.header.setStyle('display', '');
+        this.applyColor();
+        this.name = text;
     }
     applyColor(color) {
         if (color !== undefined) this.#color.set(color);
@@ -4301,13 +4334,19 @@ class Node extends Div {
 }
 
 class NodeItem extends Div {
-    constructor(type = NODE_TYPES.INPUT, title = '') {
+    constructor({
+        quantity = 1,
+        type = NODE_TYPES.INPUT,
+        title = '',
+    } = {}) {
         super(title);
         const self = this;
         this.addClass('NodeItem');
+        this.connections = [];
+        this.quantity = quantity;
+        this.type = type;
         this.point = new Div().addClass('NodeItemPoint');
         this.node = this;
-        this.type = type;
         switch (type) {
             case NODE_TYPES.INPUT: this.addClass('NodeLeft'); break;
             case NODE_TYPES.OUTPUT: this.addClass('NodeRight'); break;
@@ -4330,6 +4369,7 @@ class NodeItem extends Div {
             event.stopPropagation();
             event.preventDefault();
             self.point.removeClass('ActiveItem');
+            self.graph().connect();
             self.graph().activeItem = undefined;
             self.graph().drawLines();
             self.point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
@@ -4343,15 +4383,34 @@ class NodeItem extends Div {
             self.graph().drawLines();
         }
         function pointPointerEnter(event) {
-            self.point.addClass('HoverPoint');
+            if (self.graph() && self.graph().activeItem) {
+                if (self.type !== self.graph().activeItem.type) {
+                    self.graph().connectItem = self;
+                    self.point.addClass('HoverPoint');
+                }
+            } else {
+                self.point.addClass('HoverPoint');
+            }
         }
         function pointPointerLeave(event) {
+            if (self.graph()) self.graph().connectItem = undefined;
             self.point.removeClass('HoverPoint');
         }
         this.point.onPointerDown(pointPointerDown);
         this.point.onPointerEnter(pointPointerEnter);
         this.point.onPointerLeave(pointPointerLeave);
         this.add(this.point);
+    }
+    connect(item) {
+        if (item === this) return;
+        if (! this.connections.includes(item)) {
+            if (this.connections.length >= this.quantity) {
+                this.connections.length = Math.max(0, this.connections.length - 1);
+            }
+            if (this.connections.length < this.quantity) {
+                this.connections.push(item);
+            }
+        }
     }
 }
 

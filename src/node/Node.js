@@ -212,7 +212,10 @@ class Node extends Div {
         style.zIndex = parseInt(computed.zIndex);
         this.#needsUpdate = false;
         const self = this;
-        if (this.graph) setTimeout(() => self.graph.drawMiniMap(), 20);
+        if (this.graph) setTimeout(() => {
+            self.graph.drawMiniMap();
+            self.graph.drawLines();
+        }, 20);
     }
 
     get left()   { this.#updateSizes(); return this.#style.left; }
@@ -243,13 +246,14 @@ class Node extends Div {
     }
 
     createHeader(text = '', iconUrl) {
-        if (this.header.children.length > 0) return;
+        if (this.header.children.length > 0) return; /* already created header */
         const icon = new VectorBox(iconUrl);
-        this.header.iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
-        this.header.textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
-        this.header.add(this.header.iconHolder, this.header.textHolder);
-        this.applyColor();
+        const iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
+        const textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
+        this.header.add(iconHolder, textHolder);
         this.header.setStyle('display', '');
+        this.applyColor();
+        this.name = text;
     }
 
     /******************** STYLING */

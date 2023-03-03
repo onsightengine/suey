@@ -3,15 +3,22 @@ import { NODE_TYPES } from '../constants.js';
 
 class NodeItem extends Div {
 
-    constructor(type = NODE_TYPES.INPUT, title = '') {
+    constructor({
+        quantity = 1, /* number of connections allowed */
+        type = NODE_TYPES.INPUT,
+        title = '',
+    } = {}) {
         super(title);
         const self = this;
         this.addClass('NodeItem');
 
         // Properties
+        this.connections = [];
+        this.quantity = quantity;
+        this.type = type;
+
         this.point = new Div().addClass('NodeItemPoint');
         this.node = this;
-        this.type = type;
 
         switch (type) {
             case NODE_TYPES.INPUT: this.addClass('NodeLeft'); break;
@@ -39,6 +46,7 @@ class NodeItem extends Div {
             event.stopPropagation();
             event.preventDefault();
             self.point.removeClass('ActiveItem');
+            self.graph().connect();
             self.graph().activeItem = undefined;
             self.graph().drawLines();
             self.point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
@@ -52,15 +60,39 @@ class NodeItem extends Div {
             self.graph().drawLines();
         }
         function pointPointerEnter(event) {
-            self.point.addClass('HoverPoint');
+            if (self.graph() && self.graph().activeItem) {
+                if (self.type !== self.graph().activeItem.type) {
+                    self.graph().connectItem = self;
+                    self.point.addClass('HoverPoint');
+                }
+            } else {
+                self.point.addClass('HoverPoint');
+            }
         }
         function pointPointerLeave(event) {
+            if (self.graph()) self.graph().connectItem = undefined;
             self.point.removeClass('HoverPoint');
         }
         this.point.onPointerDown(pointPointerDown);
         this.point.onPointerEnter(pointPointerEnter);
         this.point.onPointerLeave(pointPointerLeave);
         this.add(this.point);
+    }
+
+    /******************** CONNECTION */
+
+    connect(item) {
+        if (item === this) return;
+        if (! this.connections.includes(item)) {
+            // Make room
+            if (this.connections.length >= this.quantity) {
+                this.connections.length = Math.max(0, this.connections.length - 1);
+            }
+            // Connect
+            if (this.connections.length < this.quantity) {
+                this.connections.push(item);
+            }
+        }
     }
 
 }

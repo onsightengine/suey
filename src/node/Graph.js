@@ -22,12 +22,16 @@ class Graph extends Panel {
     #drawWidth = 0;
     #drawHeight = 0;
 
-    constructor(snapToGrid = true, curveType = GRAPH_LINE_TYPES.CURVE) {
+    constructor({
+        snapToGrid = true,
+        curveType = GRAPH_LINE_TYPES.CURVE
+    } = {}) {
         super();
         const self = this;
 
         // Properties
-        this.activeItem = undefined;
+        this.activeItem = undefined;                // Item user is trying to connect from
+        this.connectItem = undefined;               // Item user is trying to connect to
         this.activePoint = { x: 0, y: 0 };
         this.curveType = curveType;
         this.snapToGrid = snapToGrid;
@@ -369,6 +373,23 @@ class Graph extends Panel {
 
     /******************** LINES ********************/
 
+    connect() {
+        if (! this.activeItem) return;
+        if (! this.connectItem) return;
+
+        const active = this.activeItem;
+        const connect = this.connectItem;
+
+        // // DEBUG: Node names
+        // console.log(`${active.node.name}:${active.type} to ${connect.node.name}:${connect.type}`);
+
+        if (active.type === NODE_TYPES.OUTPUT) {
+            active.connect(connect);
+        } else if (connect.type === NODE_TYPES.OUTPUT) {
+            connect.connect(active);
+        }
+    }
+
     drawLines() {
         const LINE_THICKNESS = 4;
 
@@ -461,9 +482,21 @@ class Graph extends Panel {
 
         // Node lines
         this.traverseNodes((node) => {
+            if (! node.outputList) return;
+            node.outputList.children.forEach((item) => {
+                const rectOut = item.point.dom.getBoundingClientRect();
+                const x1 = rectOut.left + (rectOut.width / 2);
+                const y1 = rectOut.top + (rectOut.height / 2);
+                const color1 = item.node.colorString();
 
-
-
+                item.connections.forEach((input) => {
+                    const rectIn = input.point.dom.getBoundingClientRect();
+                    const x2 = rectIn.left + (rectIn.width / 2);
+                    const y2 = rectIn.top + (rectIn.height / 2);
+                    const color2 = input.node.colorString();
+                    drawConnection(x1, y1, x2, y2, rectIn.width * 0.2, color1, color2);
+                })
+            });
         });
     }
 
