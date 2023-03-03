@@ -4087,17 +4087,19 @@ class Graph extends Panel {
                 this.#animating = true;
                 function damp(x, y, lambda, dt) { return lerp(x, y, 1 - Math.exp(- lambda * dt)); }
                 function lerp(x, y, t) { return (1 - t) * x + t * y; }
+                const elapsed = (performance.now() - self.#animateStart) / 1000;
                 const dt = (performance.now() - self.#animateLast) / 1000;
                 self.#offset.x = damp(self.#offset.x, self.#targetX, 15, dt);
                 self.#offset.y = damp(self.#offset.y, self.#targetY, 15, dt);
-                self.#startZoom = damp(self.#startZoom, self.#targetZoom, 10, dt);
+                self.#startZoom = damp(self.#startZoom, self.#targetZoom, 15 * (elapsed + 0.5), dt);
                 const diffX = Math.abs(self.#offset.x - self.#targetX);
                 const diffY = Math.abs(self.#offset.y - self.#targetY);
                 const diffZ = Math.abs(self.#startZoom - self.#targetZoom);
                 if (diffX < 0.5 && diffY < 0.5 && diffZ < 0.01) self.stopAnimation();
-                if (performance.now() - self.#animateStart > 2500) self.stopAnimation();
+                if (elapsed > 2.5) self.stopAnimation();
                 self.zoomTo(self.#startZoom / 1000);
                 self.#animateLast = performance.now();
+                console.log('animate');
             }, ANIMATE_INTERVAL);
         } else {
             this.#offset.x = this.#targetX;
