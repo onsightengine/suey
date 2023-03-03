@@ -47,8 +47,6 @@ class NodeItem extends Div {
             event.preventDefault();
             self.point.removeClass('ActiveItem');
             self.graph().connect();
-            self.graph().activeItem = undefined;
-            self.graph().drawLines();
             self.point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
             self.point.dom.ownerDocument.removeEventListener('pointerup', pointPointerUp);
         }

@@ -11,6 +11,7 @@ const MIN_W = 100;
 const MIN_H = 100;
 const MAP_BUFFER = 100;
 const MIN_MAP_SIZE = 1200;
+const ANIMATE_INTERVAL = 8; /* ms */
 
 const _color = new Iris();
 
@@ -79,12 +80,14 @@ class Graph extends Panel {
         function graphMouseZoom(event) {
             event.preventDefault();
             const delta = (event.deltaY * 0.002);
-            self.zoomTo(self.#scale - delta, false /* animate */, event.clientX, event.clientY);
+            self.stopAnimation();
+            self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
 		};
         this.onWheel(graphMouseZoom);
 
         // Window Resize
         function onWindowResize() {
+            self.stopAnimation();
             self.zoomTo();
         }
         window.addEventListener('resize', onWindowResize);
@@ -115,6 +118,7 @@ class Graph extends Panel {
         let offset = { x: 0, y: 0 };
         let startPoint = { x: 0, y: 0 };
         function inputPointerDown(event) {
+            self.stopAnimation();
             startPoint.x = event.clientX;
             startPoint.y = event.clientY;
             if (event.button === 2 || (event.button === 0 && spaceKey)) {
@@ -260,6 +264,7 @@ class Graph extends Panel {
             self.zoomTo();
         }
         function mapPointerDown(event) {
+            self.stopAnimation();
             self.minimap.dom.setPointerCapture(event.pointerId);
             self.minimap.setStyle('cursor', 'grabbing');
             calculateOffset(event.clientX, event.clientY);
@@ -374,20 +379,20 @@ class Graph extends Panel {
     /******************** LINES ********************/
 
     connect() {
-        if (! this.activeItem) return;
-        if (! this.connectItem) return;
-
-        const active = this.activeItem;
-        const connect = this.connectItem;
-
-        // // DEBUG: Node names
-        // console.log(`${active.node.name}:${active.type} to ${connect.node.name}:${connect.type}`);
-
-        if (active.type === NODE_TYPES.OUTPUT) {
-            active.connect(connect);
-        } else if (connect.type === NODE_TYPES.OUTPUT) {
-            connect.connect(active);
+        if (this.activeItem && this.connectItem) {
+            const active = this.activeItem;
+            const connect = this.connectItem;
+            if (active.type === NODE_TYPES.OUTPUT) {
+                active.connect(connect);
+            } else if (connect.type === NODE_TYPES.OUTPUT) {
+                connect.connect(active);
+            }
+            // // DEBUG: Node names
+            // console.log(`${active.node.name}:${active.type} to ${connect.node.name}:${connect.type}`);
         }
+        this.activeItem = undefined;
+        this.connectItem = undefined;
+        this.drawLines();
     }
 
     drawLines() {
@@ -460,25 +465,14 @@ class Graph extends Panel {
             ctx.fillStyle = color2;
             ctx.beginPath();
             // ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+            // ctx.roundRect(x2 - radiusX, y2 - radiusY, radiusX * 2, radiusY * 2, radiusY * 0.5);
             ctx.rect(x2 - radiusX, y2 - radiusY, radiusX * 2, radiusY * 2);
             ctx.fill();
             drawLine(x1, y1, x2, y2, color1, color2);
         }
 
-        // Active line
-        if (this.activeItem) {
-            const rect = this.activeItem.point.dom.getBoundingClientRect();
-            const x1 = rect.left + (rect.width / 2);
-            const y1 = rect.top + (rect.height / 2);
-            const x2 = this.activePoint.x;
-            const y2 = this.activePoint.y;
-            const color = this.activeItem.node.colorString();
-            if (this.activeItem.type === NODE_TYPES.OUTPUT) {
-                drawConnection(x1, y1, x2, y2, rect.width * 0.2, color);
-            } else {
-                drawConnection(x2, y2, x1, y1, rect.width * 0.2, color);
-            }
-        }
+        // Point Size
+        const pointSize = parseFloat(Css.toPx('0.21429em', this.dom)) * this.#scale;
 
         // Node lines
         this.traverseNodes((node) => {
@@ -494,10 +488,23 @@ class Graph extends Panel {
                     const x2 = rectIn.left + (rectIn.width / 2);
                     const y2 = rectIn.top + (rectIn.height / 2);
                     const color2 = input.node.colorString();
-                    drawConnection(x1, y1, x2, y2, rectIn.width * 0.2, color1, color2);
+                    drawConnection(x1, y1, x2, y2, pointSize, color1, color2);
                 })
             });
         });
+
+        // Active line
+        if (this.activeItem) {
+            const rect = this.activeItem.point.dom.getBoundingClientRect();
+            const x1 = rect.left + (rect.width / 2);
+            const y1 = rect.top + (rect.height / 2);
+            const x2 = this.activePoint.x;
+            const y2 = this.activePoint.y;
+            const color = this.activeItem.node.colorString();
+            const forward = this.activeItem.type === NODE_TYPES.OUTPUT;
+            if (forward) drawConnection(x1, y1, x2, y2, pointSize, color);
+            else drawConnection(x2, y2, x1, y1, pointSize, color);
+        }
     }
 
     /******************** MINI MAP ********************/
@@ -588,12 +595,57 @@ class Graph extends Panel {
     focusView(targetX, targetY, resetZoom = false, animate = true) {
         if (targetX == null || targetY == null) return;
         const rect = this.nodes.dom.getBoundingClientRect();
-        this.#offset.x = ((rect.width / 2) / this.#scale) - targetX;
-        this.#offset.y = ((rect.height / 2) / this.#scale) - targetY;
-        this.zoomTo((resetZoom) ? 1.0 : undefined, animate);
+        this.#targetX = ((rect.width / 2) / this.#scale) - targetX;
+        this.#targetY = ((rect.height / 2) / this.#scale) - targetY;
+        this.#targetZoom = ((resetZoom) ? 1.0 : this.#scale) * 1000;
+        if (animate) {
+            const self = this;
+            this.#animateStart = performance.now();
+            this.#animateLast = performance.now();
+            this.#startZoom = this.#scale * 1000;
+            this.#animateTimer = setInterval(() => {
+                this.#animating = true;
+                function damp(x, y, lambda, dt) { return lerp(x, y, 1 - Math.exp(- lambda * dt)); }
+                function lerp(x, y, t) { return (1 - t) * x + t * y; }
+                const dt = (performance.now() - self.#animateLast) / 1000;
+                self.#offset.x = damp(self.#offset.x, self.#targetX, 10, dt);
+                self.#offset.y = damp(self.#offset.y, self.#targetY, 10, dt);
+                self.#startZoom = damp(self.#startZoom, self.#targetZoom, 10, dt);
+                const diffX = Math.abs(self.#offset.x - self.#targetX);
+                const diffY = Math.abs(self.#offset.y - self.#targetY);
+                const diffZ = Math.abs(self.#startZoom - self.#targetZoom);
+                if (diffX < 0.5 && diffY < 0.5 && diffZ < 0.01) self.stopAnimation();
+                if (performance.now() - self.#animateStart > 2500) self.stopAnimation();
+                self.zoomTo(self.#startZoom / 1000);
+                self.#animateLast = performance.now();
+            }, ANIMATE_INTERVAL);
+        } else {
+            this.#offset.x = this.#targetX;
+            this.#offset.y = this.#targetY;
+            this.zoomTo(this.#targetZoom / 1000);
+        }
     }
 
-    zoomTo(zoom, animate = false, clientX, clientY) {
+    #animating = false;
+    #animateTimer = undefined;
+    #animateStart = 0;
+    #animateLast = 0;
+    #targetX = 0;
+    #targetY = 0;
+    #startZoom = 0;
+    #targetZoom = 0;
+
+    stopAnimation() {
+        clearInterval(this.#animateTimer);
+        if (this.#animating) {
+            this.#animating = false;
+            this.#offset.x = this.#targetX;
+            this.#offset.y = this.#targetY;
+            this.zoomTo(this.#targetZoom / 1000);
+        }
+    }
+
+    zoomTo(zoom, clientX, clientY) {
         if (zoom === undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
         const nodes = this.nodes;
@@ -602,7 +654,6 @@ class Graph extends Panel {
         // Scroll To
         if (clientX != undefined && clientY != undefined) {
             const before = nodes.dom.getBoundingClientRect();
-            nodes.removeClass('GraphAnimate');
             nodes.setStyle('transform', `scale(${zoom}) translate(${this.#offset.x}px, ${this.#offset.y}px)`);
             const after = nodes.dom.getBoundingClientRect();
             clientX -= before.left;
@@ -613,13 +664,6 @@ class Graph extends Panel {
             const dh = clientY - ((clientY / this.#scale) * zoom);
             this.#offset.x -= ((shiftW - dw) / zoom);
             this.#offset.y -= ((shiftH - dh) / zoom);
-        }
-
-        // Animate
-        const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0
-        if (animate) {
-            nodes.addClass('GraphAnimate');
-            grid.addClass('GraphAnimate');
         }
 
         // Set Scale
@@ -637,10 +681,6 @@ class Graph extends Panel {
         grid.setStyle('background-position', `left ${diffX + ox}px top ${diffY + oy}px`);
         grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
         grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
-        setTimeout(() => {
-            nodes.removeClass('GraphAnimate');
-            grid.removeClass('GraphAnimate');
-        }, timeFloat);
 
         // Hide Resizers
         const resizeables = document.querySelectorAll(`.Node`);

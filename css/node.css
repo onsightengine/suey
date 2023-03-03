@@ -28,10 +28,6 @@
     transition: none;
 }
 
-.GraphAnimate {
-    transition: all var(--menu-timing);
-}
-
 .GraphLines {
     pointer-events: none;
 }
