@@ -51,32 +51,14 @@ class Button extends Element {
         document.body.appendChild(osuiMenu.dom);
         this.dom.addEventListener('pointerdown', onPointerDown);
 
-        /********** DOM WATCHER **********/
-        // more info: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-        //
-        // const observer = new MutationObserver((mutations, observer) => {
-        // 	mutations.forEach((mutation) => {
-        //         if (mutation.type === 'childList') {
-        // 			console.info('A child node has been added or removed.');
-        // 			console.info(mutation.addedNodes);
-        // 		} else if (mutation.type === 'attributes') {
-        // 			console.info('The ' + mutation.attributeName + ' attribute was modified.');
-        // 		}
-        // 	});
-        // });
-        //
-
-        // Mutation Callback
-        // Calls popMenu when button is initially added to the DOM. This is done to decide initial
-        // (over / under) popper placement, then the observer is removed.
+        // Observer: Calls popMenu when button is initially added to the DOM. This is done to decide initial
+        //           (over / under) popper placement, then the observer is removed.
         const observer = new MutationObserver((mutations, observer) => {
             if (document.contains(this.dom)) {
                 popMenu();
                 observer.disconnect();
             }
         });
-
-        // Start mutation observer
         observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
 
         // Handle document resize / positioning

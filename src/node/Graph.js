@@ -134,8 +134,6 @@ class Graph extends Panel {
                 updateRubberBandBox(event.clientX, event.clientY);
             }
             if (grabbing || selecting) {
-                event.stopPropagation();
-                event.preventDefault();
                 self.dom.setPointerCapture(event.pointerId);
                 self.dom.ownerDocument.addEventListener('pointermove', inputPointerMove);
                 self.dom.ownerDocument.addEventListener('pointerup', inputPointerUp);
