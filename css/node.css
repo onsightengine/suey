@@ -169,7 +169,7 @@
 }
 
 .NodeHeaderIcon .Image {
-    filter: invert(var(--invert)) opacity(0.9);
+    filter: brightness(calc(10 * var(--bright))) opacity(0.9);
 }
 
 .NodeHeaderIcon {
@@ -254,7 +254,17 @@
     border-radius: 0.3em;
     outline: none;
     top: 50%;
+    overflow: visible;
     z-index: 100; /* NodeItemPoint */
+}
+
+/* Increases mouse over hit area */
+.NodeItemPoint::after {
+    content: ' ';
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: -0.5em;
+    background-color: transparent;
 }
 
 .Node.NodeSelected .NodeItemPoint {

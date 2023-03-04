@@ -41,7 +41,7 @@
     --triadic6:             100, 216,  64;      /* #64D840 complement shifted 150°  green */
 
     /* Theme Multiplier */
-    --invert:               1;                  /* 1: Mid/Dark, 0: Light */
+    --bright:               1;                  /* 1: Mid/Dark, 0: Light */
 
     /* Basic Colors */
     --white:                255, 255, 255;

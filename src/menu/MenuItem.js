@@ -28,7 +28,6 @@ class MenuItem extends Div {
         this.subMenu = undefined;
 
         // Disable Context Menu
-
         function onContextMenu(event) {
             event.preventDefault();
         }
@@ -36,7 +35,6 @@ class MenuItem extends Div {
         this.onContextMenu(onContextMenu);
 
         // On Mouse Enter (hide all sub menus, show this sub menu)
-
         this.onPointerEnter(() => {
             // // Don't process menu items that don't have sub menus
             // if (this.subMenu == undefined) return;
@@ -50,12 +48,9 @@ class MenuItem extends Div {
             if (self.subMenu) self.subMenu.showMenu(self.dom);
         });
 
-        // Initialize
-
         // Text, Unselectable
         this.setText(text);
         this.selectable(false);
-
     }
 
     /******************** METHODS ********************/

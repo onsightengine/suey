@@ -91,7 +91,7 @@ class ColorScheme {
         Css.setVariable('--triadic5',           _clr.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
         Css.setVariable('--triadic6',           _clr.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
 
-        Css.setVariable('--invert',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
+        Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
 
         // Update necessary hue rotation degrees
         const startHue = _clr.set(0x00b4af).hue();
