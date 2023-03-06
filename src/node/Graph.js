@@ -218,26 +218,26 @@ class Graph extends Panel {
         // Minimap Pointer Events
         let translating = false;
         function calculateOffset(clientX, clientY) {
-            const rect = self.minimap.dom.getBoundingClientRect();
-            const nodes = self.nodes.dom.getBoundingClientRect();
-            let percentX = ((rect.width / 2) - (clientX - rect.left)) / (rect.width / 2);
-            let percentY = ((rect.height / 2) - (clientY - rect.top)) / (rect.height / 2);
+            const mapRect = self.minimap.dom.getBoundingClientRect();
+            const nodesRect = self.nodes.dom.getBoundingClientRect();
+            const percentX = ((mapRect.width / 2) - (clientX - mapRect.left)) / (mapRect.width / 2);
+            const percentY = ((mapRect.height / 2) - (clientY - mapRect.top)) / (mapRect.height / 2);
             const bounds = self.nodeBounds(MAP_BUFFER, self.nodes.children, MIN_MAP_SIZE);
             if (! bounds.isFinite) return;
             // Empty space on top and bottom
             if (self.#drawWidth > self.#drawHeight) {
                 const ratio = (self.#drawWidth / self.#drawHeight);
-                let x = bounds.center().x - ((bounds.width() / 2) * percentX);
-                let y = bounds.center().y - ((bounds.height() / 2) * ratio * percentY);
-                self.#offset.x = (nodes.width / 2) - x;
-                self.#offset.y = (nodes.height / 2) - y;
+                const x = bounds.center().x - ((bounds.width() / 2) * percentX);
+                const y = bounds.center().y - ((bounds.height() / 2) * ratio * percentY);
+                self.#offset.x = ((nodesRect.width / 2) / self.#scale) - x;
+                self.#offset.y = ((nodesRect.height / 2) / self.#scale) - y;
             // Empty space on sides
             } else {
                 const ratio = (self.#drawHeight / self.#drawWidth);
-                let x = bounds.center().x - ((bounds.width() / 2) * ratio * percentX);
-                let y = bounds.center().y - ((bounds.height() / 2) * percentY);
-                self.#offset.x = (nodes.width / 2) - x;
-                self.#offset.y = (nodes.height / 2) - y;
+                const x = bounds.center().x - ((bounds.width() / 2) * ratio * percentX);
+                const y = bounds.center().y - ((bounds.height() / 2) * percentY);
+                self.#offset.x = ((nodesRect.width / 2) / self.#scale) - x;
+                self.#offset.y = ((nodesRect.height / 2) / self.#scale) - y;
             }
             self.zoomTo();
         }
