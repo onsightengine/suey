@@ -78,6 +78,8 @@
 /***** NODE *****/
 
 .Node {
+    --node-color:       255, 0, 0;
+
     pointer-events: all;
     position: absolute;
     background-color: transparent;
@@ -265,8 +267,17 @@
     z-index: 100; /* NodeItemPoint */
 }
 
+.NodeLeft .NodeItemPoint {
+    left: 0;
+    transform: translate(-50%, -50%);
+}
+.NodeRight .NodeItemPoint {
+    right: 0;
+    transform: translate( 50%, -50%);
+}
+
 /* Increases mouse over hit area */
-.NodeItemPoint::after {
+.NodeItemPoint::before {
     content: ' ';
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -274,6 +285,19 @@
     background-color: transparent;
 }
 
+/* Inner square */
+.NodeItem.ItemConnected .NodeItemPoint::after,
+.NodeItem.ItemIncoming .NodeItemPoint::after,
+.NodeItem .NodeItemPoint.ActiveItem::after {
+    content: ' ';
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: var(--pad-x-small);
+    background-color: rgb(var(--node-color));
+    border-radius: 0.08em;
+}
+
+/* Item point highlight border */
 .Node.NodeSelected .NodeItemPoint {
     border: var(--border-small) solid rgba(var(--icon), 1);
 }
@@ -285,19 +309,8 @@
     height: 1.2em;
 }
 
-.NodeLeft .NodeItemPoint {
-    left: 0;
-    transform: translate(-50%, -50%);
-}
-
-.NodeRight .NodeItemPoint {
-    right: 0;
-    transform: translate( 50%, -50%);
-}
-
 /* Item detacher */
 .NodeItemDetach {
-    display: none;
     pointer-events: none;
     position: absolute;
     width: 1em;
@@ -308,15 +321,32 @@
     border: none;
     outline: none;
     overflow: visible;
-    opacity: 50%;
-    transform: translateY(-50%) scale(100%);
+    filter: brightness(50%);
+    transform: translateY(-50%);
+    opacity: 0;
+}
+
+/* Increases mouse over hit area */
+.NodeItemDetach::before {
+    content: ' ';
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: -0.5em;
+    background-color: transparent;
 }
 
 .NodeItem.ItemConnected .NodeItemDetach {
-    display: flex;
     pointer-events: all;
 }
 
+.Node:hover .NodeItem.ItemConnected .NodeItemDetach {
+    opacity: 1;
+}
+
+.NodeItemDetach .Image {
+    filter: var(--drop-shadow);
+}
+
 .NodeItem.ItemConnected .NodeItemDetach:hover {
-    opacity: 100%;
+    filter: brightness(100%);
 }

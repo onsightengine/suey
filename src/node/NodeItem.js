@@ -1,6 +1,6 @@
 import { Div } from '../core/Div.js';
 import { VectorBox } from '../layout/VectorBox.js';
-import { IMAGE_BREAK, IMAGE_CLOSE, NODE_TYPES } from '../constants.js';
+import { IMAGE_CLOSE, NODE_TYPES } from '../constants.js';
 
 class NodeItem extends Div {
 
@@ -21,6 +21,7 @@ class NodeItem extends Div {
 
         // Properties
         this.connections = [];
+        this.incoming = 0;
         this.quantity = quantity;
         this.type = type;
         this.node = this;
@@ -66,6 +67,7 @@ class NodeItem extends Div {
             if (self.graph() && self.graph().activeItem) {
                 if (self.type !== self.graph().activeItem.type) {
                     self.graph().connectItem = self;
+                    if (self.graph().activeItem) self.point.addClass('ActiveItem');
                     self.point.addClass('HoverPoint');
                 }
             } else {
@@ -73,7 +75,10 @@ class NodeItem extends Div {
             }
         }
         function pointPointerLeave(event) {
-            if (self.graph()) self.graph().connectItem = undefined;
+            if (self.graph()) {
+                self.graph().connectItem = undefined;
+                if (self.graph().activeItem !== self) self.point.removeClass('ActiveItem');
+            }
             self.point.removeClass('HoverPoint');
         }
         this.point.onPointerDown(pointPointerDown);
@@ -82,9 +87,13 @@ class NodeItem extends Div {
 
         // Detach Pointer Events
         function breakPointerDown(event) {
+            if (self.connections.length === 0) return;
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
+            for (let i = 0; i < self.connections.length; i++) {
+                self.connections[i].reduceIncoming();
+            }
             self.connections.length = 0;
             self.removeClass('ItemConnected');
             if (self.graph()) self.graph().drawLines();
@@ -99,10 +108,12 @@ class NodeItem extends Div {
         if (! this.connections.includes(item)) {
             // Make room
             if (this.connections.length >= this.quantity) {
+                this.connections[this.connections.length - 1].reduceIncoming();
                 this.connections.length = Math.max(0, this.connections.length - 1);
             }
             // Connect
             if (this.connections.length < this.quantity) {
+                item.increaseIncoming();
                 this.connections.push(item);
             }
         }
@@ -111,6 +122,18 @@ class NodeItem extends Div {
         } else {
             this.removeClass('ItemConnected');
         }
+    }
+
+    increaseIncoming() {
+        this.incoming++;
+        this.addClass('ItemIncoming');
+    }
+
+    reduceIncoming() {
+        if (this.incoming > 0) {
+            this.incoming--;
+        }
+        if (this.incoming === 0) this.removeClass('ItemIncoming');
     }
 
 }

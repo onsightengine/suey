@@ -1,3 +1,4 @@
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
@@ -263,6 +264,7 @@ class Node extends Div {
         const colorLight = _color2.set(this.#color).darken(1.3).rgbString();
         const colorDark = _color1.set(this.#color).darken(0.7).rgbString();
         if (this.header) this.header.setStyle('background-image', `linear-gradient(to bottom, rgba(${colorLight}, 0.75), rgba(${colorDark}, 0.75))`);
+        Css.setVariable('--node-color', _color1.set(this.#color).rgbString(), this.dom);
     }
 
     colorString() {

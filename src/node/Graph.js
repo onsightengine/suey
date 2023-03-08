@@ -12,6 +12,8 @@ const MIN_H = 100;
 const MAP_BUFFER = 100;
 const MIN_MAP_SIZE = 1200;
 const ANIMATE_INTERVAL = 4; /* ms */
+const ZOOM_MAX = 4;
+const ZOOM_MIN = 0.1;
 
 const _color = new Iris();
 
@@ -46,7 +48,7 @@ class Graph extends Panel {
         this.lines = new Canvas(2048, 2048).setClass('GraphLines');
         this.bandbox = new Div().setClass('GraphBandBox');
         this.minimap = new Div().setClass('MiniMap');
-        this.add(this.input, this.grid, this.nodes, this.lines, this.bandbox, this.minimap);
+        this.add(this.input, this.grid, this.lines, this.nodes, this.bandbox, this.minimap);
 
         // MiniMap
         this.mapCanvas = new Canvas(1024, 1024).setClass('MiniMapCanvas');
@@ -474,7 +476,7 @@ class Graph extends Panel {
             ctx.stroke();
         }
 
-        function drawConnection(x1, y1, x2, y2, radius = 10, color1 = '#ffffff', color2 = color1) {
+        function drawConnection(x1, y1, x2, y2, radius = 10, color1 = '#ffffff', color2 = color1, drawPoints = false) {
             // Check that line will show
             const left = (x1 < x2) ? x1 : x2;
             const right = (x1 < x2) ? x2 : x1;
@@ -486,21 +488,20 @@ class Graph extends Panel {
             y1 = scaleY(y1);
             x2 = scaleX(x2);
             y2 = scaleY(y2);
-            // Draw circles / line
+            // Draw
             ctx.globalAlpha = 1.0;
-            const radiusX = scaleX(radius);
-            const radiusY = scaleY(radius);
-            ctx.fillStyle = color1;
-            ctx.beginPath();
-            // ctx.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
-            ctx.rect(x1 - radiusX, y1 - radiusY, radiusX * 2, radiusY * 2);
-            ctx.fill();
-            ctx.fillStyle = color2;
-            ctx.beginPath();
-            // ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
-            // ctx.roundRect(x2 - radiusX, y2 - radiusY, radiusX * 2, radiusY * 2, radiusY * 0.5);
-            ctx.rect(x2 - radiusX, y2 - radiusY, radiusX * 2, radiusY * 2);
-            ctx.fill();
+            if (drawPoints) {
+                const radiusX = scaleX(radius);
+                const radiusY = scaleY(radius);
+                ctx.fillStyle = color1;
+                ctx.beginPath();
+                ctx.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = color2;
+                ctx.beginPath();
+                ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+                ctx.fill();
+            }
             drawLine(x1, y1, x2, y2, color1, color2);
         }
 
@@ -535,8 +536,9 @@ class Graph extends Panel {
             const y2 = this.activePoint.y;
             const color = this.activeItem.node.colorString();
             const forward = this.activeItem.type === NODE_TYPES.OUTPUT;
-            if (forward) drawConnection(x1, y1, x2, y2, pointSize, color);
-            else drawConnection(x2, y2, x1, y1, pointSize, color);
+            const drawPoints = ! this.connectItem;
+            if (forward) drawConnection(x1, y1, x2, y2, pointSize, color, color, drawPoints);
+            else drawConnection(x2, y2, x1, y1, pointSize, color, color, drawPoints);
         }
     }
 
@@ -681,7 +683,7 @@ class Graph extends Panel {
 
     zoomTo(zoom, clientX, clientY) {
         if (zoom === undefined) zoom = this.#scale;
-        zoom = Math.round(Math.min(Math.max(zoom, 0.1), 2) * 100) / 100;
+        zoom = Math.round(Math.min(Math.max(zoom, ZOOM_MIN), ZOOM_MAX) * 100) / 100;
         const nodes = this.nodes;
         const grid = this.grid;
 
