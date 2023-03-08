@@ -1,5 +1,6 @@
 import { Div } from '../core/Div.js';
-import { NODE_TYPES } from '../constants.js';
+import { VectorBox } from '../layout/VectorBox.js';
+import { IMAGE_BREAK, IMAGE_CLOSE, NODE_TYPES } from '../constants.js';
 
 class NodeItem extends Div {
 
@@ -12,12 +13,16 @@ class NodeItem extends Div {
         const self = this;
         this.addClass('NodeItem');
 
+        // Elements
+        const disconnect = new VectorBox(IMAGE_CLOSE);
+        this.point = new Div().addClass('NodeItemPoint');
+        this.detach = new Div().addClass('NodeItemDetach').add(disconnect);
+        this.add(this.point, this.detach);
+
         // Properties
         this.connections = [];
         this.quantity = quantity;
         this.type = type;
-
-        this.point = new Div().addClass('NodeItemPoint');
         this.node = this;
 
         switch (type) {
@@ -74,7 +79,17 @@ class NodeItem extends Div {
         this.point.onPointerDown(pointPointerDown);
         this.point.onPointerEnter(pointPointerEnter);
         this.point.onPointerLeave(pointPointerLeave);
-        this.add(this.point);
+
+        // Detach Pointer Events
+        function breakPointerDown(event) {
+            if (event.button !== 0) return;
+            event.stopPropagation();
+            event.preventDefault();
+            self.connections.length = 0;
+            self.removeClass('ItemConnected');
+            if (self.graph()) self.graph().drawLines();
+        }
+        this.detach.onPointerDown(breakPointerDown);
     }
 
     /******************** CONNECTION */
@@ -90,6 +105,11 @@ class NodeItem extends Div {
             if (this.connections.length < this.quantity) {
                 this.connections.push(item);
             }
+        }
+        if (this.connections.length > 0) {
+            this.addClass('ItemConnected');
+        } else {
+            this.removeClass('ItemConnected');
         }
     }
 

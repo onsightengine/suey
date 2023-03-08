@@ -10,11 +10,13 @@
 	padding: 0;
 }
 
+/* Div used for processing user input */
 .GraphInput {
     background: transparent;
     z-index: -1; /* GraphInput */
 }
 
+/* Background div that holds tiled grid */
 .GraphGrid {
     pointer-events: none;
     background-color: rgb(var(--darkness));
@@ -22,16 +24,19 @@
     transition: none;
 }
 
+/* Scalable div to hold nodes */
 .GraphNodes {
     pointer-events: none;
     background-color: transparent;
     transition: none;
 }
 
+/* Canvas where lines are drawn */
 .GraphLines {
     pointer-events: none;
 }
 
+/* Shows rubber band box */
 .GraphBandBox {
     position: absolute;
     display: none;
@@ -198,7 +203,7 @@
     padding-left: 0.5em;
 }
 
-/***** NODE ITEMS *****/
+/***** NODE ITEM *****/
 
 .NodeInterior {
     pointer-events: none;
@@ -221,6 +226,7 @@
     min-height: 25px;
 }
 
+/* Item */
 .NodeItem {
     pointer-events: none;
     position: relative;
@@ -244,6 +250,7 @@
     padding-right: 1.2em;
 }
 
+/* Item point */
 .NodeItemPoint {
     pointer-events: all;
     position: absolute;
@@ -286,4 +293,30 @@
 .NodeRight .NodeItemPoint {
     right: 0;
     transform: translate( 50%, -50%);
+}
+
+/* Item detacher */
+.NodeItemDetach {
+    display: none;
+    pointer-events: none;
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    left: calc(100% + 0.7em);
+    top: 20%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    overflow: visible;
+    opacity: 50%;
+    transform: translateY(-50%) scale(100%);
+}
+
+.NodeItem.ItemConnected .NodeItemDetach {
+    display: flex;
+    pointer-events: all;
+}
+
+.NodeItem.ItemConnected .NodeItemDetach:hover {
+    opacity: 100%;
 }
