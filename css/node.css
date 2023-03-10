@@ -287,7 +287,6 @@
 
 /* Inner square */
 .NodeItem.ItemConnected .NodeItemPoint::after,
-.NodeItem.ItemIncoming .NodeItemPoint::after,
 .NodeItem .NodeItemPoint.ActiveItem::after {
     content: ' ';
     position: absolute;
@@ -315,8 +314,7 @@
     position: absolute;
     width: 1em;
     height: 1em;
-    left: calc(100% + 0.7em);
-    top: 20%;
+    top: 10%;
     background-color: transparent;
     border: none;
     outline: none;
@@ -324,6 +322,13 @@
     filter: brightness(50%);
     transform: translateY(-50%);
     opacity: 0;
+}
+
+.NodeRight .NodeItemDetach {
+    left: calc(100% + 0.7em);
+}
+.NodeLeft .NodeItemDetach {
+    left: calc(0em - 1.7em);
 }
 
 /* Increases mouse over hit area */
@@ -339,7 +344,7 @@
     pointer-events: all;
 }
 
-.Node:hover .NodeItem.ItemConnected .NodeItemDetach {
+.NodeItem.ItemConnected:hover .NodeItemDetach {
     opacity: 1;
 }
 

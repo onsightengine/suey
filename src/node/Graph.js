@@ -424,6 +424,21 @@ class Graph extends Panel {
         this.drawLines();
     }
 
+    disconnect(item) {
+        this.traverseNodes((node) => {
+            node.outputList.children.forEach((output) => {
+                const index = output.connections.indexOf(item);
+                if (index > -1) {
+                    output.connections.splice(index, 1);
+                    item.reduceIncoming();
+                }
+                if (output.connections.length === 0) {
+                    output.removeClass('ItemConnected');
+                }
+            });
+        });
+    }
+
     drawLines() {
         if (! this.lines) return;
         if (this.dom.style.display === 'none') return;

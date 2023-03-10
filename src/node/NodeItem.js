@@ -87,16 +87,11 @@ class NodeItem extends Div {
 
         // Detach Pointer Events
         function breakPointerDown(event) {
-            if (self.connections.length === 0) return;
+            if (! self.hasClass('ItemConnected')) return;
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
-            for (let i = 0; i < self.connections.length; i++) {
-                self.connections[i].reduceIncoming();
-            }
-            self.connections.length = 0;
-            self.removeClass('ItemConnected');
-            if (self.graph()) self.graph().drawLines();
+            self.disconnect();
         }
         this.detach.onPointerDown(breakPointerDown);
     }
@@ -124,16 +119,30 @@ class NodeItem extends Div {
         }
     }
 
+    disconnect() {
+        switch (this.type) {
+            case NODE_TYPES.OUTPUT:
+                for (let i = 0; i < this.connections.length; i++) {
+                    this.connections[i].reduceIncoming();
+                }
+                this.connections.length = 0;
+                break;
+            case NODE_TYPES.INPUT:
+                if (this.graph()) this.graph().disconnect(this);
+                break;
+        }
+        this.removeClass('ItemConnected');
+        if (this.graph()) this.graph().drawLines();
+    }
+
     increaseIncoming() {
         this.incoming++;
-        this.addClass('ItemIncoming');
+        this.addClass('ItemConnected');
     }
 
     reduceIncoming() {
-        if (this.incoming > 0) {
-            this.incoming--;
-        }
-        if (this.incoming === 0) this.removeClass('ItemIncoming');
+        if (this.incoming > 0) this.incoming--;
+        if (this.incoming === 0) this.removeClass('ItemConnected');
     }
 
 }
