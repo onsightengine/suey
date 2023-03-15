@@ -1,8 +1,10 @@
 import { Div } from '../core/Div.js';
-import { Css } from '../utils/Css.js';
 import { Utils } from '../utils/Utils.js';
 
 class TreeList extends Div {
+
+    #shiftAdd = 0;                          // tracks up / down keys while shift is pressed
+    #shiftTrack = [];                       // tracks selected values when shift key is starting to be held
 
     constructor(multiSelect = false) {
         super();
@@ -14,13 +16,13 @@ class TreeList extends Div {
         this.dom.setAttribute('tabindex', '0');
 
         // Properties
-        this.multiSelect = multiSelect;
+        this.multiSelect = multiSelect;     // multi-select allowed?
+        this.options = [];                  // list item divs
+        this.selectedValue = null;          // for single select mode
+        this.selectedValues = [];           // for multi select mode
 
-        // Events
-
-        /** Handle key down, handles arrow navigation, also prevents native scroll behavior */
+        // Key Events - arrow navigation, prevents native scroll behavior
         function onKeyDown(event) {
-
             // Single Select Keypress
             if (! self.multiSelect) {
                 if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
@@ -35,41 +37,34 @@ class TreeList extends Div {
                         self.dom.dispatchEvent(new Event('change'));
                     }
                 }
-
             // Multi-Select Keypress
             } else {
                 // Reset shift tracking values on no shift key
                 if (! event.shiftKey) {
-                    self._shiftAdd = 0;
-                    self._shiftTrack = [];
+                    self.#shiftAdd = 0;
+                    self.#shiftTrack = [];
                 }
-
                 // Process Key Codes
                 if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
-
                     let values = [...self.selectedValues];
-
                     // Shift Key
                     if (event.shiftKey) {
                         // Initial Shift Key Values
-                        if (self._shiftTrack.length === 0) self._shiftTrack = [...values];
-                        values = [...self._shiftTrack];
-
+                        if (self.#shiftTrack.length === 0) self.#shiftTrack = [...values];
+                        values = [...self.#shiftTrack];
                         // Find Values
                         let lastValue = values[values.length - 1];
                         let index = self.getIndex(lastValue);
                         if (index === -1) return;
-                        if (event.code === 'ArrowUp' && index + self._shiftAdd > 0) self._shiftAdd--;
-                        if (event.code === 'ArrowDown' && index + self._shiftAdd < self.options.length - 1) self._shiftAdd++;
-                        index += self._shiftAdd;
+                        if (event.code === 'ArrowUp' && index + self.#shiftAdd > 0) self.#shiftAdd--;
+                        if (event.code === 'ArrowDown' && index + self.#shiftAdd < self.options.length - 1) self.#shiftAdd++;
+                        index += self.#shiftAdd;
                         if (index < 0 || index > self.options.length - 1) return;
-
                         // Find Indices
                         const index1 = self.getIndex(values[values.length - 1]);
                         const index2 = index;
-
                         // Select all items between last selected and newly selected
                         if (index1 < index2) {
                             for (let i = index1; i <= index2; i++) {
@@ -82,10 +77,8 @@ class TreeList extends Div {
                                 if (! values.includes(value)) values.push(value);
                             }
                         }
-
                         self.setValues(values, true);
                         self.dom.dispatchEvent(new Event('change'));
-
                     // No Shift Key
                     } else if (values.length > 0) {
                         let lastValue = values[values.length - 1];
@@ -101,8 +94,6 @@ class TreeList extends Div {
                 }
             }
         }
-
-        /** Handle key up, handles arrow navigation, also prevents native scroll behavior */
         function onKeyUp(event) {
             switch (event.code) {
                 case 'ArrowUp':
@@ -110,26 +101,14 @@ class TreeList extends Div {
                     event.preventDefault();
                     event.stopPropagation();
                     if (! event.shiftKey) {
-                        self._shiftAdd = 0;
-                        self._shiftTrack = [];
+                        self.#shiftAdd = 0;
+                        self.#shiftTrack = [];
                     }
                     break;
             }
         }
-
-        // Properties
-        this.options = [];                  // divs
-        this.selectedValue = null;          // single select
-        this.selectedValues = [];           // multi select
-
-        // Internal
-        this._shiftAdd = 0;                 // tracks up / down keys while shift is pressed
-        this._shiftTrack = [];              // tracks selected values when shift key is starting to be held
-
-        // Add Events
         this.onKeyDown(onKeyDown);
         this.onKeyUp(onKeyUp);
-
     }
 
     /******************** LOOKUP ********************/
@@ -230,16 +209,14 @@ class TreeList extends Div {
 
         // Click
         function onPointerDown(event) {
-            // Reset shift tracking values on no shift key
+            // Reset shift tracking values when no shift key
             if (! event.shiftKey) {
-                self._shiftAdd = 0;
-                self._shiftTrack = [];
+                self.#shiftAdd = 0;
+                self.#shiftTrack = [];
             }
-
             // Multi-Select
             if (self.multiSelect) {
                 let values = [...self.selectedValues];
-
                 // Control / Command
                 if (event.altKey || event.ctrlKey || event.metaKey) {
                     if (values.includes(this.value)) {
@@ -249,17 +226,14 @@ class TreeList extends Div {
                         values.push(this.value);
                     }
                     self.setValues(values);
-
                 // Shift Key
                 } else if (event.shiftKey && values.length > 0) {
                     // Initial Shift Key Values
-                    if (self._shiftTrack.length === 0) self._shiftTrack = [...self.selectedValues];
-                    values = [...self._shiftTrack];
-
+                    if (self.#shiftTrack.length === 0) self.#shiftTrack = [...self.selectedValues];
+                    values = [...self.#shiftTrack];
                     // Find Indices
                     const index1 = self.getIndex(values[values.length - 1]);
                     const index2 = self.getIndex(this.value);
-
                     // Select all items between last selected and newly selected
                     if (index1 < index2) {
                         for (let i = index1; i <= index2; i++) {
@@ -272,96 +246,118 @@ class TreeList extends Div {
                             if (! values.includes(value)) values.push(value);
                         }
                     }
-                    self._shiftAdd = index2 - index1;
+                    self.#shiftAdd = index2 - index1;
                     self.setValues(values);
-
                 // No Key
                 } else {
-                    self.setValues([ this.value ]);
+                    if (! values.includes(this.value)) {
+                        self.setValues([ this.value ]);
+                    }
                 }
-
             // Single Select
             } else {
                 self.setValue(this.value);
             }
-
-            // Dispatch 'onChange' Event
+            // Pointer Up Event
+            this.addEventListener('pointerup', onPointerUp);
+            // Dispatch 'change' Event
             const changeEvent = new Event('change');
             self.dom.dispatchEvent(changeEvent);
+        }
+        function onPointerUp(event) {
+            // Multi-Select
+            if (self.multiSelect) {
+                if (! (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
+                    self.setValues([ this.value ]);
+                }
+            }
+            this.removeEventListener('pointerup', onPointerUp);
         }
 
         // Drag & Drop
         let currentDrag = undefined;
-
         function onDrag() {
             currentDrag = this;
         }
 
         function onDragStart(event) {
-            event.dataTransfer.setData('text/plain', this.value );
+            // Multi-Select
+            if (self.multiSelect) {
+                event.dataTransfer.setData('text/plain', this.selectedValues);
+            } else {
+                event.dataTransfer.setData('text/plain', this.selectedValue);
+            }
         }
 
         function onDragOver(event) {
             if (! currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
-
-            this.className = 'Option Drag';
-            if (area < 0.25) this.className = 'Option DragTop';
-            if (area > 0.75) this.className = 'Option DragBottom';
+            if (area < 0.25) {
+                this.classList.add('DragTop');
+                this.classList.remove('Drag');
+                this.classList.remove('DragBottom');
+            } else if (area < 0.75) {
+                this.classList.add('Drag');
+                this.classList.remove('DragTop');
+                this.classList.remove('DragBottom');
+            } else {
+                this.classList.add('DragBottom');
+                this.classList.remove('Drag');
+                this.classList.remove('DragTop');
+            }
         }
 
         function onDragLeave() {
             if (! currentDrag || this === currentDrag) return;
-            this.className = 'Option';
+            this.classList.remove('Drag');
+            this.classList.remove('DragTop');
+            this.classList.remove('DragBottom');
         }
 
         function onDrop(event) {
             event.preventDefault();
             event.stopPropagation();
-
             if (! currentDrag || this === currentDrag) return;
-            this.className = 'Option';
+            this.classList.remove('Drag');
+            this.classList.remove('DragTop');
+            this.classList.remove('DragBottom');
 
             // Let derived class handle 'drop' event
-            if (self.onDrop && typeof self.onDrop === 'function') self.onDrop(event, this, currentDrag);
+            if (self.onDrop && typeof self.onDrop === 'function') {
+                self.onDrop(event, this, currentDrag);
+            }
 
             // Reset 'currentDrag'
             currentDrag = undefined;
         }
 
-        /***** EVENTS *****/
-
+        // Events
         self.options = [];
         for (let i = 0; i < options.length; i++) {
             const div = options[i];
             div.className = 'Option';
             self.dom.appendChild(div);
             self.options.push(div);
-
             div.addEventListener('pointerdown', onPointerDown);
-            if (div.draggable === true) {
+            div.addEventListener('destroy', () => div.removeEventListener('pointerdown', onPointerDown), { once: true });
+            if (div.draggable) {
                 div.addEventListener('drag', onDrag);
                 div.addEventListener('dragstart', onDragStart); /* firefox needs this */
                 div.addEventListener('dragover', onDragOver);
                 div.addEventListener('dragleave', onDragLeave);
                 div.addEventListener('drop', onDrop);
-            }
-
-            div.addEventListener('destroy', function() {
-                div.removeEventListener('pointerdown', onPointerDown);
-                if (div.draggable === true) {
+                div.addEventListener('destroy', () => {
                     div.removeEventListener('drag', onDrag);
                     div.removeEventListener('dragstart', onDragStart);
                     div.removeEventListener('dragover', onDragOver);
                     div.removeEventListener('dragleave', onDragLeave);
                     div.removeEventListener('drop', onDrop);
-                }
-            }, { once: true });
+                }, { once: true });
+            }
         }
 
         return this;
-
-    } // end function
+    } // end setOptions()
 
 }
 

@@ -224,14 +224,14 @@
     border-top-right-radius: 0;
 }
 
-.TreeList .Option.Drag {
+.TreeList .Option.Drag:not(.Active) {
     border: var(--border-small) solid rgba(var(--icon-light), 1.0);
     border-radius: var(--radius-small);
 }
-.TreeList .Option.DragTop {
+.TreeList .Option.DragTop:not(.Active) {
     border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
-.TreeList .Option.DragBottom {
+.TreeList .Option.DragBottom:not(.Active) {
     border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
 
