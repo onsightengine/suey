@@ -10,7 +10,7 @@ class MenuShortcut extends Div {
     }
 
     setShortcutText(text) {
-        if (! text) return this;
+        if (!text) return this;
         this.text = text;
 
         // Remove previous characters

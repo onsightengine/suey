@@ -225,7 +225,7 @@ class Graph extends Panel {
             const percentX = ((mapRect.width / 2) - (clientX - mapRect.left)) / (mapRect.width / 2);
             const percentY = ((mapRect.height / 2) - (clientY - mapRect.top)) / (mapRect.height / 2);
             const bounds = self.nodeBounds(MAP_BUFFER, self.nodes.children, MIN_MAP_SIZE);
-            if (! bounds.isFinite) return;
+            if (!bounds.isFinite) return;
             // Empty space on top and bottom
             if (self.#drawWidth > self.#drawHeight) {
                 const ratio = (self.#drawWidth / self.#drawHeight);
@@ -256,7 +256,7 @@ class Graph extends Panel {
             translating = false
         }
         function mapPointerMove(event) {
-            if (! translating) return;
+            if (!translating) return;
             calculateOffset(event.clientX, event.clientY);
         }
         this.minimap.onPointerDown(mapPointerDown);
@@ -289,7 +289,7 @@ class Graph extends Panel {
     }
 
     removeNode(removeNode) {
-        if (! removeNode || ! removeNode.isElement) return;
+        if (!removeNode || !removeNode.isElement) return;
         const currentZ = removeNode.zIndex;
         const nodes = this.nodes.children;
         const lengthBefore = nodes.length;
@@ -345,7 +345,7 @@ class Graph extends Panel {
 
     traverseNodes(callback) {
         if (typeof callback !== 'function') return;
-        if (! this.nodes) return;
+        if (!this.nodes) return;
         const nodes = this.nodes.children;
         // Sort by zIndex, low to high
         nodes.sort((x, y) => x.zIndex - y.zIndex);
@@ -440,7 +440,7 @@ class Graph extends Panel {
     }
 
     drawLines() {
-        if (! this.lines) return;
+        if (!this.lines) return;
         if (this.dom.style.display === 'none') return;
 
         const LINE_THICKNESS = 4;
@@ -458,10 +458,10 @@ class Graph extends Panel {
         function scaleY(y) { return (y / linesRect.height) * lines.height; }
 
         function drawLine(x1, y1, x2, y2, color1, color2 = color1) {
-            if (! Number.isFinite(x1) || Number.isNaN(x1)) return;
-            if (! Number.isFinite(x2) || Number.isNaN(x2)) return;
-            if (! Number.isFinite(y1) || Number.isNaN(y1)) return;
-            if (! Number.isFinite(y2) || Number.isNaN(y2)) return;
+            if (!Number.isFinite(x1) || Number.isNaN(x1)) return;
+            if (!Number.isFinite(x2) || Number.isNaN(x2)) return;
+            if (!Number.isFinite(y1) || Number.isNaN(y1)) return;
+            if (!Number.isFinite(y2) || Number.isNaN(y2)) return;
             ctx.strokeStyle = color1;
             if (color2 != null && color1 !== color2) {
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
@@ -525,7 +525,7 @@ class Graph extends Panel {
 
         // Node lines
         this.traverseNodes((node) => {
-            if (! node.outputList) return;
+            if (!node.outputList) return;
             node.outputList.children.forEach((item) => {
                 const rectOut = item.point.dom.getBoundingClientRect();
                 const x1 = rectOut.left + (rectOut.width / 2);
@@ -551,7 +551,7 @@ class Graph extends Panel {
             const y2 = this.activePoint.y;
             const color = this.activeItem.node.colorString();
             const forward = this.activeItem.type === NODE_TYPES.OUTPUT;
-            const drawPoints = ! this.connectItem;
+            const drawPoints = !this.connectItem;
             if (forward) drawConnection(x1, y1, x2, y2, pointSize, color, color, drawPoints);
             else drawConnection(x2, y2, x1, y1, pointSize, color, color, drawPoints);
         }
@@ -560,12 +560,12 @@ class Graph extends Panel {
     /******************** DRAW: MINI MAP ********************/
 
     drawMiniMap() {
-        if (! this.mapCanvas) return;
+        if (!this.mapCanvas) return;
         if (this.dom.style.display === 'none') return;
 
         // Bounds
         const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
-        if (! bounds.isFinite) return;
+        if (!bounds.isFinite) return;
 
         // Clear
         const map = this.mapCanvas;

@@ -201,7 +201,7 @@ class ColorScheme {
         if (tint !== 0) _clr.mix(_icon, tint);
         if (lightness !== 0) _clr.brighten(lightness);
         if (darkness !== 0) _clr.darken(darkness);
-        if (saturation !== 0 && ! ignoreSaturation) _clr.hslOffset(0, saturation, 0);
+        if (saturation !== 0 && !ignoreSaturation) _clr.hslOffset(0, saturation, 0);
 
         // Return hex
         return _clr.hex();

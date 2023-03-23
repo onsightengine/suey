@@ -25,7 +25,7 @@ class Image extends Element {
         setImage(imageUrl)
 
         // Style
-        if (! draggable) imageDom.ondragstart = () => { return false };
+        if (!draggable) imageDom.ondragstart = () => { return false };
         if (width != undefined) imageDom.style.width = Css.parseSize(width);
         if (height != undefined) imageDom.style.height = Css.parseSize(height);
 

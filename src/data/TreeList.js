@@ -24,7 +24,7 @@ class TreeList extends Div {
         // Key Events - arrow navigation, prevents native scroll behavior
         function onKeyDown(event) {
             // Single Select Keypress
-            if (! self.multiSelect) {
+            if (!self.multiSelect) {
                 if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
@@ -40,7 +40,7 @@ class TreeList extends Div {
             // Multi-Select Keypress
             } else {
                 // Reset shift tracking values on no shift key
-                if (! event.shiftKey) {
+                if (!event.shiftKey) {
                     self.#shiftAdd = 0;
                     self.#shiftTrack = [];
                 }
@@ -69,12 +69,12 @@ class TreeList extends Div {
                         if (index1 < index2) {
                             for (let i = index1; i <= index2; i++) {
                                 const value = self.options[i].value;
-                                if (! values.includes(value)) values.push(value);
+                                if (!values.includes(value)) values.push(value);
                             }
                         } else {
                             for (let i = index1; i >= index2; i--) {
                                 const value = self.options[i].value;
-                                if (! values.includes(value)) values.push(value);
+                                if (!values.includes(value)) values.push(value);
                             }
                         }
                         self.setValues(values, true);
@@ -100,7 +100,7 @@ class TreeList extends Div {
                 case 'ArrowDown':
                     event.preventDefault();
                     event.stopPropagation();
-                    if (! event.shiftKey) {
+                    if (!event.shiftKey) {
                         self.#shiftAdd = 0;
                         self.#shiftTrack = [];
                     }
@@ -210,7 +210,7 @@ class TreeList extends Div {
         // Click
         function onPointerDown(event) {
             // Reset shift tracking values when no shift key
-            if (! event.shiftKey) {
+            if (!event.shiftKey) {
                 self.#shiftAdd = 0;
                 self.#shiftTrack = [];
             }
@@ -238,19 +238,19 @@ class TreeList extends Div {
                     if (index1 < index2) {
                         for (let i = index1; i <= index2; i++) {
                             const value = self.options[i].value;
-                            if (! values.includes(value)) values.push(value);
+                            if (!values.includes(value)) values.push(value);
                         }
                     } else {
                         for (let i = index1; i >= index2; i--) {
                             const value = self.options[i].value;
-                            if (! values.includes(value)) values.push(value);
+                            if (!values.includes(value)) values.push(value);
                         }
                     }
                     self.#shiftAdd = index2 - index1;
                     self.setValues(values);
                 // No Key
                 } else {
-                    if (! values.includes(this.value)) {
+                    if (!values.includes(this.value)) {
                         self.setValues([ this.value ]);
                     }
                 }
@@ -290,7 +290,7 @@ class TreeList extends Div {
         }
 
         function onDragOver(event) {
-            if (! currentDrag || this === currentDrag) return;
+            if (!currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
             if (area < 0.25) {
                 this.classList.add('DragTop');
@@ -308,7 +308,7 @@ class TreeList extends Div {
         }
 
         function onDragLeave() {
-            if (! currentDrag || this === currentDrag) return;
+            if (!currentDrag || this === currentDrag) return;
             this.classList.remove('Drag');
             this.classList.remove('DragTop');
             this.classList.remove('DragBottom');
@@ -317,7 +317,7 @@ class TreeList extends Div {
         function onDrop(event) {
             event.preventDefault();
             event.stopPropagation();
-            if (! currentDrag || this === currentDrag) return;
+            if (!currentDrag || this === currentDrag) return;
             this.classList.remove('Drag');
             this.classList.remove('DragTop');
             this.classList.remove('DragBottom');

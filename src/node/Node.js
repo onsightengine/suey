@@ -69,7 +69,7 @@ class Node extends Div {
 
         // Snapping
         function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! self.graph || ! self.graph.snapToGrid) return decimal;
+            if (!self.graph || !self.graph.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
         }
 
@@ -128,12 +128,12 @@ class Node extends Div {
         let watchForSingleClick = false;
         let singleClickTimer;
         function dragDown() {
-            if (! self.graph) return;
+            if (!self.graph) return;
             self.graph.getNodes().forEach((node) => node.setStartPosition(node.left, node.top));
         }
         function dragMove(diffX, diffY) {
             watchForSingleClick = false;
-            if (! self.graph) return;
+            if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
                     node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
@@ -159,12 +159,12 @@ class Node extends Div {
                 }
             }
             // Select
-            if (! self.hasClass('NodeSelected')) {
+            if (!self.hasClass('NodeSelected')) {
                 const selected = document.querySelectorAll(`.NodeSelected`);
                 selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                 self.addClass('NodeSelected');
             }
-            watchForSingleClick = ! watchForSingleClick;
+            watchForSingleClick = !watchForSingleClick;
             self.dom.ownerDocument.addEventListener('pointerup', nodePointerUp);
         }
         function nodePointerUp() {
@@ -183,7 +183,7 @@ class Node extends Div {
 
         // Double Click (Focus)
         function nodeDoubleClick() {
-            if (! self.graph) return;
+            if (!self.graph) return;
             self.graph.centerView(false /* resetZoom */, true /* animate */);
         }
         this.onDblClick(nodeDoubleClick);
@@ -201,7 +201,7 @@ class Node extends Div {
     set needsUpdate(update) { this.#needsUpdate = update; }
 
     #updateSizes() {
-        if (! this.#needsUpdate) return;
+        if (!this.#needsUpdate) return;
         const computed = getComputedStyle(this.dom);
         const style = this.#style;
         style.left = parseFloat(computed.left);

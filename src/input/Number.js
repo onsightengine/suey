@@ -94,7 +94,7 @@ class NumberBox extends Element {
     /** Sets numeric value of input box, enforces range and precision */
     setValue(value) {
         let valueAsFloat = parseFloat(value);
-        if (valueAsFloat === undefined || isNaN(valueAsFloat) || ! isFinite(valueAsFloat)) {
+        if (valueAsFloat === undefined || isNaN(valueAsFloat) || !isFinite(valueAsFloat)) {
             return this;
         }
 
@@ -111,7 +111,7 @@ class NumberBox extends Element {
         //if ((this.precision >= 1) && (decimals < 1)) decimals = 1; 	// Keeps one decimal no matter what
         valueAsFloat = valueAsFloat.toFixed(decimals);
 
-        if (valueAsFloat !== undefined && ! isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
+        if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
             this.value = valueAsFloat;
             if (this.dom) this.dom.value = valueAsFloat;
             if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + ' ' + this.unit;

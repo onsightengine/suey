@@ -102,7 +102,7 @@ class Gooey extends Tabbed {
     }
 
     scale(multiplier) {
-        if (! multiplier) multiplier = 1.0;
+        if (!multiplier) multiplier = 1.0;
         multiplier = parseFloat(multiplier);
         const newSize = 14 /* base size = 14px */ * multiplier;
         const fontSize = Math.min(Math.max(newSize, 7 /* min font size */), 42 /* max font size */);
@@ -433,7 +433,7 @@ function prettyTitle(string) {
  * @returns {String}
  */
 function addSpaces(string) {
-    if (! string || string === '') return '';
+    if (!string || string === '') return '';
     return String(string).replace(/([A-Z])/g, ' $1').trim();
 }
 
@@ -444,7 +444,7 @@ function addSpaces(string) {
  * @returns new capitalized string
  */
 function capitalize(string) {
-    if (! string || string === '') return '';
+    if (!string || string === '') return '';
     let words = String(string);
     words = words.split(' ');
     for (let i = 0; i < words.length; i++) {

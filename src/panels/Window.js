@@ -103,7 +103,7 @@ class Window extends Panel {
     /******************** WIDGETS */
 
     addTitleBar(title = '', draggable = false, scale = 1.3) {
-        if (! this.#titleBar) {
+        if (!this.#titleBar) {
             this.#titleBar = new TitleBar(this, title, draggable, scale);
             this.addToSelf(this.#titleBar);
         } else {
@@ -126,7 +126,7 @@ class Window extends Panel {
     }
 
     toggleMinMax() {
-        if (! this.#maximized) {
+        if (!this.#maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
             this.setStyle('right', `0`);
@@ -156,7 +156,7 @@ export { Window };
 
 class TitleBar extends Div {
     constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (! parent || ! parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+        if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
         super();
         this.setClass('TitleBar');
         this.addClass('PanelButton');

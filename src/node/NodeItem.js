@@ -37,7 +37,7 @@ class NodeItem extends Div {
         // Point Pointer Events
         function pointPointerDown(event) {
             if (event.button !== 0) return;
-            if (! self.graph()) return;
+            if (!self.graph()) return;
             event.stopPropagation();
             event.preventDefault();
             self.point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
@@ -87,7 +87,7 @@ class NodeItem extends Div {
 
         // Detach Pointer Events
         function breakPointerDown(event) {
-            if (! self.hasClass('ItemConnected')) return;
+            if (!self.hasClass('ItemConnected')) return;
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
@@ -100,7 +100,7 @@ class NodeItem extends Div {
 
     connect(item) {
         if (item === this) return;
-        if (! this.connections.includes(item)) {
+        if (!this.connections.includes(item)) {
             // Make room
             if (this.connections.length >= this.quantity) {
                 this.connections[this.connections.length - 1].reduceIncoming();

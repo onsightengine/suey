@@ -28,7 +28,7 @@ class Color extends Button {
 
         let selected = false;
         function colorBoxClick(event) {
-            if (! selected) {
+            if (!selected) {
                 self.addClass('Selected');
                 selected = true;
             }
@@ -53,17 +53,17 @@ class Color extends Button {
         // Member Functions
 
         this.getValue = function() {
-            if (! colorBox.dom) return 0;
+            if (!colorBox.dom) return 0;
             return colorBox.dom.value;
         }
 
         this.getHexValue = function() {
-            if (! colorBox.dom) return 0;
+            if (!colorBox.dom) return 0;
             return parseInt(colorBox.dom.value.substring(1), 16);
         }
 
         this.setValue = function(value) {
-            if (! colorBox.dom) return this;
+            if (!colorBox.dom) return this;
             colorBox.dom.value = value;
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
@@ -71,7 +71,7 @@ class Color extends Button {
         }
 
         this.setHexValue = function(hex) {
-            if (! colorBox.dom) return this;
+            if (!colorBox.dom) return this;
             if (hex === undefined) return this;
             self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
             return this;

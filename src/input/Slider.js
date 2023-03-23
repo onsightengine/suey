@@ -31,7 +31,7 @@ class Slider extends Div {
         // Events
 
         function sliderInput() {
-            if (! slider.dom) return;
+            if (!slider.dom) return;
             const val = parseFloat(slider.dom.value);
             const min = parseFloat(slider.dom.min);
             const max = parseFloat(slider.dom.max);
@@ -39,7 +39,7 @@ class Slider extends Div {
         }
 
         function sliderWheel(event) {
-            if (! slider.dom) return;
+            if (!slider.dom) return;
             event.preventDefault();
 
             const upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
@@ -63,12 +63,12 @@ class Slider extends Div {
     }
 
     getValue() {
-        if (! this.slider.dom) return null;
+        if (!this.slider.dom) return null;
         return parseFloat(this.slider.dom.value);
     }
 
     setValue(value) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
 
         let valueAsFloat = parseFloat(value);
         if (valueAsFloat === undefined || isNaN(valueAsFloat) || !isFinite(valueAsFloat)) {
@@ -104,21 +104,21 @@ class Slider extends Div {
     }
 
     setMin(min) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.min = min;
         this.setTicks();
         return this;
     }
 
     setMax(max) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.max = max;
         this.setTicks();
         return this;
     }
 
     setRange(min, max) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.min = min;
         this.slider.dom.max = max;
         this.setTicks();
@@ -126,14 +126,14 @@ class Slider extends Div {
     }
 
     setStep(step) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.step = step;
         this.setTicks();
         return this;
     }
 
     setTicks() {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         const ticks = this.ticks;
         const min = parseFloat(this.slider.dom.min);
         const max = parseFloat(this.slider.dom.max);

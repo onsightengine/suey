@@ -41,7 +41,7 @@ class Titled extends Div {
     }
 
     toggle() {
-        this.setExpanded(! this.isExpanded);
+        this.setExpanded(!this.isExpanded);
     }
 
 }

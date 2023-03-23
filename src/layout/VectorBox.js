@@ -33,7 +33,7 @@ class VectorBox extends Div {
 
         const newImage = new Image(imageUrl, stretchX, stretchY, false /* draggable */);
         this.add(newImage);
-        if (! this.img) this.img = newImage;
+        if (!this.img) this.img = newImage;
 
         return newImage;
     }

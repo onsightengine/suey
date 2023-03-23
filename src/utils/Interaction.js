@@ -20,7 +20,7 @@ const MOUSE_SLOP = 2;
 class Interaction extends Button {
 
     static addCloseButton(closeElement, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
-        if (! closeElement || ! closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
+        if (!closeElement || !closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
         const button = new Button().setClass('CloseButton').addClass('PanelButton');
         const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
         button.add(closeImageBox);
@@ -77,7 +77,7 @@ class Interaction extends Button {
         let computed = getComputedStyle(dragElement);
         let minDistance = 0;
         function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! element.snapToGrid) return decimal;
+            if (!element.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
         }
         function dragPointerDown(event) {
@@ -141,8 +141,8 @@ class Interaction extends Button {
     }
 
     static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
-        if (! resizeElement || ! resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
-        if (! addToElement || ! addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
+        if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
+        if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
         resizeElement.addClass('Resizeable');
         // Build
         const resizerDivs = {};
@@ -191,10 +191,10 @@ class Interaction extends Button {
         // Toggle
         const resizerEnabled = {};
         resizeElement.toggleResize = function(resizerName, enable = true) {
-            if (! resizerName) return;
+            if (!resizerName) return;
             resizerEnabled[resizerName] = enable;
             function toggleDisplay(element, display) {
-                if (! element) return;
+                if (!element) return;
                 element.setStyle('display', display ? '' : 'none');
             }
             toggleDisplay(resizerDivs[resizerName], enable);

@@ -120,7 +120,7 @@ class Tabbed extends Panel {
     /******************** RESIZE ********************/
 
     changeWidth(width) {
-        if (typeof width !== 'number' || Number.isNaN(width) || ! Number.isFinite(width)) width = this.#startWidth;
+        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
         if (width == null) {
             this.dom.style.removeProperty('width');
             return null;
@@ -134,7 +134,7 @@ class Tabbed extends Panel {
     }
 
     changeHeight(height) {
-        if (typeof height !== 'number' || Number.isNaN(height) || ! Number.isFinite(height)) height = this.#startHeight;
+        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = this.#startHeight;
         if (height == null) {
             this.dom.style.removeProperty('height');
             return null;
@@ -174,7 +174,7 @@ class Tabbed extends Panel {
         const panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
         if (tab && panel) {
             // Disable animations while rebuilding
-            if (! wasClicked) Css.setVariable('--tab-timing', '0', tab.dom);
+            if (!wasClicked) Css.setVariable('--tab-timing', '0', tab.dom);
 
             // Deselect current selection
             const currentTab = this.tabs.find(function(item) {
@@ -202,7 +202,7 @@ class Tabbed extends Panel {
             }
 
             // Re-enable animationss
-            if (! wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', tab.dom), 50);
+            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', tab.dom), 50);
 
             return true;
         }

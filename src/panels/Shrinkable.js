@@ -69,7 +69,7 @@ class Shrinkable extends Panel {
     }
 
     toggle() {
-        this.setExpanded(! this.isExpanded);
+        this.setExpanded(!this.isExpanded);
     }
 
 }

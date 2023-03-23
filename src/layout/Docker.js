@@ -47,7 +47,7 @@ class Docker extends Div {
     }
 
     addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
-        if (! dockPanel) return;
+        if (!dockPanel) return;
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
 

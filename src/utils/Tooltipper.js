@@ -35,13 +35,13 @@ class Tooltipper {
 
         function showTooltip(event) {
             const element = event.target;
-            if (! element || ! (element instanceof HTMLElement)) return;
-            if (! element.getAttribute('tooltip')) return;
+            if (!element || !(element instanceof HTMLElement)) return;
+            if (!element.getAttribute('tooltip')) return;
             if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
             if (('TouchEvent' in window) && event instanceof TouchEvent) return;
 
             let text = element.getAttribute('tooltip');
-            if (! text.length) return;
+            if (!text.length) return;
 
             clearTimeout(_showTimer);
             tooltip.removeClass('Updated')
@@ -55,8 +55,8 @@ class Tooltipper {
 
         function hideTooltip(event) {
             const element = event.target;
-            if (! element || ! (element instanceof HTMLElement)) return;
-            if (! element.getAttribute('tooltip')) return;
+            if (!element || !(element instanceof HTMLElement)) return;
+            if (!element.getAttribute('tooltip')) return;
 
             clearTimeout(_showTimer);
             tooltip.removeClass('Updated')

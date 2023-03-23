@@ -59,7 +59,7 @@ class Utils {
 
     /** Finds closest 'scrollable' parent */
     static parentScroller(element) {
-        if (! element) return null;
+        if (!element) return null;
         if (element.isElement && element.dom) element = element.dom;
         if (element.scrollHeight > element.clientHeight) {
             return element;

@@ -20,7 +20,7 @@ class Css {
     /** Gets a CSS variable by name, hyphens optional */
     static getVariable(variable) {
         variable = String(variable);
-        if (! variable.startsWith('--')) variable = '--' + variable;
+        if (!variable.startsWith('--')) variable = '--' + variable;
         const rootElement = document.querySelector(':root');
         return getComputedStyle(rootElement).getPropertyValue(variable);
     }
@@ -34,7 +34,7 @@ class Css {
      */
     static setVariable(variable, valueAsString, element) {
         variable = String(variable);
-        if (! variable.startsWith('--')) variable = '--' + variable;
+        if (!variable.startsWith('--')) variable = '--' + variable;
         element = element ?? document.querySelector(':root');
 		element.style.setProperty(variable, valueAsString);
     }
@@ -97,7 +97,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parsedSize;
         }
-        console.warn(`Css.toEm: Could not convert to em! Unit passed in: ${pixels}`);
+        console.warn(`Css.toEm: Could not convert to em, unit passed in: ${pixels}`);
         return size;
     }
 
@@ -111,7 +111,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parseInt((parseFloat(size) * 10.0 * Css.guiScale(element))) + 'px';
         }
-        console.warn(`Css.toPx: Could not convert to pixels! Unit passed in: ${size}`);
+        console.warn(`Css.toPx: Could not convert to pixels, unit passed in: ${size}`);
         return size;
     }
 

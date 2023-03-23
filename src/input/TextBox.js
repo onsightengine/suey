@@ -38,12 +38,12 @@ class TextBox extends Element {
     }
 
     getValue() {
-        if (! this.dom) return null;
+        if (!this.dom) return null;
         return this.dom.value;
     }
 
     setValue(value) {
-        if (! this.dom) return this;
+        if (!this.dom) return this;
         this.dom.value = value;
         return this;
     }

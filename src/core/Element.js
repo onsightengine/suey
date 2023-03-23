@@ -53,8 +53,8 @@ class Element {
 
             // Attempt to remove element from contents(), then try to remove from self.dom
             let removed = removeFromParent(this.contents(), element);
-            if (! removed) removed = removeFromParent(this, element);
-            if (! removed) console.log(`Element.removeFromParent: Could not remove child!`);
+            if (!removed) removed = removeFromParent(this, element);
+            if (!removed) console.log(`Element.removeFromParent: Could not remove child!`);
         }
         return this;
     }
@@ -206,7 +206,7 @@ class Element {
         //         changed = true;
         //     }
         // }
-        // if (! changed) return this;
+        // if (!changed) return this;
 
         // // Rebuild style string
         // styleText = Object.entries(styles).map(([k, v]) => `${k}: ${v}`).join('; ');
@@ -271,7 +271,7 @@ export { Element };
 /******************** ADD / REMOVE / CLEAR ********************/
 
 function addToParent(parent, element) {
-    if (! element) return;
+    if (!element) return;
 
     // Osui Element
     if (element.isElement) {
@@ -287,7 +287,7 @@ function addToParent(parent, element) {
                 break;
             }
         }
-        if (! hasIt) parent.children.push(element);
+        if (!hasIt) parent.children.push(element);
 
         // Set element parent
         element.parent = parent;
@@ -313,7 +313,7 @@ function clearElementChildren(osui) {
 
 // Clears Dom Element Children
 function clearDomChildren(dom) {
-    if (! dom.children) return;
+    if (!dom.children) return;
     for (let i = dom.children.length - 1; i >= 0; i--) {
         const child = dom.children[i];
         clearChildren(child, true /* destroy event */);
@@ -323,7 +323,7 @@ function clearDomChildren(dom) {
 
 /* Clears all osui children / dom children from element */
 function clearChildren(element, destroy = true) {
-    if (! element) return;
+    if (!element) return;
 
     // Osui Element
     if (element.isElement) {
@@ -348,7 +348,7 @@ function clearChildren(element, destroy = true) {
 
 /** Returns true if element was removed */
 function removeFromParent(parent, element) {
-    if (! element) return;
+    if (!element) return;
 
     // Osui Element
     if (element.isElement) {

@@ -16,12 +16,12 @@ class Checkbox extends Element {
     }
 
     getValue() {
-        if (! this.checkbox.dom) return undefined;
+        if (!this.checkbox.dom) return undefined;
         return this.checkbox.dom.checked;
     }
 
     setValue(value) {
-        if (! this.checkbox.dom) return this;
+        if (!this.checkbox.dom) return this;
         this.checkbox.dom.checked = (value) ? true : false;
         return this;
     }
