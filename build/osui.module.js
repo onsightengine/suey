@@ -74,13 +74,13 @@ const NODE_TYPES = {
 class Css {
     static getVariable(variable) {
         variable = String(variable);
-        if (! variable.startsWith('--')) variable = '--' + variable;
+        if (!variable.startsWith('--')) variable = '--' + variable;
         const rootElement = document.querySelector(':root');
         return getComputedStyle(rootElement).getPropertyValue(variable);
     }
     static setVariable(variable, valueAsString, element) {
         variable = String(variable);
-        if (! variable.startsWith('--')) variable = '--' + variable;
+        if (!variable.startsWith('--')) variable = '--' + variable;
         element = element ?? document.querySelector(':root');
 		element.style.setProperty(variable, valueAsString);
     }
@@ -127,7 +127,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parsedSize;
         }
-        console.warn(`Css.toEm: Could not convert to em! Unit passed in: ${pixels}`);
+        console.warn(`Css.toEm: Could not convert to em, unit passed in: ${pixels}`);
         return size;
     }
     static toPx(size, element = document.body) {
@@ -139,7 +139,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parseInt((parseFloat(size) * 10.0 * Css.guiScale(element))) + 'px';
         }
-        console.warn(`Css.toPx: Could not convert to pixels! Unit passed in: ${size}`);
+        console.warn(`Css.toPx: Could not convert to pixels, unit passed in: ${size}`);
         return size;
     }
 }
@@ -235,7 +235,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                let offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
+                let offset = (g != null && !Number.isNaN(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
@@ -435,7 +435,7 @@ class Iris {
         }
     }
     add(color) {
-        if (! color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
         return this.setRGBF(this.r + color.r, this.g + color.g, this.b + color.b);
     }
     addScalar(scalar) {
@@ -478,7 +478,7 @@ class Iris {
         return this.setHSL(this.hue() + h, this.saturation() + s, this.lightness() + l);
     }
     mix(color, percent = 0.5) {
-        if (! color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
         percent = clamp(percent, 0, 1);
         let r = (this.r * (1.0 - percent)) + (percent * color.r);
         let g = (this.g * (1.0 - percent)) + (percent * color.g);
@@ -486,7 +486,7 @@ class Iris {
         return this.setRGBF(r, g, b);
     }
     multiply(color) {
-        if (! color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
         return this.setRGBF(this.r * color.r, this.g * color.g, this.b * color.b);
     }
     multiplyScalar(scalar) {
@@ -510,11 +510,11 @@ class Iris {
         return this.setHSL(hue(matchSpectrum(newHue, SPECTRUM.RYB)), this.saturation(), this.lightness());
     }
     subtract(color) {
-        if (! color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
         return this.setRGBF(this.r - color.r, this.g - color.g, this.b - color.b);
     }
     equals(color) {
-        if (! color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
         return (fuzzy(this.r, color.r) && fuzzy(this.g, color.g) && fuzzy(this.b, color.b));
     }
     isEqual(color) {
@@ -526,7 +526,7 @@ class Iris {
         return ((l < 0.60 && (h >= 210 || h <= 27)) || (l <= 0.32));
     }
     isLight() {
-        return (! this.isDark());
+        return (!this.isDark());
     }
 }
 function isRGB(object) { return (object.r !== undefined && object.g !== undefined && object.b !== undefined); }
@@ -858,7 +858,7 @@ class ColorScheme {
         if (tint !== 0) _clr$1.mix(_icon, tint);
         if (lightness !== 0) _clr$1.brighten(lightness);
         if (darkness !== 0) _clr$1.darken(darkness);
-        if (saturation !== 0 && ! ignoreSaturation) _clr$1.hslOffset(0, saturation, 0);
+        if (saturation !== 0 && !ignoreSaturation) _clr$1.hslOffset(0, saturation, 0);
         return _clr$1.hex();
     }
 }
@@ -898,8 +898,8 @@ class Element {
         for (let i = 0; i < arguments.length; i++) {
             const element = arguments[i];
             let removed = removeFromParent(this.contents(), element);
-            if (! removed) removed = removeFromParent(this, element);
-            if (! removed) console.log(`Element.removeFromParent: Could not remove child!`);
+            if (!removed) removed = removeFromParent(this, element);
+            if (!removed) console.log(`Element.removeFromParent: Could not remove child!`);
         }
         return this;
     }
@@ -1027,7 +1027,7 @@ class Element {
     }
 }
 function addToParent(parent, element) {
-    if (! element) return;
+    if (!element) return;
     if (element.isElement) {
         parent.dom.appendChild(element.dom);
         let hasIt = false;
@@ -1038,7 +1038,7 @@ function addToParent(parent, element) {
                 break;
             }
         }
-        if (! hasIt) parent.children.push(element);
+        if (!hasIt) parent.children.push(element);
         element.parent = parent;
     } else {
         try {
@@ -1055,7 +1055,7 @@ function clearElementChildren(osui) {
     osui.children.length = 0;
 }
 function clearDomChildren(dom) {
-    if (! dom.children) return;
+    if (!dom.children) return;
     for (let i = dom.children.length - 1; i >= 0; i--) {
         const child = dom.children[i];
         clearChildren(child, true );
@@ -1063,7 +1063,7 @@ function clearDomChildren(dom) {
     }
 }
 function clearChildren(element, destroy = true) {
-    if (! element) return;
+    if (!element) return;
     if (element.isElement) {
         clearElementChildren(element);
         clearDomChildren(element.dom);
@@ -1078,7 +1078,7 @@ function clearChildren(element, destroy = true) {
     }
 }
 function removeFromParent(parent, element) {
-    if (! element) return;
+    if (!element) return;
     if (element.isElement) {
         for (let i = 0; i < parent.children.length; i++) {
             const child = parent.children[i];
@@ -1237,7 +1237,7 @@ class Image extends Element {
             }
         }
         setImage(imageUrl);
-        if (! draggable) imageDom.ondragstart = () => { return false };
+        if (!draggable) imageDom.ondragstart = () => { return false };
         if (width != undefined) imageDom.style.width = Css.parseSize(width);
         if (height != undefined) imageDom.style.height = Css.parseSize(height);
         super(imageDom);
@@ -1269,7 +1269,7 @@ class VectorBox extends Div {
         if (imageUrl === undefined || imageUrl === '') imageUrl = IMAGE_EMPTY;
         const newImage = new Image(imageUrl, stretchX, stretchY, false );
         this.add(newImage);
-        if (! this.img) this.img = newImage;
+        if (!this.img) this.img = newImage;
         return newImage;
     }
     enableDragging() {
@@ -1312,7 +1312,7 @@ const CLOSE_SIDES = {
 const MOUSE_SLOP = 2;
 class Interaction extends Button {
     static addCloseButton(closeElement, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
-        if (! closeElement || ! closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
+        if (!closeElement || !closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
         const button = new Button().setClass('CloseButton').addClass('PanelButton');
         const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
         button.add(closeImageBox);
@@ -1364,7 +1364,7 @@ class Interaction extends Button {
         let computed = getComputedStyle(dragElement);
         let minDistance = 0;
         function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! element.snapToGrid) return decimal;
+            if (!element.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
         }
         function dragPointerDown(event) {
@@ -1425,8 +1425,8 @@ class Interaction extends Button {
         eventElement.addEventListener('pointerdown', dragPointerDown);
     }
     static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
-        if (! resizeElement || ! resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
-        if (! addToElement || ! addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
+        if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
+        if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
         resizeElement.addClass('Resizeable');
         const resizerDivs = {};
         for (let key in RESIZERS) {
@@ -1471,10 +1471,10 @@ class Interaction extends Button {
         }
         const resizerEnabled = {};
         resizeElement.toggleResize = function(resizerName, enable = true) {
-            if (! resizerName) return;
+            if (!resizerName) return;
             resizerEnabled[resizerName] = enable;
             function toggleDisplay(element, display) {
-                if (! element) return;
+                if (!element) return;
                 element.setStyle('display', display ? '' : 'none');
             }
             toggleDisplay(resizerDivs[resizerName], enable);
@@ -1527,7 +1527,7 @@ class Utils {
         }
     }
     static parentScroller(element) {
-        if (! element) return null;
+        if (!element) return null;
         if (element.isElement && element.dom) element = element.dom;
         if (element.scrollHeight > element.clientHeight) {
             return element;
@@ -1566,12 +1566,12 @@ class Tooltipper {
         document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
         function showTooltip(event) {
             const element = event.target;
-            if (! element || ! (element instanceof HTMLElement)) return;
-            if (! element.getAttribute('tooltip')) return;
+            if (!element || !(element instanceof HTMLElement)) return;
+            if (!element.getAttribute('tooltip')) return;
             if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
             if (('TouchEvent' in window) && event instanceof TouchEvent) return;
             let text = element.getAttribute('tooltip');
-            if (! text.length) return;
+            if (!text.length) return;
             clearTimeout(_showTimer);
             tooltip.removeClass('Updated');
             _showTimer = setTimeout(() => {
@@ -1582,8 +1582,8 @@ class Tooltipper {
         }
         function hideTooltip(event) {
             const element = event.target;
-            if (! element || ! (element instanceof HTMLElement)) return;
-            if (! element.getAttribute('tooltip')) return;
+            if (!element || !(element instanceof HTMLElement)) return;
+            if (!element.getAttribute('tooltip')) return;
             clearTimeout(_showTimer);
             tooltip.removeClass('Updated');
         }
@@ -1792,7 +1792,7 @@ class Shrinkable extends Panel {
         }
     }
     toggle() {
-        this.setExpanded(! this.isExpanded);
+        this.setExpanded(!this.isExpanded);
     }
 }
 
@@ -1882,7 +1882,7 @@ class Tabbed extends Panel {
         };
     }
     changeWidth(width) {
-        if (typeof width !== 'number' || Number.isNaN(width) || ! Number.isFinite(width)) width = this.#startWidth;
+        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
         if (width == null) {
             this.dom.style.removeProperty('width');
             return null;
@@ -1895,7 +1895,7 @@ class Tabbed extends Panel {
         return width;
     }
     changeHeight(height) {
-        if (typeof height !== 'number' || Number.isNaN(height) || ! Number.isFinite(height)) height = this.#startHeight;
+        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = this.#startHeight;
         if (height == null) {
             this.dom.style.removeProperty('height');
             return null;
@@ -1921,7 +1921,7 @@ class Tabbed extends Panel {
         const tab = this.tabs.find(function(item) { return (item.dom.id === id && item.count === count); });
         const panel = this.panels.find(function(item) { return (item.dom.id === id && item.count === count); });
         if (tab && panel) {
-            if (! wasClicked) Css.setVariable('--tab-timing', '0', tab.dom);
+            if (!wasClicked) Css.setVariable('--tab-timing', '0', tab.dom);
             const currentTab = this.tabs.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
             });
@@ -1939,7 +1939,7 @@ class Tabbed extends Panel {
                 tabChange.value = id;
                 this.dom.dispatchEvent(tabChange);
             }
-            if (! wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', tab.dom), 50);
+            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', tab.dom), 50);
             return true;
         }
         return false;
@@ -2072,7 +2072,7 @@ class Titled extends Div {
         }
     }
     toggle() {
-        this.setExpanded(! this.isExpanded);
+        this.setExpanded(!this.isExpanded);
     }
 }
 
@@ -2087,11 +2087,11 @@ class Checkbox extends Element {
         this.setValue(boolean);
     }
     getValue() {
-        if (! this.checkbox.dom) return undefined;
+        if (!this.checkbox.dom) return undefined;
         return this.checkbox.dom.checked;
     }
     setValue(value) {
-        if (! this.checkbox.dom) return this;
+        if (!this.checkbox.dom) return this;
         this.checkbox.dom.checked = (value) ? true : false;
         return this;
     }
@@ -2113,7 +2113,7 @@ class Color extends Button {
         this.add(colorBackground);
         let selected = false;
         function colorBoxClick(event) {
-            if (! selected) {
+            if (!selected) {
                 self.addClass('Selected');
                 selected = true;
             }
@@ -2132,22 +2132,22 @@ class Color extends Button {
         colorBox.dom.addEventListener('blur', colorBoxBlur);
         colorBox.dom.addEventListener('focusout', colorBoxBlur);
         this.getValue = function() {
-            if (! colorBox.dom) return 0;
+            if (!colorBox.dom) return 0;
             return colorBox.dom.value;
         };
         this.getHexValue = function() {
-            if (! colorBox.dom) return 0;
+            if (!colorBox.dom) return 0;
             return parseInt(colorBox.dom.value.substring(1), 16);
         };
         this.setValue = function(value) {
-            if (! colorBox.dom) return this;
+            if (!colorBox.dom) return this;
             colorBox.dom.value = value;
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
             return this;
         };
         this.setHexValue = function(hex) {
-            if (! colorBox.dom) return this;
+            if (!colorBox.dom) return this;
             if (hex === undefined) return this;
             self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
             return this;
@@ -2272,7 +2272,7 @@ class MenuShortcut extends Div {
         if (text) this.setShortcutText(text);
     }
     setShortcutText(text) {
-        if (! text) return this;
+        if (!text) return this;
         this.text = text;
         this.clearContents();
         for (let i = 0; i < text.length; i++) {
@@ -2539,7 +2539,7 @@ class NumberBox extends Element {
     }
     setValue(value) {
         let valueAsFloat = parseFloat(value);
-        if (valueAsFloat === undefined || isNaN(valueAsFloat) || ! isFinite(valueAsFloat)) {
+        if (valueAsFloat === undefined || isNaN(valueAsFloat) || !isFinite(valueAsFloat)) {
             return this;
         }
         if (valueAsFloat < this.min) valueAsFloat = this.min;
@@ -2551,7 +2551,7 @@ class NumberBox extends Element {
         }
         let decimals = Math.min(this.precision, countDecimals(valueAsFloat));
         valueAsFloat = valueAsFloat.toFixed(decimals);
-        if (valueAsFloat !== undefined && ! isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
+        if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
             this.value = valueAsFloat;
             if (this.dom) this.dom.value = valueAsFloat;
             if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + ' ' + this.unit;
@@ -2699,14 +2699,14 @@ class Slider extends Div {
         this.ticks = ticks;
         this.add(ticks, slider);
         function sliderInput() {
-            if (! slider.dom) return;
+            if (!slider.dom) return;
             const val = parseFloat(slider.dom.value);
             const min = parseFloat(slider.dom.min);
             const max = parseFloat(slider.dom.max);
             slider.dom.style.setProperty('--middle', `${((val - min) / (max - min))}`);
         }
         function sliderWheel(event) {
-            if (! slider.dom) return;
+            if (!slider.dom) return;
             event.preventDefault();
             const upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
             const min = parseFloat(slider.dom.min);
@@ -2725,11 +2725,11 @@ class Slider extends Div {
         slider.onWheel(sliderWheel);
     }
     getValue() {
-        if (! this.slider.dom) return null;
+        if (!this.slider.dom) return null;
         return parseFloat(this.slider.dom.value);
     }
     setValue(value) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         let valueAsFloat = parseFloat(value);
         if (valueAsFloat === undefined || isNaN(valueAsFloat) || !isFinite(valueAsFloat)) {
             return this;
@@ -2757,32 +2757,32 @@ class Slider extends Div {
         return this;
     }
     setMin(min) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.min = min;
         this.setTicks();
         return this;
     }
     setMax(max) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.max = max;
         this.setTicks();
         return this;
     }
     setRange(min, max) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.min = min;
         this.slider.dom.max = max;
         this.setTicks();
         return this;
     }
     setStep(step) {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         this.slider.dom.step = step;
         this.setTicks();
         return this;
     }
     setTicks() {
-        if (! this.slider.dom) return this;
+        if (!this.slider.dom) return this;
         const ticks = this.ticks;
         const min = parseFloat(this.slider.dom.min);
         const max = parseFloat(this.slider.dom.max);
@@ -2829,11 +2829,11 @@ class TextBox extends Element {
         this.onKeyUp(onKeyUp);
     }
     getValue() {
-        if (! this.dom) return null;
+        if (!this.dom) return null;
         return this.dom.value;
     }
     setValue(value) {
-        if (! this.dom) return this;
+        if (!this.dom) return this;
         this.dom.value = value;
         return this;
     }
@@ -2869,7 +2869,7 @@ class Gooey extends Tabbed {
         return this;
     }
     scale(multiplier) {
-        if (! multiplier) multiplier = 1.0;
+        if (!multiplier) multiplier = 1.0;
         multiplier = parseFloat(multiplier);
         const newSize = 14  * multiplier;
         const fontSize = Math.min(Math.max(newSize, 7 ), 42 );
@@ -3140,11 +3140,11 @@ function prettyTitle(string) {
     return addSpaces(capitalize(string));
 }
 function addSpaces(string) {
-    if (! string || string === '') return '';
+    if (!string || string === '') return '';
     return String(string).replace(/([A-Z])/g, ' $1').trim();
 }
 function capitalize(string) {
-    if (! string || string === '') return '';
+    if (!string || string === '') return '';
     let words = String(string);
     words = words.split(' ');
     for (let i = 0; i < words.length; i++) {
@@ -3193,7 +3193,7 @@ class TreeList extends Div {
         this.selectedValue = null;
         this.selectedValues = [];
         function onKeyDown(event) {
-            if (! self.multiSelect) {
+            if (!self.multiSelect) {
                 if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
@@ -3207,7 +3207,7 @@ class TreeList extends Div {
                     }
                 }
             } else {
-                if (! event.shiftKey) {
+                if (!event.shiftKey) {
                     self.#shiftAdd = 0;
                     self.#shiftTrack = [];
                 }
@@ -3230,12 +3230,12 @@ class TreeList extends Div {
                         if (index1 < index2) {
                             for (let i = index1; i <= index2; i++) {
                                 const value = self.options[i].value;
-                                if (! values.includes(value)) values.push(value);
+                                if (!values.includes(value)) values.push(value);
                             }
                         } else {
                             for (let i = index1; i >= index2; i--) {
                                 const value = self.options[i].value;
-                                if (! values.includes(value)) values.push(value);
+                                if (!values.includes(value)) values.push(value);
                             }
                         }
                         self.setValues(values, true);
@@ -3260,7 +3260,7 @@ class TreeList extends Div {
                 case 'ArrowDown':
                     event.preventDefault();
                     event.stopPropagation();
-                    if (! event.shiftKey) {
+                    if (!event.shiftKey) {
                         self.#shiftAdd = 0;
                         self.#shiftTrack = [];
                     }
@@ -3275,6 +3275,12 @@ class TreeList extends Div {
             if (this.options[i].value === value) return i;
         }
         return -1;
+    }
+    getOption(value) {
+        for (let i = 0; i < this.options.length; i++) {
+            if (this.options[i].value === value) return this.options[i];
+        }
+        return undefined;
     }
     getValue() {
         return this.selectedValue;
@@ -3329,9 +3335,10 @@ class TreeList extends Div {
     }
     setOptions(options) {
         const self = this;
+        let dragImage = null;
         this.clearContents();
         function onPointerDown(event) {
-            if (! event.shiftKey) {
+            if (!event.shiftKey) {
                 self.#shiftAdd = 0;
                 self.#shiftTrack = [];
             }
@@ -3353,18 +3360,18 @@ class TreeList extends Div {
                     if (index1 < index2) {
                         for (let i = index1; i <= index2; i++) {
                             const value = self.options[i].value;
-                            if (! values.includes(value)) values.push(value);
+                            if (!values.includes(value)) values.push(value);
                         }
                     } else {
                         for (let i = index1; i >= index2; i--) {
                             const value = self.options[i].value;
-                            if (! values.includes(value)) values.push(value);
+                            if (!values.includes(value)) values.push(value);
                         }
                     }
                     self.#shiftAdd = index2 - index1;
                     self.setValues(values);
                 } else {
-                    if (! values.includes(this.value)) {
+                    if (!values.includes(this.value)) {
                         self.setValues([ this.value ]);
                     }
                 }
@@ -3389,13 +3396,38 @@ class TreeList extends Div {
         }
         function onDragStart(event) {
             if (self.multiSelect) {
-                event.dataTransfer.setData('text/plain', this.selectedValues);
+                const divRect = this.getBoundingClientRect();
+                const width = divRect.width;
+                const height = divRect.height * self.selectedValues.length;
+                dragImage = document.createElement('div');
+                dragImage.classList.add('TreeList');
+                dragImage.classList.add('TreeDragImage');
+                dragImage.style['width'] = `${width}px`;
+                dragImage.style['height'] = `${height}px`;
+                dragImage.style['top'] = `${height * -2}px`;
+                for (let i = 0; i < self.selectedValues.length; i++) {
+                    const value = self.selectedValues[i];
+                    const option = self.getOption(value);
+                    const optionClone = option.cloneNode(true );
+                    optionClone.classList.add('ActiveTop');
+                    optionClone.classList.add('ActiveBottom');
+                    dragImage.appendChild(optionClone);
+                }
+                document.body.appendChild(dragImage);
+                event.dataTransfer.setDragImage(dragImage, 0, 0);
+                event.dataTransfer.setData('text/plain', self.selectedValues);
             } else {
-                event.dataTransfer.setData('text/plain', this.selectedValue);
+                event.dataTransfer.setData('text/plain', self.selectedValue);
+            }
+        }
+        function onDragEnd(event) {
+            if (dragImage instanceof HTMLElement) {
+                document.body.removeChild(dragImage);
+                dragImage = null;
             }
         }
         function onDragOver(event) {
-            if (! currentDrag || this === currentDrag) return;
+            if (!currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
             if (area < 0.25) {
                 this.classList.add('DragTop');
@@ -3412,7 +3444,7 @@ class TreeList extends Div {
             }
         }
         function onDragLeave() {
-            if (! currentDrag || this === currentDrag) return;
+            if (!currentDrag || this === currentDrag) return;
             this.classList.remove('Drag');
             this.classList.remove('DragTop');
             this.classList.remove('DragBottom');
@@ -3420,7 +3452,7 @@ class TreeList extends Div {
         function onDrop(event) {
             event.preventDefault();
             event.stopPropagation();
-            if (! currentDrag || this === currentDrag) return;
+            if (!currentDrag || this === currentDrag) return;
             this.classList.remove('Drag');
             this.classList.remove('DragTop');
             this.classList.remove('DragBottom');
@@ -3440,12 +3472,14 @@ class TreeList extends Div {
             if (div.draggable) {
                 div.addEventListener('drag', onDrag);
                 div.addEventListener('dragstart', onDragStart);
+                div.addEventListener('dragend', onDragEnd);
                 div.addEventListener('dragover', onDragOver);
                 div.addEventListener('dragleave', onDragLeave);
                 div.addEventListener('drop', onDrop);
                 div.addEventListener('destroy', () => {
                     div.removeEventListener('drag', onDrag);
                     div.removeEventListener('dragstart', onDragStart);
+                    div.removeEventListener('dragend', onDragEnd);
                     div.removeEventListener('dragover', onDragOver);
                     div.removeEventListener('dragleave', onDragLeave);
                     div.removeEventListener('drop', onDrop);
@@ -3475,11 +3509,11 @@ class TextArea extends Element {
         this.onKeyDown(onKeyDown);
     }
     getValue() {
-        if (! this.dom) return null;
+        if (!this.dom) return null;
         return this.dom.value;
     }
     setValue(value) {
-        if (! this.dom) return this;
+        if (!this.dom) return this;
         this.dom.value = value;
         return this;
     }
@@ -3545,7 +3579,7 @@ class Docker extends Div {
         }
     }
     addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
-        if (! dockPanel) return;
+        if (!dockPanel) return;
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
         dockPanel.dom.addEventListener('resized', () => {
@@ -3803,7 +3837,7 @@ class Graph extends Panel {
             const percentX = ((mapRect.width / 2) - (clientX - mapRect.left)) / (mapRect.width / 2);
             const percentY = ((mapRect.height / 2) - (clientY - mapRect.top)) / (mapRect.height / 2);
             const bounds = self.nodeBounds(MAP_BUFFER, self.nodes.children, MIN_MAP_SIZE);
-            if (! bounds.isFinite) return;
+            if (!bounds.isFinite) return;
             if (self.#drawWidth > self.#drawHeight) {
                 const ratio = (self.#drawWidth / self.#drawHeight);
                 const x = bounds.center().x - ((bounds.width() / 2) * percentX);
@@ -3832,7 +3866,7 @@ class Graph extends Panel {
             translating = false;
         }
         function mapPointerMove(event) {
-            if (! translating) return;
+            if (!translating) return;
             calculateOffset(event.clientX, event.clientY);
         }
         this.minimap.onPointerDown(mapPointerDown);
@@ -3856,7 +3890,7 @@ class Graph extends Panel {
         return this.nodes.children;
     }
     removeNode(removeNode) {
-        if (! removeNode || ! removeNode.isElement) return;
+        if (!removeNode || !removeNode.isElement) return;
         const currentZ = removeNode.zIndex;
         const nodes = this.nodes.children;
         const lengthBefore = nodes.length;
@@ -3907,7 +3941,7 @@ class Graph extends Panel {
     }
     traverseNodes(callback) {
         if (typeof callback !== 'function') return;
-        if (! this.nodes) return;
+        if (!this.nodes) return;
         const nodes = this.nodes.children;
         nodes.sort((x, y) => x.zIndex - y.zIndex);
         for (let i = 0; i < nodes.length; i++) {
@@ -3990,7 +4024,7 @@ class Graph extends Panel {
         });
     }
     drawLines() {
-        if (! this.lines) return;
+        if (!this.lines) return;
         if (this.dom.style.display === 'none') return;
         const LINE_THICKNESS = 4;
         const self = this;
@@ -4005,10 +4039,10 @@ class Graph extends Panel {
         function scaleX(x) { return (x / linesRect.width) * lines.width; }
         function scaleY(y) { return (y / linesRect.height) * lines.height; }
         function drawLine(x1, y1, x2, y2, color1, color2 = color1) {
-            if (! Number.isFinite(x1) || Number.isNaN(x1)) return;
-            if (! Number.isFinite(x2) || Number.isNaN(x2)) return;
-            if (! Number.isFinite(y1) || Number.isNaN(y1)) return;
-            if (! Number.isFinite(y2) || Number.isNaN(y2)) return;
+            if (!Number.isFinite(x1) || Number.isNaN(x1)) return;
+            if (!Number.isFinite(x2) || Number.isNaN(x2)) return;
+            if (!Number.isFinite(y1) || Number.isNaN(y1)) return;
+            if (!Number.isFinite(y2) || Number.isNaN(y2)) return;
             ctx.strokeStyle = color1;
             if (color2 != null && color1 !== color2) {
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
@@ -4064,7 +4098,7 @@ class Graph extends Panel {
         }
         const pointSize = parseFloat(Css.toPx('0.21429em', this.dom)) * this.#scale;
         this.traverseNodes((node) => {
-            if (! node.outputList) return;
+            if (!node.outputList) return;
             node.outputList.children.forEach((item) => {
                 const rectOut = item.point.dom.getBoundingClientRect();
                 const x1 = rectOut.left + (rectOut.width / 2);
@@ -4087,16 +4121,16 @@ class Graph extends Panel {
             const y2 = this.activePoint.y;
             const color = this.activeItem.node.colorString();
             const forward = this.activeItem.type === NODE_TYPES.OUTPUT;
-            const drawPoints = ! this.connectItem;
+            const drawPoints = !this.connectItem;
             if (forward) drawConnection(x1, y1, x2, y2, pointSize, color, color, drawPoints);
             else drawConnection(x2, y2, x1, y1, pointSize, color, color, drawPoints);
         }
     }
     drawMiniMap() {
-        if (! this.mapCanvas) return;
+        if (!this.mapCanvas) return;
         if (this.dom.style.display === 'none') return;
         const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
-        if (! bounds.isFinite) return;
+        if (!bounds.isFinite) return;
         const map = this.mapCanvas;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
@@ -4289,7 +4323,7 @@ class Node extends Div {
         function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
         function roundNearest(decimal, increment = GRID_SIZE) {
-            if (! self.graph || ! self.graph.snapToGrid) return decimal;
+            if (!self.graph || !self.graph.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
         }
         let rect = {};
@@ -4340,12 +4374,12 @@ class Node extends Div {
         let watchForSingleClick = false;
         let singleClickTimer;
         function dragDown() {
-            if (! self.graph) return;
+            if (!self.graph) return;
             self.graph.getNodes().forEach((node) => node.setStartPosition(node.left, node.top));
         }
         function dragMove(diffX, diffY) {
             watchForSingleClick = false;
-            if (! self.graph) return;
+            if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
                     node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
@@ -4366,12 +4400,12 @@ class Node extends Div {
                     self.setStyle('zIndex', nodes.length);
                 }
             }
-            if (! self.hasClass('NodeSelected')) {
+            if (!self.hasClass('NodeSelected')) {
                 const selected = document.querySelectorAll(`.NodeSelected`);
                 selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                 self.addClass('NodeSelected');
             }
-            watchForSingleClick = ! watchForSingleClick;
+            watchForSingleClick = !watchForSingleClick;
             self.dom.ownerDocument.addEventListener('pointerup', nodePointerUp);
         }
         function nodePointerUp() {
@@ -4388,7 +4422,7 @@ class Node extends Div {
         }
         this.onPointerDown(nodePointerDown);
         function nodeDoubleClick() {
-            if (! self.graph) return;
+            if (!self.graph) return;
             self.graph.centerView(false , true );
         }
         this.onDblClick(nodeDoubleClick);
@@ -4399,7 +4433,7 @@ class Node extends Div {
     get needsUpdate() { return this.#needsUpdate; }
     set needsUpdate(update) { this.#needsUpdate = update; }
     #updateSizes() {
-        if (! this.#needsUpdate) return;
+        if (!this.#needsUpdate) return;
         const computed = getComputedStyle(this.dom);
         const style = this.#style;
         style.left = parseFloat(computed.left);
@@ -4482,7 +4516,7 @@ class NodeItem extends Div {
         this.graph = () => { return (self.node && self.node.graph) ? self.node.graph : undefined; };
         function pointPointerDown(event) {
             if (event.button !== 0) return;
-            if (! self.graph()) return;
+            if (!self.graph()) return;
             event.stopPropagation();
             event.preventDefault();
             self.point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
@@ -4530,7 +4564,7 @@ class NodeItem extends Div {
         this.point.onPointerEnter(pointPointerEnter);
         this.point.onPointerLeave(pointPointerLeave);
         function breakPointerDown(event) {
-            if (! self.hasClass('ItemConnected')) return;
+            if (!self.hasClass('ItemConnected')) return;
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
@@ -4540,7 +4574,7 @@ class NodeItem extends Div {
     }
     connect(item) {
         if (item === this) return;
-        if (! this.connections.includes(item)) {
+        if (!this.connections.includes(item)) {
             if (this.connections.length >= this.quantity) {
                 this.connections[this.connections.length - 1].reduceIncoming();
                 this.connections.length = Math.max(0, this.connections.length - 1);
@@ -4663,7 +4697,7 @@ class Window extends Panel {
         this.dom.addEventListener('displayed', () => self.center(), { once: true });
     }
     addTitleBar(title = '', draggable = false, scale = 1.3) {
-        if (! this.#titleBar) {
+        if (!this.#titleBar) {
             this.#titleBar = new TitleBar(this, title, draggable, scale);
             this.addToSelf(this.#titleBar);
         } else {
@@ -4680,7 +4714,7 @@ class Window extends Panel {
         if (this.#resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', `${side}px`, 'bottom', `${top}px`);
     }
     toggleMinMax() {
-        if (! this.#maximized) {
+        if (!this.#maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
             this.setStyle('right', `0`);
@@ -4704,7 +4738,7 @@ class Window extends Panel {
 }
 class TitleBar extends Div {
     constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (! parent || ! parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+        if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
         super();
         this.setClass('TitleBar');
         this.addClass('PanelButton');
@@ -4748,8 +4782,8 @@ var css_248z$a = "/**\n *\t\tUnits\n *          px      Pixels\n *          %   
 var stylesheet$a="/**\n *\t\tUnits\n *          px      Pixels\n *          %       Percentage relative to the parent element\n *          em      Relative to the font-size of the element (2em means 2 times the size of the current font)\n *          rem     Relative to the font-size of the root element\n *          ch      Relative to the width of the character '0' of the current font\n *          ex      Relative to the height of a lowercase letter ('x') of the current font\n *          cap     Relative to the height of a capital letter of the current font\n *          vw      Relative to 1% of the width of the viewport (browser window)\n *          vh      Relative to 1% of the width of the viewport (browser window)\n *          vmin    Relative to 1% of viewport's (browser window's) smaller dimension\n *          vmax    Relative to 1% of viewport's (browser window's) larger dimension\n */\n\n:root {\n    color-scheme: light dark;\n\n    /* Scheme Colors */\n    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */\n    --darkness:               0,   0,   0;      /* lightens as theme lightens */\n    --darklight:             16,  16,  16;\n    --background-dark:       24,  24,  24;\n    --background-light:      32,  32,  32;\n    --button-dark:           40,  40,  40;\n    --button-light:          60,  60,  60;\n    --midlight:              85,  85,  85;\n    --text-dark:            100, 100, 100;\n    --text:                 190, 190, 190;\n    --text-light:           225, 225, 225;\n    --highlight:            255, 255, 255;\n    --icon-dark:              0,  90,  87;      /* #005A57 icon darkened            dark classic aqua */\n    --icon:                   0, 180, 175;      /* #00B4AF icon color               classic aqua */\n    --icon-light:            90, 255, 250;      /* #5AFFFA icon brightened          light clasic aqua */\n    --complement:           255, 113,   0;      /* #FF7100 icon shifted 180°        orange */\n    --triadic1:             216,   0, 127;      /* #D8007F icon shifted 120°        pink */\n    --triadic2:             165, 243,   0;      /* #A5F300 complement shifted 120°  lime green */\n    --triadic3:             113,  25, 185;      /* #7119B9 icon shifted 90°         purple */\n    --triadic4:             255, 253,  84;      /* #FFFD54 complement shifted 90°   yellow */\n    --triadic5:             232,  51,  37;      /* #E83325 icon shifted 150°        red */\n    --triadic6:             100, 216,  64;      /* #64D840 complement shifted 150°  green */\n\n    /* Theme Multiplier */\n    --bright:               1;                  /* 1: Mid/Dark, 0: Light */\n\n    /* Basic Colors */\n    --white:                255, 255, 255;\n    --gray:                 128, 128, 128;\n    --black:                  0,   0,   0;\n\n    /* Hue Rotation for Icon Color */\n    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */\n\n    /* Transparency */\n    --panel-transparency:   1.0;\n\n    /* Font */\n    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px)\n    --base-size:            10px;               /* Gui designed to scale from this original font size */\n    --font-size:\t\t\t14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */\n    --font-family:          'Roboto', Helvetica, Arial, sans-serif;\n\n    /* Sizes */\n    --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */\n\n    --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */\n\n    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */\n    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */\n\n    --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */\n    --pad-x-small:          0.14286em;          /*  2px; */\n    --pad-small:            0.21429em;          /*  3px; */\n    --pad-smallish:         0.28571em;          /*  4px; */\n    --pad-medium:           0.35714em;          /*  5px; */\n    --pad-large:            0.71429em;          /* 10px; */\n\n    --arrow-size:           0.4em;              /* Dropdown arrow */\n    --asset-size:           3.2em;              /* AssetBox size */\n    --button-size:          2.65em;             /* Toolbar button size */\n    --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */\n    --resize-size:          1.0em;              /* 14px, panel resizer thickness */\n    --tab-size:             2.5em;              /* Tab button diameter */\n\n    /* Timing */\n    --menu-timing:          0.2s;               /* ..in seconds */\n    --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */\n\n    /* Drop Shadows:        'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */\n\n    /* Filters */\n    --drop-shadow:          drop-shadow(var(--minus) var(--pixel) var(--pad-micro) rgba(0, 0, 0, 0.75));\n}\n";
 styleInject(css_248z$a);
 
-var css_248z$9 = "/********** BASE ELEMENTS **********/\n\n* {\n    font-family: var(--font-family);\n    font-size: var(--font-size);\n}\n\nhtml {\n    box-sizing: border-box;\n}\n\nhtml *, html *::before, html *::after {\n    box-sizing: inherit;\n}\n\nbody {\n    margin: 0;\n    padding: 0;\n\n    /* Color main text and background */\n    color: rgba(var(--text-light), 0.75);\n    background-color: rgba(var(--background-dark));\n}\n\nimage {\n    image-rendering: smooth;\n}\n\n.Text {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    padding: var(--pad-micro);\n}\n\n/********** SCROLLBARS **********/\n\n*::-webkit-scrollbar {\n    height: var(--scroll-size);\n    width: var(--scroll-size);\n    background: rgba(var(--shadow), 0.35);\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n*::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n*::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n*::-webkit-scrollbar-corner {\n    background: rgba(var(--background-dark), 1);\n}\n\n/********** SVG **********/\n\n@media all {\n    svg {\n        shape-rendering: auto;\n    }\n}\n\n/********** MISC **********/\n\n/** Grayscale filter for disabled items */\n.Disabled {\n    filter: contrast(75%) grayscale(100%);\n    opacity: 0.7;\n    pointer-events: none;\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.Unselectable {\n    user-select: none;\n}\n";
-var stylesheet$9="/********** BASE ELEMENTS **********/\n\n* {\n    font-family: var(--font-family);\n    font-size: var(--font-size);\n}\n\nhtml {\n    box-sizing: border-box;\n}\n\nhtml *, html *::before, html *::after {\n    box-sizing: inherit;\n}\n\nbody {\n    margin: 0;\n    padding: 0;\n\n    /* Color main text and background */\n    color: rgba(var(--text-light), 0.75);\n    background-color: rgba(var(--background-dark));\n}\n\nimage {\n    image-rendering: smooth;\n}\n\n.Text {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    padding: var(--pad-micro);\n}\n\n/********** SCROLLBARS **********/\n\n*::-webkit-scrollbar {\n    height: var(--scroll-size);\n    width: var(--scroll-size);\n    background: rgba(var(--shadow), 0.35);\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n*::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n*::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n*::-webkit-scrollbar-corner {\n    background: rgba(var(--background-dark), 1);\n}\n\n/********** SVG **********/\n\n@media all {\n    svg {\n        shape-rendering: auto;\n    }\n}\n\n/********** MISC **********/\n\n/** Grayscale filter for disabled items */\n.Disabled {\n    filter: contrast(75%) grayscale(100%);\n    opacity: 0.7;\n    pointer-events: none;\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.Unselectable {\n    user-select: none;\n}\n";
+var css_248z$9 = "/********** BASE ELEMENTS **********/\n\n* {\n    font-family: var(--font-family);\n    font-size: var(--font-size);\n}\n\nhtml {\n    box-sizing: border-box;\n}\n\nhtml *, html *::before, html *::after {\n    box-sizing: inherit;\n}\n\nbody {\n    margin: 0;\n    padding: 0;\n\n    /* Color main text and background */\n    color: rgba(var(--text-light), 0.75);\n    background-color: rgba(var(--background-dark));\n}\n\nimage {\n    image-rendering: smooth;\n}\n\n.Text {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    padding: var(--pad-micro);\n}\n\n/********** SCROLLBARS **********/\n\ndiv::-webkit-scrollbar {\n    height: var(--scroll-size);\n    width: var(--scroll-size);\n    background: rgba(var(--shadow), 0.35);\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-corner {\n    background: rgba(var(--background-dark), 1);\n}\n\n/********** SVG **********/\n\n@media all {\n    svg {\n        shape-rendering: auto;\n    }\n}\n\n/********** MISC **********/\n\n/** Grayscale filter for disabled items */\n.Disabled {\n    filter: contrast(75%) grayscale(100%);\n    opacity: 0.7;\n    pointer-events: none;\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.Unselectable {\n    user-select: none;\n}\n";
+var stylesheet$9="/********** BASE ELEMENTS **********/\n\n* {\n    font-family: var(--font-family);\n    font-size: var(--font-size);\n}\n\nhtml {\n    box-sizing: border-box;\n}\n\nhtml *, html *::before, html *::after {\n    box-sizing: inherit;\n}\n\nbody {\n    margin: 0;\n    padding: 0;\n\n    /* Color main text and background */\n    color: rgba(var(--text-light), 0.75);\n    background-color: rgba(var(--background-dark));\n}\n\nimage {\n    image-rendering: smooth;\n}\n\n.Text {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    padding: var(--pad-micro);\n}\n\n/********** SCROLLBARS **********/\n\ndiv::-webkit-scrollbar {\n    height: var(--scroll-size);\n    width: var(--scroll-size);\n    background: rgba(var(--shadow), 0.35);\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-corner {\n    background: rgba(var(--background-dark), 1);\n}\n\n/********** SVG **********/\n\n@media all {\n    svg {\n        shape-rendering: auto;\n    }\n}\n\n/********** MISC **********/\n\n/** Grayscale filter for disabled items */\n.Disabled {\n    filter: contrast(75%) grayscale(100%);\n    opacity: 0.7;\n    pointer-events: none;\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.Unselectable {\n    user-select: none;\n}\n";
 styleInject(css_248z$9);
 
 var css_248z$8 = "/********** ELEMENT: Input (number, text, etc) **********/\n\ninput {\n    color: rgba(var(--text), 1);\n    background-color: rgba(var(--background-dark), 0.35);\n    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.25);\n\n    border: var(--border-micro) solid rgba(var(--shadow), 0.5);\n    border-radius: var(--radius-large);\n    outline: var(--border-micro) solid rgba(var(--shadow), 0.0);\n    padding: var(--pad-x-small) var(--pad-smallish);\n    vertical-align: middle;\n    min-width: 1em;\n}\n\ninput:hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--button-dark), 0.5);\n}\n\ninput:focus {\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: var(--border-micro) solid rgb(var(--icon));\n    outline: var(--border-micro) solid rgba(var(--shadow), 1.0);\n    border-radius: 0;\n}\n\ninput.YesDrop {\n    color: rgb(0, 255, 0);\n    background: rgba(var(--darklight), 1);\n    border: var(--border-micro) solid rgb(0, 255, 0);\n    outline: var(--border-micro) solid rgb(0, 255, 0);\n    border-radius: 0;\n}\n\ninput.NoDrop {\n    color: red;\n    background: rgba(var(--darklight), 1);\n    border: var(--border-micro) solid red;\n    outline: var(--border-micro) solid red;\n    border-radius: 0;\n}\n\n/** Hide Arrow Spinners - Chrome, Safari, Edge, Opera */\ninput::-webkit-outer-spin-button,\ninput::-webkit-inner-spin-button {\n    -webkit-appearance: none;\n    margin: 0;\n}\n\n/** Hide Arrow Spinners - Firefox */\ninput[type=number] {\n    -moz-appearance: textfield;\n}\n\n/********** ELEMENT: Button **********/\n\n.Button {\n    /* display: flex; */\n    position: relative;\n\n    cursor: pointer;\n    pointer-events: all;\n\n    color: rgba(var(--text-light), 1);\n\n    border: var(--border-micro) solid rgba(var(--shadow), 0.75);\n    border-radius: var(--radius-large);\n    outline: var(--border-small) solid rgba(var(--darklight), 0.0);\n\n    background-color: rgba(var(--button-dark), 0.75);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n\n    font-size: var(--font-size);\n    margin: 0;\n    padding: var(--pad-x-small) var(--pad-medium);\n\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    vertical-align: middle;\n    white-space: nowrap;\n}\n\n.Button:not(.Selected):enabled:hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--highlight), 0.1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7));\n}\n\n.Button:not(.Selected):enabled:active {\n    color: rgba(var(--icon), 1);\n    background-color: rgba(var(--background-dark), 0.5);\n    background-image: none;\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n}\n\n.Button.Selected {\n    background-color: rgba(var(--shadow), 1.0);\n    background-image: linear-gradient(to bottom left, rgba(var(--icon-light), 0.20), rgba(var(--icon), 0.20));\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n}\n\n.Button:disabled {\n    pointer-events: none;\n}\n\n.Button:disabled {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Little borderless buttons */\n.BorderlessButton {\n    border: none;\n    border-radius: var(--radius-large);\n    background: transparent;\n    box-shadow: none;\n    outline: none;\n\n    min-height: 1.6em;\n    min-width: 1.75em;\n}\n\n.BorderlessButton:not(.Selected):enabled:hover {\n    background-image: linear-gradient(to bottom, rgba(var(--white), 0.1), rgba(var(--white), 0.2));\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) 0 rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) 0 rgba(var(--black), 0.25);\n}\n\n.BorderlessButton:not(.Selected):enabled:active {\n    background-image: linear-gradient(to bottom, rgba(var(--black), 0.2), rgba(var(--black), 0.1));\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) 0 rgba(var(--black), 0.5),\n        inset var(--pixel) var(--minus) var(--pixel) 0 rgba(var(--black), 0.5);\n}\n\n/********** ELEMENT: Input.Checkbox **********/\n\n/* Container */\n.Checkbox {\n    background: transparent;\n    display: inline-block;\n    position: relative;\n    justify-content: left;\n    cursor: pointer;\n    margin-left: 0.1em;\n}\n\n/* Native Element (holds checkbox value) */\n.CheckboxInput {\n    opacity: 0;\n    width: 0;\n    height: 0;\n}\n\n/* Visible Background: Unchecked */\n.CheckboxButton {\n    flex-grow: 0;\n    flex-shrink: 0;\n    position: absolute;\n    color: rgba(var(--text), 1);\n    background-image: none;\n    background-color: rgba(var(--background-dark), 0.5);\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.35); /* sunk-in-shadow */\n    left: 0;\n    top: 50%;\n    width: 2.0em;\n    height: 1.20em;\n    border-radius: 1.0em;\n    border: var(--border-micro) solid rgba(var(--shadow), 1.0);\n    transform: translateY(-50%);\n    transition: transform var(--menu-timing);\n}\n\n/* Visible Background: Checked */\n.CheckboxInput:checked + .CheckboxButton {\n    background-color: rgba(var(--highlight), 0.2);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7));\n    border: var(--border-micro) solid rgba(var(--shadow), 1.0);\n}\n\n/* Visible Background: Checked & Hover */\n.CheckboxInput:checked:hover + .CheckboxButton {\n    background-color: rgba(var(--highlight), 0.5);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7));\n    border: var(--border-micro) solid rgba(var(--shadow), 1.0);\n}\n\n/* Button: Unchecked */\n.CheckboxButton:before {\n    content: '';\n    flex-grow: 0;\n    flex-shrink: 0;\n    position: absolute;\n    left: 0.2em;\n    top: 50%;\n    width: 0.65em;\n    height: 0.65em;\n    background-color: rgba(var(--text-light), 0.8);\n    border-radius: 1em;\n    transform: translate(0, -50%);\n    transition: transform var(--menu-timing);\n}\n\n/* Button: Checked */\n.CheckboxInput:checked + .CheckboxButton:before {\n    /* background-color: rgba(var(--highlight), 0.7); */\n    box-shadow: 0px 0px 3px 2px rgba(var(--shadow), 0.5); /* drop shadow */\n    transform: translate(0.75em, -50%);\n    transition: transform var(--menu-timing);\n}\n\n/* Button: Hover, Unchecked */\n.CheckboxInput:hover + .CheckboxButton:before {\n    background-color: rgba(var(--highlight), 0.9);\n}\n\n/********** CLASS: Drop down buttons and menus **********/\n\n/** Buttons that drop down a 'select' option list  */\n.Dropdown.Selected, .Dropdown:not(.Selected):enabled:active {\n    background-color: rgba(var(--darklight), 1);\n    background-image: none;\n    border: var(--border-micro) solid rgb(var(--icon));\n    outline: var(--border-small) solid rgb(var(--darklight));\n    border-radius: 0;\n}\n\n/** Color input attached to Button */\n.ColorInputButton {\n    position: absolute;\n    margin: 0;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n    opacity: 0.0;\n}\n\n/** Div used for a Dropdown Color Button */\n.DropColor {\n    background-color: #ff0000;\n    width: calc(100% - 0.5em);\n    height: 1.1em;\n    border: var(--border-micro) solid rgba(var(--shadow), 0.75);\n    border-radius: var(--radius-small);\n}\n\n/********** CLASS: .DropArrow (adds a little down arrow on right side of element) **********/\n\n.DropArrow {\n    padding-right: 1.4em;\n}\n.DropArrow::after {\n    content: '';\n    position: absolute;\n    pointer-events: none;\n    width: 0;\n    height: 0;\n    right: 0.65em;\n    top: 50%;\n    transform: translateY(-25%);\n    z-index: 101; /* DropArrow */\n    border: var(--arrow-size) solid transparent;\n    border-color: rgba(var(--text-light)) transparent transparent transparent;\n    transition: all var(--menu-timing);\n}\n.DropArrow:hover::after, .DropArrow.Selected::after {\n    border-color: rgba(var(--highlight)) transparent transparent transparent;\n}\n.DropArrow.Selected::after {\n    transform: translateY(-75%) scale(1.0, -1.0);\n}\n\n/********** CLASS: .Number (Number Box) **********/\n\n.Number {\n    font-size: 100%;\n}\n\n/********** ELEMENT: Slider **********/\n\n.SlideContainer {\n    position: relative;\n    overflow: hidden;\n    width: 100%;\n}\n\n.TickMarks {\n    --divides: 10; /* (max - min) / step */\n\n    position: absolute;\n    pointer-events: none;\n\n    width: calc(100% - (var(--pad-large) * 2));\n    height: 0.2em;\n    left: var(--pad-large);\n    top: 1.2em;\n    padding: 0;\n    margin: 0;\n\n    background-image: repeating-linear-gradient(to right,\n        rgba(var(--icon), 0.75) 0 1px, transparent 1px calc((100% - var(--pad-micro)) / var(--divides)));\n}\n\n.Slider {\n    --middle: 0.5; /* (value - min) / (max - min) */\n\n    -webkit-appearance: none;\n    position: absolute;\n    width: 98%;\n    padding: 0;\n    height: 0.375em;\n    top: calc(50% - 0.375em);\n\n    background: linear-gradient(to right,\n        rgba(var(--icon), 0.65) 0%, rgba(var(--icon), 0.65) calc(var(--middle) * 100%),\n        rgba(var(--background-dark), 0.5) calc(var(--middle) * 100%), rgba(var(--background-dark), 0.5) 100%);\n    border: var(--border-micro) solid transparent;\n    border: var(--border-micro) solid rgba(var(--shadow), 1.0);\n    border-radius: var(--radius-large);\n    outline: var(--border-micro) solid transparent;\n\n    cursor: pointer;\n}\n\n.Slider:hover, .Slider:focus, .Slider:active {\n    background: linear-gradient(to right,\n        rgba(var(--icon-light), 0.65) 0%, rgba(var(--icon-light), 0.65) calc(var(--middle) * 100%),\n        rgba(var(--darklight), 0.5) calc(var(--middle) * 100%), rgba(var(--darklight), 0.5) 100%);\n    border: var(--border-micro) solid transparent;\n    border: var(--border-micro) solid rgba(var(--shadow), 1.0);\n    border-radius: var(--radius-large);\n    outline: var(--border-micro) solid transparent;\n}\n.Slider:active {\n    cursor: ew-resize;\n}\n\n/* Safari / Chrome Thumb */\n.Slider::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    appearance: none;\n    width: 1.1em;\n    height: 1.1em;\n    border: var(--border-micro) solid rgba(var(--background-dark), 1.0);\n    border-radius: 50%;\n    background-color: rgba(var(--shadow), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.8), rgba(var(--icon-dark), 0.8));\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n.Slider::-webkit-slider-thumb:hover, .Slider::-webkit-slider-thumb:active {\n    background-color: rgba(var(--shadow), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 1.0), rgba(var(--icon-dark), 1.0));\n}\n.Slider::-webkit-slider-thumb:active { cursor: ew-resize; }\n\n/* Firefox thumb */\n.Slider::-moz-range-thumb {\n    width: 1.1em;\n    height: 1.1em;\n    border: var(--border-micro) solid rgba(var(--background-dark), 1.0);\n    border-radius: 50%;\n    background-color: rgba(var(--shadow), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.8), rgba(var(--icon-dark), 0.8));\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n.Slider::-moz-range-thumb:hover, .Slider::-moz-range-thumb:active {\n    background-color: rgba(var(--shadow), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 1.0), rgba(var(--icon-dark), 1.0));\n}\n.Slider::-moz-range-thumb:active { cursor: ew-resize; }\n\n/********** ELEMENT: Text Area **********/\n\ntextarea {\n    color: rgba(var(--text), 1);\n    background-color: #222;\n    border: var(--pixel) solid rgba(var(--shadow), 1);\n    border-radius: var(--radius-large);\n    outline: none; /* for macos */\n    padding: var(--pad-small) var(--pad-large);\n    tab-size: 4;\n    white-space: pre;\n    word-wrap: normal;\n    vertical-align: top;\n}\n\ntextarea.success {\n    border-color: #8b8 !important;\n}\n\ntextarea.fail {\n    border-color: #f00 !important;\n    background-color: rgba(255, 0, 0, 0.05);\n}\n";
@@ -4772,8 +4806,8 @@ var css_248z$4 = "/***** Gooey Panel *****/\n\n.Gooey {\n    position: absolute;
 var stylesheet$4="/***** Gooey Panel *****/\n\n.Gooey {\n    position: absolute;\n    top: 0;\n    right: 0;\n    width: 21em;\n    z-index: 1; /* Gooey */\n}\n";
 styleInject(css_248z$4);
 
-var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--radius-large);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: var(--drop-shadow);\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: 1em;\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag:not(.Active) {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.DragTop:not(.Active) {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom:not(.Active) {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
-var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--radius-large);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: var(--drop-shadow);\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: 1em;\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag:not(.Active) {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.DragTop:not(.Active) {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom:not(.Active) {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
+var css_248z$3 = "/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--radius-large);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: var(--drop-shadow);\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: 1em;\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag:not(.Active) {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.DragTop:not(.Active) {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom:not(.Active) {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n.TreeDragImage {\n    display: flex;\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    left: 0;\n    top: 0;\n    background-color: transparent;\n    box-shadow: none;\n    border: none;\n    border-radius: var(--radius-small);\n    z-index: 100000; /* Drag Clone */\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
+var stylesheet$3="/********** .PropertyList **********/\n\n.PropertyList {\n    width: 100%;\n}\n\n/* --- HEADER --- */\n\n.PropertyHeaderTitle {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: calc(100% - 0.5em);\n    overflow: hidden;\n    font-size: 110%;\n    background-color: rgba(var(--icon), 0.35);\n    border: solid var(--border-small) rgba(var(--shadow), 0.65);\n    border-radius: var(--radius-large);\n    margin: var(--pad-small) 0.25em;\t\t/* vertical | horizontal */\n    padding: var(--pad-small) 0.5em;\t\t/* vertical | horizontal */\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.PropertyHeaderIcon > * {\n    filter: var(--drop-shadow);\n}\n\n.PropertyHeaderIcon {\n    flex-grow: 0;\n    flex-shrink: 0;\n    font-size: 110%;\n    position: relative; /* anchor to children with 'posiiton: absolute' */\n    display: flex;\n    width: calc(var(--arrow-size) * 3);\n    height: calc(var(--arrow-size) * 3);\n    min-width: calc(var(--arrow-size) * 3);\n    min-height: calc(var(--arrow-size) * 3);\n}\n\n.PropertyHeaderText {\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/* --- ROW --- */\n\n.PropertyRow {\n    position: relative;\n    min-height: 1.7em;\n}\n\n.PropertyRow:hover .PropertyLeft {\n    color: rgba(var(--highlight), 0.8);\n}\n\n.PropertyRow:hover .PropertyLeft .Image {\n    filter: brightness(250%);\n}\n\n.PropertySpace {\n    flex: 0 0 auto;\n    min-width: 0.2em;\n}\n\n.PropertyLeft {\n    position: relative;\n    flex-shrink: 0;\n    margin: 0;\n    padding-left: var(--pad-medium);\n    height: 100%;\n    min-height: 1.7em;\n\n    text-align: left;\n    text-transform: capitalize;\n}\n.LeftTabSpacing {\n    padding-left: 1em;\n}\n\n.PropertyRight {\n    flex-shrink: 0;\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: left;\n    text-align: left;\n    height: 100%;\n    min-height: 1.7em;\n}\n\n.PropertyLeftHalf { width: 50% !important; }\n.PropertyLeftFifth { width: 45% !important; }\n.PropertyLeftThird { width: 30% !important; }\n\n.PropertyRightHalf { width: calc(50% - var(--pad-small)) !important; }\n.PropertyRightFifth { width: calc(55% - var(--pad-small)) !important; }\n.PropertyRightThird { width: calc(70% - var(--pad-small)) !important; }\n\n.PropertyFull {\n    margin: auto;\n    margin-right: var(--pad-small) !important;\n    justify-content: center;\n    text-align: center;\n    height: 100%;\n    min-height: 1.7em;\n    width: calc(100% - var(--pad-small)) !important;\n}\n\n.PropertyFull > * {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    height: 100%;\n}\n\n/* --- RIGHT SIDE OF ROW --- */\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),\n.PropertyRight > .Input:not(.PropertyTinyRow),\n.PropertyRight > .Number:not(.PropertyTinyRow),\n.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {\n    flex: 1 1 auto;\n    min-height: 1.7em;\n    min-width: 0;\n    margin: auto;\n    text-align: left;\n    height: 100%;\n}\n\n.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {\n    text-align: center;\n}\n\n/* Right side of Property Box flex fill when using multiple controls */\n.PropertyTinyRow {\n    --min-width: 2em;\n\n    flex: 2 2 var(--min-width);\n    min-height: 1.7em;\n    min-width: var(--min-width);\n    height: 100%;\n}\n\n/* --- BUTTON --- */\n/* Button appearing in right column of PropertyList, fixed size */\n.PropertyButton {\n    position: relative;\n    height: 1.7em;\n    width: 2.1em;\n}\n\n/* Button appearing in right column of PropertyList, flex box */\n.PropertyButtonFlex {\n    flex: 1 1 auto;\n    position: relative;\n    display: block;\n    overflow: hidden;\n    margin: 0 0.05em;\n    padding: 0 0.1em;\n    height: 1.7em;\n    white-space: nowrap;\n}\n\n/********** .TreeList **********/\n\n.TreeList {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    justify-content: left;\n    overflow: auto;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-dark), 0.25);\n\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n\n    margin: var(--pad-x-small);\n\n    cursor: default;\n    outline: none; /* for macos */\n}\n\n/********** .TreeList .Option **********/\n\n.TreeList .Option {\n    text-align: left;\n    border: var(--border-small) solid transparent;\n    padding: var(--pad-small);\n    width: 100%;\n    white-space: nowrap;\n}\n.TreeList .Option:hover {\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--background-dark), 0.2);\n}\n\n.TreeList .Option.Active {\n    color: rgba(var(--highlight), 1.0);\n    background-color: rgba(var(--icon-light), 0.4);\n    border-top: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.ActiveTop {\n    border-bottom: var(--border-small) solid transparent;\n    border-bottom-left-radius: 0;\n    border-bottom-right-radius: 0;\n}\n.TreeList .Option.ActiveBottom {\n    border-top: var(--border-small) solid transparent;\n    border-top-left-radius: 0;\n    border-top-right-radius: 0;\n}\n\n.TreeList .Option.Drag:not(.Active) {\n    border: var(--border-small) solid rgba(var(--icon-light), 1.0);\n    border-radius: var(--radius-small);\n}\n.TreeList .Option.DragTop:not(.Active) {\n    border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n.TreeList .Option.DragBottom:not(.Active) {\n    border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);\n}\n\n.TreeDragImage {\n    display: flex;\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    left: 0;\n    top: 0;\n    background-color: transparent;\n    box-shadow: none;\n    border: none;\n    border-radius: var(--radius-small);\n    z-index: 100000; /* Drag Clone */\n}\n\n/********** .TreeList .Opener **********/\n\n.TreeList .Opener {\n    display: inline-block;\n    width: 1em;\n    height: 1em;\n    margin: 0 0.25em;\n\n    vertical-align: top;\n    text-align: center;\n}\n\n.TreeList .Opener.Open:after {\n    content: '-';\n}\n\n.TreeList .Opener.Closed:after {\n    content: '+';\n}\n";
 styleInject(css_248z$3);
 
 var css_248z$2 = "/***** GRAPH *****/\n\n.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n/* Div used for processing user input */\n.GraphInput {\n    background: transparent;\n    z-index: -1; /* GraphInput */\n}\n\n/* Background div that holds tiled grid */\n.GraphGrid {\n    pointer-events: none;\n    background-color: rgb(var(--darkness));\n    background-repeat: repeat;\n    transition: none;\n}\n\n/* Scalable div to hold nodes */\n.GraphNodes {\n    pointer-events: none;\n    background-color: transparent;\n    transition: none;\n}\n\n/* Canvas where lines are drawn */\n.GraphLines {\n    pointer-events: none;\n}\n\n/* Shows rubber band box */\n.GraphBandBox {\n    position: absolute;\n    display: none;\n    background-color: rgba(var(--icon), 0.2);\n    border: solid var(--border-small) rgba(var(--icon), 0.75);\n}\n\n/***** MINIMAP *****/\n\n.MiniMap {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgba(var(--icon), 0.75);\n    border-radius: var(--radius-large);\n    bottom: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.MiniMapCanvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.MiniMapResizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n/***** NODE *****/\n\n.Node {\n    --node-color:       255, 0, 0;\n\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border-radius: var(--radius-large);\n    border: none;\n    outline: solid var(--pad-micro) rgb(var(--black), 0.5);\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    z-index: 0; /* Node */\n}\n\n.Node:hover, .Node.NodeSelected {\n    filter: brightness(120%);\n}\n\n.Node.NodeSelected {\n    outline: solid var(--pad-small) rgb(var(--black), 0.5);\n}\n\n.Node.TooSmall .Resizer {\n    pointer-events: none;\n}\n\n.NodePanel {\n    pointer-events: none;\n    display: flex;\n    flex-direction: column;\n    align-items: stretch;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: visible;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n\n.NodeBorder {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--border-small) * -0.5);\n\tpadding: 0;\n}\n\n.Node.NodeSelected .NodeBorder {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.NodeResizers {\n    pointer-events: all;\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n}\n\n/***** NODE HEADER *****/\n\n.NodeHeaderTitle {\n    pointer-events: none;\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border-top-right-radius: var(--radius-large);\n    border-top-left-radius: var(--radius-large);\n    width: 100%;\n    height: 1.82em;\n    margin: 0;\n    padding: var(--pad-x-small) 0.5em; /* vertical | horizontal */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);\n}\n\n.NodeHeaderIcon .VectorBox {\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    width: 85%;\n    height: 85%;\n    filter: drop-shadow(0 0 var(--pad-x-small) rgb(var(--shadow)));\n}\n\n.NodeHeaderIcon .Image {\n    filter: brightness(calc(10 * var(--bright))) opacity(0.9);\n}\n\n.NodeHeaderIcon {\n    pointer-events: none;\n    position: absolute;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: 0.25em;\n    left: 0.2em;\n    top: 0.2em;\n    width: 1.65em;\n    height: 1.35em;\n    opacity: 1;\n    box-shadow: inset 0 0 var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.NodeHeaderText {\n    pointer-events: none;\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/***** NODE ITEM *****/\n\n.NodeInterior {\n    pointer-events: none;\n    display: flex;\n    flex-direction: row;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    min-width: 100px;\n    min-height: 25px;\n}\n\n.NodeItemList {\n    pointer-events: none;\n    display: block;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    width: 50%;\n    min-height: 25px;\n}\n\n/* Item */\n.NodeItem {\n    pointer-events: none;\n    position: relative;\n    background-color: transparent;\n    color: var(--text);\n    font-size: 85%;\n    width: 100%;\n    padding: var(--pad-medium);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    vertical-align: middle;\n}\n\n.NodeLeft {\n    text-align: left;\n    padding-left: 1.2em;\n}\n\n.NodeRight {\n    text-align: right;\n    padding-right: 1.2em;\n}\n\n/* Item point */\n.NodeItemPoint {\n    pointer-events: all;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    background-color: rgba(var(--background-dark), 1);\n    border: var(--border-small) solid rgba(var(--button-light), 1);\n    border-radius: 0.3em;\n    outline: none;\n    top: 50%;\n    overflow: visible;\n    z-index: 100; /* NodeItemPoint */\n}\n\n.NodeLeft .NodeItemPoint {\n    left: 0;\n    transform: translate(-50%, -50%);\n}\n.NodeRight .NodeItemPoint {\n    right: 0;\n    transform: translate( 50%, -50%);\n}\n\n/* Increases mouse over hit area */\n.NodeItemPoint::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n/* Inner square */\n.NodeItem.ItemConnected .NodeItemPoint::after,\n.NodeItem .NodeItemPoint.ActiveItem::after {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: var(--pad-x-small);\n    background-color: rgb(var(--node-color));\n    border-radius: 0.08em;\n}\n\n/* Item point highlight border */\n.Node.NodeSelected .NodeItemPoint {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.NodeItemPoint.HoverPoint, .Node.NodeSelected .NodeItemPoint.HoverPoint,\n.NodeItemPoint.ActiveItem, .Node.NodeSelected .NodeItemPoint.ActiveItem {\n    border: var(--border-small) solid rgba(var(--highlight), 1);\n    width: 1.2em;\n    height: 1.2em;\n}\n\n/* Item detacher */\n.NodeItemDetach {\n    pointer-events: none;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    top: 10%;\n    background-color: transparent;\n    border: none;\n    outline: none;\n    overflow: visible;\n    filter: brightness(50%);\n    transform: translateY(-50%);\n    opacity: 0;\n}\n\n.NodeRight .NodeItemDetach {\n    left: calc(100% + 0.7em);\n}\n.NodeLeft .NodeItemDetach {\n    left: calc(0em - 1.7em);\n}\n\n/* Increases mouse over hit area */\n.NodeItemDetach::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n.NodeItem.ItemConnected .NodeItemDetach {\n    pointer-events: all;\n}\n\n.NodeItem.ItemConnected:hover .NodeItemDetach {\n    opacity: 1;\n}\n\n.NodeItemDetach .Image {\n    filter: var(--drop-shadow);\n}\n\n.NodeItem.ItemConnected .NodeItemDetach:hover {\n    filter: brightness(100%);\n}\n";

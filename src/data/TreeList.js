@@ -120,6 +120,13 @@ class TreeList extends Div {
         return -1;
     }
 
+    getOption(value) {
+        for (let i = 0; i < this.options.length; i++) {
+            if (this.options[i].value === value) return this.options[i];
+        }
+        return undefined;
+    }
+
     /******************** SELECT - SINGLE ********************/
 
     getValue() {
@@ -203,6 +210,7 @@ class TreeList extends Div {
 
     setOptions(options) {
         const self = this;
+        let dragImage = null;
 
         // Clear Existing Options
         this.clearContents();
@@ -283,9 +291,39 @@ class TreeList extends Div {
         function onDragStart(event) {
             // Multi-Select
             if (self.multiSelect) {
-                event.dataTransfer.setData('text/plain', this.selectedValues);
+                const divRect = this.getBoundingClientRect();
+                const width = divRect.width;
+                const height = divRect.height * self.selectedValues.length;
+                // Div Container
+                dragImage = document.createElement('div');
+                dragImage.classList.add('TreeList');
+                dragImage.classList.add('TreeDragImage');
+                dragImage.style['width'] = `${width}px`;
+                dragImage.style['height'] = `${height}px`;
+                dragImage.style['top'] = `${height * -2}px`;
+                // Clone Options
+                for (let i = 0; i < self.selectedValues.length; i++) {
+                    const value = self.selectedValues[i];
+                    const option = self.getOption(value);
+                    const optionClone = option.cloneNode(true /* include children */);
+                    optionClone.classList.add('ActiveTop');
+                    optionClone.classList.add('ActiveBottom');
+                    dragImage.appendChild(optionClone);
+                }
+                // Set Drag Image
+                document.body.appendChild(dragImage);
+                event.dataTransfer.setDragImage(dragImage, 0, 0);
+                event.dataTransfer.setData('text/plain', self.selectedValues);
+            // Single Select
             } else {
-                event.dataTransfer.setData('text/plain', this.selectedValue);
+                event.dataTransfer.setData('text/plain', self.selectedValue);
+            }
+        }
+
+        function onDragEnd(event) {
+            if (dragImage instanceof HTMLElement) {
+                document.body.removeChild(dragImage);
+                dragImage = null;
             }
         }
 
@@ -342,13 +380,15 @@ class TreeList extends Div {
             div.addEventListener('destroy', () => div.removeEventListener('pointerdown', onPointerDown), { once: true });
             if (div.draggable) {
                 div.addEventListener('drag', onDrag);
-                div.addEventListener('dragstart', onDragStart); /* firefox needs this */
+                div.addEventListener('dragstart', onDragStart);
+                div.addEventListener('dragend', onDragEnd);
                 div.addEventListener('dragover', onDragOver);
                 div.addEventListener('dragleave', onDragLeave);
                 div.addEventListener('drop', onDrop);
                 div.addEventListener('destroy', () => {
                     div.removeEventListener('drag', onDrag);
                     div.removeEventListener('dragstart', onDragStart);
+                    div.removeEventListener('dragend', onDragEnd);
                     div.removeEventListener('dragover', onDragOver);
                     div.removeEventListener('dragleave', onDragLeave);
                     div.removeEventListener('drop', onDrop);
