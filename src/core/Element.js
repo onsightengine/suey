@@ -431,6 +431,30 @@ events.forEach(function(event) {
 
 });
 
+/******************** CAPTURE EVENTS ********************/
+
+const captureEvents = [
+    'PointerDown',
+]
+
+captureEvents.forEach(function(event) {
+    const method = 'capture' + event;
+
+    Element.prototype[method] = function(callback) {
+        const eventName = event.toLowerCase();
+        if (typeof callback === 'function') callback.bind(this);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof callback === 'function') callback(event);
+        }
+        const dom = this.dom;
+        dom.addEventListener(eventName, eventHandler);
+        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+        return this;
+    };
+});
+
 /******************** REFERENCE ********************/
 
 // 'blur'           Fires when element has lost focus (does not bubble, 'focusout' follows and does bubble)
