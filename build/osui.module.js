@@ -3183,6 +3183,7 @@ class Canvas extends Element {
 class TreeList extends Div {
     #shiftAdd = 0;
     #shiftTrack = [];
+    #dragImage = null;
     constructor(multiSelect = false) {
         super();
         const self = this;
@@ -3278,7 +3279,7 @@ class TreeList extends Div {
     }
     getOption(value) {
         for (let i = 0; i < this.options.length; i++) {
-            if (this.options[i].value === value) return this.options[i];
+            if (this.options[i].value == value) return this.options[i];
         }
         return undefined;
     }
@@ -3335,7 +3336,6 @@ class TreeList extends Div {
     }
     setOptions(options) {
         const self = this;
-        let dragImage = null;
         this.clearContents();
         function onPointerDown(event) {
             if (!event.shiftKey) {
@@ -3399,31 +3399,31 @@ class TreeList extends Div {
                 const divRect = this.getBoundingClientRect();
                 const width = divRect.width;
                 const height = divRect.height * self.selectedValues.length;
-                dragImage = document.createElement('div');
-                dragImage.classList.add('TreeList');
-                dragImage.classList.add('TreeDragImage');
-                dragImage.style['width'] = `${width}px`;
-                dragImage.style['height'] = `${height}px`;
-                dragImage.style['top'] = `${height * -2}px`;
+                self.#dragImage = document.createElement('div');
+                self.#dragImage.classList.add('TreeList');
+                self.#dragImage.classList.add('TreeDragImage');
+                self.#dragImage.style['width'] = `${width}px`;
+                self.#dragImage.style['height'] = `${height}px`;
+                self.#dragImage.style['top'] = `${height * -2}px`;
                 for (let i = 0; i < self.selectedValues.length; i++) {
                     const value = self.selectedValues[i];
                     const option = self.getOption(value);
                     const optionClone = option.cloneNode(true );
                     optionClone.classList.add('ActiveTop');
                     optionClone.classList.add('ActiveBottom');
-                    dragImage.appendChild(optionClone);
+                    self.#dragImage.appendChild(optionClone);
                 }
-                document.body.appendChild(dragImage);
-                event.dataTransfer.setDragImage(dragImage, 0, 0);
+                document.body.appendChild(self.#dragImage);
+                event.dataTransfer.setDragImage(self.#dragImage, 0, 0);
                 event.dataTransfer.setData('text/plain', self.selectedValues);
             } else {
                 event.dataTransfer.setData('text/plain', self.selectedValue);
             }
         }
         function onDragEnd(event) {
-            if (dragImage instanceof HTMLElement) {
-                document.body.removeChild(dragImage);
-                dragImage = null;
+            if (self.#dragImage instanceof HTMLElement) {
+                document.body.removeChild(self.#dragImage);
+                self.#dragImage = null;
             }
         }
         function onDragOver(event) {
@@ -3456,8 +3456,11 @@ class TreeList extends Div {
             this.classList.remove('Drag');
             this.classList.remove('DragTop');
             this.classList.remove('DragBottom');
-            if (self.onDrop && typeof self.onDrop === 'function') {
-                self.onDrop(event, this, currentDrag);
+            const data = event.dataTransfer.getData('text/plain');
+            const values = data.split(',');
+            for (let v in values) values[v] = parseInt(values[v]);
+            if (typeof self.onDrop === 'function') {
+                self.onDrop(event, this, values);
             }
             currentDrag = undefined;
         }
