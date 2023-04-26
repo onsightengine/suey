@@ -3292,7 +3292,7 @@ class TreeList extends Div {
     }
     getIndex(value) {
         for (let i = 0; i < this.options.length; i++) {
-            if (this.options[i].value === value) return i;
+            if (this.options[i].value == value) return i;
         }
         return -1;
     }
@@ -3312,7 +3312,7 @@ class TreeList extends Div {
         }
         for (let i = 0; i < this.options.length; i++) {
             const element = this.options[i];
-            if (parseInt(element.value) === parseInt(value)) {
+            if (element.value == value) {
                 element.classList.add('Active');
                 lastElement = element;
             }
@@ -3335,7 +3335,7 @@ class TreeList extends Div {
             const value = valueArray[v];
             for (let i = 0; i < this.options.length; i++) {
                 const element = this.options[i];
-                if (parseInt(element.value) === parseInt(value)) {
+                if (element.value == value) {
                     element.classList.add('Active');
                     lastElement = element;
                 }
@@ -3398,8 +3398,7 @@ class TreeList extends Div {
                 self.setValue(this.value);
             }
             this.addEventListener('pointerup', onPointerUp);
-            const changeEvent = new Event('change');
-            self.dom.dispatchEvent(changeEvent);
+            self.dom.dispatchEvent(new Event('change'));
         }
         function onPointerUp(event) {
             if (self.multiSelect) {
@@ -3448,18 +3447,29 @@ class TreeList extends Div {
         function onDragOver(event) {
             if (!currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
-            if (area < 0.25) {
-                this.classList.add('DragTop');
+            if (this.noDropAllowed) {
                 this.classList.remove('Drag');
-                this.classList.remove('DragBottom');
-            } else if (area < 0.75) {
-                this.classList.add('Drag');
-                this.classList.remove('DragTop');
-                this.classList.remove('DragBottom');
+                if (area < 0.5) {
+                    this.classList.add('DragTop');
+                    this.classList.remove('DragBottom');
+                } else {
+                    this.classList.add('DragBottom');
+                    this.classList.remove('DragTop');
+                }
             } else {
-                this.classList.add('DragBottom');
-                this.classList.remove('Drag');
-                this.classList.remove('DragTop');
+                if (area < 0.25) {
+                    this.classList.add('DragTop');
+                    this.classList.remove('Drag');
+                    this.classList.remove('DragBottom');
+                } else if (area < 0.75) {
+                    this.classList.add('Drag');
+                    this.classList.remove('DragTop');
+                    this.classList.remove('DragBottom');
+                } else {
+                    this.classList.add('DragBottom');
+                    this.classList.remove('Drag');
+                    this.classList.remove('DragTop');
+                }
             }
         }
         function onDragLeave() {
@@ -3974,23 +3984,23 @@ class Graph extends Panel {
     changeGridType(type = GRAPH_GRID_TYPES.LINES) {
         const SIZE = GRID_SIZE * 4;
         const HALF = SIZE / 2;
-        const BORDER = 1;
+        const BORDER = 0;
         const B2 = BORDER * 2;
         this.gridType = type;
         if (type === GRAPH_GRID_TYPES.LINES) {
             const squares = new Canvas(SIZE, SIZE);
             const ctx = squares.ctx;
             ctx.clearRect(0, 0, squares.width, squares.height);
-            ctx.globalAlpha = 0.45;
+            ctx.globalAlpha = 0.55;
             ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
             ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
             ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-            ctx.globalAlpha = 0.4;
+            ctx.globalAlpha = 0.45;
             ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
             ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
             ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
             ctx.globalAlpha = 1;
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 0;
             ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).cssString();
             ctx.strokeRect(0, 0, HALF, HALF);
             ctx.strokeRect(HALF, HALF, HALF, HALF);

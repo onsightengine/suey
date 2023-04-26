@@ -116,7 +116,7 @@ class TreeList extends Div {
 
     getIndex(value) {
         for (let i = 0; i < this.options.length; i++) {
-            if (this.options[i].value === value) return i;
+            if (this.options[i].value == value) return i;
         }
         return -1;
     }
@@ -145,7 +145,7 @@ class TreeList extends Div {
         // Select
         for (let i = 0; i < this.options.length; i++) {
             const element = this.options[i];
-            if (parseInt(element.value) === parseInt(value)) {
+            if (element.value == value) {
                 element.classList.add('Active');
                 lastElement = element;
             }
@@ -181,7 +181,7 @@ class TreeList extends Div {
 
             for (let i = 0; i < this.options.length; i++) {
                 const element = this.options[i];
-                if (parseInt(element.value) === parseInt(value)) {
+                if (element.value == value) {
                     element.classList.add('Active');
                     lastElement = element;
                 }
@@ -269,8 +269,7 @@ class TreeList extends Div {
             // Pointer Up Event
             this.addEventListener('pointerup', onPointerUp);
             // Dispatch 'change' Event
-            const changeEvent = new Event('change');
-            self.dom.dispatchEvent(changeEvent);
+            self.dom.dispatchEvent(new Event('change'));
         }
         function onPointerUp(event) {
             // Multi-Select
@@ -330,18 +329,29 @@ class TreeList extends Div {
         function onDragOver(event) {
             if (!currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
-            if (area < 0.25) {
-                this.classList.add('DragTop');
+            if (this.noDropAllowed) {
                 this.classList.remove('Drag');
-                this.classList.remove('DragBottom');
-            } else if (area < 0.75) {
-                this.classList.add('Drag');
-                this.classList.remove('DragTop');
-                this.classList.remove('DragBottom');
+                if (area < 0.5) {
+                    this.classList.add('DragTop');
+                    this.classList.remove('DragBottom');
+                } else {
+                    this.classList.add('DragBottom');
+                    this.classList.remove('DragTop');
+                }
             } else {
-                this.classList.add('DragBottom');
-                this.classList.remove('Drag');
-                this.classList.remove('DragTop');
+                if (area < 0.25) {
+                    this.classList.add('DragTop');
+                    this.classList.remove('Drag');
+                    this.classList.remove('DragBottom');
+                } else if (area < 0.75) {
+                    this.classList.add('Drag');
+                    this.classList.remove('DragTop');
+                    this.classList.remove('DragBottom');
+                } else {
+                    this.classList.add('DragBottom');
+                    this.classList.remove('Drag');
+                    this.classList.remove('DragTop');
+                }
             }
         }
 
