@@ -373,7 +373,6 @@ class TreeList extends Div {
             // Dropped Data
             const data = event.dataTransfer.getData('text/plain');
             const values = data.split(',');
-            for (let v in values) values[v] = parseInt(values[v]);
 
             // Let derived class handle 'drop' event
             if (typeof self.onDrop === 'function') {
