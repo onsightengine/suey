@@ -201,24 +201,24 @@
     width: 100%;
     white-space: nowrap;
 }
-.TreeList .Option:hover {
+.TreeList .Option:hover:not(.NoSelect) {
     color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--background-dark), 0.2);
 }
 
-.TreeList .Option.Active {
+.TreeList .Option.Active:not(.NoSelect) {
     color: rgba(var(--highlight), 1.0);
     background-color: rgba(var(--icon-light), 0.4);
     border-top: var(--border-small) solid rgba(var(--shadow), 0.25);
     border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);
     border-radius: var(--radius-small);
 }
-.TreeList .Option.ActiveTop {
+.TreeList .Option.ActiveTop:not(.NoSelect) {
     border-bottom: var(--border-small) solid transparent;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-.TreeList .Option.ActiveBottom {
+.TreeList .Option.ActiveBottom:not(.NoSelect) {
     border-top: var(--border-small) solid transparent;
     border-top-left-radius: 0;
     border-top-right-radius: 0;

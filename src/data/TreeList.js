@@ -387,7 +387,7 @@ class TreeList extends Div {
         self.options = [];
         for (let i = 0; i < options.length; i++) {
             const div = options[i];
-            div.className = 'Option';
+            div.classList.add('Option');
             self.dom.appendChild(div);
             self.options.push(div);
             div.addEventListener('pointerdown', onPointerDown);
