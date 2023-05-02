@@ -120,33 +120,33 @@ class NumberBox extends Element {
     }
 
     setPrecision(precision) {
-        this.precision = precision;
+        this.precision = parseFloat(precision);
         return this;
     }
 
     setStep(step) {
-        this.step = step;
+        this.step = parseFloat(step);
         return this;
     }
 
     setNudge(nudge) {
-        this.nudge = nudge;
+        this.nudge = parseFloat(nudge);
         return this;
     }
 
     setMin(min) {
-        this.min = min;
+        this.min = parseFloat(min);
         return this;
     }
 
-    setMin(max) {
-        this.max = max;
+    setMax(max) {
+        this.max = parseFloat(max);
         return this;
     }
 
     setRange(min, max) {
-        this.min = min;
-        this.max = max;
+        this.setMin(min);
+        this.setMax(max);
         return this;
     }
 
