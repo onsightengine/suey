@@ -26,7 +26,6 @@ class NumberBox extends Element {
         this.setValue(number);
 
         // Events
-
         function onChange(event) {
             if (self.dom) self.setValue(self.dom.value);
         }
@@ -34,14 +33,14 @@ class NumberBox extends Element {
         function onKeyDown(event) {
             event.stopPropagation();
 
-            if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+            if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
                 if (event.shiftKey) editor.redo();
                 else editor.undo();
                 return;
             }
 
-            switch (event.code) {
+            switch (event.key) {
                 case 'Enter':
                     if (self.dom) self.dom.style.cursor = 'text';
                     if (self.dom) self.dom.blur();

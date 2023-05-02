@@ -13,7 +13,7 @@ class TextArea extends Element {
         // Events
         function onKeyDown(event) {
             event.stopPropagation();
-            if (event.code === 'Tab') {
+            if (event.key === 'Tab') {
                 event.preventDefault();
                 const cursor = this.selectionStart;
                 this.value = this.value.substring(0, cursor) + '\t' + this.value.substring(cursor);

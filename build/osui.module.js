@@ -2259,7 +2259,7 @@ class Menu extends Div {
             }
         }
         function onKeyDown(event) {
-            switch (event.code) {
+            switch (event.key) {
                 case 'Escape': self.closeMenu(); break;
             }
         }
@@ -2512,13 +2512,13 @@ class NumberBox extends Element {
         }
         function onKeyDown(event) {
             event.stopPropagation();
-            if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+            if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
                 if (event.shiftKey) editor.redo();
                 else editor.undo();
                 return;
             }
-            switch (event.code) {
+            switch (event.key) {
                 case 'Enter':
                     if (self.dom) self.dom.style.cursor = 'text';
                     if (self.dom) self.dom.blur();
@@ -2835,7 +2835,7 @@ class TextBox extends Element {
         this.setValue(text);
         function onKeyDown(event) {
             event.stopPropagation();
-            if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+            if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
                 if (event.shiftKey) {
                     editor.redo();
@@ -3217,13 +3217,13 @@ class TreeList extends Div {
         this.selectedValues = [];
         function onKeyDown(event) {
             if (!self.multiSelect) {
-                if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
+                if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
                     let index = self.getIndex(self.selectedValue);
                     if (index === -1) return;
-                    if (event.code === 'ArrowUp') index--;
-                    if (event.code === 'ArrowDown') index++;
+                    if (event.key === 'ArrowUp') index--;
+                    if (event.key === 'ArrowDown') index++;
                     if (index >= 0 && index < self.options.length) {
                         self.setValue(self.options[index].value, true);
                         self.dom.dispatchEvent(new Event('change'));
@@ -3234,7 +3234,7 @@ class TreeList extends Div {
                     self.#shiftAdd = 0;
                     self.#shiftTrack = [];
                 }
-                if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
+                if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
                     event.preventDefault();
                     event.stopPropagation();
                     let values = [...self.selectedValues];
@@ -3244,8 +3244,8 @@ class TreeList extends Div {
                         let lastValue = values[values.length - 1];
                         let index = self.getIndex(lastValue);
                         if (index === -1) return;
-                        if (event.code === 'ArrowUp' && index + self.#shiftAdd > 0) self.#shiftAdd--;
-                        if (event.code === 'ArrowDown' && index + self.#shiftAdd < self.options.length - 1) self.#shiftAdd++;
+                        if (event.key === 'ArrowUp' && index + self.#shiftAdd > 0) self.#shiftAdd--;
+                        if (event.key === 'ArrowDown' && index + self.#shiftAdd < self.options.length - 1) self.#shiftAdd++;
                         index += self.#shiftAdd;
                         if (index < 0 || index > self.options.length - 1) return;
                         const index1 = self.getIndex(values[values.length - 1]);
@@ -3267,8 +3267,8 @@ class TreeList extends Div {
                         let lastValue = values[values.length - 1];
                         let index = self.getIndex(lastValue);
                         if (index === -1) return;
-                        if (event.code === 'ArrowUp') index--;
-                        if (event.code === 'ArrowDown') index++;
+                        if (event.key === 'ArrowUp') index--;
+                        if (event.key === 'ArrowDown') index++;
                         if (index >= 0 && index < self.options.length) {
                             self.setValues([ self.options[index].value ], true);
                             self.dom.dispatchEvent(new Event('change'));
@@ -3278,7 +3278,7 @@ class TreeList extends Div {
             }
         }
         function onKeyUp(event) {
-            switch (event.code) {
+            switch (event.key) {
                 case 'ArrowUp':
                 case 'ArrowDown':
                     event.preventDefault();
@@ -3532,7 +3532,7 @@ class TextArea extends Element {
         this.dom.setAttribute('autocomplete', 'off');
         function onKeyDown(event) {
             event.stopPropagation();
-            if (event.code === 'Tab') {
+            if (event.key === 'Tab') {
                 event.preventDefault();
                 const cursor = this.selectionStart;
                 this.value = this.value.substring(0, cursor) + '\t' + this.value.substring(cursor);
@@ -3734,7 +3734,7 @@ class Graph extends Panel {
         let spaceKey = false;
         function graphKeyDown(event) {
             if (self.dom.style.display === 'none') return;
-            if (event.code === 'Space') {
+            if (event.key === ' ') {
                 spaceKey = true;
                 self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
                 self.input.setStyle('z-index', '100');
@@ -3742,7 +3742,7 @@ class Graph extends Panel {
         }
         function graphKeyUp(event) {
             if (self.dom.style.display === 'none') return;
-            if (event.code === 'Space') {
+            if (event.key === ' ') {
                 spaceKey = false;
                 self.dom.style.cursor = 'auto';
                 self.input.setStyle('z-index', '-1');

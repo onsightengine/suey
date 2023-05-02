@@ -19,7 +19,7 @@ class TextBox extends Element {
         // Key Events
         function onKeyDown(event) {
             event.stopPropagation();
-            if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+            if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
                 if (event.shiftKey) {
                     editor.redo();

@@ -135,7 +135,7 @@ class Menu extends Div {
 
         // Key Down, watch for 'Escape'
         function onKeyDown(event) {
-            switch (event.code) {
+            switch (event.key) {
                 case 'Escape': self.closeMenu(); break;
             }
         }

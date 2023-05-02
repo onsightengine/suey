@@ -79,7 +79,7 @@ class Graph extends Panel {
         let spaceKey = false;
         function graphKeyDown(event) {
             if (self.dom.style.display === 'none') return;
-            if (event.code === 'Space') {
+            if (event.key === ' ') {
                 spaceKey = true;
                 self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
                 self.input.setStyle('z-index', '100');
@@ -87,7 +87,7 @@ class Graph extends Panel {
         }
         function graphKeyUp(event) {
             if (self.dom.style.display === 'none') return;
-            if (event.code === 'Space') {
+            if (event.key === ' ') {
                 spaceKey = false;
                 self.dom.style.cursor = 'auto';
                 self.input.setStyle('z-index', '-1');
