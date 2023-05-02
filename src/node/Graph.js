@@ -273,7 +273,7 @@ class Graph extends Panel {
 
     /******************** NODES ********************/
 
-    addNode(/* node, node, node, ...*/) {
+    addNode(/* node, node, node, ... */) {
         for (let i = 0, l = arguments.length; i < l; i++) {
             const node = arguments[i];
             if (this.nodes) {
@@ -282,24 +282,30 @@ class Graph extends Panel {
                 node.setStyle('zIndex', this.nodes.children.length);
             }
         }
+
+        // Redraw
+        this.drawMiniMap();
+        this.drawLines();
     }
 
     getNodes() {
         return this.nodes.children;
     }
 
-    removeNode(removeNode) {
-        if (!removeNode || !removeNode.isElement) return;
-        const currentZ = removeNode.zIndex;
-        const nodes = this.nodes.children;
-        const lengthBefore = nodes.length;
-        nodes.remove(removeNode);
-        const lengthAfter = nodes.length;
+    removeNode(nodeToRemove) {
+        if (!nodeToRemove || !nodeToRemove.isElement) return;
+        const currentZ = nodeToRemove.zIndex;
+        const lengthBefore = this.nodes.children.length;
+        this.nodes.remove(nodeToRemove);
+        const lengthAfter = this.nodes.children.length;
         if (lengthBefore === lengthAfter) return;
         // Adjust z stack
-        nodes.forEach((node) => {
+        this.nodes.children.forEach((node) => {
             if (node.zIndex > currentZ) node.setStyle('zIndex', `${node.zIndex - 1}`);
         });
+        // Redraw
+        this.drawMiniMap();
+        this.drawLines();
     }
 
     nodeBounds(buffer = 0, nodes = this.nodes.children, minSize = undefined) {
@@ -563,14 +569,14 @@ class Graph extends Panel {
         if (!this.mapCanvas) return;
         if (this.dom.style.display === 'none') return;
 
-        // Bounds
-        const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
-        if (!bounds.isFinite) return;
-
         // Clear
         const map = this.mapCanvas;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
+
+        // Bounds
+        const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
+        if (!bounds.isFinite) return;
 
         // Aspect Ratio
         this.#drawWidth = map.width;

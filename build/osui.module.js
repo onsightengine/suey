@@ -1078,25 +1078,28 @@ function clearChildren(element, destroy = true) {
     }
 }
 function removeFromParent(parent, element) {
+    if (!parent) return;
     if (!element) return;
-    if (element.isElement) {
+    if (element.isElement && parent.isElement) {
         for (let i = 0; i < parent.children.length; i++) {
             const child = parent.children[i];
             if (child.dom.isSameNode(element.dom)) {
-                clearChildren(element);
-                parent.children.splice(j, 1);
+                parent.children.splice(i, 1);
                 element.parent = undefined;
-                return true;
             }
         }
     }
     clearChildren(element);
     try {
-        parent.dom.removeChild(element);
+        if (parent.isElement) {
+            parent.dom.removeChild((element.isElement) ? element.dom : element);
+        } else {
+            parent.removeChild((element.isElement) ? element.dom : element);
+        }
         return true;
     } catch (exception) {
+        return false;
     }
-    return false;
 }
 const properties = [
     'display', 'flex', 'overflow', 'visibility',
@@ -3916,21 +3919,24 @@ class Graph extends Panel {
                 node.setStyle('zIndex', this.nodes.children.length);
             }
         }
+        this.drawMiniMap();
+        this.drawLines();
     }
     getNodes() {
         return this.nodes.children;
     }
-    removeNode(removeNode) {
-        if (!removeNode || !removeNode.isElement) return;
-        const currentZ = removeNode.zIndex;
-        const nodes = this.nodes.children;
-        const lengthBefore = nodes.length;
-        nodes.remove(removeNode);
-        const lengthAfter = nodes.length;
+    removeNode(nodeToRemove) {
+        if (!nodeToRemove || !nodeToRemove.isElement) return;
+        const currentZ = nodeToRemove.zIndex;
+        const lengthBefore = this.nodes.children.length;
+        this.nodes.remove(nodeToRemove);
+        const lengthAfter = this.nodes.children.length;
         if (lengthBefore === lengthAfter) return;
-        nodes.forEach((node) => {
+        this.nodes.children.forEach((node) => {
             if (node.zIndex > currentZ) node.setStyle('zIndex', `${node.zIndex - 1}`);
         });
+        this.drawMiniMap();
+        this.drawLines();
     }
     nodeBounds(buffer = 0, nodes = this.nodes.children, minSize = undefined) {
         const bounds = {
@@ -4160,11 +4166,11 @@ class Graph extends Panel {
     drawMiniMap() {
         if (!this.mapCanvas) return;
         if (this.dom.style.display === 'none') return;
-        const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
-        if (!bounds.isFinite) return;
         const map = this.mapCanvas;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
+        const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
+        if (!bounds.isFinite) return;
         this.#drawWidth = map.width;
         this.#drawHeight = map.height;
         let adjustX = 0, adjustY = 0;

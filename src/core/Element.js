@@ -348,31 +348,34 @@ function clearChildren(element, destroy = true) {
 
 /** Returns true if element was removed */
 function removeFromParent(parent, element) {
+    if (!parent) return;
     if (!element) return;
 
     // Osui Element
-    if (element.isElement) {
+    if (element.isElement && parent.isElement) {
         for (let i = 0; i < parent.children.length; i++) {
             const child = parent.children[i];
             if (child.dom.isSameNode(element.dom)) {
-                clearChildren(element);
-                parent.children.splice(j, 1);
+                parent.children.splice(i, 1);
                 element.parent = undefined;
-                return true;
             }
         }
     }
 
-    // Html Node?
+    // Clear Children
     clearChildren(element);
+
+    // Remove from Parent
     try {
-        parent.dom.removeChild(element);
+        if (parent.isElement) {
+            parent.dom.removeChild((element.isElement) ? element.dom : element);
+        } else {
+            parent.removeChild((element.isElement) ? element.dom : element);
+        }
         return true;
     } catch (exception) {
-        // REMOVE FAILED
+        return false; /* REMOVE FAILED */
     }
-
-    return false;
 }
 
 /******************** PROPERTIES ********************/
