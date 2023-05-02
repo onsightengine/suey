@@ -4422,6 +4422,7 @@ class Node extends Div {
                 if (node.hasClass('NodeSelected')) {
                     node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
                     node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
+                    node.dom.dispatchEvent(new Event('dragged'));
                 }
             });
         }
