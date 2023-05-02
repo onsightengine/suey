@@ -3943,6 +3943,7 @@ class Graph extends Panel {
             x: { min: Infinity, max: -Infinity },
             y: { min: Infinity, max: -Infinity },
             isFinite: false,
+            center: function() { return { x: 0, y: 0 }; },
         };
         nodes.forEach((node) => {
             bounds.x.min = Math.min(bounds.x.min, node.left);
