@@ -138,11 +138,18 @@ class Node extends Div {
                 if (node.hasClass('NodeSelected')) {
                     node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
                     node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
+                }
+            });
+        }
+        function dragUp() {
+            if (!self.graph) return;
+            self.graph.getNodes().forEach((node) => {
+                if (node.hasClass('NodeSelected')) {
                     node.dom.dispatchEvent(new Event('dragged'));
                 }
             });
         }
-        Interaction.makeDraggable(self, self, false, dragDown, dragMove);
+        Interaction.makeDraggable(self, self, false, dragDown, dragMove, dragUp);
 
         // Selectable
         function nodePointerDown(event) {
