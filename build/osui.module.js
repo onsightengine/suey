@@ -3366,33 +3366,44 @@ class TreeList extends Div {
                 self.#shiftTrack = [];
             }
             if (self.multiSelect) {
+                let multiAllowed = false;
+                multiAllowed = multiAllowed || !this.singleSelect;
+                multiAllowed = multiAllowed || self.selectedValues.length < 1;
+                if (self.selectedValues.length === 1) {
+                    const option = self.getOption(self.selectedValues[0]);
+                    if (option && option.singleSelect === true) multiAllowed = false;
+                }
                 let values = [...self.selectedValues];
                 if (event.altKey || event.ctrlKey || event.metaKey) {
                     if (values.includes(this.value)) {
                         const index = values.indexOf(this.value);
                         values.splice(index, 1);
                     } else {
-                        values.push(this.value);
+                        if (multiAllowed) values.push(this.value);
                     }
                     self.setValues(values);
                 } else if (event.shiftKey && values.length > 0) {
-                    if (self.#shiftTrack.length === 0) self.#shiftTrack = [...self.selectedValues];
-                    values = [...self.#shiftTrack];
-                    const index1 = self.getIndex(values[values.length - 1]);
-                    const index2 = self.getIndex(this.value);
-                    if (index1 < index2) {
-                        for (let i = index1; i <= index2; i++) {
-                            const value = self.options[i].value;
-                            if (!values.includes(value)) values.push(value);
+                    if (multiAllowed) {
+                        if (self.#shiftTrack.length === 0) self.#shiftTrack = [...self.selectedValues];
+                        values = [...self.#shiftTrack];
+                        const index1 = self.getIndex(values[values.length - 1]);
+                        const index2 = self.getIndex(this.value);
+                        if (index1 < index2) {
+                            for (let i = index1; i <= index2; i++) {
+                                if (self.options[i].singleSelect) continue;
+                                const value = self.options[i].value;
+                                if (!values.includes(value)) values.push(value);
+                            }
+                        } else {
+                            for (let i = index1; i >= index2; i--) {
+                                if (self.options[i].singleSelect) continue;
+                                const value = self.options[i].value;
+                                if (!values.includes(value)) values.push(value);
+                            }
                         }
-                    } else {
-                        for (let i = index1; i >= index2; i--) {
-                            const value = self.options[i].value;
-                            if (!values.includes(value)) values.push(value);
-                        }
+                        self.#shiftAdd = index2 - index1;
+                        self.setValues(values);
                     }
-                    self.#shiftAdd = index2 - index1;
-                    self.setValues(values);
                 } else {
                     if (!values.includes(this.value)) {
                         self.setValues([ this.value ]);
@@ -3451,7 +3462,11 @@ class TreeList extends Div {
         function onDragOver(event) {
             if (!currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
-            if (this.noDropAllowed) {
+            if (this.dropGroup !== currentDrag.dropGroup) {
+                this.classList.remove('Drag');
+                this.classList.remove('DragTop');
+                this.classList.remove('DragBottom');
+            } else if (this.noDirectDrop) {
                 this.classList.remove('Drag');
                 if (area < 0.5) {
                     this.classList.add('DragTop');
@@ -3485,14 +3500,15 @@ class TreeList extends Div {
         function onDrop(event) {
             event.preventDefault();
             event.stopPropagation();
-            if (!currentDrag || this === currentDrag) return;
             this.classList.remove('Drag');
             this.classList.remove('DragTop');
             this.classList.remove('DragBottom');
-            const data = event.dataTransfer.getData('text/plain');
-            const values = data.split(',');
-            if (typeof self.onDrop === 'function') {
-                self.onDrop(event, this, values);
+            if (currentDrag && this !== currentDrag && this.dropGroup === currentDrag.dropGroup) {
+                const data = event.dataTransfer.getData('text/plain');
+                const values = data.split(',');
+                if (typeof self.onDrop === 'function') {
+                    self.onDrop(event, this, values);
+                }
             }
             currentDrag = undefined;
         }

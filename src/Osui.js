@@ -117,7 +117,7 @@ export { VectorBox } from './layout/VectorBox.js';
 // Menu
 export { Menu } from './menu/Menu.js';
 export { MenuItem } from './menu/MenuItem.js';
-export { MenuSeparator } from './menu/MenuSeperator.js';
+export { MenuSeparator } from './menu/MenuSeparator.js';
 export { MenuShortcut } from './menu/MenuShortcut.js';
 export { ToolbarButton } from './menu/ToolbarButton.js';
 export { ToolbarSeparator } from './menu/ToolbarSeparator.js';
