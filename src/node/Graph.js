@@ -130,6 +130,7 @@ class Graph extends Panel {
                 grabbing = false;
             }
             if (selecting) {
+                self.dom.dispatchEvent(new Event('selected'));
                 self.bandbox.setStyle('display', 'none');
                 selecting = false;
             }

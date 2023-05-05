@@ -3800,6 +3800,7 @@ class Graph extends Panel {
                 grabbing = false;
             }
             if (selecting) {
+                self.dom.dispatchEvent(new Event('selected'));
                 self.bandbox.setStyle('display', 'none');
                 selecting = false;
             }
@@ -4422,6 +4423,7 @@ class Node extends Div {
             'width', `${parseFloat(width)}px`,
             'height', `${parseFloat(height)}px`,
         );
+        let clickCount = 0;
         let watchForSingleClick = false;
         let singleClickTimer;
         function dragDown() {
@@ -4430,6 +4432,7 @@ class Node extends Div {
         }
         function dragMove(diffX, diffY) {
             watchForSingleClick = false;
+            clickCount = 0;
             if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
@@ -4444,6 +4447,7 @@ class Node extends Div {
         }
         Interaction.makeDraggable(self, self, false, dragDown, dragMove, dragUp);
         function nodePointerDown(event) {
+            clickCount++;
             if (event && event.button !== 0) {
                 if (self.graph) setTimeout(() => self.graph.input.dom.dispatchEvent(event), 0);
                 return;
@@ -4455,23 +4459,28 @@ class Node extends Div {
                     self.setStyle('zIndex', nodes.length);
                 }
             }
+            const selected = document.querySelectorAll(`.NodeSelected`);
             if (!self.hasClass('NodeSelected')) {
-                const selected = document.querySelectorAll(`.NodeSelected`);
                 selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                 self.addClass('NodeSelected');
+                if (self.graph) self.graph.dom.dispatchEvent(new Event('selected'));
+                watchForSingleClick = false;
+            } else if (selected.length > 1) {
+                watchForSingleClick = true;
             }
-            watchForSingleClick = !watchForSingleClick;
             self.dom.ownerDocument.addEventListener('pointerup', nodePointerUp);
         }
         function nodePointerUp() {
             clearTimeout(singleClickTimer);
             singleClickTimer = setTimeout(() => {
-                if (watchForSingleClick) {
+                if (watchForSingleClick && clickCount === 1) {
                     const selected = document.querySelectorAll(`.NodeSelected`);
                     selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                     self.addClass('NodeSelected');
-                    watchForSingleClick = false;
+                    if (self.graph) self.graph.dom.dispatchEvent(new Event('selected'));
                 }
+                clickCount = 0;
+                watchForSingleClick = false;
             }, 250);
             self.dom.ownerDocument.removeEventListener('pointerup', nodePointerUp);
         }

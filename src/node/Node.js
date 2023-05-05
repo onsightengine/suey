@@ -119,6 +119,7 @@ class Node extends Div {
         );
 
         // Dragging (Handle Multiple)
+        let clickCount = 0;
         let watchForSingleClick = false;
         let singleClickTimer;
         function dragDown() {
@@ -127,6 +128,7 @@ class Node extends Div {
         }
         function dragMove(diffX, diffY) {
             watchForSingleClick = false;
+            clickCount = 0;
             if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
@@ -143,6 +145,7 @@ class Node extends Div {
 
         // Selectable
         function nodePointerDown(event) {
+            clickCount++;
             // Forward right click to Graph
             if (event && event.button !== 0) {
                 if (self.graph) setTimeout(() => self.graph.input.dom.dispatchEvent(event), 0);
@@ -157,23 +160,28 @@ class Node extends Div {
                 }
             }
             // Select
+            const selected = document.querySelectorAll(`.NodeSelected`);
             if (!self.hasClass('NodeSelected')) {
-                const selected = document.querySelectorAll(`.NodeSelected`);
                 selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                 self.addClass('NodeSelected');
+                if (self.graph) self.graph.dom.dispatchEvent(new Event('selected'));
+                watchForSingleClick = false;
+            } else if (selected.length > 1) {
+                watchForSingleClick = true;
             }
-            watchForSingleClick = !watchForSingleClick;
             self.dom.ownerDocument.addEventListener('pointerup', nodePointerUp);
         }
         function nodePointerUp() {
             clearTimeout(singleClickTimer);
             singleClickTimer = setTimeout(() => {
-                if (watchForSingleClick) {
+                if (watchForSingleClick && clickCount === 1) {
                     const selected = document.querySelectorAll(`.NodeSelected`);
                     selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
                     self.addClass('NodeSelected');
-                    watchForSingleClick = false;
+                    if (self.graph) self.graph.dom.dispatchEvent(new Event('selected'));
                 }
+                clickCount = 0;
+                watchForSingleClick = false;
             }, 250);
             self.dom.ownerDocument.removeEventListener('pointerup', nodePointerUp);
         }
