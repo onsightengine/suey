@@ -4377,10 +4377,6 @@ class Node extends Div {
         this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
         function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
-        function roundNearest(decimal, increment = GRID_SIZE) {
-            if (!self.graph || !self.graph.snapToGrid) return decimal;
-            return Math.round(decimal / increment) * increment;
-        }
         let rect = {};
         function resizerDown() {
             rect.left = self.left;
@@ -4394,21 +4390,21 @@ class Node extends Div {
             diffX *= (1 / scale);
             diffY *= (1 / scale);
             if (resizer.hasClassWithString('Left')) {
-                const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W$1);
+                const newWidth = Math.max(self.roundNearest(rect.width - diffX), MIN_W$1);
                 const newLeft = rect.left + (rect.width - newWidth);
                 self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
             }
             if (resizer.hasClassWithString('Top')) {
-                const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H$1);
+                const newHeight = Math.max(self.roundNearest(rect.height - diffY), MIN_H$1);
                 const newTop = rect.top + (rect.height - newHeight);
                 self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
             }
             if (resizer.hasClassWithString('Right')) {
-                const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W$1);
+                const newWidth = Math.max(self.roundNearest(rect.width + diffX), MIN_W$1);
                 self.setStyle('width', `${newWidth}px`);
             }
             if (resizer.hasClassWithString('Bottom')) {
-                const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H$1);
+                const newHeight = Math.max(self.roundNearest(rect.height + diffY), MIN_H$1);
                 self.setStyle('height', `${newHeight}px`);
             }
         }
@@ -4421,8 +4417,8 @@ class Node extends Div {
         });
         observer.observe(this.dom, { attributes: true, attributeFilter: [ 'style', 'class' ] });
         this.setStyle(
-            'left', `${roundNearest(parseFloat(x))}px`,
-            'top', `${roundNearest(parseFloat(y))}px`,
+            'left', `${this.roundNearest(parseFloat(x))}px`,
+            'top', `${this.roundNearest(parseFloat(y))}px`,
             'width', `${parseFloat(width)}px`,
             'height', `${parseFloat(height)}px`,
         );
@@ -4437,18 +4433,14 @@ class Node extends Div {
             if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
-                    node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
-                    node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
+                    node.setStyle('left', `${self.roundNearest(node.getStartPosition().x + diffX)}px`);
+                    node.setStyle('top', `${self.roundNearest(node.getStartPosition().y + diffY)}px`);
                 }
             });
         }
         function dragUp() {
             if (!self.graph) return;
-            self.graph.getNodes().forEach((node) => {
-                if (node.hasClass('NodeSelected')) {
-                    node.dom.dispatchEvent(new Event('dragged'));
-                }
-            });
+            self.dom.dispatchEvent(new Event('dragged'));
         }
         Interaction.makeDraggable(self, self, false, dragDown, dragMove, dragUp);
         function nodePointerDown(event) {
@@ -4520,6 +4512,10 @@ class Node extends Div {
     get right()  { this.#updateSizes(); return this.#style.right; }
     get bottom() { this.#updateSizes(); return this.#style.bottom; }
     get zIndex() { this.#updateSizes(); return this.#style.zIndex; }
+    roundNearest(decimal, increment = GRID_SIZE) {
+        if (!this.graph || !this.graph.snapToGrid) return decimal;
+        return Math.round(decimal / increment) * increment;
+    }
     getScale() {
         return (this.graph ? this.graph.getScale() : 1.0);
     }

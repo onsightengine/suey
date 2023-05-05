@@ -67,12 +67,6 @@ class Node extends Div {
         function onContextMenu(event) { event.preventDefault(); }
         this.onContextMenu(onContextMenu);
 
-        // Snapping
-        function roundNearest(decimal, increment = GRID_SIZE) {
-            if (!self.graph || !self.graph.snapToGrid) return decimal;
-            return Math.round(decimal / increment) * increment;
-        }
-
         // Resizers
         let rect = {};
         function resizerDown() {
@@ -87,21 +81,21 @@ class Node extends Div {
             diffX *= (1 / scale);
             diffY *= (1 / scale);
             if (resizer.hasClassWithString('Left')) {
-                const newWidth = Math.max(roundNearest(rect.width - diffX), MIN_W);
+                const newWidth = Math.max(self.roundNearest(rect.width - diffX), MIN_W);
                 const newLeft = rect.left + (rect.width - newWidth);
                 self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
             }
             if (resizer.hasClassWithString('Top')) {
-                const newHeight = Math.max(roundNearest(rect.height - diffY), MIN_H);
+                const newHeight = Math.max(self.roundNearest(rect.height - diffY), MIN_H);
                 const newTop = rect.top + (rect.height - newHeight);
                 self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
             }
             if (resizer.hasClassWithString('Right')) {
-                const newWidth = Math.max(roundNearest(rect.width + diffX), MIN_W);
+                const newWidth = Math.max(self.roundNearest(rect.width + diffX), MIN_W);
                 self.setStyle('width', `${newWidth}px`);
             }
             if (resizer.hasClassWithString('Bottom')) {
-                const newHeight = Math.max(roundNearest(rect.height + diffY), MIN_H);
+                const newHeight = Math.max(self.roundNearest(rect.height + diffY), MIN_H);
                 self.setStyle('height', `${newHeight}px`);
             }
         }
@@ -118,8 +112,8 @@ class Node extends Div {
 
         // Initial Size
         this.setStyle(
-            'left', `${roundNearest(parseFloat(x))}px`,
-            'top', `${roundNearest(parseFloat(y))}px`,
+            'left', `${this.roundNearest(parseFloat(x))}px`,
+            'top', `${this.roundNearest(parseFloat(y))}px`,
             'width', `${parseFloat(width)}px`,
             'height', `${parseFloat(height)}px`,
         );
@@ -136,18 +130,14 @@ class Node extends Div {
             if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
                 if (node.hasClass('NodeSelected')) {
-                    node.setStyle('left', `${roundNearest(node.getStartPosition().x + diffX)}px`);
-                    node.setStyle('top', `${roundNearest(node.getStartPosition().y + diffY)}px`);
+                    node.setStyle('left', `${self.roundNearest(node.getStartPosition().x + diffX)}px`);
+                    node.setStyle('top', `${self.roundNearest(node.getStartPosition().y + diffY)}px`);
                 }
             });
         }
         function dragUp() {
             if (!self.graph) return;
-            self.graph.getNodes().forEach((node) => {
-                if (node.hasClass('NodeSelected')) {
-                    node.dom.dispatchEvent(new Event('dragged'));
-                }
-            });
+            self.dom.dispatchEvent(new Event('dragged'));
         }
         Interaction.makeDraggable(self, self, false, dragDown, dragMove, dragUp);
 
@@ -234,6 +224,12 @@ class Node extends Div {
     get right()  { this.#updateSizes(); return this.#style.right; }
     get bottom() { this.#updateSizes(); return this.#style.bottom; }
     get zIndex() { this.#updateSizes(); return this.#style.zIndex; }
+
+    // Snapping
+    roundNearest(decimal, increment = GRID_SIZE) {
+        if (!this.graph || !this.graph.snapToGrid) return decimal;
+        return Math.round(decimal / increment) * increment;
+    }
 
     /******************** SCALE / SNAP / RESIZE */
 
