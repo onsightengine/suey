@@ -96,7 +96,7 @@
     filter: brightness(120%);
 }
 
-.Node.NodeSelected {
+.Node.NodeSelected, .Node.NodeDisplayed {
     outline: solid var(--pad-small) rgb(var(--black), 0.5);
 }
 
@@ -130,6 +130,10 @@
     left: 0; top: 0; right: 0; bottom: 0;
     margin: calc(var(--border-small) * -0.5);
 	padding: 0;
+}
+
+.Node.NodeDisplayed .NodeBorder {
+    border: var(--border-small) solid rgba(var(--complement), 1);
 }
 
 .Node.NodeSelected .NodeBorder {
@@ -297,6 +301,9 @@
 }
 
 /* Item point highlight border */
+.Node.NodeDisplayed .NodeItemPoint {
+    border: var(--border-small) solid rgba(var(--complement), 1);
+}
 .Node.NodeSelected .NodeItemPoint {
     border: var(--border-small) solid rgba(var(--icon), 1);
 }
