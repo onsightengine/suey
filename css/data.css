@@ -55,7 +55,7 @@
 
 .PropertyRow {
     position: relative;
-    min-height: 1.7em;
+    min-height: var(--row-height);
 }
 
 .PropertyRow:hover .PropertyLeft {
@@ -77,7 +77,7 @@
     margin: 0;
     padding-left: var(--pad-medium);
     height: 100%;
-    min-height: 1.7em;
+    min-height: var(--row-height);
 
     text-align: left;
     text-transform: capitalize;
@@ -93,7 +93,7 @@
     justify-content: left;
     text-align: left;
     height: 100%;
-    min-height: 1.7em;
+    min-height: var(--row-height);
 }
 
 .PropertyLeftHalf { width: 50% !important; }
@@ -110,13 +110,13 @@
     justify-content: center;
     text-align: center;
     height: 100%;
-    min-height: 1.7em;
+    min-height: var(--row-height);
     width: calc(100% - var(--pad-small)) !important;
 }
 
 .PropertyFull > * {
     flex: 1 1 auto;
-    min-height: 1.7em;
+    min-height: var(--row-height);
     min-width: 0;
     margin: auto;
     height: 100%;
@@ -129,7 +129,7 @@
 .PropertyRight > .Number:not(.PropertyTinyRow),
 .PropertyRight > .SlideContainer:not(.PropertyTinyRow) {
     flex: 1 1 auto;
-    min-height: 1.7em;
+    min-height: var(--row-height);
     min-width: 0;
     margin: auto;
     text-align: left;
@@ -145,7 +145,7 @@
     --min-width: 2em;
 
     flex: 2 2 var(--min-width);
-    min-height: 1.7em;
+    min-height: var(--row-height);
     min-width: var(--min-width);
     height: 100%;
 }
@@ -154,7 +154,7 @@
 /* Button appearing in right column of PropertyList, fixed size */
 .PropertyButton {
     position: relative;
-    height: 1.7em;
+    height: var(--row-height);
     width: 2.1em;
 }
 
@@ -166,7 +166,7 @@
     overflow: hidden;
     margin: 0 0.05em;
     padding: 0 0.1em;
-    height: 1.7em;
+    height: var(--row-height);
     white-space: nowrap;
 }
 

@@ -335,7 +335,7 @@
     left: calc(100% + 0.7em);
 }
 .NodeLeft .NodeItemDetach {
-    left: calc(0em - 1.7em);
+    left: calc(0em - var(--row-height));
 }
 
 /* Increases mouse over hit area */

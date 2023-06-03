@@ -13,7 +13,7 @@
     vertical-align: middle;
 }
 
-/********** .AssetBox / .MiniAssetBox **********/
+/********** .AssetBox / .AssetBoxIconOnly **********/
 
 .AssetBox {
     position: relative;
@@ -23,34 +23,53 @@
     border: var(--border-small) solid transparent;
     border-radius: var(--radius-large);
     margin: var(--pad-x-small);
+    vertical-align: middle;
 
     outline: none; /* for macos */
 }
 
-.MiniAssetBox {
-    /* Minimum Icon Size: */
-    min-width: var(--asset-size);
-    min-height: var(--asset-size);
-}
-
-.MiniAssetBox:hover {
+.AssetBoxSelectable:hover {
     background-color: rgba(var(--highlight), 0.15);
     border: var(--border-small) solid rgba(var(--shadow), 0.5);
     border-radius: var(--radius-large);
 }
 
-.MiniAssetBox:active, .MiniAssetBox:focus {
+.AssetBoxSelectable:active, .AssetBoxSelectable:focus {
     background-color: rgba(var(--shadow), 1.0);
     border: var(--border-small) solid rgba(var(--icon-light), 1);
     border-radius: 0;
 }
 
-.MiniAssetBox:focus > *, .MiniAssetBox:active > * {
+.AssetBoxSelectable:focus > *, .AssetBoxSelectable:active > * {
     filter: brightness(100%);
 }
 
-.MiniAssetBox:hover > * {
+.AssetBoxSelectable:hover > * {
     filter: brightness(150%);
+}
+
+.AssetBoxMini {
+    /* Minimum Icon Size: */
+    min-width: var(--asset-size);
+    min-height: var(--asset-size);
+}
+
+.AssetBoxRow {
+    width: 100%;
+    min-height: var(--row-height);
+}
+
+.AssetBoxIcon {
+    position: relative;
+    width: var(--row-height);
+    height: 100%;
+}
+
+.AssetBoxText {
+    position: relative;
+    width: calc(100% - var(--row-height));
+    margin: auto;
+    margin-left: 0.5em;
 }
 
 /********** .DockerLeft / .DockerRight **********/

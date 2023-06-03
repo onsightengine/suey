@@ -82,6 +82,7 @@
     --button-size:          2.65em;             /* Toolbar button size */
     --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */
     --resize-size:          1.0em;              /* 14px, panel resizer thickness */
+    --row-height:           1.7em;              /* min row height (AssetBox, PropertyList, TreeList, etc.) */
     --tab-size:             2.5em;              /* Tab button diameter */
 
     /* Timing */

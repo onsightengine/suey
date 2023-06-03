@@ -1,19 +1,13 @@
 import { Div } from '../core/Div.js';
+import { Span } from '../core/Span.js';
 import { ShadowBox } from './ShadowBox.js';
 
 class AssetBox extends Div {
 
-    constructor(title = '', isMini = true) {
+    constructor(title = '', iconOnly = true, isMini = true) {
         super();
         this.setClass('AssetBox');
-        this.dom.tabIndex = 0;				// NOTE: Enables user focus / selection
-
-        // Mini Asset or No?
-        if (isMini) {
-            this.addClass('MiniAssetBox');
-        } else {
-            /* NOTHING */
-        }
+        this.dom.tabIndex = 0; /* enables user focus / selection */
 
         // Tooltip
         if (title !== '') this.dom.setAttribute('tooltip', title);
@@ -25,8 +19,23 @@ class AssetBox extends Div {
         // Image
         const assetImageHolder = new ShadowBox();
         assetImageHolder.dom.draggable = true;
-        this.add(assetImageHolder);
 
+        // Display Format
+        if (iconOnly) {
+            if (isMini) {
+                this.addClass('AssetBoxMini');
+                this.addClass('AssetBoxSelectable');
+            }
+            this.add(assetImageHolder);
+        } else {
+            this.addClass('AssetBoxRow');
+            this.addClass('AssetBoxSelectable');
+            const spanIcon = new Span().setClass('AssetBoxIcon').add(assetImageHolder);
+            const spanText = new Span(title).setClass('AssetBoxText');
+            this.add(spanIcon, spanText);
+        }
+
+        // Contents Function
         this.contents = function() { return assetImageHolder };
     }
 
