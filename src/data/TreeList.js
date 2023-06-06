@@ -307,7 +307,7 @@ class TreeList extends Div {
                 // Div Container
                 self.#dragImage = document.createElement('div');
                 self.#dragImage.classList.add('TreeList');
-                self.#dragImage.classList.add('TreeDragImage');
+                self.#dragImage.classList.add('DragImage');
                 self.#dragImage.style['width'] = `${width}px`;
                 self.#dragImage.style['height'] = `${height}px`;
                 self.#dragImage.style['top'] = `${height * -2}px`;

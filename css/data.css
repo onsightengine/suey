@@ -235,21 +235,6 @@
     border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
 
-.TreeDragImage {
-    display: flex;
-    position: absolute;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    left: 0;
-    top: 0;
-    background-color: transparent;
-    box-shadow: none;
-    border: none;
-    border-radius: var(--radius-small);
-    z-index: 100000; /* Drag Clone */
-}
-
 /********** .TreeList .Opener **********/
 
 .TreeList .Opener {
@@ -268,4 +253,21 @@
 
 .TreeList .Opener.Closed:after {
     content: '+';
+}
+
+/********** .DragImage **********/
+
+.DragImage {
+    display: flex;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    left: 0;
+    top: 0;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: var(--radius-small);
+    z-index: 100000; /* Drag Clone */
 }
