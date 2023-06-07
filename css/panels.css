@@ -4,6 +4,7 @@
     pointer-events: auto;
     position: relative;
     overflow: visible;
+    outline: none; /* for macos */
     z-index: 0; /* Panel */
 }
 

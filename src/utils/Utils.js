@@ -24,7 +24,7 @@ class Utils {
         return false;
     }
 
-    /** Check if 'element' is a descendant of a parent element with class type 'className', i.e. 'Menu', 'Input', etc. */
+    /** Check if 'element' is a descendant of a parent element with class type 'className', i.e. 'Menu', 'TextBox', etc. */
     static isChildOfElementWithClass(element, className) {
         if (element.isElement && element.dom) element = element.dom;
         let parent = element.parentElement;

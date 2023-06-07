@@ -4,7 +4,7 @@ class TextBox extends Element {
 
     constructor(text) {
         super(document.createElement('input'));
-        this.setClass('Input');
+        this.setClass('TextBox');
 
         this.dom.type = 'text';
 

@@ -1,4 +1,4 @@
-/********** ELEMENT: Input (number, text, etc) **********/
+/********** ELEMENT: <input> (number, text, etc) **********/
 
 input {
     color: rgba(var(--text), 1);
@@ -140,7 +140,7 @@ input[type=number] {
         inset var(--pixel) var(--minus) var(--pixel) 0 rgba(var(--black), 0.5);
 }
 
-/********** ELEMENT: Input.Checkbox **********/
+/********** ELEMENT: TextBox.Checkbox **********/
 
 /* Container */
 .Checkbox {
@@ -403,4 +403,12 @@ textarea.success {
 textarea.fail {
     border-color: #f00 !important;
     background-color: rgba(255, 0, 0, 0.05);
+}
+
+/********** ELEMENT: Text Box **********/
+
+.TextBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }

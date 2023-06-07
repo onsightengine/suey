@@ -49,12 +49,12 @@ class AssetBox extends Div {
                 case 'ArrowUp':
                 case 'ArrowLeft':
                     if (index === 0) return;
-                    assets.children[index - 1].dom.focus();
+                    assets.children[index - 1].focus();
                     break;
                 case 'ArrowDown':
                 case 'ArrowRight':
                     if (index === (assets.children.length - 1)) return;
-                    assets.children[index + 1].dom.focus();
+                    assets.children[index + 1].focus();
                     break;
             }
         });

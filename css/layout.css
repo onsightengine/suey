@@ -56,12 +56,13 @@
 
 .AssetBoxRow {
     width: 100%;
-    min-height: var(--row-height);
+    min-height: 2em;
+    padding: var(--pad-x-small);
 }
 
 .AssetBoxIcon {
     position: relative;
-    width: var(--row-height);
+    min-width: var(--row-height);
     height: 100%;
 }
 
@@ -69,7 +70,8 @@
     position: relative;
     width: calc(100% - var(--row-height));
     margin: auto;
-    margin-left: 0.5em;
+    margin-left: 0.25em;
+    white-space: nowrap;
 }
 
 /********** .DockerLeft / .DockerRight **********/

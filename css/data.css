@@ -125,7 +125,7 @@
 /* --- RIGHT SIDE OF ROW --- */
 
 .PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),
-.PropertyRight > .Input:not(.PropertyTinyRow),
+.PropertyRight > .TextBox:not(.PropertyTinyRow),
 .PropertyRight > .Number:not(.PropertyTinyRow),
 .PropertyRight > .SlideContainer:not(.PropertyTinyRow) {
     flex: 1 1 auto;
