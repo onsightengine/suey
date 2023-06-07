@@ -1124,6 +1124,7 @@ Object.defineProperties(Element.prototype, {
     },
 });
 const events = [
+    'Focus', 'Blur',
     'Change', 'Input', 'Wheel',
     'KeyUp', 'KeyDown',
     'Click', 'DblClick', 'ContextMenu',
@@ -1295,8 +1296,11 @@ class VectorBox extends Div {
         return newImage;
     }
     enableDragging() {
+        if (this.dom) this.dom.draggable = true;
         for (let j = 0; j < this.contents().children.length; j++) {
-            this.contents().children[j].dom.ondragstart = () => {};
+            if (this.contents().children[j].dom) {
+                this.contents().children[j].dom.ondragstart = () => {};
+            }
         }
     }
     setImage(imageUrl) {
@@ -3601,6 +3605,24 @@ class AssetBox extends Div {
             this.add(spanIcon, spanText);
         }
         this.contents = function() { return assetImageHolder };
+        this.onKeyDown((event) => {
+            const assets = this.parent;
+            if (!assets || !assets.isElement) return;
+            const index = assets.children.indexOf(this);
+            if (index === -1) return;
+            switch (event.key) {
+                case 'ArrowUp':
+                case 'ArrowLeft':
+                    if (index === 0) return;
+                    assets.children[index - 1].dom.focus();
+                    break;
+                case 'ArrowDown':
+                case 'ArrowRight':
+                    if (index === (assets.children.length - 1)) return;
+                    assets.children[index + 1].dom.focus();
+                    break;
+            }
+        });
     }
 }
 

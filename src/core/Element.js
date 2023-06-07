@@ -413,6 +413,7 @@ Object.defineProperties(Element.prototype, {
 /******************** EVENTS ********************/
 
 const events = [
+    'Focus', 'Blur',
     'Change', 'Input', 'Wheel',
     'KeyUp', 'KeyDown',
     'Click', 'DblClick', 'ContextMenu',

@@ -39,8 +39,11 @@ class VectorBox extends Div {
     }
 
     enableDragging() {
+        if (this.dom) this.dom.draggable = true;
         for (let j = 0; j < this.contents().children.length; j++) {
-            this.contents().children[j].dom.ondragstart = () => {};
+            if (this.contents().children[j].dom) {
+                this.contents().children[j].dom.ondragstart = () => {};
+            }
         }
     }
 
