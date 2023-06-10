@@ -1802,6 +1802,20 @@ class Shrinkable extends Panel {
         }
         title.onClick(onClick);
     }
+    applySearch(searchTerm = '') {
+        if (!this.bodyDiv || !this.bodyDiv.isElement) return;
+        const children = this.bodyDiv.children;
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            if (!child.isElement) continue;
+            const name = (child.name) ? String(child.name).toLowerCase() : '';
+            if (name.indexOf(searchTerm) !== -1) {
+                child.setDisplay('');
+            } else {
+                child.setDisplay('none');
+            }
+        }
+    }
     setExpanded(expand = true) {
         this.isExpanded = expand;
         if (expand) {
