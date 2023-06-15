@@ -74,6 +74,20 @@
     white-space: nowrap;
 }
 
+.AssetBoxCombo {
+    overflow: hidden;
+    position: relative;
+}
+.AssetBoxCombo:hover {
+    overflow: visible;
+}
+.AssetBoxLabel {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(75%);
+}
+
 /********** .DockerLeft / .DockerRight **********/
 
 .DockerCorner {

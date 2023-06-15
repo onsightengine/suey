@@ -27,6 +27,18 @@ class AssetBox extends Div {
                 this.addClass('AssetBoxSelectable');
             }
             this.add(assetImageHolder);
+
+        } else if (view == 'text') {
+            if (isMini) {
+                this.addClass('AssetBoxMini');
+                this.addClass('AssetBoxCombo');
+                this.addClass('AssetBoxSelectable');
+            }
+            assetImageHolder.setStyle('transform', 'translate(-50%, -65%) scale(0.8)');
+            this.add(assetImageHolder);
+            const label = new Div(title).setClass('AssetBoxLabel');
+            this.add(label);
+
         } else { /* if (view == 'list') */
             this.addClass('AssetBoxRow');
             this.addClass('AssetBoxSelectable');
