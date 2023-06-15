@@ -94,7 +94,7 @@
 
     font-size: 110%;
 
-    cursor: pointer;
+    cursor: default;
     color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--icon), 0.35);
     text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
@@ -102,7 +102,7 @@
     border-top-left-radius: var(--radius-small);
     border-top-right-radius: var(--radius-small);
     padding: var(--pad-small);
-    padding-left: 0.5em;
+    padding-left: 0.25em;
     padding-right: var(--pad-large);
 }
 .ShrinkTitle:hover {
@@ -123,12 +123,15 @@
     flex-grow: 0;
     flex-shrink: 0;
     font-size: 110%;
-    position: relative; /* anchor to children with 'posiiton: absolute' */
+    position: relative;
     display: flex;
-    width: calc(var(--arrow-size) * 3);
-    height: calc(var(--arrow-size) * 3);
-    min-width: calc(var(--arrow-size) * 3);
-    min-height: calc(var(--arrow-size) * 3);
+    margin: 0.15em;
+    margin-left: 0.1em;
+    margin-right: 0.2em;
+    width: calc(var(--arrow-size) * 2.5);
+    height: calc(var(--arrow-size) * 2.5);
+    min-width: calc(var(--arrow-size) * 2.5);
+    min-height: calc(var(--arrow-size) * 2.5);
 }
 
 .ShrinkText {
@@ -147,9 +150,9 @@
     flex-grow: 0;
     flex-shrink: 1;
 
+    position: relative;
     content: '';
     font-size: var(--font-size);
-    pointer-events: none;
     width: 0;
     height: 0;
     transform: translateY(25%);
@@ -157,6 +160,15 @@
     border: var(--arrow-size) solid transparent;
     border-color: rgba(var(--text)) transparent transparent transparent;
     transition: transform var(--menu-timing);
+}
+.ShrinkArrowClicker {
+    position: absolute;
+    content: '';
+    width: 1.7em;
+    height: 1.7em;
+    left: calc(1.7em * -0.5);
+    top: calc(1.7em * -0.5);
+    cursor: pointer;
 }
 .Shrinkable.Expanded .ShrinkTitle .ShrinkArrow {
     transform: translateY(-25%) scale(1.0, -1.0);

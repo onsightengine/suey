@@ -1,11 +1,13 @@
+import { Button } from '../input/Button.js';
 import { Div } from '../core/Div.js';
 import { Span } from '../core/Span.js';
 import { Panel } from './Panel.js';
+import { ShadowBox } from '../layout/ShadowBox.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 class Shrinkable extends Panel {
 
-    constructor(text = '', icon = '') {
+    constructor(text = '', icon = '', menu = undefined) {
         super();
         const self = this;
         this.addClass('Shrinkable');
@@ -17,19 +19,50 @@ class Shrinkable extends Panel {
         // Build
         const title = new Div().setClass('ShrinkTitle');
 
-        if (icon !== '') {
-            const iconHolder = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
-            title.add(iconHolder);
+        // Title Icon/Menu
+        let titleIcon;
+        if (menu) {
+            titleIcon = new Button();
+            titleIcon.addClass('BorderlessButton');
+            // titleIcon.overflowMenu = OVERFLOW.LEFT;
+            //titleIcon.dom.setAttribute('tooltip', 'Options');
+            titleIcon.add(new ShadowBox(icon));
+            titleIcon.attachMenu(menu);
+
+            // const buttonRow = new OSUI.AbsoluteBox().setStyle('padding', '0 var(--pad-medium)');
+            // buttonRow.add(new OSUI.FlexSpacer());
+            // buttonRow.add(new ComponentSettingsButton(component, component.entity));
+            // buttonRow.add(new AddComponentButton(component.entity));
+            // this.tabTitle.add(buttonRow);
+
+        } else if (icon !== '') {
+            title.setStyle('padding-left', '0.5em');
+            titleIcon = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
         }
+        title.add(titleIcon);
 
-        const textHolder = new Span().setClass('ShrinkText').setInnerHtml(text);
-        if (icon === '') textHolder.setStyle('padding-left', '0.15em');
-        title.add(textHolder, new Span().setClass('ShrinkArrow'));
+        // Title Text
+        const titleText = new Span().setClass('ShrinkText').setInnerHtml(text);
+        if (icon === '') {
+            titleText.setStyle('padding-left', '0.15em');
+        } else if (!menu) {
+            titleText.setStyle('padding-left', '0.4em');
+        }
+        title.add(titleText);
 
+        // Title Arrow
+        const titleArrow = new Span().setClass('ShrinkArrow');
+        const arrowClicker = new Div().addClass('ShrinkArrowClicker');
+        titleArrow.add(arrowClicker);
+        title.add(titleArrow);
+
+        // Body
         const body = new Div().setClass('ShrinkBody');
-        this.add(title, body);
 
         // Setup
+        this.add(title);
+        this.add(body);
+
         this.titleDiv = title;
         this.bodyDiv = body;
 
@@ -37,11 +70,10 @@ class Shrinkable extends Panel {
         this.setExpanded(true);
 
         // Events
-        function onClick() {
+        function arrowClick() {
             self.toggle();
         }
-
-        title.onClick(onClick);
+        arrowClicker.onClick(arrowClick);
     }
 
     applySearch(searchTerm = '') {

@@ -25,13 +25,12 @@ class Button extends Element {
         });
 
         // Events
-
-        function hideTooltip() {
+        function buttonPointerDown(event) {
+            // Hide Tooltip
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
         }
-
-        this.onPointerDown(hideTooltip);
+        this.onPointerDown(buttonPointerDown);
 
         this.dom.addEventListener('destroy', function() {
             if (self.attachedMenu) self.detachMenu();
@@ -49,7 +48,7 @@ class Button extends Element {
 
         // Add menu to document, add event handler
         document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.dom.addEventListener('pointerdown', menuPointerDown);
 
         // Observer: Calls popMenu when button is initially added to the DOM. This is done to decide initial
         //           (over / under) popper placement, then the observer is removed.
@@ -84,7 +83,8 @@ class Button extends Element {
         }
 
         // Handle button click
-        function onPointerDown(event) {
+        function menuPointerDown(event) {
+            // Pop Menu
             if (self.hasClass('Selected') === false) {
                 self.addClass('Selected');
 
@@ -101,7 +101,7 @@ class Button extends Element {
             if (self.hasClass('MenuButton') === false) return;
             self.removeClass('MenuButton');
             window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.dom.removeEventListener('pointerdown', menuPointerDown);
             self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
