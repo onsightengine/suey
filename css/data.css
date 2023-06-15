@@ -195,9 +195,10 @@
 /********** .TreeList .Option **********/
 
 .TreeList .Option {
+    position: relative;
     text-align: left;
     border: var(--border-small) solid transparent;
-    padding: var(--pad-small);
+    padding: var(--pad-x-small);
     width: 100%;
     white-space: nowrap;
 }
