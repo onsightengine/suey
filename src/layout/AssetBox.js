@@ -21,13 +21,13 @@ class AssetBox extends Div {
         assetImageHolder.dom.draggable = true;
 
         // Display Format
-        if (view === 'icon') {
+        if (view == 'icon') {
             if (isMini) {
                 this.addClass('AssetBoxMini');
                 this.addClass('AssetBoxSelectable');
             }
             this.add(assetImageHolder);
-        } else { /* if (view === 'list') */
+        } else { /* if (view == 'list') */
             this.addClass('AssetBoxRow');
             this.addClass('AssetBoxSelectable');
             const spanIcon = new Span().setClass('AssetBoxIcon').add(assetImageHolder);

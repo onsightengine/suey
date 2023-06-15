@@ -3624,7 +3624,7 @@ class AssetBox extends Div {
         this.setName(title.toLowerCase());
         const assetImageHolder = new ShadowBox();
         assetImageHolder.dom.draggable = true;
-        if (view === 'icon') {
+        if (view == 'icon') {
             if (isMini) {
                 this.addClass('AssetBoxMini');
                 this.addClass('AssetBoxSelectable');
