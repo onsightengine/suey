@@ -4,7 +4,7 @@ import { ShadowBox } from './ShadowBox.js';
 
 class AssetBox extends Div {
 
-    constructor(title = '', iconOnly = true, isMini = true) {
+    constructor(title = '', view = 'icon', isMini = true) {
         super();
         this.setClass('AssetBox');
         this.dom.tabIndex = 0; /* enables user focus / selection */
@@ -21,13 +21,13 @@ class AssetBox extends Div {
         assetImageHolder.dom.draggable = true;
 
         // Display Format
-        if (iconOnly) {
+        if (view === 'icon') {
             if (isMini) {
                 this.addClass('AssetBoxMini');
                 this.addClass('AssetBoxSelectable');
             }
             this.add(assetImageHolder);
-        } else {
+        } else { /* if (view === 'list') */
             this.addClass('AssetBoxRow');
             this.addClass('AssetBoxSelectable');
             const spanIcon = new Span().setClass('AssetBoxIcon').add(assetImageHolder);

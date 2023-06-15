@@ -3615,7 +3615,7 @@ class AbsoluteBox extends Div {
 }
 
 class AssetBox extends Div {
-    constructor(title = '', iconOnly = true, isMini = true) {
+    constructor(title = '', view = 'icon', isMini = true) {
         super();
         this.setClass('AssetBox');
         this.dom.tabIndex = 0;
@@ -3624,7 +3624,7 @@ class AssetBox extends Div {
         this.setName(title.toLowerCase());
         const assetImageHolder = new ShadowBox();
         assetImageHolder.dom.draggable = true;
-        if (iconOnly) {
+        if (view === 'icon') {
             if (isMini) {
                 this.addClass('AssetBoxMini');
                 this.addClass('AssetBoxSelectable');
