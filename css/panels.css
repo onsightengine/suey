@@ -101,7 +101,7 @@
 
     border-top-left-radius: var(--radius-small);
     border-top-right-radius: var(--radius-small);
-    padding: var(--pad-small);
+    padding: var(--pad-x-small);
     padding-left: 0.25em;
     padding-right: var(--pad-large);
 }
