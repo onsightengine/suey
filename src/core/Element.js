@@ -66,8 +66,11 @@ class Element {
         return this;
     }
 
-    addClass(className) {
-        this.dom.classList.add(className);
+    addClass(/* any number of comma seperated classes to add */) {
+        for (let i = 0; i < arguments.length; i ++) {
+            const argument = arguments[i];
+            this.dom.classList.add(argument);
+        }
         return this;
     }
 

@@ -48,6 +48,10 @@
     --gray:                 128, 128, 128;
     --black:                  0,   0,   0;
 
+    /* Input Colors */
+    --valid:                  0, 255,   0;
+    --invalid:              255,   0,   0;
+
     /* Hue Rotation for Icon Color */
     --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */
 

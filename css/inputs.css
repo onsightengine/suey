@@ -11,6 +11,7 @@ input {
     padding: var(--pad-x-small) var(--pad-smallish);
     vertical-align: middle;
     min-width: 1em;
+    text-align: left;
 }
 
 input:hover {
@@ -26,20 +27,35 @@ input:focus {
     border-radius: 0;
 }
 
+input.ValidType {
+    border: var(--border-micro) solid rgba(var(--valid), 0.75);
+    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.5);
+    text-align: left !important;
+}
+
+input.InvalidType {
+    color: rgba(var(--text), 0.35);
+    border: var(--border-micro) solid rgba(var(--invalid), 0.75);
+    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.5);
+    text-align: center !important;
+}
+
 input.YesDrop {
     color: rgb(0, 255, 0);
     background: rgba(var(--darklight), 1);
-    border: var(--border-micro) solid rgb(0, 255, 0);
-    outline: var(--border-micro) solid rgb(0, 255, 0);
+    border: var(--border-micro) solid rgb(var(--valid));
+    outline: var(--border-micro) solid rgb(var(--valid));
     border-radius: 0;
+    text-align: center !important;
 }
 
 input.NoDrop {
     color: red;
     background: rgba(var(--darklight), 1);
-    border: var(--border-micro) solid red;
-    outline: var(--border-micro) solid red;
+    border: var(--border-micro) solid rgb(var(--invalid));
+    outline: var(--border-micro) solid rgb(var(--invalid));
     border-radius: 0;
+    text-align: center !important;
 }
 
 /** Hide Arrow Spinners - Chrome, Safari, Edge, Opera */
