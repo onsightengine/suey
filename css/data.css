@@ -154,8 +154,8 @@
 /* Button appearing in right column of PropertyList, fixed size */
 .PropertyButton {
     position: relative;
-    height: var(--row-height);
-    width: 2.1em;
+    min-height: var(--row-height);
+    min-width: 2.1em;
 }
 
 /* Button appearing in right column of PropertyList, flex box */
