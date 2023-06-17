@@ -197,6 +197,11 @@
 /* Hover */
 .ToolbarButton:not(.Selected):enabled:hover .ButtonBackground {
     filter: brightness(125%);
+    box-shadow: /* pop-out-shadow */
+        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),
+        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
 }
 
 /* Active / Selected */
