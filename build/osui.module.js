@@ -1524,6 +1524,145 @@ class Interaction extends Button {
     }
 }
 
+class SignalBinding {
+    active = true;
+    params = null;
+    onceOnly = false;
+    constructor(signal, listener, onceOnly, priority = 0) {
+        this.listener = listener;
+        this.onceOnly = onceOnly;
+        this.signal = signal;
+        this.priority = priority;
+    }
+    execute(paramsArr) {
+        let handlerReturn;
+        let params;
+        if (this.active && !!this.listener) {
+            params = this.params ? this.params.concat(paramsArr) : paramsArr;
+            handlerReturn = this.listener.apply(null, params);
+            if (this.onceOnly) this.detach();
+        }
+        return handlerReturn;
+    }
+    detach() {
+        return this.isBound() ? this.signal.remove(this.listener) : null;
+    }
+    isBound() {
+        return (!!this.signal && !!this.listener);
+    }
+    isOnce() {
+        return this.onceOnly;
+    }
+    getListener() {
+        return this.listener;
+    }
+    getSignal() {
+        return this.signal;
+    }
+    destroy() {
+        delete this.signal;
+        delete this.listener;
+    }
+    toString() {
+        return '[SignalBinding onceOnly:' + this.onceOnly +', isBound:'+ this.isBound() +', active:' + this.active + ']';
+    }
+}
+class Signal {
+    VERSION = '1.0.1';
+    active = true;
+    memorize = false;
+    shouldPropagate = true;
+    constructor() {
+        this._bindings = [];
+        this._prevParams = null;
+    }
+    #registerListener(listener, onceOnly, priority) {
+        let prevIndex = this.#indexOfListener(listener);
+        let binding;
+        if (prevIndex !== -1) {
+            binding = this._bindings[prevIndex];
+            if (binding.isOnce() !== onceOnly) {
+                throw new Error('You cannot add' + (onceOnly ? '' : 'Once') +'() then add'+ (!onceOnly ? '' : 'Once') +'() the same listener without removing the relationship first');
+            }
+        } else {
+            binding = new SignalBinding(this, listener, onceOnly, priority);
+            let n = this._bindings.length;
+            do { --n; } while (this._bindings[n] && binding.priority <= this._bindings[n].priority);
+            this._bindings.splice(n + 1, 0, binding);
+        }
+        if(this.memorize && this._prevParams){
+            binding.execute(this._prevParams);
+        }
+        return binding;
+    }
+    #indexOfListener(listener) {
+        let n = this._bindings.length;
+        let cur;
+        while (n--) {
+            cur = this._bindings[n];
+            if (cur.listener === listener) return n;
+        }
+        return -1;
+    }
+    has(listener) {
+        return this.#indexOfListener(listener) !== -1;
+    }
+    add(listener, priority) {
+        validateListener(listener, 'add');
+        return this.#registerListener(listener, false, priority);
+    }
+    addOnce(listener, priority) {
+        validateListener(listener, 'addOnce');
+        return this.#registerListener(listener, true, priority);
+    }
+    remove(listener) {
+        validateListener(listener, 'remove');
+        const index = this.#indexOfListener(listener);
+        if (index !== -1) {
+            this._bindings[index].destroy();
+            this._bindings.splice(index, 1);
+        }
+        return listener;
+    }
+    removeAll() {
+        let n = this._bindings.length;
+        while (n--) this._bindings[n].destroy();
+        this._bindings.length = 0;
+    }
+    getNumListeners() {
+        return this._bindings.length;
+    }
+    halt() {
+        this.shouldPropagate = false;
+    }
+    dispatch() {
+        if (!this.active) return;
+        let paramsArr = [...arguments];
+        let n = this._bindings.length;
+        if (this.memorize) this._prevParams = paramsArr;
+        if (!n) return;
+        const bindings = [...this._bindings];
+        this.shouldPropagate = true;
+        do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
+    }
+    forget() {
+        this._prevParams = null;
+    }
+    dispose() {
+        this.removeAll();
+        delete this._bindings;
+        delete this._prevParams;
+    }
+    toString() {
+        return '[Signal active:'+ this.active +' numListeners:'+ this.getNumListeners() +']';
+    }
+}
+function validateListener(listener, fnName) {
+    if (typeof listener !== 'function') {
+        throw new Error(`'listener' is a required param of ${fnName}() and should be a Function!`);
+    }
+}
+
 class Utils {
     static isChildOf(element, possibleParent) {
         if (element.isElement && element.dom) element = element.dom;
@@ -4966,4 +5105,4 @@ var css_248z = ".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgb
 var stylesheet=".Tooltip, .InfoBox {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.Tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.Tooltip.Updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.InfoBox {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.InfoBox.Updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexSpacer, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Interaction, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, Row, ShadowBox, Shrinkable, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS, Canvas, Checkbox, Color, ColorScheme, Css, Div, Docker, Dropdown, Element, FlexBox, FlexSpacer, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, Image, Interaction, Iris, LEFT_SPACING, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, PROPERTY_SIZE, Panel, Popper, PropertyList, RESIZERS, RESIZE_MODE, Row, ShadowBox, Shrinkable, Signal, Slider, Span, TAB_SIDES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, Utils, VectorBox, Window, tooltipper };

@@ -70,6 +70,7 @@ export { Css } from './utils/Css.js';
 export { Interaction } from './utils/Interaction.js';
 export { Iris } from './utils/Iris.js';
 export { Popper } from './utils/Popper.js';
+export { Signal } from './utils/Signal.js';
 export { Utils } from './utils/Utils.js';
 
 import { tooltipper } from './utils/Tooltipper.js';
