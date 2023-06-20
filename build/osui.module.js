@@ -1308,9 +1308,11 @@ class VectorBox extends Div {
                 this.contents().children[j].dom.ondragstart = () => {};
             }
         }
+        return this;
     }
     setImage(imageUrl) {
         this.img.setImage(imageUrl);
+        return this;
     }
 }
 
