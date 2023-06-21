@@ -35,7 +35,10 @@ class Css {
     static setVariable(variable, valueAsString, element) {
         variable = String(variable);
         if (!variable.startsWith('--')) variable = '--' + variable;
-        element = element ?? document.querySelector(':root');
+        if (element && element.isElement) element = element.dom;
+        if (!element || !(element instanceof HTMLElement)) {
+            element = document.querySelector(':root');
+        }
 		element.style.setProperty(variable, valueAsString);
     }
 

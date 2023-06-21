@@ -49,7 +49,7 @@ import { Div } from './core/Div.js';
 import { FlexSpacer } from './layout/FlexSpacer.js';
 import { OVERFLOW } from './utils/Popper.js';
 import { PANEL_STYLES } from './panels/Panel.js';
-import { PropertyList, PROPERTY_SIZE, LEFT_SPACING } from './data/PropertyList.js';
+import { PropertyList, LEFT_SPACING } from './data/PropertyList.js';
 import { RESIZERS } from './constants.js';
 import { Shrinkable } from './panels/Shrinkable.js';
 import { Tabbed } from './panels/Tabbed.js';
@@ -130,7 +130,7 @@ class Folder extends Shrinkable {
         super(title, icon);
 
         // Build osui
-        this.props = new PropertyList(PROPERTY_SIZE.FIFTHS, LEFT_SPACING.NORMAL);
+        this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);
         this.add(this.props);
 
         // Add function (replaces osui.add() functionality)

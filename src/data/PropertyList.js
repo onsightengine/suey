@@ -1,15 +1,10 @@
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Element } from '../core/Element.js';
 import { Row } from '../layout/Row.js';
 import { Span } from '../core/Span.js';
 import { Text } from '../core/Text.js';
 import { VectorBox } from '../layout/VectorBox.js';
-
-export const PROPERTY_SIZE = {
-    HALF:	'half',
-    FIFTHS: 'fifths',
-    THIRD:	'third',
-}
 
 export const LEFT_SPACING = {
     TABS:   'tabs',
@@ -18,17 +13,39 @@ export const LEFT_SPACING = {
 
 class PropertyList extends Div {
 
-    constructor(rowSizing = PROPERTY_SIZE.HALF, leftSpacing = LEFT_SPACING.TABS) {
+    constructor(leftPropertyWidth = '50%', leftPropertySpacing = LEFT_SPACING.TABS) {
         super();
         this.addClass('PropertyList');
         this.setStyle('display', 'block');
 
-        this.rowSizing = rowSizing;
-        this.leftSpacing = leftSpacing;
+        this.leftPropertyWidth = leftPropertyWidth;
+        this.leftPropertySpacing = leftPropertySpacing;
+    }
 
-        this.setRowSizeHalfs = function() { this.rowSizing = PROPERTY_SIZE.HALF; };
-        this.setRowSizeFifths = function() { this.rowSizing = PROPERTY_SIZE.FIFTHS; };
-        this.setRowSizeThirds = function() { this.rowSizing = PROPERTY_SIZE.THIRD; };
+    setLeftPropertyWidth(width = '50%') {
+        this.leftPropertyWidth = width;
+        return this;
+    }
+
+    #safeWidth() {
+        let width = this.leftPropertyWidth ?? '50%';
+        if (typeof this.leftPropertyWidth === 'string') {
+            width = parseInt(this.leftPropertyWidth);
+        } else if (typeof this.leftPropertyWidth === 'number') {
+            width = parseFloat(this.leftPropertyWidth) * 100;
+        }
+        if (Number.isNaN(width) || !Number.isFinite(width)) width = 50;
+        width = Math.max(width, 0);
+        width = Math.min(width, 100);
+        return width;
+    }
+
+    #leftWidth() {
+        return `${this.#safeWidth()}%`;
+    }
+
+    #rightWidth() {
+        return `${(100 - this.#safeWidth())}%`;
     }
 
     /******************** ADD WIDGETS ********************/
@@ -64,28 +81,20 @@ class PropertyList extends Div {
         return header;
     }
 
-    /** Creates row from left / right widgets, spacing defaults to this.rowSizing */
+    /** Creates row from left / right widgets, spacing defaults to this.leftPropertyWidth */
     createRow(title = '', ...controls) {
         const rightWidget = this.createControls(...controls);
         const leftWidget = new Text(title).selectable(false).addClass('PropertyLeft');
-        if (this.leftSpacing === LEFT_SPACING.TABS) leftWidget.addClass('LeftTabSpacing');
-        if (this.rowSizing === PROPERTY_SIZE.THIRD) {
-            leftWidget.addClass('PropertyLeftThird');
-            rightWidget.addClass('PropertyRightThird');
-        } else if (this.rowSizing === PROPERTY_SIZE.FIFTHS) {
-            leftWidget.addClass('PropertyLeftFifth');
-            rightWidget.addClass('PropertyRightFifth');
-        } else {
-            leftWidget.addClass('PropertyLeftHalf');
-            rightWidget.addClass('PropertyRightHalf');
-        }
+        if (this.leftPropertySpacing === LEFT_SPACING.TABS) leftWidget.addClass('LeftTabSpacing');
+        Css.setVariable('--left-property-width', this.#leftWidth(), leftWidget);
+        Css.setVariable('--right-property-width', this.#rightWidth(), rightWidget);
         const row = new Row().addClass('PropertyRow').add(leftWidget, rightWidget);
         row.leftWidget = leftWidget;
         row.rightWidget = rightWidget;
         return row;
     }
 
-    /** Creates row from widgets, spacing defaults to this.rowSizing */
+    /** Creates a single column row for input widgets (no left property label) */
     createRowWithoutTitle(...controls) {
         const widgets = this.createControls(...controls);
         widgets.removeClass('PropertyRight').addClass('PropertyFull');
