@@ -127,7 +127,8 @@
 .PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),
 .PropertyRight > .TextBox:not(.PropertyTinyRow),
 .PropertyRight > .Number:not(.PropertyTinyRow),
-.PropertyRight > .SlideContainer:not(.PropertyTinyRow) {
+.PropertyRight > .SlideContainer:not(.PropertyTinyRow),
+.PropertyRight > .NumberHolder {
     flex: 1 1 auto;
     min-height: var(--row-height);
     min-width: 0;

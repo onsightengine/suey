@@ -155,6 +155,10 @@ input[type=number] {
         inset var(--pixel) var(--minus) var(--pixel) 0 rgba(var(--black), 0.25);
 }
 
+.BorderlessButton:not(.Selected):enabled:hover .ShadowBox {
+    filter: brightness(calc((2 * var(--bright)) + 0.35));
+}
+
 .BorderlessButton:not(.Selected):enabled:active {
     background-image: linear-gradient(to bottom, rgba(var(--black), 0.2), rgba(var(--black), 0.1));
     box-shadow: /* pop-out-shadow */
@@ -304,6 +308,22 @@ input[type=number] {
 
 .Number {
     font-size: 100%;
+}
+
+.NumberHolder {
+    position: relative;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.NumberLabelBox {
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 0 var(--pad-smallish);
+    color: rgba(var(--text-dark), 1);
 }
 
 /********** ELEMENT: Slider **********/
