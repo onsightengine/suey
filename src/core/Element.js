@@ -150,6 +150,10 @@ class Element {
         this.dom.focus();
     }
 
+    blur() {
+        this.dom.blur();
+    }
+
     // // WARNING: Setting any of the following will delete children!
     //
     // 	Order of content, from least to most:

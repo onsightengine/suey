@@ -977,6 +977,9 @@ class Element {
     focus() {
         this.dom.focus();
     }
+    blur() {
+        this.dom.blur();
+    }
     getInnerText() {
         return this.contents().dom.innerText;
     }
