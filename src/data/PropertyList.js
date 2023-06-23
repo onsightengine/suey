@@ -122,6 +122,19 @@ class PropertyList extends Div {
         return rightRow;
     }
 
+    /** Disables all Inputs */
+    disableInputs() {
+        const inputs = [ 'Button', 'Checkbox', 'Number', 'Slider', 'TickMarks', 'TextArea', 'TextBox' ];
+
+        for (let i = 0; i < inputs.length; i++) {
+            const elements = this.dom.getElementsByClassName(inputs[i]);
+
+            for (let j = 0; j < elements.length; j++) {
+                elements[j].classList.add('Disabled');
+            }
+        }
+    }
+
 }
 
 export { PropertyList };

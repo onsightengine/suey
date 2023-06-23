@@ -29,7 +29,6 @@ class Slider extends Div {
         this.add(ticks, slider);
 
         // Events
-
         function sliderInput() {
             if (!slider.dom) return;
             const val = parseFloat(slider.dom.value);
@@ -59,7 +58,6 @@ class Slider extends Div {
 
         slider.onInput(sliderInput);
         slider.onWheel(sliderWheel);
-
     }
 
     getValue() {
