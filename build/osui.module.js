@@ -2682,9 +2682,15 @@ class Dropdown extends Button {
         for (const key in options) {
             const item = new MenuItem(options[key]);
             item.value = key;
-            item.onPointerDown(function() {
+            item.onPointerDown((event) => {
+                event.stopImmediatePropagation();
+                event.preventDefault();
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
+            });
+            item.onPointerUp((event) => {
+                event.stopImmediatePropagation();
+                event.preventDefault();
             });
             this.items.push(item);
         }
