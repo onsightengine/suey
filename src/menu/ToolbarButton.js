@@ -16,6 +16,7 @@ class ToolbarButton extends Button {
 
         const buttonBackground = new Div().addClass('ButtonBackground');
         const buttonImageHolder = new ShadowBox();
+        buttonImageHolder.setStyle('pointer-events', 'none');
         this.add(buttonBackground, buttonImageHolder);
         this.contents = function() { return buttonImageHolder };
     }
