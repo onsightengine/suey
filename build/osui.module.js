@@ -1930,12 +1930,16 @@ class PropertyList extends Div {
         }
         return rightRow;
     }
-    disableInputs() {
+    disableInputs(disable = true) {
         const inputs = [ 'Button', 'Checkbox', 'Number', 'Slider', 'TickMarks', 'TextArea', 'TextBox' ];
         for (let i = 0; i < inputs.length; i++) {
             const elements = this.dom.getElementsByClassName(inputs[i]);
             for (let j = 0; j < elements.length; j++) {
-                elements[j].classList.add('Disabled');
+                if (disable) {
+                    elements[j].classList.add('Disabled');
+                } else {
+                    elements[j].classList.remove('Disabled');
+                }
             }
         }
     }
