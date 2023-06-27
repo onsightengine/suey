@@ -4,7 +4,7 @@ class ToolbarSeparator extends Element {
 
     constructor() {
         super(document.createElement('div'));
-        this.setClass('ToolbarSeparator');
+        this.setClass('osui-toolbar-separator');
     }
 
 }

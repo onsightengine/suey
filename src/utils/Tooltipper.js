@@ -18,7 +18,8 @@ class Tooltipper {
     constructor() {
 
         // Tooltip
-        const tooltip = new Div().setClass('Tooltip').setInnerHtml('');
+        const tooltip = new Div().setClass('osui-tooltip');
+        tooltip.setInnerHtml('');
         document.body.appendChild(tooltip.dom);
 
         // Device Type
@@ -44,12 +45,12 @@ class Tooltipper {
             if (!text.length) return;
 
             clearTimeout(_showTimer);
-            tooltip.removeClass('Updated')
+            tooltip.removeClass('osui-updated')
 
             _showTimer = setTimeout(() => {
                 tooltip.setInnerHtml(text);
                 Popper.popUnder(tooltip.dom, element, ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
-                tooltip.addClass('Updated');
+                tooltip.addClass('osui-updated');
             }, parseInt(Css.getVariable('--tooltip-delay')));
         }
 
@@ -59,7 +60,7 @@ class Tooltipper {
             if (!element.getAttribute('tooltip')) return;
 
             clearTimeout(_showTimer);
-            tooltip.removeClass('Updated')
+            tooltip.removeClass('osui-updated')
         }
 
     } // end ctor

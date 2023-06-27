@@ -1,15 +1,15 @@
-/********** .MenuShow (Show menu that was previously hidden) **********/
+/********** Menu Show (Show menu that was previously hidden) **********/
 
-.Menu.MenuShow {
+.osui-menu.osui-menu-show {
     opacity: 1.0;
     transform: translate(0, 0) scale(1.0, 1.0);
     pointer-events: auto;
 }
 
-/********** .Menu **********/
+/********** Menu **********/
 
 /* Normal Menu Styling */
-.Menu {
+.osui-menu {
     position: absolute;
     display: block;
     align-items: center;
@@ -37,27 +37,27 @@
     transition: all 0s; /* var(--menu-timing) */
 }
 
-.Menu:not(.MenuShow).SlideDown {
+.osui-menu:not(.osui-menu-show).osui-slide-down {
     transform: translate(0, -50%) scale(1.0, 0.0);
 }
 
-.Menu:not(.MenuShow).SlideUp {
+.osui-menu:not(.osui-menu-show).osui-slide-up {
     transform: translate(0, 50%) scale(1.0, 0.0);
 }
 
 /* Dropdown Menu Styling */
-.SelectMenu {
+.osui-select-menu {
     box-shadow: none;
     color: rgba(var(--highlight), 1);
     background: rgba(var(--darklight), 1);
     border: 1px solid rgb(var(--icon));
     border-radius: 0px;
     outline: 2px solid rgb(var(--darklight));
-    z-index: 1000; /* SelectMenu */
+    z-index: 1000; /* Select Menu */
 }
 
 /* Menu Item */
-.MenuItem {
+.osui-menu-item {
     position: relative;
     display: block;
 
@@ -72,7 +72,7 @@
 }
 
 /* Hover Item */
-.MenuItem:not(.Disabled):hover {
+.osui-menu-item:not(.osui-disabled):hover {
     color: rgba(var(--highlight), 1);
     background-color: rgba(var(--icon-light), 0.1);
     border: 1px solid rgba(var(--icon-light), 0.3);
@@ -80,7 +80,7 @@
 }
 
 /* Image */
-.MenuIcon {
+.osui-menu-icon {
     --menu-icon-size:   1.45em;
 
     position: relative;
@@ -91,14 +91,14 @@
 }
 
 /* Text */
-.MenuText {
+.osui-menu-text {
     margin-left: 7px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 /* Shortcut Key */
-.MenuShortcut {
+.osui-menu-shortcut {
     /*
     System Font Info:
     https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage
@@ -112,14 +112,14 @@
     padding-left: 2.0em;
 }
 
-.MenuShortcutCharacter {
+.osui-menu-shortcut-character {
     /* background-color: blueviolet;
     border: solid 1px; */
     text-align: center;
 }
 
 /* Separator */
-.MenuSeparator {
+.osui-menu-separator {
     border-top: 1px solid rgba(var(--midlight), 0.5);
     border-radius: 1px;
     height: 1px;
@@ -127,7 +127,7 @@
 }
 
 /* Little Arrow */
-.SubMenuItem::after {
+.osui-sub-menu-item::after {
     content: '';
     position: absolute;
     right: 0.50em;
@@ -137,30 +137,24 @@
     border-left-color: rgba(var(--text), 1.0);
 }
 
-.SubMenuItem:hover::after {
+.osui-sub-menu-item:hover::after {
     border-left-color: rgba(var(--highlight), 1.0);
 }
 
 /* Sub Menu */
-.MenuItem .Menu {
+.osui-menu-item .osui-menu {
     top:  0px;
     left: 101%;
 }
 
 /* Sub Menu Mouse Triangle */
-.MenuMouseTriangle {
+.osui-menu-mouse-triangle {
     position: absolute;
 }
 
-.MenuRight {
-    text-align: left;
-    vertical-align: middle;
-    width: 50%;
-}
+/************ Toolbar Button **********/
 
-/************ .ToolbarButton **********/
-
-.ToolbarButton {
+.osui-toolbar-button {
     display: flex;
     cursor: pointer;
     background-color: transparent;
@@ -179,7 +173,7 @@
 }
 
 /* Background */
-.ButtonBackground {
+.osui-button-background {
     pointer-events: none;
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -196,7 +190,7 @@
 }
 
 /* Hover */
-.ToolbarButton:not(.Selected):enabled:hover .ButtonBackground {
+.osui-toolbar-button:not(.osui-selected):enabled:hover .osui-button-background {
     filter: brightness(125%);
     box-shadow: /* pop-out-shadow */
         inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),
@@ -206,48 +200,48 @@
 }
 
 /* Active / Selected */
-.ToolbarButton:not(.Selected):enabled:active,
-.ToolbarButton.Selected:enabled {
+.osui-toolbar-button:not(.osui-selected):enabled:active,
+.osui-toolbar-button.osui-selected:enabled {
     box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
 }
-.ToolbarButton:not(.Selected):enabled:active .ButtonBackground,
-.ToolbarButton.Selected:enabled .ButtonBackground {
+.osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,
+.osui-toolbar-button.osui-selected:enabled .osui-button-background {
     filter: brightness(50%) grayscale(20%);
 }
 
 /* Gray Background */
-.GrayButton:enabled .ButtonBackground {
+.osui-gray-button:enabled .osui-button-background {
     filter: grayscale(90%);
 }
-.GrayButton:not(.Selected):enabled:hover .ButtonBackground {
+.osui-gray-button:not(.osui-selected):enabled:hover .osui-button-background {
     filter: brightness(125%) grayscale(90%);
 }
-.GrayButton:not(.Selected):enabled:active .ButtonBackground,
-.GrayButton.Selected:enabled .ButtonBackground {
+.osui-gray-button:not(.osui-selected):enabled:active .osui-button-background,
+.osui-gray-button.osui-selected:enabled .osui-button-background {
     filter: brightness(50%) grayscale(90%);
 }
 
 /* Complement Background */
-.ComplementButton:enabled .ButtonBackground {
+.osui-complement-button:enabled .osui-button-background {
     background-color: rgb(var(--darkness));
     background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));
 }
 
 /* Disabled Button */
-.ToolbarButton:disabled {
+.osui-toolbar-button:disabled {
     background-color: rgba(var(--button-dark), var(--panel-transparency));
     background-image: linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05));
     box-shadow: none;
 }
-.ToolbarButton:disabled {
+.osui-toolbar-button:disabled {
     filter: none;
 }
-.ToolbarButton:disabled > * {
+.osui-toolbar-button:disabled > * {
     filter: contrast(75%) grayscale(100%) brightness(50%);
 }
 
 /* Left / Middle / Right */
-.ButtonLeft, .ButtonLeft .ButtonBackground {
+.osui-button-left, .osui-button-left .osui-button-background {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
@@ -256,7 +250,7 @@
         inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),
         inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);
 }
-.ButtonMiddle, .ButtonMiddle .ButtonBackground {
+.osui-button-middle, .osui-button-middle .osui-button-background {
     border-radius: 0;
     margin-right: 0;
     margin-left: 0;
@@ -264,7 +258,7 @@
         inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
         inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);
 }
-.ButtonRight, .ButtonRight .ButtonBackground {
+.osui-button-right, .osui-button-right .osui-button-background {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin-left: 0;
@@ -274,9 +268,9 @@
         inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);
 }
 
-/********** .ToolbarSeparator / .ToolbarSpacer **********/
+/********** Toolbar Separator / Toolbar Spacer **********/
 
-.ToolbarSeparator {
+.osui-toolbar-separator {
     border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);
     border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);
     border-top: 0;
@@ -288,7 +282,7 @@
     margin-top: var(--pad-small);
 }
 
-.ToolbarSpacer {
+.osui-toolbar-spacer {
     pointer-events: none;
     border: none;
     margin: none;

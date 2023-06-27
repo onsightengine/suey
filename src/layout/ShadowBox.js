@@ -6,7 +6,7 @@ class ShadowBox extends Div {
 
     constructor(/* any number of ImageUrls to add */) {
         super();
-        this.setClass('ShadowBox');
+        this.setClass('osui-shadow-box');
 
         // Parse Arguments, Add Osui Elements / ImageUrls
         let args = arguments;
@@ -23,7 +23,7 @@ class ShadowBox extends Div {
     } // end ctor
 
     noShadow() {
-        this.addClass('NoShadow');
+        this.addClass('osui-no-shadow');
         return this;
     }
 

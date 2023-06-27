@@ -21,8 +21,10 @@ class Interaction extends Button {
 
     static addCloseButton(closeElement, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
         if (!closeElement || !closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
-        const button = new Button().setClass('CloseButton').addClass('PanelButton');
-        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('CloseImage');
+        const button = new Button();
+        button.setClass('osui-close-button');
+        button.addClass('osui-panel-button');
+        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('osui-close-image');
         button.add(closeImageBox);
         button.dom.setAttribute('tooltip', 'Close Panel');
         button.setStyle(
@@ -43,12 +45,12 @@ class Interaction extends Button {
                 if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) changeSide = CLOSE_SIDES.RIGHT;
                 else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) changeSide = CLOSE_SIDES.LEFT;
                 if (changeSide !== CLOSE_SIDES.NONE) {
-                    button.addClass('ItemHidden');
+                    button.addClass('osui-item-hidden');
                     setTimeout(() => {
                         button.dom.style.removeProperty('left');
                         button.dom.style.removeProperty('right');
                         button.setStyle(changeSide, sideways);
-                        button.removeClass('ItemHidden');
+                        button.removeClass('osui-item-hidden');
                     }, 100);
                     lastSide = changeSide;
                 }
@@ -56,17 +58,17 @@ class Interaction extends Button {
         }
 
         button.dom.addEventListener('click', () => closeElement.hide());
-        closeElement.dom.addEventListener('pointerenter', () => button.addClass('ItemShown'));
-        closeElement.dom.addEventListener('pointerleave', () => button.removeClass('ItemShown'));
+        closeElement.dom.addEventListener('pointerenter', () => button.addClass('osui-item-shown'));
+        closeElement.dom.addEventListener('pointerleave', () => button.removeClass('osui-item-shown'));
         closeElement.addToSelf(button);
     }
 
-    /** Applies 'BringToTop' Class, ensures it is the only element with this special Class */
-    static bringToTop(element, withClass = 'Panel') {
+    /** Applies 'osui-bring-top' Class, ensures it is the only element with this special Class */
+    static bringToTop(element, withClass = 'osui-panel') {
         const topElement = (element && element.isElement) ? element.dom : element;
         const panels = document.querySelectorAll(`.${withClass}`);
-        panels.forEach(el => { if (el !== topElement) el.classList.remove('BringToTop'); });
-        topElement.classList.add("BringToTop");
+        panels.forEach(el => { if (el !== topElement) el.classList.remove('osui-bring-top'); });
+        topElement.classList.add('osui-bring-top');
     }
 
     static makeDraggable(element, parent = element, limitToWindow = false, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
@@ -145,13 +147,15 @@ class Interaction extends Button {
     static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
         if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
         if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
-        resizeElement.addClass('Resizeable');
+        resizeElement.addClass('osui-resizeable');
         // Build
         const resizerDivs = {};
         for (let key in RESIZERS) {
             const resizerName = RESIZERS[key];
-            const className = `Resizer${resizerName}`;
-            const resizer = new Div().addClass('Resizer').addClass(className);
+            const className = `osui-resizer-${resizerName}`;
+            const resizer = new Div();
+            resizer.addClass('osui-resizer');
+            resizer.addClass(className);
             let downX, downY, lastX, lastY;
             function resizePointerDown(event) {
                 if (event.button !== 0) return;

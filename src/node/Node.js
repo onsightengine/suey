@@ -29,7 +29,7 @@ class Node extends Div {
     } = {}) {
         super();
         const self = this;
-        this.addClass('Node');
+        this.addClass('osui-node');
 
         // Enable mouse focus, needs >= 0 for keyboard focus
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
@@ -43,22 +43,22 @@ class Node extends Div {
         this.#color.set(color);
 
         // Children
-        const panel = new Div().addClass('NodePanel');
-        const border = new Div().addClass('NodeBorder');
-        const sizers = new Div().addClass('NodeResizers');
+        const panel = new Div().addClass('osui-node-panel');
+        const border = new Div().addClass('osui-node-border');
+        const sizers = new Div().addClass('osui-node-resizers');
         this.addToSelf(sizers, panel, border);
         this.contents = function() { return panel; }
 
         // Interior
-        this.header = new Div().setClass('NodeHeaderTitle').setStyle('display', 'none');
-        const lists = new Div().setClass('NodeInterior');
-        this.inputList = new Div().setClass('NodeItemList');
-        this.outputList = new Div().setClass('NodeItemList');
+        this.header = new Div().setClass('osui-node-header-title').setStyle('display', 'none');
+        const lists = new Div().setClass('osui-node-interior');
+        this.inputList = new Div().setClass('osui-node-item-list');
+        this.outputList = new Div().setClass('osui-node-item-list');
         lists.add(this.inputList, this.outputList);
         this.add(this.header, lists);
 
         // Stacking
-        this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
+        this.dom.addEventListener('blur', () => self.removeClass('osui-bring-top'));
         this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
         this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
         this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
@@ -80,21 +80,21 @@ class Node extends Div {
             const scale = self.getScale();
             diffX *= (1 / scale);
             diffY *= (1 / scale);
-            if (resizer.hasClassWithString('Left')) {
+            if (resizer.hasClassWithString('left')) {
                 const newWidth = Math.max(self.roundNearest(rect.width - diffX), MIN_W);
                 const newLeft = rect.left + (rect.width - newWidth);
                 self.setStyle('left', `${newLeft}px`, 'width', `${newWidth}px`);
             }
-            if (resizer.hasClassWithString('Top')) {
+            if (resizer.hasClassWithString('top')) {
                 const newHeight = Math.max(self.roundNearest(rect.height - diffY), MIN_H);
                 const newTop = rect.top + (rect.height - newHeight);
                 self.setStyle('top', `${newTop}px`, 'height', `${newHeight}px`);
             }
-            if (resizer.hasClassWithString('Right')) {
+            if (resizer.hasClassWithString('right')) {
                 const newWidth = Math.max(self.roundNearest(rect.width + diffX), MIN_W);
                 self.setStyle('width', `${newWidth}px`);
             }
-            if (resizer.hasClassWithString('Bottom')) {
+            if (resizer.hasClassWithString('bottom')) {
                 const newHeight = Math.max(self.roundNearest(rect.height + diffY), MIN_H);
                 self.setStyle('height', `${newHeight}px`);
             }
@@ -131,7 +131,7 @@ class Node extends Div {
             clickCount = 0;
             if (!self.graph) return;
             self.graph.getNodes().forEach((node) => {
-                if (node.hasClass('NodeSelected')) {
+                if (node.hasClass('osui-node-selected')) {
                     node.setStyle('left', `${self.roundNearest(node.getStartPosition().x + diffX)}px`);
                     node.setStyle('top', `${self.roundNearest(node.getStartPosition().y + diffY)}px`);
                 }
@@ -160,10 +160,10 @@ class Node extends Div {
                 }
             }
             // Select
-            const selected = document.querySelectorAll(`.NodeSelected`);
-            if (!self.hasClass('NodeSelected')) {
-                selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
-                self.addClass('NodeSelected');
+            const selected = document.querySelectorAll(`.osui-node-selected`);
+            if (!self.hasClass('osui-node-selected')) {
+                selected.forEach(el => { if (el !== self.dom) el.classList.remove('osui-node-selected'); });
+                self.addClass('osui-node-selected');
                 if (self.graph) self.graph.dom.dispatchEvent(new Event('selected'));
                 watchForSingleClick = false;
             } else if (selected.length > 1) {
@@ -175,9 +175,9 @@ class Node extends Div {
             clearTimeout(singleClickTimer);
             singleClickTimer = setTimeout(() => {
                 if (watchForSingleClick && clickCount === 1) {
-                    const selected = document.querySelectorAll(`.NodeSelected`);
-                    selected.forEach(el => { if (el !== self.dom) el.classList.remove('NodeSelected'); });
-                    self.addClass('NodeSelected');
+                    const selected = document.querySelectorAll(`.osui-node-selected`);
+                    selected.forEach(el => { if (el !== self.dom) el.classList.remove('osui-node-selected'); });
+                    self.addClass('osui-node-selected');
                     if (self.graph) self.graph.dom.dispatchEvent(new Event('selected'));
                 }
                 clickCount = 0;
@@ -261,8 +261,8 @@ class Node extends Div {
     createHeader(text = '', iconUrl) {
         if (this.header.children.length > 0) return; /* already created header */
         const icon = new VectorBox(iconUrl);
-        const iconHolder = new Span().setClass('NodeHeaderIcon').add(icon);
-        const textHolder = new Span().setClass('NodeHeaderText').setTextContent(text);
+        const iconHolder = new Span().setClass('osui-node-header-icon').add(icon);
+        const textHolder = new Span().setClass('osui-node-header-text').setTextContent(text);
         this.header.add(iconHolder, textHolder);
         this.header.setStyle('display', '');
         this.applyColor();

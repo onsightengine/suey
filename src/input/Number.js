@@ -7,7 +7,8 @@ class NumberBox extends Element {
     constructor(number) {
         super(document.createElement('input'));
         const self = this;
-        this.setClass('Number');
+        this.setClass('osui-input');
+        this.addClass('osui-number');
 
         // // Setup
         // this.dom.type = 'number'; /* !! NOTE: doesn't work with custom 'unit' */
@@ -161,6 +162,7 @@ class NumberScroll extends NumberBox {
     constructor(number) {
         super(number);
         const self = this;
+        this.addClass('osui-number-scroll');
 
         this.dom.style.cursor = 'ns-resize';
 

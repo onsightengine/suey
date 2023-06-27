@@ -4,7 +4,8 @@ class TextBox extends Element {
 
     constructor(text) {
         super(document.createElement('input'));
-        this.setClass('TextBox');
+        this.setClass('osui-input');
+        this.addClass('osui-text-box');
 
         this.dom.type = 'text';
 

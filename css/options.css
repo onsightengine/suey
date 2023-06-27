@@ -1,0 +1,64 @@
+/********** Disabled **********/
+
+/** Grayscale filter for disabled items */
+.osui-disabled {
+    filter: contrast(75%) grayscale(100%) !important;
+    opacity: 0.7 !important;
+    cursor: default !important;
+    /* pointer-events: none !important; */
+}
+
+/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */
+.osui-unselectable {
+    user-select: none;
+}
+
+/********** Coloring **********/
+
+.osui-icon-colorize /* aqua */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 150deg));
+}
+
+.osui-complement-colorize /* orange */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));
+}
+
+.osui-rotate-colorize /* purple */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));
+}
+
+.osui-triadic-colorize /* red */ {
+    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));
+}
+
+.osui-match-scheme {
+    filter: saturate(125%) hue-rotate(var(--rotate-hue));
+}
+
+.osui-match-complement {
+    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));
+}
+
+.osui-black-or-white {
+    filter: brightness(calc(1 * var(--bright)));
+}
+
+.osui-black-or-white.osui-highlight {
+    filter: brightness(calc((2 * var(--bright)) + 0.35));
+}
+
+.osui-black-or-white.osui-drop-shadow {
+    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);
+}
+
+/********** Menu **********/
+
+.osui-keep-open {
+    /* keeps menu open on click, handled in Menu */
+}
+
+/********** Tree List **********/
+
+.osui-no-select {
+    /* disables tree list option, handled in Tree List */
+}

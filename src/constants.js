@@ -46,14 +46,14 @@ export const TRAIT = {
 };
 
 export const RESIZERS = {
-    TOP:            'Top',
-    BOTTOM:     	'Bottom',
-    LEFT:       	'Left',
-    RIGHT:			'Right',
-    TOP_LEFT:		'TopLeft',
-    TOP_RIGHT:		'TopRight',
-    BOTTOM_LEFT:	'BottomLeft',
-    BOTTOM_RIGHT:	'BottomRight',
+    TOP:            'top',
+    BOTTOM:     	'bottom',
+    LEFT:       	'left',
+    RIGHT:			'right',
+    TOP_LEFT:		'top-left',
+    TOP_RIGHT:		'top-right',
+    BOTTOM_LEFT:	'bottom-left',
+    BOTTOM_RIGHT:	'bottom-right',
 };
 
 export const GRAPH_LINE_TYPES = {

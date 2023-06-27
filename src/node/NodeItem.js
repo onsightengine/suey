@@ -11,12 +11,12 @@ class NodeItem extends Div {
     } = {}) {
         super(title);
         const self = this;
-        this.addClass('NodeItem');
+        this.addClass('osui-node-item');
 
         // Elements
         const disconnect = new VectorBox(IMAGE_CLOSE);
-        this.point = new Div().addClass('NodeItemPoint');
-        this.detach = new Div().addClass('NodeItemDetach').add(disconnect);
+        this.point = new Div().addClass('osui-node-item-point');
+        this.detach = new Div().addClass('osui-node-item-detach').add(disconnect);
         this.add(this.point, this.detach);
 
         // Properties
@@ -27,8 +27,8 @@ class NodeItem extends Div {
         this.node = this;
 
         switch (type) {
-            case NODE_TYPES.INPUT: this.addClass('NodeLeft'); break;
-            case NODE_TYPES.OUTPUT: this.addClass('NodeRight'); break;
+            case NODE_TYPES.INPUT: this.addClass('osui-node-left'); break;
+            case NODE_TYPES.OUTPUT: this.addClass('osui-node-right'); break;
         }
 
         // Graph
@@ -42,7 +42,7 @@ class NodeItem extends Div {
             event.preventDefault();
             self.point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
             self.point.dom.ownerDocument.addEventListener('pointerup', pointPointerUp);
-            self.point.addClass('ActiveItem');
+            self.point.addClass('osui-active-item');
             self.graph().activeItem = self;
             self.graph().activePoint.x = event.clientX;
             self.graph().activePoint.y = event.clientY;
@@ -51,7 +51,7 @@ class NodeItem extends Div {
         function pointPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
-            self.point.removeClass('ActiveItem');
+            self.point.removeClass('osui-active-item');
             self.graph().connect();
             self.point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
             self.point.dom.ownerDocument.removeEventListener('pointerup', pointPointerUp);
@@ -67,19 +67,19 @@ class NodeItem extends Div {
             if (self.graph() && self.graph().activeItem) {
                 if (self.type !== self.graph().activeItem.type) {
                     self.graph().connectItem = self;
-                    if (self.graph().activeItem) self.point.addClass('ActiveItem');
-                    self.point.addClass('HoverPoint');
+                    if (self.graph().activeItem) self.point.addClass('osui-active-item');
+                    self.point.addClass('osui-hover-point');
                 }
             } else {
-                self.point.addClass('HoverPoint');
+                self.point.addClass('osui-hover-point');
             }
         }
         function pointPointerLeave(event) {
             if (self.graph()) {
                 self.graph().connectItem = undefined;
-                if (self.graph().activeItem !== self) self.point.removeClass('ActiveItem');
+                if (self.graph().activeItem !== self) self.point.removeClass('osui-active-item');
             }
-            self.point.removeClass('HoverPoint');
+            self.point.removeClass('osui-hover-point');
         }
         this.point.onPointerDown(pointPointerDown);
         this.point.onPointerEnter(pointPointerEnter);
@@ -87,7 +87,7 @@ class NodeItem extends Div {
 
         // Detach Pointer Events
         function breakPointerDown(event) {
-            if (!self.hasClass('ItemConnected')) return;
+            if (!self.hasClass('osui-item-connected')) return;
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
@@ -113,9 +113,9 @@ class NodeItem extends Div {
             }
         }
         if (this.connections.length > 0) {
-            this.addClass('ItemConnected');
+            this.addClass('osui-item-connected');
         } else {
-            this.removeClass('ItemConnected');
+            this.removeClass('osui-item-connected');
         }
     }
 
@@ -131,18 +131,18 @@ class NodeItem extends Div {
                 if (this.graph()) this.graph().disconnect(this);
                 break;
         }
-        this.removeClass('ItemConnected');
+        this.removeClass('osui-item-connected');
         if (this.graph()) this.graph().drawLines();
     }
 
     increaseIncoming() {
         this.incoming++;
-        this.addClass('ItemConnected');
+        this.addClass('osui-item-connected');
     }
 
     reduceIncoming() {
         if (this.incoming > 0) this.incoming--;
-        if (this.incoming === 0) this.removeClass('ItemConnected');
+        if (this.incoming === 0) this.removeClass('osui-item-connected');
     }
 
 }

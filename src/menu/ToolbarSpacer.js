@@ -4,7 +4,7 @@ class ToolbarSpacer extends Element {
 
     constructor(width = 1) {
         super(document.createElement('div'));
-        this.setClass('ToolbarSpacer');
+        this.setClass('osui-toolbar-spacer');
         this.setStyle('width', `calc(var(--button-size) * ${width})`);
     }
 

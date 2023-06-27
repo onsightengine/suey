@@ -1,4 +1,4 @@
-.Tooltip, .InfoBox {
+.osui-tooltip, .osui-info-box {
     display: inline-block;
     color: rgba(var(--highlight), 1);
 
@@ -25,7 +25,7 @@
     z-index: 1001; /* Tooltip, InfoBox */
 }
 
-.Tooltip {
+.osui-tooltip {
     position: absolute;
     opacity: 0;
     transform: scale(0.25);
@@ -34,20 +34,20 @@
     transition-delay: 0ms;
 }
 
-.Tooltip.Updated {
+.osui-tooltip.osui-updated {
     opacity: 1.0;
     transform: scale(1.0);
     transition-delay: var(--tooltip-delay);
 }
 
-.InfoBox {
+.osui-info-box {
     margin: 0;
     position: absolute;
     opacity: 0;
     transition: opacity 1.0s ease-in;
 }
 
-.InfoBox.Updated {
+.osui-info-box.osui-updated {
     opacity: 1.0;
     transition: opacity 0.0s ease-in;
 }

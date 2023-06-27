@@ -4,7 +4,7 @@ class Row extends Div {
 
     constructor() {
         super();
-        this.addClass('Row');
+        this.addClass('osui-row');
     }
 
 }

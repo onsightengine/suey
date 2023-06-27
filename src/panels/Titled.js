@@ -6,23 +6,23 @@ class Titled extends Div {
     constructor(title, collapsible = false) {
         super();
         const self = this;
-        this.addClass('Titled');
-        this.addClass('Expanded');
+        this.addClass('osui-titled');
+        this.addClass('osui-expanded');
         this.isExpanded = true;
 
         // Title
-        this.tabTitle = new Div(title).addClass('TabTitle');
+        this.tabTitle = new Div(title).addClass('osui-tab-title');
         if (title && title !== '') this.add(this.tabTitle)
 
         // Collapsible?
         if (collapsible) {
             this.tabTitle.setStyle('pointer-events', 'all');
-            this.tabTitle.add(new Div().setClass('TitleArrow'));
+            this.tabTitle.add(new Div().setClass('osui-title-arrow'));
             this.tabTitle.onClick(() => { self.toggle(); });
         }
 
         // Scroller
-        this.scroller = new Div().addClass('Scroller');
+        this.scroller = new Div().addClass('osui-scroller');
         this.add(this.scroller);
 
         // Override Contents
@@ -32,10 +32,10 @@ class Titled extends Div {
     setExpanded(expand = true) {
         this.isExpanded = expand;
         if (expand) {
-            this.addClass('Expanded');
+            this.addClass('osui-expanded');
             this.scroller.setDisplay('');
         } else {
-            this.removeClass('Expanded');
+            this.removeClass('osui-expanded');
             this.scroller.setDisplay('none');
         }
     }

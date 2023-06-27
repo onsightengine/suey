@@ -8,7 +8,7 @@ class VectorBox extends Div {
 
     constructor(/* any number of ImageUrls to add */) {
         super();
-        this.setClass('VectorBox');
+        this.setClass('osui-vector-box');
 
         // Process Arguments, Add them as Images
         let args = arguments;

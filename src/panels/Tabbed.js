@@ -31,8 +31,8 @@ class Tabbed extends Panel {
     } = {}) {
         super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
         const self = this;
-        this.setName('Tabbed');
-        this.addClass('Tabbed');
+        this.addClass('osui-tabbed');
+        this.setName('osui-tabbed');
 
         // Properties
         this.#startWidth = startWidth;
@@ -56,16 +56,16 @@ class Tabbed extends Panel {
             self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
         }
         function resizerMove(resizer, diffX, diffY) {
-            if (resizer.hasClassWithString('Left')) self.changeWidth(rect.width - diffX);
-            if (resizer.hasClassWithString('Right')) self.changeWidth(rect.width + diffX);
-            if (resizer.hasClassWithString('Top')) self.changeHeight(rect.height - diffY);
-            if (resizer.hasClassWithString('Bottom')) self.changeHeight(rect.height + diffY);
+            if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('right')) self.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('top')) self.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('bottom')) self.changeHeight(rect.height + diffY);
         }
         Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
 
         // Children Elements
-        this.tabsDiv = new Div().setClass('Tabs').setDisplay('none');
-        this.panelsDiv = new Div().setClass('TabPanels');
+        this.tabsDiv = new Div().setClass('osui-tabs').setDisplay('none');
+        this.panelsDiv = new Div().setClass('osui-tab-panels');
         this.add(this.tabsDiv);
         this.add(this.panelsDiv);
 
@@ -102,13 +102,13 @@ class Tabbed extends Panel {
             // // NOTE: If below is changed from '0' to '1', tabs will be hidden when there is only 1 tab
             if (self.tabs.length > 0) self.tabsDiv.setDisplay('');
 
-            const panel = new Panel().setId(id).addClass('Titled').addClass('Hidden').add(items);
+            const panel = new Panel().setId(id).addClass('osui-titled').addClass('osui-hidden').add(items);
             panel.count = numTabsWithId;
             self.panels.push(panel);
             self.panelsDiv.add(panel);
 
             self.setContentsStyle('minHeight', '');
-            if (self.tabsDiv.hasClass('LeftSide') || self.tabsDiv.hasClass('RightSide')) {
+            if (self.tabsDiv.hasClass('osui-left-side') || self.tabsDiv.hasClass('osui-right-side')) {
                 self.setContentsStyle('minHeight', ((2.2 * self.tabs.length) + 0.4) + 'em');
             }
 
@@ -183,12 +183,12 @@ class Tabbed extends Panel {
             const currentPanel = this.panels.find(function(item) {
                 return (item.dom.id === self.selectedId && item.count === self.selectedCount);
             });
-            if (currentTab) currentTab.removeClass('Selected');
-            if (currentPanel) currentPanel.addClass('Hidden');
+            if (currentTab) currentTab.removeClass('osui-selected');
+            if (currentPanel) currentPanel.addClass('osui-hidden');
 
             // Select new tab and panel
-            tab.addClass('Selected');
-            panel.removeClass('Hidden');
+            tab.addClass('osui-selected');
+            panel.removeClass('osui-hidden');
 
             // Set id
             this.selectedId = id;
@@ -235,10 +235,9 @@ class Tabbed extends Panel {
 
     setTabSide(side) {
         side = String(side).toLowerCase();
-        this.tabsDiv.removeClass('LeftSide');
-        this.tabsDiv.removeClass('RightSide');
-        if (side === TAB_SIDES.RIGHT) this.tabsDiv.addClass('RightSide');
-        else this.tabsDiv.addClass('LeftSide');
+        this.tabsDiv.removeClass('osui-left-side');
+        this.tabsDiv.removeClass('osui-right-side');
+        this.tabsDiv.addClass((side === TAB_SIDES.RIGHT) ? 'osui-right-side' : 'osui-left-side');
     }
 
     tabIndex(id) {
@@ -254,12 +253,12 @@ class TabButton extends Div {
     constructor(parent, label, icon, bgColor = undefined) {
         super();
         const self = this;
-        this.setClass('TabButton');
+        this.setClass('osui-tab-button');
         this.setCursor('default');
 
         // Icon / Label
         this.iconVector = new VectorBox(icon);
-        this.iconBorder = new Div().setClass('TabIcon');
+        this.iconBorder = new Div().setClass('osui-tab-icon');
         this.add(this.iconVector, this.iconBorder);
         this.setLabel = function(label) {
             self.iconBorder.dom.setAttribute('tooltip', label);

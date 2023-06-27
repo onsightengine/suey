@@ -4,7 +4,7 @@ class MenuShortcut extends Div {
 
     constructor(text = undefined) {
         super();
-        this.setClass('MenuShortcut');
+        this.setClass('osui-menu-shortcut');
 
         if (text) this.setShortcutText(text);
     }
@@ -18,7 +18,7 @@ class MenuShortcut extends Div {
 
         // Insert new shorcut as series of centered same-spaced divs for each character
         for (let i = 0; i < text.length; i++) {
-            let letter = new Div().setClass('MenuShortcutCharacter');
+            let letter = new Div().setClass('osui-menu-shortcut-character');
 
             // Put lowercase letters together
             let subString = text[i];

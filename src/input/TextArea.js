@@ -5,7 +5,7 @@ class TextArea extends Element {
 
     constructor() {
         super(document.createElement('textarea'));
-        this.setClass('TextArea');
+        this.setClass('osui-text-area');
 
         this.dom.spellcheck = false;
         this.dom.setAttribute('autocomplete', 'off');

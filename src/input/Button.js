@@ -7,10 +7,9 @@ class Button extends Element {
 
     constructor(innerHtml) {
         super(document.createElement('button'));
-        this.setStyle('pointerEvents', 'all');
         const self = this;
 
-        this.setClass('Button');
+        this.setClass('osui-button');
         this.dom.innerHTML = innerHtml ?? '';
 
         this.attachedMenu = undefined;
@@ -41,9 +40,9 @@ class Button extends Element {
     attachMenu(osuiMenu) {
         const self = this;
 
-        // Verify element is a .Menu, apply MenuButton class, store for later
-        if (osuiMenu.hasClass('Menu') === false) return this;
-        this.addClass('MenuButton');
+        // Verify element is a 'osui-menu', apply 'osui-menu-button' class, store for later
+        if (osuiMenu.hasClass('osui-menu') === false) return this;
+        this.addClass('osui-menu-button');
         this.attachedMenu = osuiMenu;
 
         // Add menu to document, add event handler
@@ -74,19 +73,19 @@ class Button extends Element {
                 self.overflowMenu
             );
             if (popped === POSITION.UNDER) {
-                osuiMenu.removeClass('SlideUp');
-                osuiMenu.addClass('SlideDown');
+                osuiMenu.removeClass('osui-slide-up');
+                osuiMenu.addClass('osui-slide-down');
             } else {
-                osuiMenu.removeClass('SlideDown');
-                osuiMenu.addClass('SlideUp');
+                osuiMenu.removeClass('osui-slide-down');
+                osuiMenu.addClass('osui-slide-up');
             }
         }
 
         // Handle button click
         function menuPointerDown(event) {
             // Pop Menu
-            if (self.hasClass('Selected') === false) {
-                self.addClass('Selected');
+            if (self.hasClass('osui-selected') === false) {
+                self.addClass('osui-selected');
 
                 // Update position
                 popMenu();
@@ -98,8 +97,8 @@ class Button extends Element {
 
         /** Removes attached menu */
         this.detachMenu = function() {
-            if (self.hasClass('MenuButton') === false) return;
-            self.removeClass('MenuButton');
+            if (self.hasClass('osui-menu-button') === false) return;
+            self.removeClass('osui-menu-button');
             window.removeEventListener('resize', popMenu);
             self.dom.removeEventListener('pointerdown', menuPointerDown);
             self.attachedMenu.destroy();

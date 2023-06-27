@@ -42,17 +42,17 @@ class Graph extends Panel {
         this.snapToGrid = snapToGrid;
 
         // Elements
-        this.input = new Div().setClass('GraphInput');
-        this.grid = new Div().setClass('GraphGrid');
-		this.nodes = new Div().setClass('GraphNodes');
-        this.lines = new Canvas(2048, 2048).setClass('GraphLines');
-        this.bandbox = new Div().setClass('GraphBandBox');
-        this.minimap = new Div().setClass('MiniMap');
+        this.input = new Div().setClass('osui-graph-input');
+        this.grid = new Div().setClass('osui-graph-grid');
+		this.nodes = new Div().setClass('osui-graph-nodes');
+        this.lines = new Canvas(2048, 2048).setClass('osui-graph-lines');
+        this.bandbox = new Div().setClass('osui-graph-band-box');
+        this.minimap = new Div().setClass('osui-mini-map');
         this.add(this.input, this.grid, this.lines, this.nodes, this.bandbox, this.minimap);
 
         // MiniMap
-        this.mapCanvas = new Canvas(1024, 1024).setClass('MiniMapCanvas');
-        const mapResizers = new Div().addClass('MiniMapResizers');
+        this.mapCanvas = new Canvas(1024, 1024).setClass('osui-mini-map-canvas');
+        const mapResizers = new Div().addClass('osui-mini-map-resizers');
         this.minimap.add(this.mapCanvas, mapResizers);
 
         // Draw Grid Image
@@ -110,8 +110,8 @@ class Graph extends Panel {
                 offset.y = self.#offset.y;
             } else if (event.button === 0) {
                 selecting = true;
-                const selected = document.querySelectorAll(`.NodeSelected`);
-                selected.forEach(el => el.classList.remove('NodeSelected'));
+                const selected = document.querySelectorAll(`.osui-node-selected`);
+                selected.forEach(el => el.classList.remove('osui-node-selected'));
                 self.bandbox.setStyle('display', 'block');
                 updateRubberBandBox(event.clientX, event.clientY);
             }
@@ -181,8 +181,8 @@ class Graph extends Panel {
             const nodes = self.getNodes();
             nodes.forEach((node) => { if (rubberbandIntersect(node)) selected.push(node); });
             nodes.forEach((node) => {
-                if (selected.includes(node)) node.addClass('NodeSelected');
-                else node.removeClass('NodeSelected');
+                if (selected.includes(node)) node.addClass('osui-node-selected');
+                else node.removeClass('osui-node-selected');
             });
         }
         this.input.onPointerDown(inputPointerDown);
@@ -193,23 +193,23 @@ class Graph extends Panel {
             rect = self.minimap.dom.getBoundingClientRect();
         }
         function resizerMove(resizer, diffX, diffY) {
-            if (resizer.hasClassWithString('Left')) {
+            if (resizer.hasClassWithString('left')) {
                 const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
                 const newWidth = rect.right - newLeft;
                 self.minimap.setStyle('left', `${newLeft}px`);
                 self.minimap.setStyle('width', `${newWidth}px`);
             }
-            if (resizer.hasClassWithString('Top')) {
+            if (resizer.hasClassWithString('top')) {
                 const newTop = Math.max(0, Math.min(rect.bottom - MIN_H, rect.top + diffY));
                 const newHeight = rect.bottom - newTop;
                 self.minimap.setStyle('top', `${newTop}px`);
                 self.minimap.setStyle('height', `${newHeight}px`);
             }
-            if (resizer.hasClassWithString('Right')) {
+            if (resizer.hasClassWithString('right')) {
                 const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), window.innerWidth - rect.left);
                 self.minimap.setStyle('width', `${newWidth}px`);
             }
-            if (resizer.hasClassWithString('Bottom')) {
+            if (resizer.hasClassWithString('bottom')) {
                 const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
                 self.minimap.setStyle('height', `${newHeight}px`);
             }
@@ -441,7 +441,7 @@ class Graph extends Panel {
                     item.reduceIncoming();
                 }
                 if (output.connections.length === 0) {
-                    output.removeClass('ItemConnected');
+                    output.removeClass('osui-item-connected');
                 }
             });
         });
@@ -645,7 +645,7 @@ class Graph extends Panel {
      */
     centerView(resetZoom = true, animate = true) {
         const selected = [];
-        this.traverseNodes((node) => { if (node.hasClass('NodeSelected')) selected.push(node); });
+        this.traverseNodes((node) => { if (node.hasClass('osui-node-selected')) selected.push(node); });
         const bounds = this.nodeBounds(0, (selected.length > 0) ? selected : this.nodes.children);
         this.focusView(bounds.center().x, bounds.center().y, resetZoom, animate);
     }
@@ -742,10 +742,10 @@ class Graph extends Panel {
         grid.setStyle('opacity', (this.#scale < 1) ? (this.#scale * this.#scale) : '1');
 
         // Hide Resizers
-        const resizeables = document.querySelectorAll(`.Node`);
+        const resizeables = document.querySelectorAll(`.osui-node`);
         resizeables.forEach(el => {
-            if (zoom < 0.5) el.classList.add('TooSmall');
-            else el.classList.remove('TooSmall');
+            if (zoom < 0.5) el.classList.add('osui-too-small');
+            else el.classList.remove('osui-too-small');
         });
 
         // Redraw

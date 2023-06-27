@@ -31,7 +31,7 @@ class Image extends Element {
 
         // Base
         super(imageDom);
-        this.setClass('Image');
+        this.setClass('osui-image');
 
         // Methods
         this.setImage = function(imageUrl) {

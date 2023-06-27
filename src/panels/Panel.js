@@ -14,22 +14,22 @@ class Panel extends Div {
         bringToTop = false,
     } = {}) {
         super();
-        this.setClass('Panel');
+        this.setClass('osui-panel');
         this.contents = function() { return this; }
         const self = this;
 
         // Panel Style
         if (style === PANEL_STYLES.SIMPLE) {
-            this.addClass('SimplePanel');
+            this.addClass('osui-panel-simple');
         } else if (style === PANEL_STYLES.FANCY) {
-            this.addClass('FancyPanel');
-            const outerBox =  new Panel().setClass('FancyPanelOuter');      // Padding
-            const borderBox = new Panel().setClass('FancyPanelBorder');     // Border
-            const insideBox = new Panel().setClass('FancyPanelInside');     // Interior
+            this.addClass('osui-panel-fancy');
+            const outerBox =  new Panel().setClass('osui-panel-fancy-outer');   // Padding
+            const borderBox = new Panel().setClass('osui-panel-fancy-border');  // Border
+            const insideBox = new Panel().setClass('osui-panel-fancy-inside');  // Interior
             borderBox.add(insideBox);
             outerBox.add(borderBox);
             this.add(outerBox);
-            this.contents = function() { return insideBox; };               // Accessor for inside panel
+            this.contents = function() { return insideBox; };                   // Accessor for inside panel
         }
 
         // Disable context menu
@@ -38,7 +38,7 @@ class Panel extends Div {
 
         // Stacking
         if (bringToTop) {
-            this.dom.addEventListener('blur', () => self.removeClass('BringToTop'));
+            this.dom.addEventListener('blur', () => self.removeClass('osui-bring-top'));
             this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
             this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
             this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));

@@ -5,11 +5,13 @@ class Checkbox extends Element {
 
     constructor(boolean) {
         super(document.createElement('label'));
-        this.setClass('Checkbox');
+        this.setClass('osui-checkbox');
 
-        this.checkbox = new Element(document.createElement('input')).addClass('CheckboxInput');
+        this.checkbox = new Element(document.createElement('input'));
+        this.checkbox.setClass('osui-input');
+        this.checkbox.addClass('osui-checkbox-input');
         this.checkbox.dom.type = 'checkbox';
-        let button = new Div().addClass('CheckboxButton');
+        let button = new Div().addClass('osui-checkbox-button');
         this.add(this.checkbox, button);
 
         this.setValue(boolean);

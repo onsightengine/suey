@@ -4,10 +4,10 @@ import { RESIZERS } from '../constants.js';
 import { TAB_SIDES } from '../panels/Tabbed.js';
 
 export const CORNERS = {
-    TOP_LEFT:       'TopLeft',
-    TOP_RIGHT:      'TopRight',
-    BOTTOM_LEFT:    'BottomLeft',
-    BOTTOM_RIGHT:   'BottomRight',
+    TOP_LEFT:       'top-left',
+    TOP_RIGHT:      'top-right',
+    BOTTOM_LEFT:    'bottom-left',
+    BOTTOM_RIGHT:   'bottom-right',
 };
 
 class Docker extends Div {
@@ -22,8 +22,8 @@ class Docker extends Div {
         let zIndex = 1;
         for (let key in CORNERS) {
             const cornerName = CORNERS[key];
-            const className = `Docker${cornerName}`;
-            const corner = new Div().addClass('DockerCorner').addClass(className);
+            const className = `osui-docker-${cornerName}`;
+            const corner = new Div().addClass('osui-docker-corner').addClass(className);
             corner.setStyle('zIndex', `${zIndex}`);
             zIndex++;
 
@@ -56,13 +56,13 @@ class Docker extends Div {
         });
 
         if (dockPanel.isElement) {
-            if (dockPanel.hasClass('Tabbed')) {
-                if (cornerName.includes('Right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('Left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
+            if (dockPanel.hasClass('osui-tabbed')) {
+                if (cornerName.includes('right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
+                if (cornerName.includes('left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
             }
-            if (dockPanel.hasClass('Resizeable')) {
-                dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('Right'));
-                dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('Left'));
+            if (dockPanel.hasClass('osui-resizeable')) {
+                dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('right'));
+                dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('left'));
             }
         }
     }

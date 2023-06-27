@@ -1,12 +1,12 @@
-/********** .PropertyList **********/
+/********** Property List **********/
 
-.PropertyList {
+.osui-property-list {
     width: 100%;
 }
 
 /* --- HEADER --- */
 
-.PropertyHeaderTitle {
+.osui-property-header-title {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -25,11 +25,11 @@
     text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 }
 
-.PropertyHeaderIcon > * {
+.osui-property-header-icon > * {
     filter: var(--drop-shadow);
 }
 
-.PropertyHeaderIcon {
+.osui-property-header-icon {
     flex-grow: 0;
     flex-shrink: 0;
     font-size: 110%;
@@ -41,7 +41,7 @@
     min-height: calc(var(--arrow-size) * 3);
 }
 
-.PropertyHeaderText {
+.osui-property-header-text {
     flex-grow: 1;
     flex-shrink: 2;
     color: rgba(var(--text-light), 1.0);
@@ -55,25 +55,25 @@
 
 /* --- ROW --- */
 
-.PropertyRow {
+.osui-property-row {
     position: relative;
     min-height: var(--row-height);
 }
 
-.PropertyRow:hover .PropertyLeft {
+.osui-property-row:hover .osui-property-left {
     color: rgba(var(--highlight), 0.8);
 }
 
-.PropertyRow:hover .PropertyLeft .Image {
+.osui-property-row:hover .osui-property-left .osui-image {
     filter: brightness(250%);
 }
 
-.PropertySpace {
+.osui-property-space {
     flex: 0 0 auto;
     min-width: 0.2em;
 }
 
-.PropertyLeft {
+.osui-property-left {
     --left-property-width: 50%;
 
     width: var(--left-property-width) !important;
@@ -87,11 +87,11 @@
     text-align: left;
     text-transform: capitalize;
 }
-.LeftTabSpacing {
+.osui-left-tab-spacing {
     padding-left: 1em;
 }
 
-.PropertyRight {
+.osui-property-right {
     --right-property-width: 50%;
 
     width: calc(var(--right-property-width) - var(--pad-small)) !important;
@@ -105,7 +105,7 @@
     min-height: var(--row-height);
 }
 
-.PropertyFull {
+.osui-property-full {
     margin: auto;
     margin-right: var(--pad-small) !important;
     justify-content: center;
@@ -115,7 +115,7 @@
     width: calc(100% - var(--pad-small)) !important;
 }
 
-.PropertyFull > * {
+.osui-property-full > * {
     flex: 1 1 auto;
     min-height: var(--row-height);
     min-width: 0;
@@ -125,11 +125,7 @@
 
 /* --- RIGHT SIDE OF ROW --- */
 
-.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton),
-.PropertyRight > .TextBox:not(.PropertyTinyRow),
-.PropertyRight > .Number:not(.PropertyTinyRow),
-.PropertyRight > .SlideContainer:not(.PropertyTinyRow),
-.PropertyRight > .NumberHolder {
+.osui-property-right > *:not(.osui-property-tiny-row):not(.osui-property-button):not(.osui-property-space) {
     flex: 1 1 auto;
     min-height: var(--row-height);
     min-width: 0;
@@ -138,12 +134,12 @@
     height: 100%;
 }
 
-.PropertyRight > button:not(.PropertyTinyRow):not(.PropertyButton):not(.MenuButton) {
+.osui-property-right > .osui-button:not(.osui-property-tiny-row):not(.osui-property-button):not(.osui-menu-button) {
     text-align: center;
 }
 
 /* Right side of Property Box flex fill when using multiple controls */
-.PropertyTinyRow {
+.osui-property-tiny-row {
     --min-width: 2em;
 
     flex: 2 2 var(--min-width);
@@ -153,15 +149,15 @@
 }
 
 /* --- BUTTON --- */
-/* Button appearing in right column of PropertyList, fixed size */
-.PropertyButton {
+/* Button appearing in right column of Property List, fixed size */
+.osui-property-button {
     position: relative;
     min-height: var(--row-height);
     min-width: 2.1em;
 }
 
-/* Button appearing in right column of PropertyList, flex box */
-.PropertyButtonFlex {
+/* Button appearing in right column of Property List, flex box */
+.osui-property-button-flex {
     flex: 1 1 auto;
     position: relative;
     display: block;
@@ -172,9 +168,9 @@
     white-space: nowrap;
 }
 
-/********** .TreeList **********/
+/********** Tree List **********/
 
-.TreeList {
+.osui-tree-list {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -194,9 +190,9 @@
     outline: none; /* for macos */
 }
 
-/********** .TreeList .Option **********/
+/********** Tree List Option **********/
 
-.TreeList .Option {
+.osui-tree-list .osui-option {
     position: relative;
     text-align: left;
     border: var(--border-small) solid transparent;
@@ -204,43 +200,43 @@
     width: 100%;
     white-space: nowrap;
 }
-.TreeList .Option:hover:not(.NoSelect) {
+.osui-tree-list .osui-option:hover:not(.osui-no-select) {
     color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--background-dark), 0.2);
 }
 
-.TreeList .Option.Active:not(.NoSelect) {
+.osui-tree-list .osui-option.osui-active:not(.osui-no-select) {
     color: rgba(var(--highlight), 1.0);
     background-color: rgba(var(--icon-light), 0.4);
     border-top: var(--border-small) solid rgba(var(--shadow), 0.25);
     border-bottom: var(--border-small) solid rgba(var(--shadow), 0.25);
     border-radius: var(--radius-small);
 }
-.TreeList .Option.ActiveTop:not(.NoSelect) {
+.osui-tree-list .osui-option.osui-active-top:not(.osui-no-select) {
     border-bottom: var(--border-small) solid transparent;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-.TreeList .Option.ActiveBottom:not(.NoSelect) {
+.osui-tree-list .osui-option.osui-active-bottom:not(.osui-no-select) {
     border-top: var(--border-small) solid transparent;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
-.TreeList .Option.Drag:not(.Active) {
+.osui-tree-list .osui-option.osui-drag:not(.osui-active) {
     border: var(--border-small) solid rgba(var(--icon-light), 1.0);
     border-radius: var(--radius-small);
 }
-.TreeList .Option.DragTop:not(.Active) {
+.osui-tree-list .osui-option.osui-drag-top:not(.osui-active) {
     border-top: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
-.TreeList .Option.DragBottom:not(.Active) {
+.osui-tree-list .osui-option.osui-drag-bottom:not(.osui-active) {
     border-bottom: var(--border-small) solid rgba(var(--icon-light), 1.0);
 }
 
-/********** .TreeList .Opener **********/
+/********** Tree List Opener **********/
 
-.TreeList .Opener {
+.osui-tree-list .osui-opener {
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -250,17 +246,17 @@
     text-align: center;
 }
 
-.TreeList .Opener.Open:after {
+.osui-tree-list .osui-opener.osui-is-open:after {
     content: '-';
 }
 
-.TreeList .Opener.Closed:after {
+.osui-tree-list .osui-opener.osui-is-closed:after {
     content: '+';
 }
 
-/********** .DragImage **********/
+/********** Drag Image **********/
 
-.DragImage {
+.osui-drag-image {
     display: flex;
     position: absolute;
     margin: 0;

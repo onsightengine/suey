@@ -1,6 +1,6 @@
 /***** GRAPH *****/
 
-.GraphInput, .GraphGrid, .GraphNodes, .GraphLines {
+.osui-graph-input, .osui-graph-grid, .osui-graph-nodes, .osui-graph-lines {
     position: absolute;
     top: 0;
 	left: 0;
@@ -11,13 +11,13 @@
 }
 
 /* Div used for processing user input */
-.GraphInput {
+.osui-graph-input {
     background: transparent;
-    z-index: -1; /* GraphInput */
+    z-index: -1; /* Graph Input */
 }
 
 /* Background div that holds tiled grid */
-.GraphGrid {
+.osui-graph-grid {
     pointer-events: none;
     background-color: rgb(var(--darkness));
     background-repeat: repeat;
@@ -25,19 +25,19 @@
 }
 
 /* Scalable div to hold nodes */
-.GraphNodes {
+.osui-graph-nodes {
     pointer-events: none;
     background-color: transparent;
     transition: none;
 }
 
 /* Canvas where lines are drawn */
-.GraphLines {
+.osui-graph-lines {
     pointer-events: none;
 }
 
 /* Shows rubber band box */
-.GraphBandBox {
+.osui-graph-band-box {
     position: absolute;
     display: none;
     background-color: rgba(var(--icon), 0.2);
@@ -46,7 +46,7 @@
 
 /***** MINIMAP *****/
 
-.MiniMap {
+.osui-mini-map {
     position: absolute;
     background-color: rgba(var(--background-dark), 0.5);
     border: var(--border-small) solid rgba(var(--icon), 0.75);
@@ -59,7 +59,7 @@
     cursor: grab;
 }
 
-.MiniMapCanvas {
+.osui-mini-map-canvas {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -67,7 +67,7 @@
     outline: none;
 }
 
-.MiniMapResizers {
+.osui-mini-map-resizers {
     position: absolute;
     width: calc(100% + var(--resize-size));
     height: calc(100% + var(--resize-size));
@@ -77,7 +77,7 @@
 
 /***** NODE *****/
 
-.Node {
+.osui-node {
     --node-color:       255, 0, 0;
 
     pointer-events: all;
@@ -92,19 +92,19 @@
     z-index: 0; /* Node */
 }
 
-.Node:hover, .Node.NodeSelected {
+.osui-node:hover, .osui-node.osui-node-selected {
     filter: brightness(120%);
 }
 
-.Node.NodeSelected, .Node.NodeDisplayed {
+.osui-node.osui-node-selected, .osui-node.osui-node-displayed {
     outline: solid var(--pad-small) rgb(var(--black), 0.5);
 }
 
-.Node.TooSmall .Resizer {
+.osui-node.osui-too-small .osui-resizer {
     pointer-events: none;
 }
 
-.NodePanel {
+.osui-node-panel {
     pointer-events: none;
     display: flex;
     flex-direction: column;
@@ -122,7 +122,7 @@
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
 }
 
-.NodeBorder {
+.osui-node-border {
     pointer-events: none;
     border: var(--border-small) solid transparent;
     border-radius: var(--radius-large);
@@ -132,15 +132,15 @@
 	padding: 0;
 }
 
-.Node.NodeDisplayed .NodeBorder {
+.osui-node.osui-node-displayed .osui-node-border {
     border: var(--border-small) solid rgba(var(--complement), 1);
 }
 
-.Node.NodeSelected .NodeBorder {
+.osui-node.osui-node-selected .osui-node-border {
     border: var(--border-small) solid rgba(var(--icon), 1);
 }
 
-.NodeResizers {
+.osui-node-resizers {
     pointer-events: all;
     position: absolute;
     opacity: 0;
@@ -151,7 +151,7 @@
 
 /***** NODE HEADER *****/
 
-.NodeHeaderTitle {
+.osui-node-header-title {
     pointer-events: none;
     position: relative;
     display: flex;
@@ -170,7 +170,7 @@
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);
 }
 
-.NodeHeaderIcon .VectorBox {
+.osui-node-header-icon .osui-vector-box {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -179,11 +179,11 @@
     filter: drop-shadow(0 0 var(--pad-x-small) rgb(var(--shadow)));
 }
 
-.NodeHeaderIcon .Image {
+.osui-node-header-icon .osui-image {
     filter: brightness(calc(10 * var(--bright))) opacity(0.9);
 }
 
-.NodeHeaderIcon {
+.osui-node-header-icon {
     pointer-events: none;
     position: absolute;
     background-color: rgba(var(--button-dark), 1);
@@ -196,7 +196,7 @@
     box-shadow: inset 0 0 var(--pixel) rgba(var(--shadow), 0.5);
 }
 
-.NodeHeaderText {
+.osui-node-header-text {
     pointer-events: none;
     flex-grow: 1;
     flex-shrink: 2;
@@ -211,7 +211,7 @@
 
 /***** NODE ITEM *****/
 
-.NodeInterior {
+.osui-node-interior {
     pointer-events: none;
     display: flex;
     flex-direction: row;
@@ -222,7 +222,7 @@
     min-height: 25px;
 }
 
-.NodeItemList {
+.osui-node-item-list {
     pointer-events: none;
     display: block;
     flex: 1 1 auto;
@@ -233,7 +233,7 @@
 }
 
 /* Item */
-.NodeItem {
+.osui-node-item {
     pointer-events: none;
     position: relative;
     background-color: transparent;
@@ -246,18 +246,18 @@
     vertical-align: middle;
 }
 
-.NodeLeft {
+.osui-node-left {
     text-align: left;
     padding-left: 1.2em;
 }
 
-.NodeRight {
+.osui-node-right {
     text-align: right;
     padding-right: 1.2em;
 }
 
 /* Item point */
-.NodeItemPoint {
+.osui-node-item-point {
     pointer-events: all;
     position: absolute;
     width: 1em;
@@ -268,20 +268,20 @@
     outline: none;
     top: 50%;
     overflow: visible;
-    z-index: 100; /* NodeItemPoint */
+    z-index: 100; /* Node Item Point */
 }
 
-.NodeLeft .NodeItemPoint {
+.osui-node-left .osui-node-item-point {
     left: 0;
     transform: translate(-50%, -50%);
 }
-.NodeRight .NodeItemPoint {
+.osui-node-right .osui-node-item-point {
     right: 0;
     transform: translate( 50%, -50%);
 }
 
 /* Increases mouse over hit area */
-.NodeItemPoint::before {
+.osui-node-item-point::before {
     content: ' ';
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -290,8 +290,8 @@
 }
 
 /* Inner square */
-.NodeItem.ItemConnected .NodeItemPoint::after,
-.NodeItem .NodeItemPoint.ActiveItem::after {
+.osui-node-item.osui-item-connected .osui-node-item-point::after,
+.osui-node-item .osui-node-item-point.osui-active-item::after {
     content: ' ';
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -301,22 +301,22 @@
 }
 
 /* Item point highlight border */
-.Node.NodeDisplayed .NodeItemPoint {
+.osui-node.osui-node-displayed .osui-node-item-point {
     border: var(--border-small) solid rgba(var(--complement), 1);
 }
-.Node.NodeSelected .NodeItemPoint {
+.osui-node.osui-node-selected .osui-node-item-point {
     border: var(--border-small) solid rgba(var(--icon), 1);
 }
 
-.NodeItemPoint.HoverPoint, .Node.NodeSelected .NodeItemPoint.HoverPoint,
-.NodeItemPoint.ActiveItem, .Node.NodeSelected .NodeItemPoint.ActiveItem {
+.osui-node-item-point.osui-hover-point, .osui-node.osui-node-selected .osui-node-item-point.osui-hover-point,
+.osui-node-item-point.osui-active-item, .osui-node.osui-node-selected .osui-node-item-point.osui-active-item {
     border: var(--border-small) solid rgba(var(--highlight), 1);
     width: 1.2em;
     height: 1.2em;
 }
 
-/* Item detacher */
-.NodeItemDetach {
+/* Item detacher (little 'X') */
+.osui-node-item-detach {
     pointer-events: none;
     position: absolute;
     width: 1em;
@@ -331,15 +331,15 @@
     opacity: 0;
 }
 
-.NodeRight .NodeItemDetach {
+.osui-node-right .osui-node-item-detach {
     left: calc(100% + 0.7em);
 }
-.NodeLeft .NodeItemDetach {
+.osui-node-left .osui-node-item-detach {
     left: calc(0em - var(--row-height));
 }
 
 /* Increases mouse over hit area */
-.NodeItemDetach::before {
+.osui-node-item-detach::before {
     content: ' ';
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -347,18 +347,18 @@
     background-color: transparent;
 }
 
-.NodeItem.ItemConnected .NodeItemDetach {
+.osui-node-item.osui-item-connected .osui-node-item-detach {
     pointer-events: all;
 }
 
-.NodeItem.ItemConnected:hover .NodeItemDetach {
+.osui-node-item.osui-item-connected:hover .osui-node-item-detach {
     opacity: 1;
 }
 
-.NodeItemDetach .Image {
+.osui-node-item-detach .osui-image {
     filter: var(--drop-shadow);
 }
 
-.NodeItem.ItemConnected .NodeItemDetach:hover {
+.osui-node-item.osui-item-connected .osui-node-item-detach:hover {
     filter: brightness(100%);
 }

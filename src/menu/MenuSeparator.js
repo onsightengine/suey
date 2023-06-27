@@ -4,7 +4,7 @@ class MenuSeparator extends Div {
 
     constructor() {
     super();
-        this.setClass('MenuSeparator');
+        this.setClass('osui-menu-separator');
     }
 
 }

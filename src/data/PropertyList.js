@@ -15,7 +15,7 @@ class PropertyList extends Div {
 
     constructor(leftPropertyWidth = '50%', leftPropertySpacing = LEFT_SPACING.TABS) {
         super();
-        this.addClass('PropertyList');
+        this.addClass('osui-property-list');
         this.setStyle('display', 'block');
 
         this.leftPropertyWidth = leftPropertyWidth;
@@ -72,11 +72,11 @@ class PropertyList extends Div {
 
     /** Separating category header title */
     createHeader(text = '', iconUrl, enlarge = false) {
-        const header = new Div().setClass('PropertyHeaderTitle');
+        const header = new Div().setClass('osui-property-header-title');
         const icon = new VectorBox(iconUrl);
-        if (enlarge) icon.addClass('EnlargeIcon');
-        const iconHolder = new Span().setClass('PropertyHeaderIcon').add(icon);
-        const textHolder = new Span().setClass('PropertyHeaderText').setTextContent(text);
+        if (enlarge) icon.addClass('osui-enlarge-icon');
+        const iconHolder = new Span().setClass('osui-property-header-icon').add(icon);
+        const textHolder = new Span().setClass('osui-property-header-text').setTextContent(text);
         header.add(iconHolder, textHolder);
         return header;
     }
@@ -84,11 +84,11 @@ class PropertyList extends Div {
     /** Creates row from left / right widgets, spacing defaults to this.leftPropertyWidth */
     createRow(title = '', ...controls) {
         const rightWidget = this.createControls(...controls);
-        const leftWidget = new Text(title).selectable(false).addClass('PropertyLeft');
-        if (this.leftPropertySpacing === LEFT_SPACING.TABS) leftWidget.addClass('LeftTabSpacing');
+        const leftWidget = new Text(title).selectable(false).addClass('osui-property-left');
+        if (this.leftPropertySpacing === LEFT_SPACING.TABS) leftWidget.addClass('osui-left-tab-spacing');
         Css.setVariable('--left-property-width', this.#leftWidth(), leftWidget);
         Css.setVariable('--right-property-width', this.#rightWidth(), rightWidget);
-        const row = new Row().addClass('PropertyRow').add(leftWidget, rightWidget);
+        const row = new Row().addClass('osui-property-row').add(leftWidget, rightWidget);
         row.leftWidget = leftWidget;
         row.rightWidget = rightWidget;
         return row;
@@ -97,8 +97,8 @@ class PropertyList extends Div {
     /** Creates a single column row for input widgets (no left property label) */
     createRowWithoutTitle(...controls) {
         const widgets = this.createControls(...controls);
-        widgets.removeClass('PropertyRight').addClass('PropertyFull');
-        const row = new Row().addClass('PropertyRow').add(widgets);
+        widgets.removeClass('osui-property-right').addClass('osui-property-full');
+        const row = new Row().addClass('osui-property-row').add(widgets);
         row.leftWidget = widgets;
         row.rightWidget = widgets;
         return row;
@@ -106,14 +106,14 @@ class PropertyList extends Div {
 
     /** Creates a zero margin Row to hold right side controls of a Property Row */
     createControls(/* any number of Osui Elements */) {
-        const rightRow = new Row().setStyle('margin', '0', 'padding', '0').addClass('PropertyRight');
+        const rightRow = new Row().setStyle('margin', '0', 'padding', '0').addClass('osui-property-right');
         let args = arguments;
         if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
         for (let i = 0; i < args.length; i++) {
             const argument = args[i];
             if (argument instanceof Element && argument.isElement) {
                 rightRow.add(argument);
-                if (i < args.length - 1) rightRow.add(new Span().addClass('PropertySpace'));
+                if (i < args.length - 1) rightRow.add(new Span().addClass('osui-property-space'));
             } else {
                 console.error('PropertyList.createControls():', argument, 'is not an instance of Osui Element.');
             }
@@ -124,16 +124,18 @@ class PropertyList extends Div {
 
     /** Disables all Inputs */
     disableInputs(disable = true) {
-        const inputs = [ 'Button', 'Checkbox', 'Number', 'Slider', 'TickMarks', 'TextArea', 'TextBox' ];
+        const inputs = [ 'osui-button', 'osui-checkbox', 'osui-checkbox-input', 'osui-number', 'osui-slider', 'osui-tick-marks', 'osui-text-area', 'osui-text-box' ];
 
         for (let i = 0; i < inputs.length; i++) {
             const elements = this.dom.getElementsByClassName(inputs[i]);
 
             for (let j = 0; j < elements.length; j++) {
                 if (disable) {
-                    elements[j].classList.add('Disabled');
+                    elements[j].classList.add('osui-disabled');
+                    elements[j].disabled = true;
                 } else {
-                    elements[j].classList.remove('Disabled');
+                    elements[j].classList.remove('osui-disabled');
+                    elements[j].disabled = false;
                 }
             }
         }

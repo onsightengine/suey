@@ -13,49 +13,49 @@
 //      Canvas                  canvas                  -
 //      Div                     div                     -
 //      Element                 base class              -
-//      Image                   img                     .Image
+//      Image                   img                     .osui-image
 //      Span                    span                    -
-//      Text                    span                    .Text
+//      Text                    span                    .osui-text
 //
 //  DATA
-//      TreeList                div                     .TreeList
+//      TreeList                div                     .osui-tree-list
 //
 //  INPUT
-//      Button                  button                  .Button
-//      Checkbox                input['checkbox']       .Checkbox
-//      Color                   input['color']          .ColorButton
-//      Dropdown                button                  .Dropdown, .DropArrow
-//      NumberBox               input['number']         .NumberBox
-//      NumberScroll            input['number']         .NumberScroll
-//		Slider                  input['range']          .Slider
-//      TextArea                textarea                .TextArea
-//      TextBox                 input['text']           .TextBox
+//      Button                  button                  .osui-button
+//      Checkbox                input['checkbox']       .osui-checkbox
+//      Color                   input['color']          .osui-color-button
+//      Dropdown                button                  .osui-dropdown, .osui-drop-arrow
+//      NumberBox               input['number']         .osui-number
+//      NumberScroll            input['number']         .osui-number-scroll
+//		Slider                  input['range']          .osui-slider
+//      TextArea                textarea                .osui-text-area
+//      TextBox                 input['text']           .osui-text-box
 //
 //  LAYOUT
-//      AbsoluteBox             div                     .AbsoluteBox
-//		AssetBox                div                     .AssetBox, .MiniAssetBox
-//      Docker                  div                     .DockerLeft, .DockerRight
-//		FlexBox                 div                     -
+//      AbsoluteBox             div                     .osui-absolute-box
+//		AssetBox                div                     .osui-asset-box
+//      Docker                  div                     .osui-docker-left, .osui-docker-right
+//		FlexBox                 div                     .osui-flex-box
 //      FlexSpacer              span                    -
-//      Row                     div                     .Row
-//      ShadowBox               div                     .ShadowBox
-//		VectorBox               div                     .VectorBox
+//      Row                     div                     .osui-row
+//      ShadowBox               div                     .osui-shadow-box
+//		VectorBox               div                     .osui-vector-box
 //
 //  MENU
-//      Menu                    div                     .Menu / .MenuShow
-//      MenuItem                div                     .MenuItem
-//      MenuSeparator           div                     .MenuSeparator
-//      MenuShortcut            div                     .MenuShortcut
-//		ToolbarButton           button                  .ToolbarButton
-//		ToolbarSeparator        div                     .ToolbarSeparator
+//      Menu                    div                     .osui-menu, .osui-menu-show
+//      MenuItem                div                     .osui-menu-item
+//      MenuSeparator           div                     .osui-menu-separator
+//      MenuShortcut            div                     .osui-menu-shortcut
+//		ToolbarButton           button                  .osui-toolbar-button
+//		ToolbarSeparator        div                     .osui-toolbar-separator
+//      ToolbarSpacer           div                     .osui-toolbar-spacer
 //
 //  PANELS
-//      Panel                   div                     .Panel
-//      Shrinkable              div                     .Shrinkable
-//      Stacked                 div                     .Stacked
-//      Tabbed                  div                     .Tabbed
-//      - Tab                   span                    .Tab
-//      Titled                  div                     .Titled
+//      Panel                   div                     .osui-panel
+//      Shrinkable              div                     .osui-shrinkable
+//      Tabbed                  div                     .osui-tabbed
+//      - Tab Button            span                    .osui-tab-button
+//      Titled                  div                     .osui-titled
 
 /***** CONSTANTS *****/
 
@@ -156,3 +156,4 @@ import '../css/data.css';
 import '../css/node.css';
 import '../css/interactive.css';
 import '../css/tooltip.css';
+import '../css/options.css';

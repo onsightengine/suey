@@ -4,7 +4,7 @@ class FlexBox extends Element {
 
     constructor() {
         super(document.createElement('div'));
-        this.addClass('FlexBox');
+        this.addClass('osui-flex-box');
     }
 
 }

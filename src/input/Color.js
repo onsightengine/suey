@@ -7,20 +7,21 @@ class Color extends Button {
     constructor() {
         super();
         const self = this;
-        this.addClass('ColorButton');
-        this.addClass('DropArrow');
+        this.addClass('osui-color-button');
+        this.addClass('osui-drop-arrow');
 
         // Color Input
 
         const colorBox = new Element(document.createElement('input'));
-        colorBox.addClass('ColorInputButton');
+        colorBox.setClass('osui-input');
+        colorBox.addClass('osui-color-input-button');
         colorBox.dom.setAttribute('autocomplete', 'off');
         try { colorBox.dom.type = 'color'; } catch(exception) {}
         this.add(colorBox);
 
         // Color Background
 
-        const colorBackground = new Div().addClass('DropColor');
+        const colorBackground = new Div().addClass('osui-drop-color');
         colorBackground.setStyle('backgroundColor', colorBox.dom.value);
         this.add(colorBackground);
 
@@ -29,7 +30,7 @@ class Color extends Button {
         let selected = false;
         function colorBoxClick(event) {
             if (!selected) {
-                self.addClass('Selected');
+                self.addClass('osui-selected');
                 selected = true;
             }
         }
@@ -41,7 +42,7 @@ class Color extends Button {
         }
 
         function colorBoxBlur() {
-            self.removeClass('Selected');
+            self.removeClass('osui-selected');
             selected = false;
         }
 

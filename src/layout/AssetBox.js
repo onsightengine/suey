@@ -6,7 +6,7 @@ class AssetBox extends Div {
 
     constructor(title = '', view = 'icon', isMini = true) {
         super();
-        this.setClass('AssetBox');
+        this.setClass('osui-asset-box');
         this.dom.tabIndex = 0; /* enables user focus / selection */
 
         // Tooltip
@@ -23,27 +23,27 @@ class AssetBox extends Div {
         // Display Format
         if (view == 'icon') {
             if (isMini) {
-                this.addClass('AssetBoxMini');
-                this.addClass('AssetBoxSelectable');
+                this.addClass('osui-asset-box-mini');
+                this.addClass('osui-asset-box-selectable');
             }
             this.add(assetImageHolder);
 
         } else if (view == 'text') {
             if (isMini) {
-                this.addClass('AssetBoxMini');
-                this.addClass('AssetBoxCombo');
-                this.addClass('AssetBoxSelectable');
+                this.addClass('osui-asset-box-mini');
+                this.addClass('osui-asset-box-combo');
+                this.addClass('osui-asset-box-selectable');
             }
             assetImageHolder.setStyle('transform', 'translate(-50%, -65%) scale(0.8)');
             this.add(assetImageHolder);
-            const label = new Div(title).setClass('AssetBoxLabel');
+            const label = new Div(title).setClass('osui-asset-box-label');
             this.add(label);
 
         } else { /* if (view == 'list') */
-            this.addClass('AssetBoxRow');
-            this.addClass('AssetBoxSelectable');
-            const spanIcon = new Span().setClass('AssetBoxIcon').add(assetImageHolder);
-            const spanText = new Span(title).setClass('AssetBoxText');
+            this.addClass('osui-asset-box-row');
+            this.addClass('osui-asset-box-selectable');
+            const spanIcon = new Span().setClass('osui-asset-box-icon').add(assetImageHolder);
+            const spanText = new Span(title).setClass('osui-asset-box-text');
             this.add(spanIcon, spanText);
         }
 

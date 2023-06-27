@@ -10,25 +10,25 @@ class Shrinkable extends Panel {
     constructor(text = '', icon = '', menu = undefined, enlarge = false) {
         super();
         const self = this;
-        this.addClass('Shrinkable');
+        this.addClass('osui-shrinkable');
 
         // Members
         this.titleDiv = undefined;
         this.bodyDiv = undefined;
 
         // Build
-        const title = new Div().setClass('ShrinkTitle');
+        const title = new Div().setClass('osui-shrink-title');
 
         // Title Icon/Menu
         let titleIcon;
         if (menu) {
             titleIcon = new Button();
-            titleIcon.addClass('BorderlessButton');
+            titleIcon.addClass('osui-borderless-button');
             //this.titleIcon.overflowMenu = OVERFLOW.LEFT;
             //this.titleIcon.dom.setAttribute('tooltip', 'Options');
             let titleIconShadow = new ShadowBox();
             let titleIconVector = new VectorBox(icon);
-            if (enlarge) titleIconVector.addClass('EnlargeIcon');
+            if (enlarge) titleIconVector.addClass('osui-enlarge-icon');
             titleIconShadow.add(titleIconVector);
             titleIcon.add(titleIconShadow);
             titleIcon.attachMenu(menu);
@@ -36,13 +36,14 @@ class Shrinkable extends Panel {
         } else if (icon !== '') {
             title.setStyle('padding-left', '0.5em');
             let titleIconVector = new VectorBox(icon);
-            if (enlarge) titleIconVector.addClass('EnlargeIcon');
-            titleIcon = new Span().setClass('ShrinkIcon').add(titleIconVector);
+            if (enlarge) titleIconVector.addClass('osui-enlarge-icon');
+            titleIcon = new Span().setClass('osui-shrink-icon');
+            titleIcon.add(titleIconVector);
         }
         title.add(titleIcon);
 
         // Title Text
-        const titleText = new Span().setClass('ShrinkText').setInnerHtml(text);
+        const titleText = new Span().setClass('osui-shrink-text').setInnerHtml(text);
         if (icon === '') {
             titleText.setStyle('padding-left', '0.15em');
         } else if (!menu) {
@@ -51,13 +52,13 @@ class Shrinkable extends Panel {
         title.add(titleText);
 
         // Title Arrow
-        const titleArrow = new Span().setClass('ShrinkArrow');
-        const arrowClicker = new Div().addClass('ShrinkArrowClicker');
+        const titleArrow = new Span().setClass('osui-shrink-arrow');
+        const arrowClicker = new Div().addClass('osui-shrink-arrow-clicker');
         titleArrow.add(arrowClicker);
         title.add(titleArrow);
 
         // Body
-        const body = new Div().setClass('ShrinkBody');
+        const body = new Div().setClass('osui-shrink-body');
 
         // Setup
         this.add(title);
@@ -94,9 +95,9 @@ class Shrinkable extends Panel {
     setExpanded(expand = true) {
         this.isExpanded = expand;
         if (expand) {
-            this.addClass('Expanded');
+            this.addClass('osui-expanded');
         } else {
-            this.removeClass('Expanded');
+            this.removeClass('osui-expanded');
         }
     }
 

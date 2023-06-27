@@ -8,11 +8,11 @@ class Menu extends Div {
 
     constructor() {
         super();
-        this.setClass('Menu');
+        this.setClass('osui-menu');
 
         // Mouse Area
         this.mouseSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.mouseSvg.setAttribute('class', 'MenuMouseTriangle');
+        this.mouseSvg.setAttribute('class', 'osui-menu-mouse-triangle');
         // this.mouseSvg.setAttribute('style', 'border: 1px solid black');      // NOTE: Un-comment to see container
         this.mouseSvg.setAttribute('pointer-events', 'none');
         this.mouseSvg.setAttribute('version', '1.1');
@@ -27,7 +27,7 @@ class Menu extends Div {
 
     /** Is Shown? */
     isShown() {
-        return this.hasClass('MenuShow');
+        return this.hasClass('osui-menu-show');
     }
 
     /******************** SHOW MENU ********************/
@@ -37,13 +37,13 @@ class Menu extends Div {
         const self = this;
 
         // Show Menu
-        this.addClass('MenuShow');
+        this.addClass('osui-menu-show');
 
         // Makes sure any click after click that opened menu will close menu
         this.clickCount = 0;
 
         // Attach mouse area polygon if this menu is a child of another menu
-        if (Utils.isChildOfElementWithClass(this.dom, 'Menu')) {
+        if (Utils.isChildOfElementWithClass(this.dom, 'osui-menu')) {
             // Turn off mouse events temporarily while when give menu time to animate
             this.mouseArea.setAttribute('pointer-events', 'none');
 
@@ -64,7 +64,7 @@ class Menu extends Div {
                 if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
                     // Empty
                 } else {
-                    child.removeClass('MenuShow', 'Selected');
+                    child.removeClass('osui-menu-show', 'osui-selected');
                     if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
                     if (child.dom && child.dom.blur) child.dom.blur();
                 }
@@ -75,8 +75,8 @@ class Menu extends Div {
                 // Un-select button that spawned menu
                 let parent = parentDom;
                 while (parent) {
-                    if (parentDom.classList.contains('MenuButton')) {
-                        parent.classList.remove('Selected');
+                    if (parentDom.classList.contains('osui-menu-button')) {
+                        parent.classList.remove('osui-selected');
                         parent = undefined;
                     } else {
                         parent = parent.parentElement;
@@ -84,7 +84,7 @@ class Menu extends Div {
                 }
 
                 // Remove event listeners
-                if (parentDom.classList.contains('MenuButton')) {
+                if (parentDom.classList.contains('osui-menu-button')) {
                     document.removeEventListener('pointerdown', onPointerDown);
                     document.removeEventListener('keydown', onKeyDown);
                 }
@@ -92,7 +92,7 @@ class Menu extends Div {
         }
 
         // If base / parent menu, add document event handler
-        if (parentDom.classList.contains('MenuButton')) {
+        if (parentDom.classList.contains('osui-menu-button')) {
             document.addEventListener('pointerdown', onPointerDown);
             document.addEventListener('keydown', onKeyDown);
         }
@@ -105,17 +105,16 @@ class Menu extends Div {
             if (self.dom.contains(event.target)) {
                 let node = event.target;
                 let list = node.classList;
-                while (node.parentElement && list.contains('Menu') === false && list.contains('MenuItem') === false) {
+                while (node.parentElement && list.contains('osui-menu') === false && list.contains('osui-menu-item') === false) {
                     node = node.parentElement;
                     list = node.classList;
                 }
 
-                // Don't close if clicked on a sub menu item (element that has both 'Menu' and 'SubMenuItem' classes)
-                if ((list.contains('MenuItem') && list.contains('SubMenuItem')) || list.contains('KeepOpen')) {
+                // Don't close if clicked on a sub menu item (element that has both 'osui-menu' and 'osui-sub-menu-item' classes)
+                if ((list.contains('osui-menu-item') && list.contains('osui-sub-menu-item')) || list.contains('osui-keep-open')) {
                     menuShouldClose = false;
 
-                    // If did not click an input (Number, Text, etc), stop focus from changing away
-                    // from parent MenuButton owner
+                    // If did not click an input (Number, Text, etc), stop focus from changing away from parent MenuButton owner
                     if (event.target && event.target.tagName.toLowerCase() !== 'input') {
                         event.preventDefault();
                     }

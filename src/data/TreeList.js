@@ -10,7 +10,7 @@ class TreeList extends Div {
     constructor(multiSelect = false) {
         super();
         const self = this;
-        this.setClass('TreeList');
+        this.setClass('osui-tree-list');
 
         // Enable user focus (keyup event doesn't work without setting tabIndex)
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
@@ -139,14 +139,14 @@ class TreeList extends Div {
 
         // Deselect
         for (let i = 0; i < this.options.length; i++) {
-            this.options[i].classList.remove('Active');
+            this.options[i].classList.remove('osui-active');
         }
 
         // Select
         for (let i = 0; i < this.options.length; i++) {
             const element = this.options[i];
             if (element.value == value) {
-                element.classList.add('Active');
+                element.classList.add('osui-active');
                 lastElement = element;
             }
         }
@@ -170,9 +170,9 @@ class TreeList extends Div {
 
         // Deselect
         for (let i = 0; i < this.options.length; i++) {
-            this.options[i].classList.remove('Active');
-            this.options[i].classList.remove('ActiveTop');
-            this.options[i].classList.remove('ActiveBottom');
+            this.options[i].classList.remove('osui-active');
+            this.options[i].classList.remove('osui-active-top');
+            this.options[i].classList.remove('osui-active-bottom');
         }
 
         // Select
@@ -182,7 +182,7 @@ class TreeList extends Div {
             for (let i = 0; i < this.options.length; i++) {
                 const element = this.options[i];
                 if (element.value == value) {
-                    element.classList.add('Active');
+                    element.classList.add('osui-active');
                     lastElement = element;
                 }
             }
@@ -193,9 +193,9 @@ class TreeList extends Div {
             const element = this.options[i];
             const elementAfter = this.options[i + 1];
 
-            if (element.classList.contains('Active') && elementAfter.classList.contains('Active')) {
-                element.classList.add('ActiveTop');
-                elementAfter.classList.add('ActiveBottom');
+            if (element.classList.contains('osui-active') && elementAfter.classList.contains('osui-active')) {
+                element.classList.add('osui-active-top');
+                elementAfter.classList.add('osui-active-bottom');
             }
         }
 
@@ -306,8 +306,8 @@ class TreeList extends Div {
                 const height = divRect.height * self.selectedValues.length;
                 // Div Container
                 self.#dragImage = document.createElement('div');
-                self.#dragImage.classList.add('TreeList');
-                self.#dragImage.classList.add('DragImage');
+                self.#dragImage.classList.add('osui-tree-list');
+                self.#dragImage.classList.add('osui-drag-image');
                 self.#dragImage.style['width'] = `${width}px`;
                 self.#dragImage.style['height'] = `${height}px`;
                 self.#dragImage.style['top'] = `${height * -2}px`;
@@ -316,8 +316,8 @@ class TreeList extends Div {
                     const value = self.selectedValues[i];
                     const option = self.getOption(value);
                     const optionClone = option.cloneNode(true /* include children */);
-                    optionClone.classList.add('ActiveTop');
-                    optionClone.classList.add('ActiveBottom');
+                    optionClone.classList.add('osui-active-top');
+                    optionClone.classList.add('osui-active-bottom');
                     self.#dragImage.appendChild(optionClone);
                 }
                 // Set Drag Image
@@ -341,48 +341,48 @@ class TreeList extends Div {
             if (!currentDrag || this === currentDrag) return;
             const area = event.offsetY / this.clientHeight;
             if (this.dropGroup !== currentDrag.dropGroup) {
-                this.classList.remove('Drag');
-                this.classList.remove('DragTop');
-                this.classList.remove('DragBottom');
+                this.classList.remove('osui-drag');
+                this.classList.remove('osui-drag-top');
+                this.classList.remove('osui-drag-bottom');
             } else if (this.noDirectDrop) {
-                this.classList.remove('Drag');
+                this.classList.remove('osui-drag');
                 if (area < 0.5) {
-                    this.classList.add('DragTop');
-                    this.classList.remove('DragBottom');
+                    this.classList.add('osui-drag-top');
+                    this.classList.remove('osui-drag-bottom');
                 } else {
-                    this.classList.add('DragBottom');
-                    this.classList.remove('DragTop');
+                    this.classList.add('osui-drag-bottom');
+                    this.classList.remove('osui-drag-top');
                 }
             } else {
                 if (area < 0.25) {
-                    this.classList.add('DragTop');
-                    this.classList.remove('Drag');
-                    this.classList.remove('DragBottom');
+                    this.classList.add('osui-drag-top');
+                    this.classList.remove('osui-drag');
+                    this.classList.remove('osui-drag-bottom');
                 } else if (area < 0.75) {
-                    this.classList.add('Drag');
-                    this.classList.remove('DragTop');
-                    this.classList.remove('DragBottom');
+                    this.classList.add('osui-drag');
+                    this.classList.remove('osui-drag-top');
+                    this.classList.remove('osui-drag-bottom');
                 } else {
-                    this.classList.add('DragBottom');
-                    this.classList.remove('Drag');
-                    this.classList.remove('DragTop');
+                    this.classList.add('osui-drag-bottom');
+                    this.classList.remove('osui-drag');
+                    this.classList.remove('osui-drag-top');
                 }
             }
         }
 
         function onDragLeave() {
             if (!currentDrag || this === currentDrag) return;
-            this.classList.remove('Drag');
-            this.classList.remove('DragTop');
-            this.classList.remove('DragBottom');
+            this.classList.remove('osui-drag');
+            this.classList.remove('osui-drag-top');
+            this.classList.remove('osui-drag-bottom');
         }
 
         function onDrop(event) {
             event.preventDefault();
             event.stopPropagation();
-            this.classList.remove('Drag');
-            this.classList.remove('DragTop');
-            this.classList.remove('DragBottom');
+            this.classList.remove('osui-drag');
+            this.classList.remove('osui-drag-top');
+            this.classList.remove('osui-drag-bottom');
             if (currentDrag && this !== currentDrag && this.dropGroup === currentDrag.dropGroup) {
                 // Dropped Data
                 const data = event.dataTransfer.getData('text/plain');
@@ -402,7 +402,7 @@ class TreeList extends Div {
         self.options = [];
         for (let i = 0; i < options.length; i++) {
             const div = options[i];
-            div.classList.add('Option');
+            div.classList.add('osui-option');
             self.dom.appendChild(div);
             self.options.push(div);
             div.addEventListener('pointerdown', onPointerDown);

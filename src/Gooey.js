@@ -69,7 +69,7 @@ class Gooey extends Tabbed {
 
     constructor(title, opacity) {
         super({ style: PANEL_STYLES.FANCY });
-        this.addClass('Gooey');
+        this.addClass('osui-gooey');
 
         this.toggleResize(RESIZERS.LEFT, true);
         this.minWidth = 180;
@@ -293,10 +293,10 @@ class Folder extends Shrinkable {
 
         function checkForMinMax() {
             if (Number.isFinite(Number(slider.slider.dom.min)) && Number.isFinite(Number(slider.slider.dom.max))) {
-                slideBox.addClass('PropertyTinyRow');
+                slideBox.addClass('osui-property-tiny-row');
                 slider.setDisplay('');
             } else {
-                slideBox.removeClass('PropertyTinyRow');
+                slideBox.removeClass('osui-property-tiny-row');
                 slider.setDisplay('none');
             }
         }

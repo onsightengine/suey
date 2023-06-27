@@ -5,7 +5,7 @@ class AbsoluteBox extends Div {
 
     constructor() {
         super();
-        this.setClass('AbsoluteBox');
+        this.setClass('osui-absolute-box');
     }
 
 }

@@ -10,19 +10,21 @@ class Slider extends Div {
     constructor(number = 0, min = 0, max = 100) {
         super();
         const self = this;
-        this.setClass('SlideContainer');
+        this.setClass('osui-slide-container');
 
         // Properties
         this.precision = 2;
 
         // Children
-        const slider = new Element(document.createElement('input')).addClass('Slider');
+        const slider = new Element(document.createElement('input'));
+        slider.setClass('osui-input');
+        slider.addClass('osui-slider');
         slider.dom.type = 'range';
         slider.dom.value = number;
         slider.dom.min = min;
         slider.dom.max = max;
 
-        const ticks = new Div(' ').addClass('TickMarks');
+        const ticks = new Div(' ').addClass('osui-tick-marks');
         this.slider = slider;
         this.ticks = ticks;
 

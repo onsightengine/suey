@@ -121,7 +121,12 @@ class Element {
         this.dom.setAttribute(attrib, value);
     }
 
-    setDisabled(value) {
+    setDisabled(value = true) {
+        if (value) {
+            this.addClass('osui-disabled');
+        } else {
+            this.removeClass('osui-disabled');
+        }
         this.dom.disabled = value;
         return this;
     }
@@ -129,9 +134,9 @@ class Element {
     /**  Makes this Element Selectable / Unselectable */
     selectable(allowSelection) {
         if (allowSelection) {
-            this.removeClass('Unselectable');
+            this.removeClass('osui-unselectable');
         } else {
-            this.addClass('Unselectable');
+            this.addClass('osui-unselectable');
         }
         return this;
     }
@@ -456,17 +461,22 @@ captureEvents.forEach(function(event) {
     const method = 'capture' + event;
 
     Element.prototype[method] = function(callback) {
+        const self = this;
         const eventName = event.toLowerCase();
-        if (typeof callback === 'function') callback.bind(this);
+        if (typeof callback === 'function') callback.bind(self);
         const eventHandler = function(event) {
             event.preventDefault();
             event.stopPropagation();
-            if (typeof callback === 'function') callback(event);
+            if (typeof callback === 'function') {
+                if (!self.hasClass('osui-disabled')) {
+                    callback(event);
+                }
+            }
         }
-        const dom = this.dom;
+        const dom = self.dom;
         dom.addEventListener(eventName, eventHandler);
         dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return this;
+        return self;
     };
 });
 

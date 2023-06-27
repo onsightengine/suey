@@ -11,13 +11,13 @@ class MenuItem extends Div {
     constructor(text = undefined, icon = undefined, shortcutText = undefined) {
         super();
         const self = this;
-        this.setClass('MenuItem');
+        this.setClass('osui-menu-item');
         this.setName(text);
 
         // Build
         this.divIcon = new VectorBox(icon);
-        this.divIconHolder = new Div().add(this.divIcon).setClass('MenuIcon');
-        this.divText = new Div().setClass('MenuText');
+        this.divIconHolder = new Div().add(this.divIcon).setClass('osui-menu-icon');
+        this.divText = new Div().setClass('osui-menu-text');
         this.divSpacer = new Div().setStyle('flex', '1 1 auto');
         this.divShortcut = new MenuShortcut(shortcutText);
         this.add(new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut));
@@ -41,7 +41,7 @@ class MenuItem extends Div {
 
             // Have parent menu hide all other children menus
             let parentMenu = self.parent;
-            while (parentMenu && (parentMenu.hasClass('Menu') === false)) parentMenu = parentMenu.parent;
+            while (parentMenu && (parentMenu.hasClass('osui-menu') === false)) parentMenu = parentMenu.parent;
             if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
 
             // Show our sub menu
@@ -64,22 +64,22 @@ class MenuItem extends Div {
     }
 
     keepOpen() {
-        this.addClass('KeepOpen');
+        this.addClass('osui-keep-open');
         return this;
     }
 
     setChecked(checked) {
         const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
-        if (checked) this.divIcon.addClass('IconColorize');
-        else this.divIcon.removeClass('IconColorize');
+        if (checked) this.divIcon.addClass('osui-icon-colorize');
+        else this.divIcon.removeClass('osui-icon-colorize');
         this.setImage(imageUrl);
         this.checked = checked;
         return this;
     }
 
     setDisabled(disabled) {
-        if (disabled) this.addClass('Disabled');
-        else this.removeClass('Disabled');
+        if (disabled) this.addClass('osui-disabled');
+        else this.removeClass('osui-disabled');
         this.disabled = disabled;
         return this;
     }
@@ -98,34 +98,34 @@ class MenuItem extends Div {
 
     /** Attaches a sub menu, first removes any previously attached sub menu */
     attachSubMenu(osuiMenu) {
-        // Verify element is a .Menu
-        if (osuiMenu.hasClass('Menu') === false) return this;
+        // Verify element is a 'osui-menu'
+        if (osuiMenu.hasClass('osui-menu') === false) return this;
 
         // Add Animation
         osuiMenu.addClass('SlideDown');
 
         // Remove any existing sub menu, add new sub menu
         this.removeSubMenu();
-        this.addClass('SubMenuItem');
+        this.addClass('osui-sub-menu-item');
         this.add(osuiMenu);
         this.subMenu = osuiMenu;
         return this;
     }
 
     hasSubMenu() {
-        return this.hasClass('SubMenuItem');
+        return this.hasClass('osui-sub-menu-item');
     }
 
     /**
-     * Remove any attached sub menu, returns osuiMenu that was attached
+     * Remove any attached sub menu, returns OSUI.Menu that was attached
      */
     removeSubMenu() {
-        this.removeClass('SubMenuItem');
+        this.removeClass('osui-sub-menu-item');
         const osuiMenu = this.subMenu;
         this.subMenu = undefined;
         for (let i = this.contents().dom.children.length - 1; i >= 0; i--) {
             let child = this.contents().dom.children[i];
-            if (child.classList.contains('Menu')) this.remove(child);
+            if (child.classList.contains('osui-menu')) this.remove(child);
         }
         return osuiMenu;
     }

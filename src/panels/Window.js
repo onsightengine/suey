@@ -28,7 +28,7 @@ class Window extends Panel {
     } = {}) {
         super({ style, bringToTop: true });
         const self = this;
-        this.addClass('Window');
+        this.addClass('osui-window');
 
         // Properties
         this.isWindow = true;
@@ -42,23 +42,23 @@ class Window extends Panel {
         }
         function resizerMove(resizer, diffX, diffY) {
             if (self.#resizeMode === RESIZE_MODE.FIXED) {
-                if (resizer.hasClassWithString('Left')) {
+                if (resizer.hasClassWithString('left')) {
                     const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
                     const newWidth = rect.right - newLeft;
                     self.setStyle('left', `${newLeft}px`);
                     self.setStyle('width', `${newWidth}px`);
                 }
-                if (resizer.hasClassWithString('Top')) {
+                if (resizer.hasClassWithString('top')) {
                     const newTop = Math.max(0, Math.min(rect.bottom - MIN_H, rect.top + diffY));
                     const newHeight = rect.bottom - newTop;
                     self.setStyle('top', `${newTop}px`);
                     self.setStyle('height', `${newHeight}px`);
                 }
-                if (resizer.hasClassWithString('Right')) {
+                if (resizer.hasClassWithString('right')) {
                     const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), window.innerWidth - rect.left);
                     self.setStyle('width', `${newWidth}px`);
                 }
-                if (resizer.hasClassWithString('Bottom')) {
+                if (resizer.hasClassWithString('bottom')) {
                     const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
                     self.setStyle('height', `${newHeight}px`);
                 }
@@ -67,10 +67,10 @@ class Window extends Panel {
                 const newTop = Math.max(0, rect.top + diffY);
                 const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
                 const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
-                if (resizer.hasClassWithString('Left')) self.setStyle('left', `${newLeft}px`);
-                if (resizer.hasClassWithString('Top')) self.setStyle('top', `${newTop}px`);
-                if (resizer.hasClassWithString('Right')) self.setStyle('right', `${newRight}px`);
-                if (resizer.hasClassWithString('Bottom')) self.setStyle('bottom', `${newBottom}px`);
+                if (resizer.hasClassWithString('left')) self.setStyle('left', `${newLeft}px`);
+                if (resizer.hasClassWithString('top')) self.setStyle('top', `${newTop}px`);
+                if (resizer.hasClassWithString('right')) self.setStyle('right', `${newRight}px`);
+                if (resizer.hasClassWithString('bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
         }
         Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
@@ -158,8 +158,8 @@ class TitleBar extends Div {
     constructor(parent, title = '', draggable = false, scale = 1.3) {
         if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
         super();
-        this.setClass('TitleBar');
-        this.addClass('PanelButton');
+        this.setClass('osui-title-bar');
+        this.addClass('osui-panel-button');
 
         this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);

@@ -26,7 +26,7 @@ image {
     image-rendering: smooth;
 }
 
-.Text {
+.osui-text {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -62,18 +62,4 @@ div::-webkit-scrollbar-corner {
     svg {
         shape-rendering: auto;
     }
-}
-
-/********** MISC **********/
-
-/** Grayscale filter for disabled items */
-.Disabled {
-    filter: contrast(75%) grayscale(100%);
-    opacity: 0.7;
-    pointer-events: none !important;
-}
-
-/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */
-.Unselectable {
-    user-select: none;
 }

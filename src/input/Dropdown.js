@@ -15,8 +15,8 @@ class Dropdown extends Button {
         this.menuOffsetX = 0;
         this.menuOffsetY = 5;
 
-        this.addClass('Dropdown');
-        this.addClass('DropArrow');
+        this.addClass('osui-dropdown');
+        this.addClass('osui-drop-arrow');
 
         // Events
         function onWheel(event) {
@@ -109,13 +109,13 @@ class Dropdown extends Button {
             const item = new MenuItem(options[key]);
             item.value = key;
             item.onPointerDown((event) => {
-                event.stopImmediatePropagation()
+                event.stopPropagation()
                 event.preventDefault();
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
             });
             item.onPointerUp((event) => {
-                event.stopImmediatePropagation()
+                event.stopPropagation()
                 event.preventDefault();
             });
             this.items.push(item);
@@ -129,7 +129,7 @@ class Dropdown extends Button {
 
         // Attach menu to button
         this.attachMenu(menu);
-        menu.addClass('SelectMenu');
+        menu.addClass('osui-select-menu');
     }
 
 }
