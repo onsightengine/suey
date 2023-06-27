@@ -26,18 +26,12 @@ class Shrinkable extends Panel {
             titleIcon.addClass('BorderlessButton');
             //this.titleIcon.overflowMenu = OVERFLOW.LEFT;
             //this.titleIcon.dom.setAttribute('tooltip', 'Options');
-            let titleIconShadow = new ShadowBox(icon);
+            let titleIconShadow = new ShadowBox();
             let titleIconVector = new VectorBox(icon);
             if (enlarge) titleIconVector.addClass('EnlargeIcon');
             titleIconShadow.add(titleIconVector);
             titleIcon.add(titleIconShadow);
             titleIcon.attachMenu(menu);
-
-            // const buttonRow = new OSUI.AbsoluteBox().setStyle('padding', '0 var(--pad-medium)');
-            // buttonRow.add(new OSUI.FlexSpacer());
-            // buttonRow.add(new ComponentSettingsButton(component, component.entity));
-            // buttonRow.add(new AddComponentButton(component.entity));
-            // this.tabTitle.add(buttonRow);
 
         } else if (icon !== '') {
             title.setStyle('padding-left', '0.5em');
