@@ -1946,7 +1946,7 @@ class PropertyList extends Div {
 }
 
 class Shrinkable extends Panel {
-    constructor(text = '', icon = '', menu = undefined) {
+    constructor(text = '', icon = '', menu = undefined, enlarge = false) {
         super();
         const self = this;
         this.addClass('Shrinkable');
@@ -1957,11 +1957,17 @@ class Shrinkable extends Panel {
         if (menu) {
             titleIcon = new Button();
             titleIcon.addClass('BorderlessButton');
-            titleIcon.add(new ShadowBox(icon));
+            let titleIconShadow = new ShadowBox(icon);
+            let titleIconVector = new VectorBox(icon);
+            if (enlarge) titleIconVector.addClass('EnlargeIcon');
+            titleIconShadow.add(titleIconVector);
+            titleIcon.add(titleIconShadow);
             titleIcon.attachMenu(menu);
         } else if (icon !== '') {
             title.setStyle('padding-left', '0.5em');
-            titleIcon = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
+            let titleIconVector = new VectorBox(icon);
+            if (enlarge) titleIconVector.addClass('EnlargeIcon');
+            titleIcon = new Span().setClass('ShrinkIcon').add(titleIconVector);
         }
         title.add(titleIcon);
         const titleText = new Span().setClass('ShrinkText').setInnerHtml(text);

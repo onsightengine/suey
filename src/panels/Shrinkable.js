@@ -7,7 +7,7 @@ import { VectorBox } from '../layout/VectorBox.js';
 
 class Shrinkable extends Panel {
 
-    constructor(text = '', icon = '', menu = undefined) {
+    constructor(text = '', icon = '', menu = undefined, enlarge = false) {
         super();
         const self = this;
         this.addClass('Shrinkable');
@@ -24,9 +24,13 @@ class Shrinkable extends Panel {
         if (menu) {
             titleIcon = new Button();
             titleIcon.addClass('BorderlessButton');
-            // titleIcon.overflowMenu = OVERFLOW.LEFT;
-            //titleIcon.dom.setAttribute('tooltip', 'Options');
-            titleIcon.add(new ShadowBox(icon));
+            //this.titleIcon.overflowMenu = OVERFLOW.LEFT;
+            //this.titleIcon.dom.setAttribute('tooltip', 'Options');
+            let titleIconShadow = new ShadowBox(icon);
+            let titleIconVector = new VectorBox(icon);
+            if (enlarge) titleIconVector.addClass('EnlargeIcon');
+            titleIconShadow.add(titleIconVector);
+            titleIcon.add(titleIconShadow);
             titleIcon.attachMenu(menu);
 
             // const buttonRow = new OSUI.AbsoluteBox().setStyle('padding', '0 var(--pad-medium)');
@@ -37,7 +41,9 @@ class Shrinkable extends Panel {
 
         } else if (icon !== '') {
             title.setStyle('padding-left', '0.5em');
-            titleIcon = new Span().setClass('ShrinkIcon').add(new VectorBox(icon));
+            let titleIconVector = new VectorBox(icon);
+            if (enlarge) titleIconVector.addClass('EnlargeIcon');
+            titleIcon = new Span().setClass('ShrinkIcon').add(titleIconVector);
         }
         title.add(titleIcon);
 
