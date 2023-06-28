@@ -34,7 +34,7 @@ class Tabbed extends Panel {
         this.addClass('osui-tabbed');
         this.setName('osui-tabbed');
 
-        // Properties
+        // Private Properties
         this.#startWidth = startWidth;
         this.#minWidth = minWidth;
         this.#maxWidth = maxWidth;
@@ -71,50 +71,6 @@ class Tabbed extends Panel {
 
         // Set side (LEFT / RIGHT) that tabs should appear
         this.setTabSide(tabSide);
-
-        /** Add Tab */
-        this.addTab = function(id, items, icon, bgColor = undefined) {
-            // Count Id's
-            let numTabsWithId = 0;
-            for (let i = 0; i < self.tabs.length; i++) {
-                const tab = self.tabs[i];
-                if (tab.dom.id === id) numTabsWithId++;
-            }
-
-            function capitalize(string) {
-                const words = String(string).split(' ');
-                for (let i = 0; i < words.length; i++) {
-                    words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-                }
-                return words.join(' ');
-            }
-
-            // Create tab
-            const label = capitalize(id);
-            const tab = new TabButton(self, label, icon, bgColor);
-            tab.setId(id);
-            tab.count = numTabsWithId;
-
-            // Push onto containers
-            self.tabs.push(tab);
-            self.tabsDiv.add(tab);
-
-            // // NOTE: If below is changed from '0' to '1', tabs will be hidden when there is only 1 tab
-            if (self.tabs.length > 0) self.tabsDiv.setDisplay('');
-
-            const panel = new Panel().setId(id).addClass('osui-titled').addClass('osui-hidden').add(items);
-            panel.count = numTabsWithId;
-            self.panels.push(panel);
-            self.panelsDiv.add(panel);
-
-            self.setContentsStyle('minHeight', '');
-            if (self.tabsDiv.hasClass('osui-left-side') || self.tabsDiv.hasClass('osui-right-side')) {
-                self.setContentsStyle('minHeight', ((2.2 * self.tabs.length) + 0.4) + 'em');
-            }
-
-            return panel;
-        };
-
     }
 
     /******************** RESIZE ********************/
@@ -148,6 +104,49 @@ class Tabbed extends Panel {
     }
 
     /******************** TABS ********************/
+
+    /** Add Tab */
+    addTab(id, content, icon, bgColor = undefined) {
+        // Count ID's
+        let numTabsWithId = 0;
+        for (let i = 0; i < this.tabs.length; i++) {
+            const tab = this.tabs[i];
+            if (tab.dom.id === id) numTabsWithId++;
+        }
+
+        function capitalize(string) {
+            const words = String(string).split(' ');
+            for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+            return words.join(' ');
+        }
+
+        // Create tab
+        const label = capitalize(id);
+        const tab = new TabButton(this, label, icon, bgColor);
+        tab.setId(id);
+        tab.count = numTabsWithId;
+
+        // Push onto containers
+        this.tabs.push(tab);
+        this.tabsDiv.add(tab);
+
+        // // NOTE: If below is changed from '0' to '1', tabs will be hidden when there is only 1 tab
+        const hideWhenNumberOfTabs = 0;
+        if (this.tabs.length > hideWhenNumberOfTabs) this.tabsDiv.setDisplay('');
+
+        const panel = new Panel().setId(id).addClass('osui-titled').addClass('osui-hidden').add(content);
+        panel.count = numTabsWithId;
+        this.panels.push(panel);
+        this.panelsDiv.add(panel);
+
+        // Minimum height (so tab buttons dont float over nothing)
+        this.setContentsStyle('minHeight', '');
+        if (this.tabsDiv.hasClass('osui-left-side') || this.tabsDiv.hasClass('osui-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.tabs.length) + 0.4) + 'em');
+        }
+
+        return panel;
+    }
 
     /** Select first tab */
     selectFirst() {

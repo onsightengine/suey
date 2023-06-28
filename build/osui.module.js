@@ -2088,36 +2088,6 @@ class Tabbed extends Panel {
         this.add(this.tabsDiv);
         this.add(this.panelsDiv);
         this.setTabSide(tabSide);
-        this.addTab = function(id, items, icon, bgColor = undefined) {
-            let numTabsWithId = 0;
-            for (let i = 0; i < self.tabs.length; i++) {
-                const tab = self.tabs[i];
-                if (tab.dom.id === id) numTabsWithId++;
-            }
-            function capitalize(string) {
-                const words = String(string).split(' ');
-                for (let i = 0; i < words.length; i++) {
-                    words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-                }
-                return words.join(' ');
-            }
-            const label = capitalize(id);
-            const tab = new TabButton(self, label, icon, bgColor);
-            tab.setId(id);
-            tab.count = numTabsWithId;
-            self.tabs.push(tab);
-            self.tabsDiv.add(tab);
-            if (self.tabs.length > 0) self.tabsDiv.setDisplay('');
-            const panel = new Panel().setId(id).addClass('osui-titled').addClass('osui-hidden').add(items);
-            panel.count = numTabsWithId;
-            self.panels.push(panel);
-            self.panelsDiv.add(panel);
-            self.setContentsStyle('minHeight', '');
-            if (self.tabsDiv.hasClass('osui-left-side') || self.tabsDiv.hasClass('osui-right-side')) {
-                self.setContentsStyle('minHeight', ((2.2 * self.tabs.length) + 0.4) + 'em');
-            }
-            return panel;
-        };
     }
     changeWidth(width) {
         if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
@@ -2144,6 +2114,35 @@ class Tabbed extends Panel {
         this.setStyle('height', Css.toEm(height, this.dom));
         this.dom.dispatchEvent(new Event('resized'));
         return height;
+    }
+    addTab(id, content, icon, bgColor = undefined) {
+        let numTabsWithId = 0;
+        for (let i = 0; i < this.tabs.length; i++) {
+            const tab = this.tabs[i];
+            if (tab.dom.id === id) numTabsWithId++;
+        }
+        function capitalize(string) {
+            const words = String(string).split(' ');
+            for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+            return words.join(' ');
+        }
+        const label = capitalize(id);
+        const tab = new TabButton(this, label, icon, bgColor);
+        tab.setId(id);
+        tab.count = numTabsWithId;
+        this.tabs.push(tab);
+        this.tabsDiv.add(tab);
+        const hideWhenNumberOfTabs = 0;
+        if (this.tabs.length > hideWhenNumberOfTabs) this.tabsDiv.setDisplay('');
+        const panel = new Panel().setId(id).addClass('osui-titled').addClass('osui-hidden').add(content);
+        panel.count = numTabsWithId;
+        this.panels.push(panel);
+        this.panelsDiv.add(panel);
+        this.setContentsStyle('minHeight', '');
+        if (this.tabsDiv.hasClass('osui-left-side') || this.tabsDiv.hasClass('osui-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.tabs.length) + 0.4) + 'em');
+        }
+        return panel;
     }
     selectFirst() {
         if (this.tabs.length > 0) {
