@@ -15,7 +15,7 @@ class TextBox extends Element {
         this.dom.setAttribute('autocomplete', 'off');
         this.dom.setAttribute('spellcheck', 'false');
 
-        this.setValue(text);
+        this.setValue(text ?? '');
 
         // Key Events
         function onKeyDown(event) {

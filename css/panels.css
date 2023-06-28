@@ -79,16 +79,18 @@
     background-color: transparent;
     border: solid var(--border-small) rgba(var(--shadow), 0.25);
     border-radius: var(--radius-large);
-    margin-left: var(--pad-x-small);
-    margin-right: var(--pad-small);
-    margin-bottom: var(--pad-small);
+    margin: var(--pad-x-small);
     box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
     overflow: hidden;
 }
 .osui-shrinkable.osui-borderless {
     border: solid var(--border-small) transparent;
+    margin-bottom: 0;
     box-shadow: none;
     overflow: visible;
+}
+.osui-shrinkable.osui-borderless.osui-expanded {
+    border-bottom: none;
 }
 
 /* Shrinkable Title Div */
@@ -97,16 +99,18 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    min-height: var(--row-height);
+    min-height: calc(var(--row-height));
     overflow: hidden;
 
     cursor: default;
     color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--icon), 0.35);
+
+    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
     text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 
-    border-bottom: solid var(--border-small) transparent;
-    border-top: solid var(--border-small) transparent;
+    border-bottom: solid var(--border-micro) transparent;
+    border-top: solid var(--border-micro) transparent;
     border-top-left-radius: var(--radius-small);
     border-top-right-radius: var(--radius-small);
     padding: 0 var(--pad-medium); /* vertical horizontal */
@@ -115,7 +119,7 @@
     color: rgba(var(--highlight), 1.0)
 }
 .osui-shrinkable.osui-expanded:not(.osui-borderless) .osui-shrink-title {
-    border-bottom: solid var(--border-small) rgba(var(--shadow), 0.4);
+    border-bottom: solid var(--border-small) rgba(var(--shadow), 0.25);
     padding-bottom: var(--pad-micro);
 }
 .osui-shrinkable.osui-borderless .osui-shrink-title {
@@ -162,7 +166,6 @@
 
     position: relative;
     content: '';
-    font-size: var(--font-size);
     margin: 0 0.35em; /* vertical horizontal */
     width: 0;
     height: 0;
@@ -196,12 +199,20 @@
     border-bottom-left-radius: var(--radius-small);
     border-bottom-right-radius: var(--radius-small);
     padding: var(--pad-small);
+    padding-bottom: 0;
     overflow: hidden;
     pointer-events: auto;
 }
 .osui-shrinkable:not(.osui-expanded) .osui-shrink-body {
     pointer-events: none;
     display: none;
+}
+
+/* Borderless Property List Row */
+.osui-shrinkable.osui-borderless .osui-property-row {
+    width: calc(100% + (var(--pad-small) * 5)) !important;
+    margin-left: calc(var(--pad-small) * -2.5) !important;
+    margin-right: calc(var(--pad-small) * -2.5) !important;
 }
 
 /********** Tabbed **********/
