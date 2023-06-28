@@ -235,8 +235,7 @@ class Tabbed extends Panel {
 
     setTabSide(side) {
         side = String(side).toLowerCase();
-        this.tabsDiv.removeClass('osui-left-side');
-        this.tabsDiv.removeClass('osui-right-side');
+        this.tabsDiv.removeClass('osui-left-side', 'osui-right-side');
         this.tabsDiv.addClass((side === TAB_SIDES.RIGHT) ? 'osui-right-side' : 'osui-left-side');
     }
 

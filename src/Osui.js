@@ -6,6 +6,7 @@
  * @source      https://github.com/onsightengine/osui
  */
 
+//
 //  ---CATEGORY---              ---NODE TYPE---         ---CLASS NAME---
 //
 //  CORE
@@ -18,6 +19,7 @@
 //      Text                    span                    .osui-text
 //
 //  DATA
+//      PropertyList            div                     .osui-property-list
 //      TreeList                div                     .osui-tree-list
 //
 //  INPUT
@@ -50,12 +52,18 @@
 //		ToolbarSeparator        div                     .osui-toolbar-separator
 //      ToolbarSpacer           div                     .osui-toolbar-spacer
 //
+//  NODE
+//      Graph                   div                     -- many --
+//      Node                    div                     osui-node
+//      NodeItem                div                     osui-node-item
+//
 //  PANELS
 //      Panel                   div                     .osui-panel
 //      Shrinkable              div                     .osui-shrinkable
-//      Tabbed                  div                     .osui-tabbed
-//      - Tab Button            span                    .osui-tab-button
+//      Tabbed                  div                     .osui-tabbed, .osui-tab-button
 //      Titled                  div                     .osui-titled
+//      Window                  div                     .osui-window
+//
 
 /***** CONSTANTS *****/
 
