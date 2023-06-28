@@ -2396,8 +2396,16 @@ class Color extends Button {
     }
 }
 
+class MenuSeparator extends Div {
+    constructor() {
+    super();
+        this.setClass('osui-menu-separator');
+    }
+}
+
 const TRIANGLE_SIZE = 3.0;
 class Menu extends Div {
+    #addedTo = false;
     constructor() {
         super();
         this.setClass('osui-menu');
@@ -2410,6 +2418,25 @@ class Menu extends Div {
         this.mouseArea.setAttribute('opacity', '0.0');
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
+    }
+    add() {
+        if (!this.#addedTo && this.children) {
+            let menuItems = this.children;
+            if (menuItems.length > 0) {
+                const lastItem = menuItems[menuItems.length - 1];
+                if (lastItem.constructor.name !== 'MenuSeparator') {
+                    super.add(new MenuSeparator());
+                }
+            }
+        }
+        if (arguments && arguments.length > 0) {
+            this.#addedTo = true;
+            super.add(...arguments);
+        }
+        return this;
+    }
+    newCategory() {
+        this.#addedTo = false;
     }
     isShown() {
         return this.hasClass('osui-menu-show');
@@ -3920,13 +3947,6 @@ class FlexBox extends Element {
     constructor() {
         super(document.createElement('div'));
         this.addClass('osui-flex-box');
-    }
-}
-
-class MenuSeparator extends Div {
-    constructor() {
-    super();
-        this.setClass('osui-menu-separator');
     }
 }
 

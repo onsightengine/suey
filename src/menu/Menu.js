@@ -1,10 +1,13 @@
 import { Div } from '../core/Div.js';
 import { Css } from '../utils/Css.js';
+import { MenuSeparator } from './MenuSeparator.js';
 import { Utils } from '../utils/Utils.js';
 
 const TRIANGLE_SIZE = 3.0;                  // Bigger value is smaller triangle (size = width / TRIANGLE_SIZE)
 
 class Menu extends Div {
+
+    #addedTo = false;
 
     constructor() {
         super();
@@ -22,15 +25,37 @@ class Menu extends Div {
         this.mouseArea.setAttribute('opacity', '0.0');                          // NOTE: Comment out to see triangle
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
-
     }
+
+    /******************** CATEGORIES ********************/
+
+    add() {
+        if (!this.#addedTo && this.children) {
+            let menuItems = this.children;
+            if (menuItems.length > 0) {
+                const lastItem = menuItems[menuItems.length - 1];
+                if (lastItem.constructor.name !== 'MenuSeparator') {
+                    super.add(new MenuSeparator());
+                }
+            }
+        }
+        if (arguments && arguments.length > 0) {
+            this.#addedTo = true;
+            super.add(...arguments);
+        }
+        return this;
+    }
+
+    newCategory() {
+        this.#addedTo = false;
+    }
+
+    /******************** SHOW MENU ********************/
 
     /** Is Shown? */
     isShown() {
         return this.hasClass('osui-menu-show');
     }
-
-    /******************** SHOW MENU ********************/
 
     /** Shows Menu, adds Menu Closer listenser to base menu */
     showMenu(parentDom) {
