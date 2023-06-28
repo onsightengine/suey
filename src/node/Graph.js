@@ -96,7 +96,7 @@ class Graph extends Panel {
         document.addEventListener('keydown', graphKeyDown);
         document.addEventListener('keyup', graphKeyUp);
 
-        // Pointer Events (Translate / Select / RubberBandBox)
+        // Pointer Events (Translate / Select / RubberbandBox)
         let offset = { x: 0, y: 0 };
         let startPoint = { x: 0, y: 0 };
         function inputPointerDown(event) {
@@ -113,7 +113,7 @@ class Graph extends Panel {
                 const selected = document.querySelectorAll(`.osui-node-selected`);
                 selected.forEach(el => el.classList.remove('osui-node-selected'));
                 self.bandbox.setStyle('display', 'block');
-                updateRubberBandBox(event.clientX, event.clientY);
+                updateRubberbandBox(event.clientX, event.clientY);
             }
             if (grabbing || selecting) {
                 self.dom.setPointerCapture(event.pointerId);
@@ -147,11 +147,11 @@ class Graph extends Panel {
                 self.#offset.y = (offset.y + diffY);
                 self.zoomTo();
             } else if (selecting) {
-                updateRubberBandBox(event.clientX, event.clientY);
+                updateRubberbandBox(event.clientX, event.clientY);
             }
         }
-        function updateRubberBandBox(toX, toY) {
-            // Set rubber band box size
+        function updateRubberbandBox(toX, toY) {
+            // Set rubberband box size
             const inputRect = self.input.dom.getBoundingClientRect();
             const left = Math.min(startPoint.x, toX) - inputRect.left;
             const top = Math.min(startPoint.y, toY) - inputRect.top;

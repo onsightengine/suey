@@ -36,7 +36,7 @@
     pointer-events: none;
 }
 
-/* Shows rubber band box */
+/* Shows rubberband box */
 .osui-graph-band-box {
     position: absolute;
     display: none;
