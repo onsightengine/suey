@@ -95,6 +95,7 @@
 
 /* Shrinkable Title Div */
 .osui-shrink-title {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -199,9 +200,11 @@
     border-bottom-left-radius: var(--radius-small);
     border-bottom-right-radius: var(--radius-small);
     padding: var(--pad-small);
-    padding-bottom: 0;
     overflow: hidden;
     pointer-events: auto;
+}
+.osui-shrinkable.osui-borderless .osui-shrink-body {
+    padding-bottom: 0;
 }
 .osui-shrinkable:not(.osui-expanded) .osui-shrink-body {
     pointer-events: none;

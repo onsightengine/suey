@@ -7,7 +7,7 @@ import { VectorBox } from '../layout/VectorBox.js';
 
 class Shrinkable extends Panel {
 
-    constructor(text = '', icon = '', arrow = 'right', border = true) {
+    constructor(text = '', icon = '', arrow = 'right', border = true, enlargeIcon = false) {
         super();
         const self = this;
         this.addClass('osui-shrinkable');
@@ -30,10 +30,12 @@ class Shrinkable extends Panel {
 
         // Title Icon/Menu
         const titleIcon = new Span().setClass('osui-shrink-icon');
-        if (icon && icon !== '') {
-            titleIcon.addClass('osui-has-icon');
-            titleIcon.add(new VectorBox(icon));
+        titleIcon.addClass('osui-has-icon');
+        const iconBox = new VectorBox(icon);
+        if (enlargeIcon) {
+            iconBox.addClass('osui-enlarge-icon');
         }
+        titleIcon.add(iconBox);
 
         // Add Title Elements
         if (arrow === 'right') {
