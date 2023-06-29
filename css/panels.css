@@ -119,10 +119,6 @@
 .osui-shrink-title:hover {
     color: rgba(var(--highlight), 1.0)
 }
-.osui-shrinkable.osui-expanded:not(.osui-borderless) .osui-shrink-title {
-    border-bottom: solid var(--border-small) rgba(var(--shadow), 0.25);
-    padding-bottom: var(--pad-micro);
-}
 .osui-shrinkable.osui-borderless .osui-shrink-title {
     outline: solid var(--border-small) rgba(var(--shadow), 0.25);
     border-radius: var(--radius-small);
@@ -170,10 +166,10 @@
     margin: 0 0.35em; /* vertical horizontal */
     width: 0;
     height: 0;
-    transform: translateY(25%);
+    transform: translateX(25%);
     z-index: 101; /* Shrink Arrow */
     border: var(--arrow-size) solid transparent;
-    border-color: rgba(var(--text)) transparent transparent transparent;
+    border-color: transparent transparent transparent rgba(var(--text));
     transition: transform var(--menu-timing);
 }
 .osui-shrink-arrow-clicker {
@@ -186,10 +182,10 @@
     cursor: pointer;
 }
 .osui-shrinkable.osui-expanded .osui-shrink-title .osui-shrink-arrow {
-    transform: translateY(-25%) scale(1.0, -1.0);
+    transform: rotate(90deg) translateX(25%);
 }
 .osui-shrink-title:hover .osui-shrink-arrow {
-    border-color: rgba(var(--highlight)) transparent transparent transparent;
+    border-color: transparent transparent transparent rgba(var(--highlight));
 }
 
 /* Shrinkable Body Div */
@@ -209,6 +205,9 @@
 .osui-shrinkable:not(.osui-expanded) .osui-shrink-body {
     pointer-events: none;
     display: none;
+}
+.osui-shrinkable.osui-expanded:not(.osui-borderless) .osui-shrink-body {
+    border-top: solid var(--border-small) rgba(var(--shadow), 0.25);
 }
 
 /* Borderless Property List Row */
@@ -379,6 +378,7 @@
     font-size: calc(100% * var(--font-size-increase));
     margin: var(--pad-small);
     margin-top: var(--pad-micro);
+    margin-bottom: var(--pad-x-small);
     padding-top: var(--pad-medium);
     padding-bottom: var(--pad-medium);
 }

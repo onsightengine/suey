@@ -65,6 +65,7 @@ class Shrinkable extends Panel {
     }
 
     setExpanded(expand = true, dispatchEvent = true) {
+        expand = Boolean(expand);
         this.isExpanded = expand;
         if (expand) this.addClass('osui-expanded');
         else this.removeClass('osui-expanded');
