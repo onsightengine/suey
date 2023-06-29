@@ -55,7 +55,7 @@ class Shrinkable extends Panel {
         this.bodyDiv = body;
 
         this.contents = function() { return self.bodyDiv };            	// This is the accessor for the body div
-        this.setExpanded(true);
+        this.setExpanded(true, false /* event? */);
 
         // Events
         function arrowClick() {
@@ -64,28 +64,11 @@ class Shrinkable extends Panel {
         arrowClicker.onClick(arrowClick);
     }
 
-    applySearch(searchTerm = '') {
-        if (!this.bodyDiv || !this.bodyDiv.isElement) return;
-        const children = this.bodyDiv.children;
-        for (let i = 0; i < children.length; i++) {
-            const child = children[i];
-            if (!child.isElement) continue;
-            const name = (child.name) ? String(child.name).toLowerCase() : '';
-            if (name.indexOf(searchTerm) !== -1) {
-                child.setDisplay('');
-            } else {
-                child.setDisplay('none');
-            }
-        }
-    }
-
-    setExpanded(expand = true) {
+    setExpanded(expand = true, dispatchEvent = true) {
         this.isExpanded = expand;
-        if (expand) {
-            this.addClass('osui-expanded');
-        } else {
-            this.removeClass('osui-expanded');
-        }
+        if (expand) this.addClass('osui-expanded');
+        else this.removeClass('osui-expanded');
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('expand'));
     }
 
     sort() {
