@@ -312,7 +312,7 @@ function addToParent(parent, element) {
     } else {
         try {
             parent.dom.appendChild(element);
-        } catch (exception) {
+        } catch (error) {
             // REMOVE FAILED
         }
     }
@@ -333,7 +333,7 @@ function clearDomChildren(dom) {
     for (let i = dom.children.length - 1; i >= 0; i--) {
         const child = dom.children[i];
         clearChildren(child, true /* destroy event */);
-        try { dom.removeChild(child); } catch (e) { /* FAILED TO REMOVE */ }
+        try { dom.removeChild(child); } catch (error) { /* FAILED TO REMOVE */ }
     }
 }
 
@@ -389,7 +389,7 @@ function removeFromParent(parent, element) {
             parent.removeChild((element.isElement) ? element.dom : element);
         }
         return true;
-    } catch (exception) {
+    } catch (error) {
         return false; /* REMOVE FAILED */
     }
 }

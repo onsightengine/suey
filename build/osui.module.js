@@ -1060,7 +1060,7 @@ function addToParent(parent, element) {
     } else {
         try {
             parent.dom.appendChild(element);
-        } catch (exception) {
+        } catch (error) {
         }
     }
 }
@@ -1076,7 +1076,7 @@ function clearDomChildren(dom) {
     for (let i = dom.children.length - 1; i >= 0; i--) {
         const child = dom.children[i];
         clearChildren(child, true );
-        try { dom.removeChild(child); } catch (e) {  }
+        try { dom.removeChild(child); } catch (error) {  }
     }
 }
 function clearChildren(element, destroy = true) {
@@ -1114,7 +1114,7 @@ function removeFromParent(parent, element) {
             parent.removeChild((element.isElement) ? element.dom : element);
         }
         return true;
-    } catch (exception) {
+    } catch (error) {
         return false;
     }
 }
