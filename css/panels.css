@@ -404,11 +404,10 @@
     height: 0;
     top: 0;
     bottom: 0;
-    margin-top: auto;
-    margin-bottom: auto;
-    right: 0.75em;
+    left: 0;
+    right: 0;
+    margin: auto;
     transform: translateY(-25%) scale(1.0, -1.0);
-    z-index: 101; /* Title Arrow */
     border: 0.5em solid transparent;
     border-color: rgba(var(--text)) transparent transparent transparent;
     transition: transform var(--menu-timing);
@@ -424,7 +423,7 @@
     bottom: 0;
     margin-top: auto;
     margin-bottom: auto;
-    right: 0.75em;
+    right: 0.25em;
     z-index: 101; /* Title Arrow */
 }
 .osui-title-arrow-click:hover .osui-title-arrow {
