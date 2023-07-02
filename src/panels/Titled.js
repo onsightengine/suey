@@ -17,8 +17,9 @@ class Titled extends Div {
         // Collapsible?
         if (collapsible) {
             this.tabTitle.setStyle('pointer-events', 'all');
-            this.tabTitle.add(new Div().setClass('osui-title-arrow'));
-            this.tabTitle.onClick(() => { self.toggle(); });
+            const arrowClicker = new Div().setClass('osui-title-arrow-click');
+            this.tabTitle.add(new Div().setClass('osui-title-arrow'), arrowClicker);
+            arrowClicker.onClick(() => { self.toggle(); });
         }
 
         // Scroller
