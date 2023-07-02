@@ -30,7 +30,7 @@ class Shrinkable extends Panel {
 
         // Title Icon/Menu
         const titleIcon = new Span().setClass('osui-shrink-icon');
-        titleIcon.addClass('osui-has-icon');
+        if (icon) titleIcon.addClass('osui-has-icon');
         const iconBox = new VectorBox(icon);
         if (enlargeIcon) {
             iconBox.addClass('osui-enlarge-icon');

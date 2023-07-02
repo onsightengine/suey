@@ -397,6 +397,7 @@
 
 .osui-title-arrow {
     position: absolute;
+    cursor: pointer;
     content: '';
     font-size: var(--font-size);
     pointer-events: none;
