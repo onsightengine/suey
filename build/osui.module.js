@@ -5016,6 +5016,7 @@ class Window extends Panel {
                 if (resizer.hasClassWithString('right')) self.setStyle('right', `${newRight}px`);
                 if (resizer.hasClassWithString('bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
+            self.dom.dispatchEvent(new Event('resizer'));
         }
         Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
         this.setStyle('left', '0', 'top', '0');
