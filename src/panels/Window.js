@@ -79,13 +79,35 @@ class Window extends Panel {
         // Initial Size
         this.setStyle('left', '0', 'top', '0');
         if (resizeMode === RESIZE_MODE.FIXED) {
-            this.setStyle('width', `${parseInt(width)}px`);
-            this.setStyle('height', `${parseInt(height)}px`);
+            // For 'fixed', set width & height
+            this.setStyle('width', '0');
+            this.setStyle('height', '0');
+            function setInitialSize() {
+                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
+                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
+                self.setStyle('width', initialWidth);
+                self.setStyle('height', initialHeight);
+            }
+            // Wait for page to finish loading
+            if (document.readyState === 'complete') setInitialSize();
+            else window.addEventListener('load', () => setInitialSize(), { once: true });
         } else if (resizeMode === RESIZE_MODE.STRETCH) {
-            if (String(width).includes('%')) this.setStyle('right', `${window.innerWidth - (window.innerWidth * (parseFloat(width)/100))}px`);
-            else this.setStyle('right', `${window.innerWidth - parseInt(Css.toPx(width))}px`);
-            if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
-            else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
+            // For 'stretch', set right & bottom
+            this.setStyle('right', '0');
+            this.setStyle('bottom', '0');
+            function setInitialSize() {
+                const parentWidth = Css.toPx('100%', self, 'w');
+                const parentHeight = Css.toPx('100%', self, 'h');
+                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
+                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
+                const right = parseInt(parseFloat(parentWidth) - parseFloat(initialWidth)) + 'px';
+                const bottom = parseInt(parseFloat(parentHeight) - parseFloat(initialHeight)) + 'px';
+                self.setStyle('right', right);
+                self.setStyle('bottom', bottom);
+            }
+            // Wait for page to finish loading
+            if (document.readyState === 'complete') setInitialSize();
+            else window.addEventListener('load', () => setInitialSize(), { once: true });
         }
 
         // Window resize

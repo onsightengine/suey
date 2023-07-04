@@ -1,11 +1,11 @@
 // PARENT / CHILD
-//  isChildOf()                      Check if 'element' is a descendant of 'possibleParent'
-//  isChildOfElementWithClass()      Check if 'element' is a descendant of a parent element with class type 'className'
-//  parentElementWithClass()         Finds and returns parent of 'element' with class 'className'
-//  traverse()                       Applies a function to all children, recursively
+//  isChildOf()                     Check if 'element' is a descendant of 'possibleParent'
+//  isChildOfElementWithClass()     Check if 'element' is a descendant of a parent element with class type 'className'
+//  parentElementWithClass()        Finds and returns parent of 'element' with class 'className'
+//  traverse()                      Applies a function to all children, recursively
 // SCROLLING
-//  parentScroller()                 Finds closest 'scrollable' parent
-//  scrollIntoView()                 If element has a scorllable parent, scrolls element into view
+//  parentScroller()                Finds closest 'scrollable' parent
+//  scrollIntoView()                If element has a scorllable parent, scrolls element into view
 
 import { Css } from './Css.js';
 
@@ -40,7 +40,9 @@ class Utils {
         if (element.isElement && element.dom) element = element.dom;
         let parent = element.parentElement;
         while (parent) {
-            if (parent.classList.contains(className)) return parent;
+            if (parent.classList.contains(className)) {
+                return parent;
+            }
             parent = parent.parentElement;
         }
         return undefined;

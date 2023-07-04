@@ -108,10 +108,29 @@ class Css {
         const fontFamily = getComputedStyle(element).fontFamily || 'Arial';
         return `${fontWeight} ${fontSize} ${fontFamily}`;
     }
+    static parentElementWithCSS(element, cssKey, cssValueOrArrayOfPossibleValues) {
+        const values = (Array.isArray(cssValueOrArrayOfPossibleValues)) ? cssValueOrArrayOfPossibleValues : [ cssValueOrArrayOfPossibleValues ];
+        cssKey = cssKey.replace(/([A-Z])/g, "-$1").toLowerCase();
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            const defaultView = (parent.ownerDocument || document).defaultView;
+            const computed = defaultView.getComputedStyle(parent, null);
+            const property = computed.getPropertyValue(cssKey);
+            if (property) {
+                for (let i = 0; i < values.length; i++) {
+                    const cssValue = values[i];
+                    if (property == cssValue) return parent;
+                }
+            }
+            parent = parent.parentElement;
+        }
+        return undefined;
+    }
     static parseSize(size) {
         if (typeof size === 'string') {
-            if (size.includes('px') || size.includes('%') ||
-                size.includes('em') || size.includes('rem') ||
+            if (size.includes('%') ||
+                size.includes('px') || size.includes('em') || size.includes('rem') ||
                 size.includes('ch') || size.includes('ex') || size.includes('cap') ||
                 size.includes('vw') || size.includes('vh') || size.includes('vmin') || size.includes('vmax'))
             {
@@ -133,9 +152,17 @@ class Css {
         console.warn(`Css.toEm: Could not convert to em, unit passed in: ${pixels}`);
         return size;
     }
-    static toPx(size, element = document.body) {
+    static toPx(size, element = document.body, dimension = 'w' ) {
         const parsedSize = Css.parseSize(size);
-        if (parsedSize.includes('px')) {
+        if (parsedSize.includes('%')) {
+            if (element) {
+                const parent = Css.parentElementWithCSS(element, 'position', [ 'relative', 'absolute' ]);
+                if (parent) {
+                    if (dimension === 'w') return (parseFloat(size) * 0.01 * parent.offsetWidth) + 'px';
+                    else return (parseFloat(size) * 0.01 * parent.offsetHeight) + 'px';
+                }
+            }
+        } else if (parsedSize.includes('px')) {
             return parsedSize;
         } else if (parsedSize.includes('rem')) {
             return parseInt((parseFloat(size) * 10.0)) + 'px';
@@ -143,7 +170,7 @@ class Css {
             return parseInt((parseFloat(size) * 10.0 * Css.guiScale(element))) + 'px';
         }
         console.warn(`Css.toPx: Could not convert to pixels, unit passed in: ${size}`);
-        return size;
+        return parseInt(parsedSize) + 'px';
     }
 }
 
@@ -1707,7 +1734,9 @@ class Utils {
         if (element.isElement && element.dom) element = element.dom;
         let parent = element.parentElement;
         while (parent) {
-            if (parent.classList.contains(className)) return parent;
+            if (parent.classList.contains(className)) {
+                return parent;
+            }
             parent = parent.parentElement;
         }
         return undefined;
@@ -5021,13 +5050,31 @@ class Window extends Panel {
         Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
         this.setStyle('left', '0', 'top', '0');
         if (resizeMode === RESIZE_MODE.FIXED) {
-            this.setStyle('width', `${parseInt(width)}px`);
-            this.setStyle('height', `${parseInt(height)}px`);
+            this.setStyle('width', '0');
+            this.setStyle('height', '0');
+            function setInitialSize() {
+                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
+                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
+                self.setStyle('width', initialWidth);
+                self.setStyle('height', initialHeight);
+            }
+            if (document.readyState === 'complete') setInitialSize();
+            else window.addEventListener('load', () => setInitialSize(), { once: true });
         } else if (resizeMode === RESIZE_MODE.STRETCH) {
-            if (String(width).includes('%')) this.setStyle('right', `${window.innerWidth - (window.innerWidth * (parseFloat(width)/100))}px`);
-            else this.setStyle('right', `${window.innerWidth - parseInt(Css.toPx(width))}px`);
-            if (String(height).includes('%')) this.setStyle('bottom', `${window.innerHeight - (window.innerHeight * (parseFloat(height)/100))}px`);
-            else this.setStyle('bottom', `${window.innerHeight - parseInt(Css.toPx(height))}px`);
+            this.setStyle('right', '0');
+            this.setStyle('bottom', '0');
+            function setInitialSize() {
+                const parentWidth = Css.toPx('100%', self, 'w');
+                const parentHeight = Css.toPx('100%', self, 'h');
+                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
+                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
+                const right = parseInt(parseFloat(parentWidth) - parseFloat(initialWidth)) + 'px';
+                const bottom = parseInt(parseFloat(parentHeight) - parseFloat(initialHeight)) + 'px';
+                self.setStyle('right', right);
+                self.setStyle('bottom', bottom);
+            }
+            if (document.readyState === 'complete') setInitialSize();
+            else window.addEventListener('load', () => setInitialSize(), { once: true });
         }
         window.addEventListener('resize', () => {
             const rect = self.dom.getBoundingClientRect();

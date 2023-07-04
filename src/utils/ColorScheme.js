@@ -1,7 +1,7 @@
 /**
  * Color Reference(s)
- * Triadic / RYB       https://paletton.com
- * Material Palette    https://material.io/design/color/the-color-system.html
+ * Triadic / RYB        https://paletton.com
+ * Material Palette     https://material.io/design/color/the-color-system.html
  */
 
 import { BACKGROUNDS, TRAIT } from '../constants.js';
