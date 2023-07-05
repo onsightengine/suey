@@ -15,6 +15,8 @@ const MIN_H = 150;
 class Window extends Panel {
 
     #resizeMode = RESIZE_MODE.FIXED;
+    #initialWidth;
+    #initialHeight;
     #lastKnownRect;
     #maximized = false;
     #titleBar = undefined;
@@ -33,6 +35,8 @@ class Window extends Panel {
         // Properties
         this.isWindow = true;
         this.#resizeMode = resizeMode;
+        this.#initialWidth = width;
+        this.#initialHeight = height;
 
         // Resizers
         let rect = {};
@@ -41,7 +45,16 @@ class Window extends Panel {
             rect = self.dom.getBoundingClientRect();
         }
         function resizerMove(resizer, diffX, diffY) {
-            if (self.#resizeMode === RESIZE_MODE.FIXED) {
+            if (self.#resizeMode === RESIZE_MODE.STRETCH) {
+                const newLeft = Math.max(0, rect.left + diffX);
+                const newTop = Math.max(0, rect.top + diffY);
+                const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
+                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
+                if (resizer.hasClassWithString('left')) self.setStyle('left', `${newLeft}px`);
+                if (resizer.hasClassWithString('top')) self.setStyle('top', `${newTop}px`);
+                if (resizer.hasClassWithString('right')) self.setStyle('right', `${newRight}px`);
+                if (resizer.hasClassWithString('bottom')) self.setStyle('bottom', `${newBottom}px`);
+            } else if (self.#resizeMode === RESIZE_MODE.FIXED) {
                 if (resizer.hasClassWithString('left')) {
                     const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
                     const newWidth = rect.right - newLeft;
@@ -62,62 +75,37 @@ class Window extends Panel {
                     const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
                     self.setStyle('height', `${newHeight}px`);
                 }
-            } else if (self.#resizeMode === RESIZE_MODE.STRETCH) {
-                const newLeft = Math.max(0, rect.left + diffX);
-                const newTop = Math.max(0, rect.top + diffY);
-                const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
-                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
-                if (resizer.hasClassWithString('left')) self.setStyle('left', `${newLeft}px`);
-                if (resizer.hasClassWithString('top')) self.setStyle('top', `${newTop}px`);
-                if (resizer.hasClassWithString('right')) self.setStyle('right', `${newRight}px`);
-                if (resizer.hasClassWithString('bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
             self.dom.dispatchEvent(new Event('resizer'));
         }
-        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
+        function resizerUp() {
+            keepInWindow();
+        }
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove, resizerUp);
 
         // Initial Size
         this.setStyle('left', '0', 'top', '0');
-        if (resizeMode === RESIZE_MODE.FIXED) {
-            // For 'fixed', set width & height
-            this.setStyle('width', '0');
-            this.setStyle('height', '0');
-            function setInitialSize() {
-                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
-                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
-                self.setStyle('width', initialWidth);
-                self.setStyle('height', initialHeight);
-            }
-            // Wait for page to finish loading
-            if (document.readyState === 'complete') setInitialSize();
-            else window.addEventListener('load', () => setInitialSize(), { once: true });
-        } else if (resizeMode === RESIZE_MODE.STRETCH) {
-            // For 'stretch', set right & bottom
-            this.setStyle('right', '0');
-            this.setStyle('bottom', '0');
-            function setInitialSize() {
-                const parentWidth = Css.toPx('100%', self, 'w');
-                const parentHeight = Css.toPx('100%', self, 'h');
-                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
-                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
-                const right = parseInt(parseFloat(parentWidth) - parseFloat(initialWidth)) + 'px';
-                const bottom = parseInt(parseFloat(parentHeight) - parseFloat(initialHeight)) + 'px';
-                self.setStyle('right', right);
-                self.setStyle('bottom', bottom);
-            }
-            // Wait for page to finish loading
-            if (document.readyState === 'complete') setInitialSize();
-            else window.addEventListener('load', () => setInitialSize(), { once: true });
-        }
+        if (resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', '0', 'bottom', '0');
+        else if (resizeMode === RESIZE_MODE.FIXED) this.setStyle('width', '0', 'height', '0');
 
-        // Window resize
-        window.addEventListener('resize', () => {
+        // Wait for document to load
+        if (document.readyState === 'complete') self.setInitialSize();
+        else window.addEventListener('load', () => { self.setInitialSize(); }, { once: true });
+
+        // Keep In Window
+        function keepInWindow() {
             const rect = self.dom.getBoundingClientRect();
             if (resizeMode === RESIZE_MODE.FIXED) {
                 if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
                 if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
+                if (rect.top < 0) self.setStyle('top', '0px');
+                if (rect.left < 0) self.setStyle('left', '0px');
+                if (rect.width > window.innerWidth) self.setStyle('width', `${window.innerWidth}px`);
+                if (rect.height > window.innerHeight) self.setStyle('height', `${window.innerHeight}px`);
             }
-        });
+        }
+        window.addEventListener('resize', () => { keepInWindow(); });
+        this.dom.addEventListener('displayed', () => { keepInWindow(); });
 
         // Center first time shown
         this.dom.addEventListener('displayed', () => self.center(), { once: true });
@@ -146,6 +134,24 @@ class Window extends Panel {
         const top = (window.innerHeight - this.getHeight()) / 2;
         this.setStyle('left', `${side}px`, 'top', `${top}px`);
         if (this.#resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', `${side}px`, 'bottom', `${top}px`);
+    }
+
+    setInitialSize() {
+        if (this.#resizeMode === RESIZE_MODE.FIXED) {
+            const width = Css.toPx(Css.parseSize(this.#initialWidth), this, 'w');
+            const height = Css.toPx(Css.parseSize(this.#initialHeight), this, 'h');
+            this.setStyle('width', width);
+            this.setStyle('height', height);
+        } else if (this.#resizeMode === RESIZE_MODE.STRETCH) {
+            const parentWidth = Css.toPx('100%', this, 'w');
+            const parentHeight = Css.toPx('100%', this, 'h');
+            const width = Css.toPx(Css.parseSize(this.#initialWidth), this, 'w');
+            const height = Css.toPx(Css.parseSize(this.#initialHeight), this, 'h');
+            const right = parseInt(parseFloat(parentWidth) - parseFloat(width)) + 'px';
+            const bottom = parseInt(parseFloat(parentHeight) - parseFloat(height)) + 'px';
+            this.setStyle('right', right);
+            this.setStyle('bottom', bottom);
+        }
     }
 
     toggleMinMax() {
@@ -178,9 +184,12 @@ export { Window };
 /******************** INTERNAL ********************/
 
 class TitleBar extends Div {
+
     constructor(parent, title = '', draggable = false, scale = 1.3) {
         if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+
         super();
+        const self = this;
         this.setClass('osui-title-bar');
         this.addClass('osui-panel-button');
 
@@ -188,7 +197,17 @@ class TitleBar extends Div {
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
         this.setTitle(title);
 
-        if (draggable) Interaction.makeDraggable(this, parent, true /* limitToWindow */);
+        if (draggable) {
+            Interaction.makeDraggable(this, parent, true /* limitToWindow */);
+        }
+
+        this.onDblClick(() => {
+            if (self.parent && self.parent.isElement) {
+                if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
+                if (typeof self.parent.center === 'function') self.parent.center();
+                window.dispatchEvent(new Event('resize'));
+            }
+        });
     }
 
     setTitle(title = '') {
@@ -197,4 +216,5 @@ class TitleBar extends Div {
         width += parseFloat(Css.toPx('4em'));
         this.setStyle('width', Css.toEm(`${width}px`));
     }
+
 }

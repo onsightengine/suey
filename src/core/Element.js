@@ -11,6 +11,7 @@ class Element {
 
         this.contents = function() { return self; }     // Inner Osui Element to be filled with other elements
         this.children = [];                             // Holds Osui Children (.add / .remove / .clearContents)
+        this.parent = undefined;
     }
 
     /********** DESTROY **********/
@@ -141,14 +142,14 @@ class Element {
         return this;
     }
 
-    hide() {
-        this.setDisplay('none');
-        this.dom.dispatchEvent(new Event('hidden'));
+    hide(event = true) {
+        this.setStyle('display', 'none');
+        if (event) this.dom.dispatchEvent(new Event('hidden'));
     }
 
-    display(display = '') {
-        this.setDisplay(display);
-        this.dom.dispatchEvent(new Event('displayed'));
+    display(event = true) {
+        this.setStyle('display', '');
+        if (event) this.dom.dispatchEvent(new Event('displayed'));
     }
 
     focus() {
@@ -399,9 +400,8 @@ function removeFromParent(parent, element) {
 // Hyphenated style properties can be referenced via camelCase in JavaScript
 // See: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties
 const properties = [
-    'display', 'flex', 'overflow', 'visibility',
-    'position', 'left', 'top', 'right', 'bottom', 'width', 'height',
-    'color', 'opacity', 'cursor', 'pointerEvents'
+    'display', 'color',
+    'left', 'top', 'right', 'bottom', 'width', 'height',
 ];
 
 properties.forEach(function(property) {

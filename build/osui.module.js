@@ -901,6 +901,7 @@ class Element {
         this.name = undefined;
         this.contents = function() { return self; };
         this.children = [];
+        this.parent = undefined;
     }
     destroy() {
         clearChildren(this, true );
@@ -998,13 +999,13 @@ class Element {
         }
         return this;
     }
-    hide() {
-        this.setDisplay('none');
-        this.dom.dispatchEvent(new Event('hidden'));
+    hide(event = true) {
+        this.setStyle('display', 'none');
+        if (event) this.dom.dispatchEvent(new Event('hidden'));
     }
-    display(display = '') {
-        this.setDisplay(display);
-        this.dom.dispatchEvent(new Event('displayed'));
+    display(event = true) {
+        this.setStyle('display', '');
+        if (event) this.dom.dispatchEvent(new Event('displayed'));
     }
     focus() {
         this.dom.focus();
@@ -1146,9 +1147,8 @@ function removeFromParent(parent, element) {
     }
 }
 const properties = [
-    'display', 'flex', 'overflow', 'visibility',
-    'position', 'left', 'top', 'right', 'bottom', 'width', 'height',
-    'color', 'opacity', 'cursor', 'pointerEvents'
+    'display', 'color',
+    'left', 'top', 'right', 'bottom', 'width', 'height',
 ];
 properties.forEach(function(property) {
     const method = 'set' + property.substring(0, 1).toUpperCase() + property.substring(1, property.length);
@@ -1503,7 +1503,7 @@ class Interaction extends Button {
         }
         eventElement.addEventListener('pointerdown', dragPointerDown);
     }
-    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
+    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}, onUp = () => {}) {
         if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
         if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
         resizeElement.addClass('osui-resizeable');
@@ -1534,6 +1534,7 @@ class Interaction extends Button {
                 resizer.dom.releasePointerCapture(event.pointerId);
                 resizeElement.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
                 resizeElement.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
+                onUp();
             }
             function resizePointerMove(event) {
                 event.stopPropagation();
@@ -1824,7 +1825,7 @@ class Span extends Element {
 class FlexSpacer extends Span {
     constructor() {
         super();
-        this.setFlex('1 1 auto');
+        this.setStyle('flex', '1 1 auto');
         this.setStyle('minHeight', '0.01em');
     }
 }
@@ -1877,7 +1878,7 @@ class Text extends Span {
     constructor(innerHtml) {
         super(innerHtml);
         this.setClass('osui-text');
-        this.setCursor('default');
+        this.setStyle('cursor', 'default');
     }
 }
 
@@ -2231,7 +2232,7 @@ class TabButton extends Div {
         super();
         const self = this;
         this.setClass('osui-tab-button');
-        this.setCursor('default');
+        this.setStyle('cursor', 'default');
         this.iconVector = new VectorBox(icon);
         this.iconBorder = new Div().setClass('osui-tab-icon');
         this.add(this.iconVector, this.iconBorder);
@@ -4993,6 +4994,8 @@ const MIN_W = 300;
 const MIN_H = 150;
 class Window extends Panel {
     #resizeMode = RESIZE_MODE.FIXED;
+    #initialWidth;
+    #initialHeight;
     #lastKnownRect;
     #maximized = false;
     #titleBar = undefined;
@@ -5008,13 +5011,24 @@ class Window extends Panel {
         this.addClass('osui-window');
         this.isWindow = true;
         this.#resizeMode = resizeMode;
+        this.#initialWidth = width;
+        this.#initialHeight = height;
         let rect = {};
         function resizerDown() {
             Interaction.bringToTop(self.dom);
             rect = self.dom.getBoundingClientRect();
         }
         function resizerMove(resizer, diffX, diffY) {
-            if (self.#resizeMode === RESIZE_MODE.FIXED) {
+            if (self.#resizeMode === RESIZE_MODE.STRETCH) {
+                const newLeft = Math.max(0, rect.left + diffX);
+                const newTop = Math.max(0, rect.top + diffY);
+                const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
+                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
+                if (resizer.hasClassWithString('left')) self.setStyle('left', `${newLeft}px`);
+                if (resizer.hasClassWithString('top')) self.setStyle('top', `${newTop}px`);
+                if (resizer.hasClassWithString('right')) self.setStyle('right', `${newRight}px`);
+                if (resizer.hasClassWithString('bottom')) self.setStyle('bottom', `${newBottom}px`);
+            } else if (self.#resizeMode === RESIZE_MODE.FIXED) {
                 if (resizer.hasClassWithString('left')) {
                     const newLeft = Math.max(0, Math.min(rect.right - MIN_W, rect.left + diffX));
                     const newWidth = rect.right - newLeft;
@@ -5035,54 +5049,31 @@ class Window extends Panel {
                     const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
                     self.setStyle('height', `${newHeight}px`);
                 }
-            } else if (self.#resizeMode === RESIZE_MODE.STRETCH) {
-                const newLeft = Math.max(0, rect.left + diffX);
-                const newTop = Math.max(0, rect.top + diffY);
-                const newRight = Math.min(window.innerWidth - (rect.left + MIN_W), Math.max(0, (window.innerWidth - rect.right) - diffX));
-                const newBottom = Math.min(window.innerHeight - (rect.top + MIN_H), Math.max(0, (window.innerHeight - rect.bottom) - diffY));
-                if (resizer.hasClassWithString('left')) self.setStyle('left', `${newLeft}px`);
-                if (resizer.hasClassWithString('top')) self.setStyle('top', `${newTop}px`);
-                if (resizer.hasClassWithString('right')) self.setStyle('right', `${newRight}px`);
-                if (resizer.hasClassWithString('bottom')) self.setStyle('bottom', `${newBottom}px`);
             }
             self.dom.dispatchEvent(new Event('resizer'));
         }
-        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
-        this.setStyle('left', '0', 'top', '0');
-        if (resizeMode === RESIZE_MODE.FIXED) {
-            this.setStyle('width', '0');
-            this.setStyle('height', '0');
-            function setInitialSize() {
-                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
-                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
-                self.setStyle('width', initialWidth);
-                self.setStyle('height', initialHeight);
-            }
-            if (document.readyState === 'complete') setInitialSize();
-            else window.addEventListener('load', () => setInitialSize(), { once: true });
-        } else if (resizeMode === RESIZE_MODE.STRETCH) {
-            this.setStyle('right', '0');
-            this.setStyle('bottom', '0');
-            function setInitialSize() {
-                const parentWidth = Css.toPx('100%', self, 'w');
-                const parentHeight = Css.toPx('100%', self, 'h');
-                const initialWidth = Css.toPx(Css.parseSize(width), self, 'w');
-                const initialHeight = Css.toPx(Css.parseSize(height), self, 'h');
-                const right = parseInt(parseFloat(parentWidth) - parseFloat(initialWidth)) + 'px';
-                const bottom = parseInt(parseFloat(parentHeight) - parseFloat(initialHeight)) + 'px';
-                self.setStyle('right', right);
-                self.setStyle('bottom', bottom);
-            }
-            if (document.readyState === 'complete') setInitialSize();
-            else window.addEventListener('load', () => setInitialSize(), { once: true });
+        function resizerUp() {
+            keepInWindow();
         }
-        window.addEventListener('resize', () => {
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove, resizerUp);
+        this.setStyle('left', '0', 'top', '0');
+        if (resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', '0', 'bottom', '0');
+        else if (resizeMode === RESIZE_MODE.FIXED) this.setStyle('width', '0', 'height', '0');
+        if (document.readyState === 'complete') self.setInitialSize();
+        else window.addEventListener('load', () => { self.setInitialSize(); }, { once: true });
+        function keepInWindow() {
             const rect = self.dom.getBoundingClientRect();
             if (resizeMode === RESIZE_MODE.FIXED) {
                 if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
                 if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
+                if (rect.top < 0) self.setStyle('top', '0px');
+                if (rect.left < 0) self.setStyle('left', '0px');
+                if (rect.width > window.innerWidth) self.setStyle('width', `${window.innerWidth}px`);
+                if (rect.height > window.innerHeight) self.setStyle('height', `${window.innerHeight}px`);
             }
-        });
+        }
+        window.addEventListener('resize', () => { keepInWindow(); });
+        this.dom.addEventListener('displayed', () => { keepInWindow(); });
         this.dom.addEventListener('displayed', () => self.center(), { once: true });
     }
     addTitleBar(title = '', draggable = false, scale = 1.3) {
@@ -5101,6 +5092,23 @@ class Window extends Panel {
         const top = (window.innerHeight - this.getHeight()) / 2;
         this.setStyle('left', `${side}px`, 'top', `${top}px`);
         if (this.#resizeMode === RESIZE_MODE.STRETCH) this.setStyle('right', `${side}px`, 'bottom', `${top}px`);
+    }
+    setInitialSize() {
+        if (this.#resizeMode === RESIZE_MODE.FIXED) {
+            const width = Css.toPx(Css.parseSize(this.#initialWidth), this, 'w');
+            const height = Css.toPx(Css.parseSize(this.#initialHeight), this, 'h');
+            this.setStyle('width', width);
+            this.setStyle('height', height);
+        } else if (this.#resizeMode === RESIZE_MODE.STRETCH) {
+            const parentWidth = Css.toPx('100%', this, 'w');
+            const parentHeight = Css.toPx('100%', this, 'h');
+            const width = Css.toPx(Css.parseSize(this.#initialWidth), this, 'w');
+            const height = Css.toPx(Css.parseSize(this.#initialHeight), this, 'h');
+            const right = parseInt(parseFloat(parentWidth) - parseFloat(width)) + 'px';
+            const bottom = parseInt(parseFloat(parentHeight) - parseFloat(height)) + 'px';
+            this.setStyle('right', right);
+            this.setStyle('bottom', bottom);
+        }
     }
     toggleMinMax() {
         if (!this.#maximized) {
@@ -5129,12 +5137,22 @@ class TitleBar extends Div {
     constructor(parent, title = '', draggable = false, scale = 1.3) {
         if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
         super();
+        const self = this;
         this.setClass('osui-title-bar');
         this.addClass('osui-panel-button');
         this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
         this.setTitle(title);
-        if (draggable) Interaction.makeDraggable(this, parent, true );
+        if (draggable) {
+            Interaction.makeDraggable(this, parent, true );
+        }
+        this.onDblClick(() => {
+            if (self.parent && self.parent.isElement) {
+                if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
+                if (typeof self.parent.center === 'function') self.parent.center();
+                window.dispatchEvent(new Event('resize'));
+            }
+        });
     }
     setTitle(title = '') {
         this.setInnerHtml(title);
@@ -5203,8 +5221,8 @@ var css_248z$3 = "/***** GRAPH *****/\n\n.osui-graph-input, .osui-graph-grid, .o
 var stylesheet$3="/***** GRAPH *****/\n\n.osui-graph-input, .osui-graph-grid, .osui-graph-nodes, .osui-graph-lines {\n    position: absolute;\n    top: 0;\n\tleft: 0;\n    width: 100%;\n    height: 100%;\n\tmargin: 0;\n\tpadding: 0;\n}\n\n/* Div used for processing user input */\n.osui-graph-input {\n    background: transparent;\n    z-index: -1; /* Graph Input */\n}\n\n/* Background div that holds tiled grid */\n.osui-graph-grid {\n    pointer-events: none;\n    background-color: rgb(var(--darkness));\n    background-repeat: repeat;\n    transition: none;\n}\n\n/* Scalable div to hold nodes */\n.osui-graph-nodes {\n    pointer-events: none;\n    background-color: transparent;\n    transition: none;\n}\n\n/* Canvas where lines are drawn */\n.osui-graph-lines {\n    pointer-events: none;\n}\n\n/* Shows rubberband box */\n.osui-graph-band-box {\n    position: absolute;\n    display: none;\n    background-color: rgba(var(--icon), 0.2);\n    border: solid var(--border-small) rgba(var(--icon), 0.75);\n}\n\n/***** MINIMAP *****/\n\n.osui-mini-map {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgba(var(--icon), 0.75);\n    border-radius: var(--radius-large);\n    bottom: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.osui-mini-map-canvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.osui-mini-map-resizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n/***** NODE *****/\n\n.osui-node {\n    --node-color:       255, 0, 0;\n\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border-radius: var(--radius-large);\n    border: none;\n    outline: solid var(--pad-micro) rgb(var(--black), 0.5);\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    z-index: 0; /* Node */\n}\n\n.osui-node:hover, .osui-node.osui-node-selected {\n    filter: brightness(120%);\n}\n\n.osui-node.osui-node-selected, .osui-node.osui-node-displayed {\n    outline: solid var(--pad-small) rgb(var(--black), 0.5);\n}\n\n.osui-node.osui-too-small .osui-resizer {\n    pointer-events: none;\n}\n\n.osui-node-panel {\n    pointer-events: none;\n    display: flex;\n    flex-direction: column;\n    align-items: stretch;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n\tpadding: 0;\n    cursor: inherit;\n    overflow: visible;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n\n.osui-node-border {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--border-small) * -0.5);\n\tpadding: 0;\n}\n\n.osui-node.osui-node-displayed .osui-node-border {\n    border: var(--border-small) solid rgba(var(--complement), 1);\n}\n\n.osui-node.osui-node-selected .osui-node-border {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.osui-node-resizers {\n    pointer-events: all;\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n}\n\n/***** NODE HEADER *****/\n\n.osui-node-header-title {\n    pointer-events: none;\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border-top-right-radius: var(--radius-large);\n    border-top-left-radius: var(--radius-large);\n    width: 100%;\n    height: 1.82em;\n    margin: 0;\n    padding: var(--pad-x-small) 0.5em; /* vertical | horizontal */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);\n}\n\n.osui-node-header-icon .osui-vector-box {\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    width: 85%;\n    height: 85%;\n    filter: drop-shadow(0 0 var(--pad-x-small) rgb(var(--shadow)));\n}\n\n.osui-node-header-icon .osui-image {\n    filter: brightness(calc(10 * var(--bright))) opacity(0.9);\n}\n\n.osui-node-header-icon {\n    pointer-events: none;\n    position: absolute;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: 0.25em;\n    left: 0.2em;\n    top: 0.2em;\n    width: 1.65em;\n    height: 1.35em;\n    opacity: 1;\n    box-shadow: inset 0 0 var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.osui-node-header-text {\n    pointer-events: none;\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/***** NODE ITEM *****/\n\n.osui-node-interior {\n    pointer-events: none;\n    display: flex;\n    flex-direction: row;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    min-width: 100px;\n    min-height: 25px;\n}\n\n.osui-node-item-list {\n    pointer-events: none;\n    display: block;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    width: 50%;\n    min-height: 25px;\n}\n\n/* Item */\n.osui-node-item {\n    pointer-events: none;\n    position: relative;\n    background-color: transparent;\n    color: var(--text);\n    font-size: 85%;\n    width: 100%;\n    padding: var(--pad-medium);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    vertical-align: middle;\n}\n\n.osui-node-left {\n    text-align: left;\n    padding-left: 1.2em;\n}\n\n.osui-node-right {\n    text-align: right;\n    padding-right: 1.2em;\n}\n\n/* Item point */\n.osui-node-item-point {\n    pointer-events: all;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    background-color: rgba(var(--background-dark), 1);\n    border: var(--border-small) solid rgba(var(--button-light), 1);\n    border-radius: 0.3em;\n    outline: none;\n    top: 50%;\n    overflow: visible;\n    z-index: 100; /* Node Item Point */\n}\n\n.osui-node-left .osui-node-item-point {\n    left: 0;\n    transform: translate(-50%, -50%);\n}\n.osui-node-right .osui-node-item-point {\n    right: 0;\n    transform: translate( 50%, -50%);\n}\n\n/* Increases mouse over hit area */\n.osui-node-item-point::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n/* Inner square */\n.osui-node-item.osui-item-connected .osui-node-item-point::after,\n.osui-node-item .osui-node-item-point.osui-active-item::after {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: var(--pad-x-small);\n    background-color: rgb(var(--node-color));\n    border-radius: 0.08em;\n}\n\n/* Item point highlight border */\n.osui-node.osui-node-displayed .osui-node-item-point {\n    border: var(--border-small) solid rgba(var(--complement), 1);\n}\n.osui-node.osui-node-selected .osui-node-item-point {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.osui-node-item-point.osui-hover-point, .osui-node.osui-node-selected .osui-node-item-point.osui-hover-point,\n.osui-node-item-point.osui-active-item, .osui-node.osui-node-selected .osui-node-item-point.osui-active-item {\n    border: var(--border-small) solid rgba(var(--highlight), 1);\n    width: 1.2em;\n    height: 1.2em;\n}\n\n/* Item detacher (little 'X') */\n.osui-node-item-detach {\n    pointer-events: none;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    top: 10%;\n    background-color: transparent;\n    border: none;\n    outline: none;\n    overflow: visible;\n    filter: brightness(50%);\n    transform: translateY(-50%);\n    opacity: 0;\n}\n\n.osui-node-right .osui-node-item-detach {\n    left: calc(100% + 0.7em);\n}\n.osui-node-left .osui-node-item-detach {\n    left: calc(0em - var(--row-height));\n}\n\n/* Increases mouse over hit area */\n.osui-node-item-detach::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n.osui-node-item.osui-item-connected .osui-node-item-detach {\n    pointer-events: all;\n}\n\n.osui-node-item.osui-item-connected:hover .osui-node-item-detach {\n    opacity: 1;\n}\n\n.osui-node-item-detach .osui-image {\n    filter: var(--drop-shadow);\n}\n\n.osui-node-item.osui-item-connected .osui-node-item-detach:hover {\n    filter: brightness(100%);\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** Panel Button *****/\n\n.osui-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.osui-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.osui-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Close Button *****/\n\n.osui-close-button {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    outline: none;\n    opacity: 0;\n    overflow: hidden;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.osui-close-button.osui-item-shown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover {\n    background-color: #e24c4b;\n}\n\n.osui-close-button.osui-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover .osui-close-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.osui-resizer {\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.osui-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: 100%;\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.osui-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.osui-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: 100%;\n    cursor: col-resize;\n}\n\n.osui-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.osui-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n/***** Title Bar *****/\n\n.osui-title-bar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.osui-panel.osui-bring-top .osui-title-bar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";
-var stylesheet$2="/***** Panel Button *****/\n\n.osui-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.osui-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.osui-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Close Button *****/\n\n.osui-close-button {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    outline: none;\n    opacity: 0;\n    overflow: hidden;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.osui-close-button.osui-item-shown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover {\n    background-color: #e24c4b;\n}\n\n.osui-close-button.osui-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover .osui-close-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.osui-resizer {\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.osui-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: 100%;\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.osui-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.osui-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: 100%;\n    cursor: col-resize;\n}\n\n.osui-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.osui-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n/***** Title Bar *****/\n\n.osui-title-bar {\n    color: rgba(var(--highlight), 0.75);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.osui-panel.osui-bring-top .osui-title-bar {\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n}\n";
+var css_248z$2 = "/***** Panel Button *****/\n\n.osui-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.osui-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.osui-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Close Button *****/\n\n.osui-close-button {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    outline: none;\n    opacity: 0;\n    overflow: hidden;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.osui-close-button.osui-item-shown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover {\n    background-color: #e24c4b;\n}\n\n.osui-close-button.osui-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover .osui-close-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.osui-resizer {\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.osui-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: 100%;\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.osui-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.osui-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: 100%;\n    cursor: col-resize;\n}\n\n.osui-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.osui-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n/***** Title Bar *****/\n\n.osui-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.osui-panel.osui-bring-top .osui-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n}\n";
+var stylesheet$2="/***** Panel Button *****/\n\n.osui-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.osui-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.osui-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Close Button *****/\n\n.osui-close-button {\n    cursor: pointer;\n    border-radius: 50%;\n    background-color: #e24c4b;\n    outline: none;\n    opacity: 0;\n    overflow: hidden;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n.osui-close-button.osui-item-shown {\n    background-color: #e24c4b;\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover {\n    background-color: #e24c4b;\n}\n\n.osui-close-button.osui-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.osui-close-button:hover .osui-close-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.osui-resizer {\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.osui-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: 100%;\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.osui-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.osui-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: 100%;\n    cursor: col-resize;\n}\n\n.osui-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(100% - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.osui-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: 100%;\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.osui-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(100% - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n/***** Title Bar *****/\n\n.osui-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.osui-panel.osui-bring-top .osui-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = ".osui-tooltip, .osui-info-box {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.osui-tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.osui-tooltip.osui-updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.osui-info-box {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.osui-info-box.osui-updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";

@@ -5,7 +5,7 @@ class Text extends Span {
     constructor(innerHtml) {
         super(innerHtml);
         this.setClass('osui-text');
-        this.setCursor('default');
+        this.setStyle('cursor', 'default');
     }
 
 }

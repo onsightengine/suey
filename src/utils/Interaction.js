@@ -144,7 +144,7 @@ class Interaction extends Button {
         eventElement.addEventListener('pointerdown', dragPointerDown);
     }
 
-    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}) {
+    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}, onUp = () => {}) {
         if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
         if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
         resizeElement.addClass('osui-resizeable');
@@ -177,6 +177,8 @@ class Interaction extends Button {
                 resizer.dom.releasePointerCapture(event.pointerId);
                 resizeElement.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
                 resizeElement.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
+                /* CUSTOM CALLBACK */
+                onUp();
             }
             function resizePointerMove(event) {
                 event.stopPropagation();

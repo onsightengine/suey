@@ -252,7 +252,7 @@ class TabButton extends Div {
         super();
         const self = this;
         this.setClass('osui-tab-button');
-        this.setCursor('default');
+        this.setStyle('cursor', 'default');
 
         // Icon / Label
         this.iconVector = new VectorBox(icon);
