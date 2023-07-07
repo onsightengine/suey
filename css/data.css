@@ -130,6 +130,7 @@
 
 /* --- RIGHT SIDE OF ROW --- */
 
+.osui-property-right .osui-number,
 .osui-property-right > *:not(.osui-property-tiny-row):not(.osui-property-button):not(.osui-property-space) {
     flex: 1 1 auto;
     min-height: var(--row-height);
