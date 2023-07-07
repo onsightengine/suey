@@ -130,6 +130,8 @@ class Dropdown extends Button {
         // Attach menu to button
         this.attachMenu(menu);
         menu.addClass('osui-select-menu');
+
+        return this;
     }
 
 }

@@ -2755,6 +2755,7 @@ class Dropdown extends Button {
         }
         this.attachMenu(menu);
         menu.addClass('osui-select-menu');
+        return this;
     }
 }
 
