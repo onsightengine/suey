@@ -73,7 +73,7 @@ class Color extends Button {
 
         this.setHexValue = function(hex) {
             if (!colorBox.dom) return this;
-            if (hex === undefined) return this;
+            if (hex === undefined || hex === null || isNaN(hex)) hex = 0;
             self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
             return this;
         }
