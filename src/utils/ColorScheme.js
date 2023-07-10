@@ -148,7 +148,7 @@ class ColorScheme {
                 case TRAIT.TEXT:                _clr.set(190, 190, 190, 'rgb'); break;
                 case TRAIT.TEXT_LIGHT:          _clr.set(225, 225, 225, 'rgb'); break;
 
-                case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); lightness = 0; break;
                 case TRAIT.MIDLIGHT:            _clr.set( 85,  85,  85, 'rgb'); break;
                 case TRAIT.HIGHLIGHT:           _clr.set(255, 255, 255, 'rgb'); break;
             }

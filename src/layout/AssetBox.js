@@ -45,6 +45,7 @@ class AssetBox extends Div {
             const spanIcon = new Span().setClass('osui-asset-box-icon').add(assetImageHolder);
             const spanText = new Span(title).setClass('osui-asset-box-text');
             this.add(spanIcon, spanText);
+            this.assetText = spanText;
         }
 
         // Contents Function

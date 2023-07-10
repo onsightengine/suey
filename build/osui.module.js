@@ -844,7 +844,7 @@ class ColorScheme {
                 case TRAIT.TEXT_DARK:           _clr$1.set(100, 100, 100, 'rgb'); break;
                 case TRAIT.TEXT:                _clr$1.set(190, 190, 190, 'rgb'); break;
                 case TRAIT.TEXT_LIGHT:          _clr$1.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$1.set(  8,   8,   8, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$1.set(  8,   8,   8, 'rgb'); lightness = 0; break;
                 case TRAIT.MIDLIGHT:            _clr$1.set( 85,  85,  85, 'rgb'); break;
                 case TRAIT.HIGHLIGHT:           _clr$1.set(255, 255, 255, 'rgb'); break;
             }
@@ -3882,6 +3882,7 @@ class AssetBox extends Div {
             const spanIcon = new Span().setClass('osui-asset-box-icon').add(assetImageHolder);
             const spanText = new Span(title).setClass('osui-asset-box-text');
             this.add(spanIcon, spanText);
+            this.assetText = spanText;
         }
         this.contents = function() { return assetImageHolder };
         this.onKeyDown((event) => {
