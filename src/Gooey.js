@@ -130,7 +130,7 @@ class Folder extends Shrinkable {
         title,
         icon,
     } = {}) {
-        super({ title, icon });
+        super({ text: title, icon });
 
         // Build osui
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);
