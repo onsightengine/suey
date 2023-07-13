@@ -141,7 +141,7 @@ class Node extends Div {
             if (!self.graph) return;
             self.dom.dispatchEvent(new Event('dragged'));
         }
-        Interaction.makeDraggable(self, self, false, dragDown, dragMove, dragUp);
+        Interaction.makeDraggable(self, self, false /* limitToWindow */, dragDown, dragMove, dragUp);
 
         // Selectable
         function nodePointerDown(event) {

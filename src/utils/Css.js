@@ -20,11 +20,14 @@ class Css {
     /******************** VARIABLES ********************/
 
     /** Gets a CSS variable by name, hyphens optional */
-    static getVariable(variable) {
+    static getVariable(variable, element) {
         variable = String(variable);
         if (!variable.startsWith('--')) variable = '--' + variable;
-        const rootElement = document.querySelector(':root');
-        return getComputedStyle(rootElement).getPropertyValue(variable);
+        if (element && element.isElement) element = element.dom;
+        if (!element || !(element instanceof HTMLElement)) {
+            element = document.querySelector(':root');
+        }
+        return getComputedStyle(element).getPropertyValue(variable);
     }
 
     /**

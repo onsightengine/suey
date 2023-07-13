@@ -1,6 +1,5 @@
 // INTERACTION
 //  addCloseButton()
-//  bringToTop()
 //  makeDraggable()
 //  makeResizeable()
 import { Button } from '../input/Button.js';
@@ -63,14 +62,6 @@ class Interaction extends Button {
         closeElement.addToSelf(button);
     }
 
-    /** Applies 'osui-bring-top' Class, ensures it is the only element with this special Class */
-    static bringToTop(element, withClass = 'osui-panel') {
-        const topElement = (element && element.isElement) ? element.dom : element;
-        const panels = document.querySelectorAll(`.${withClass}`);
-        panels.forEach(el => { if (el !== topElement) el.classList.remove('osui-bring-top'); });
-        topElement.classList.add('osui-bring-top');
-    }
-
     static makeDraggable(element, parent = element, limitToWindow = false, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
@@ -100,7 +91,6 @@ class Interaction extends Button {
             rect.height = parseFloat(computed.height);
             eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
-            Interaction.bringToTop(dragElement);
             /* CUSTOM CALLBACK */
             onDown();
         }

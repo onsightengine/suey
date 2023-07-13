@@ -40,15 +40,15 @@ class Window extends Panel {
         this.#initialHeight = height;
 
         // Stacks
-        this.dom.addEventListener('focusout', () => { self.removeClass('osui-bring-top'); });
-        this.dom.addEventListener('focusin', () => { Interaction.bringToTop(self.dom); });
-        this.dom.addEventListener('displayed', () => { Interaction.bringToTop(self.dom);} );
-        this.dom.addEventListener('pointerdown', () => { Interaction.bringToTop(self.dom);} );
+        this.dom.addEventListener('focusout', () => { self.removeClass('osui-active-window'); });
+        this.dom.addEventListener('focusin', () => { self.activeWindow(); });
+        this.dom.addEventListener('displayed', () => { self.activeWindow(); } );
+        this.dom.addEventListener('pointerdown', () => { self.activeWindow(); } );
 
         // Resizers
         let rect = {};
         function resizerDown() {
-            Interaction.bringToTop(self.dom);
+            self.focus();
             rect = self.dom.getBoundingClientRect();
         }
         function resizerMove(resizer, diffX, diffY) {
@@ -135,6 +135,31 @@ class Window extends Panel {
 
     /******************** POSITION */
 
+    /** Applies 'osui-active-window', ensures this is the only element with this special class */
+    activeWindow() {
+        if (this.hasClass('osui-active-window')) return;
+        this.addClass('osui-active-window');
+
+        // Ensure only active window
+        const windows = document.querySelectorAll('.osui-window');
+        windows.forEach((element) => {
+            if (element !== this.dom) element.classList.remove('osui-active-window');
+        });
+
+        // Arrange Z-Orders
+        const topZ = windows.length + 200;
+        Css.setVariable('--window-z-index', `${topZ}`, this);
+        windows.forEach((element) => {
+            if (element !== this.dom) {
+                let currentZ = Css.getVariable('--window-z-index', element);
+                if (currentZ >= topZ) currentZ = topZ;
+                currentZ--;
+                if (currentZ < 200) currentZ = 200;
+                Css.setVariable('--window-z-index', `${currentZ}`, element);
+            }
+        });
+    }
+
     /** Centers 'Window' panel in document window */
     center() {
         const side = (window.innerWidth - this.getWidth()) / 2;
@@ -210,8 +235,12 @@ class TitleBar extends Div {
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
         this.setTitle(title);
 
+        function titleDown() {
+            if (parent && typeof parent.focus === 'function') parent.focus();
+        }
+
         if (draggable) {
-            Interaction.makeDraggable(this, parent, true /* limitToWindow */);
+            Interaction.makeDraggable(this, parent, true /* limitToWindow */, titleDown);
         }
 
         this.onDblClick(() => {

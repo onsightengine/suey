@@ -149,27 +149,3 @@
     cursor: nesw-resize;
     z-index: 100; /* Resizer Corner */
 }
-
-/***** Title Bar *****/
-
-.osui-title-bar {
-    color: rgba(var(--highlight), 0.5);
-    border: var(--border-small) solid rgb(var(--button-light));
-    border-radius: 9999px;
-    background-color: rgba(var(--background-dark), 1.0);
-    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));
-    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);
-    text-align: center;
-    left: 0;
-    right: 0;
-    min-width: 6em;
-    min-height: 1.6em;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.osui-panel.osui-bring-top .osui-title-bar {
-    color: rgba(var(--highlight), 1);
-    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));
-    border: var(--border-small) solid rgb(var(--icon));
-}

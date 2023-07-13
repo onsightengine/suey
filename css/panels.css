@@ -52,7 +52,7 @@
 .osui-window .osui-panel-fancy-border {
     border: var(--border-small) solid rgb(var(--button-light));
 }
-.osui-window.osui-bring-top .osui-panel-fancy-border {
+.osui-window.osui-active-window .osui-panel-fancy-border {
     border: var(--border-small) solid rgb(var(--icon));
 }
 
@@ -441,21 +441,41 @@
 /***** Window *****/
 
 .osui-window {
+    --window-z-index: 200;
+
     position: fixed;
     padding: var(--pad-small);
     opacity: calc(90% + (10% * var(--panel-transparency)));
-    z-index: 200; /* Window */
+    z-index: var(--window-z-index); /* Window */
 }
 
-.osui-window.osui-bring-top {
-    z-index: 201; /* Window */
-}
-
-.osui-window:not(.osui-bring-top) div::-webkit-scrollbar-thumb:horizontal {
+.osui-window:not(.osui-active-window) div::-webkit-scrollbar-thumb:horizontal {
     background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));
     border-radius: calc(var(--scroll-size) / 2.0);
 }
-.osui-window:not(.osui-bring-top) div::-webkit-scrollbar-thumb:vertical {
+.osui-window:not(.osui-active-window) div::-webkit-scrollbar-thumb:vertical {
     background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));
     border-radius: calc(var(--scroll-size) / 2.0);
+}
+
+.osui-panel-button.osui-title-bar {
+    color: rgba(var(--highlight), 0.5);
+    border: var(--border-small) solid rgb(var(--button-light));
+    border-radius: 9999px;
+    background-color: rgba(var(--background-dark), 1.0);
+    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));
+    text-shadow: var(--minus) calc(var(--pixel) * 1.5) rgba(var(--shadow), 0.5);
+    text-align: center;
+    left: 0;
+    right: 0;
+    min-width: 6em;
+    min-height: 1.6em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.osui-active-window .osui-panel-button.osui-title-bar {
+    color: rgba(var(--highlight), 1);
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));
+    border: var(--border-small) solid rgb(var(--icon));
 }
