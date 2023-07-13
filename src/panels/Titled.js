@@ -1,9 +1,12 @@
 import { Div } from '../core/Div.js';
-import { Span } from '../core/Span.js';
+import { Panel } from '../panels/Panel.js';
 
-class Titled extends Div {
+class Titled extends Panel {
 
-    constructor(title, collapsible = false) {
+    constructor({
+        title,
+        collapsible = false,
+    } = {}) {
         super();
         const self = this;
         this.addClass('osui-titled');

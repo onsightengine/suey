@@ -92,6 +92,10 @@
     z-index: 0; /* Node */
 }
 
+.osui-active-node {
+    z-index: 1; /* Active Node */
+}
+
 .osui-node:hover, .osui-node.osui-node-selected {
     filter: brightness(120%);
 }

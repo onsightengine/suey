@@ -7,7 +7,13 @@ import { VectorBox } from '../layout/VectorBox.js';
 
 class Shrinkable extends Panel {
 
-    constructor(text = '', icon = '', arrow = 'left', border = true, enlargeIcon = false) {
+    constructor({
+        text = '',
+        icon = '',
+        arrow = 'left',
+        border = true,
+        enlargeIcon = false
+    } = {}) {
         super();
         const self = this;
         this.addClass('osui-shrinkable');

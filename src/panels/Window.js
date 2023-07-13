@@ -28,7 +28,7 @@ class Window extends Panel {
         height = 600,
         resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
     } = {}) {
-        super({ style, bringToTop: true });
+        super({ style });
         const self = this;
         this.addClass('osui-window');
         this.dom.tabIndex = 0; /* enables user focusin / focusout */
@@ -38,6 +38,12 @@ class Window extends Panel {
         this.#resizeMode = resizeMode;
         this.#initialWidth = width;
         this.#initialHeight = height;
+
+        // Stacks
+        this.dom.addEventListener('focusout', () => { self.removeClass('osui-bring-top'); });
+        this.dom.addEventListener('focusin', () => { Interaction.bringToTop(self.dom); });
+        this.dom.addEventListener('displayed', () => { Interaction.bringToTop(self.dom);} );
+        this.dom.addEventListener('pointerdown', () => { Interaction.bringToTop(self.dom);} );
 
         // Resizers
         let rect = {};

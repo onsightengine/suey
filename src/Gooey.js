@@ -75,7 +75,7 @@ class Gooey extends Tabbed {
         this.minWidth = 180;
         this.opacity(opacity);
 
-        const titlePanel = new Titled(title, true /* collapsible */);
+        const titlePanel = new Titled({ title: title, collapsible: true });
         this.add(titlePanel);
         this.contents = function() { return titlePanel.scroller; }
 
@@ -126,8 +126,11 @@ export { Gooey };
 
 class Folder extends Shrinkable {
 
-    constructor(title, icon) {
-        super(title, icon);
+    constructor({
+        title,
+        icon,
+    } = {}) {
+        super({ title, icon });
 
         // Build osui
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);

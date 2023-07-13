@@ -29,7 +29,7 @@ class Tabbed extends Panel {
         minHeight = 0,
         maxHeight = Infinity,
     } = {}) {
-        super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
+        super({ style });
         const self = this;
         this.addClass('osui-tabbed');
         this.setName('osui-tabbed');
@@ -134,7 +134,9 @@ class Tabbed extends Panel {
         const hideWhenNumberOfTabs = 0;
         if (this.tabs.length > hideWhenNumberOfTabs) this.tabsDiv.setDisplay('');
 
-        const panel = new Panel().setId(id).addClass('osui-titled').addClass('osui-hidden').add(content);
+        const panel = new Panel().setId(id);
+        panel.addClass('osui-tab-panel', 'osui-hidden');
+        panel.add(content);
         panel.count = numTabsWithId;
         this.panels.push(panel);
         this.panelsDiv.add(panel);

@@ -8,10 +8,6 @@
     z-index: 0; /* Panel */
 }
 
-.osui-panel.osui-bring-top {
-    z-index: 1; /* Panel BringToTop */
-}
-
 .osui-panel-simple {
     --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */
 
@@ -244,14 +240,18 @@
 }
 
 /* Interior panel of a Tabbed Panel */
-.osui-tab-panels .osui-panel.osui-hidden {
-    display: none;
-    pointer-events: none;
+.osui-tab-panels .osui-tab-panel {
+    display: flex; /* needed for scroll bars to appear on proper layer */
+    flex-direction: column;
+    pointer-events: auto;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
-.osui-tab-panels .osui-panel:not(.osui-hidden) {
-    display: block;
-    pointer-events: auto;
+.osui-tab-panels .osui-tab-panel.osui-hidden {
+    display: none;
+    pointer-events: none;
 }
 
 /* Collection of Tabs */
@@ -396,9 +396,7 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
-
-    /* Need for scroll bars to appear on proper layer */
-    display: flex;
+    display: flex; /* needed for scroll bars to appear on proper layer */
     flex-direction: column;
 }
 
@@ -451,4 +449,13 @@
 
 .osui-window.osui-bring-top {
     z-index: 201; /* Window */
+}
+
+.osui-window:not(.osui-bring-top) div::-webkit-scrollbar-thumb:horizontal {
+    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));
+    border-radius: calc(var(--scroll-size) / 2.0);
+}
+.osui-window:not(.osui-bring-top) div::-webkit-scrollbar-thumb:vertical {
+    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));
+    border-radius: calc(var(--scroll-size) / 2.0);
 }

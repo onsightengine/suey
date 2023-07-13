@@ -58,10 +58,10 @@ class Node extends Div {
         this.add(this.header, lists);
 
         // Stacking
-        this.dom.addEventListener('blur', () => self.removeClass('osui-bring-top'));
-        this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
-        this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
-        this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
+        this.dom.addEventListener('focusout', () => self.removeClass('osui-active-node'));
+        this.dom.addEventListener('focusin', () => self.activeNode());
+        this.dom.addEventListener('displayed', () => self.activeNode());
+        this.dom.addEventListener('pointerdown', () => self.activeNode());
 
         // Disable context menu
         function onContextMenu(event) { event.preventDefault(); }
@@ -270,6 +270,14 @@ class Node extends Div {
     }
 
     /******************** STYLING */
+
+    /** Applies 'osui-active-node', ensures this is the only element with this special class */
+    activeNode(withClass = 'osui-node') {
+        const activeNode = this.dom;
+        const panels = document.querySelectorAll(`.${withClass}`);
+        panels.forEach(el => { if (el !== activeNode) el.classList.remove('osui-active-node'); });
+        activeNode.classList.add('osui-active-node');
+    }
 
     applyColor(color) {
         if (color !== undefined) this.#color.set(color);
