@@ -84,7 +84,7 @@ class Gooey extends Tabbed {
 
     addFolder(folderName = '', icon = '') {
         if (folderName && folderName !== '') folderName = capitalize(folderName);
-        const folder = new Folder(folderName, icon);
+        const folder = new Folder({ title: folderName, icon });
         this.add(folder);
         return folder;
     }
