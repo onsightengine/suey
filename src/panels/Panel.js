@@ -38,10 +38,10 @@ class Panel extends Div {
 
         // Stacking
         if (bringToTop) {
-            this.dom.addEventListener('blur', () => self.removeClass('osui-bring-top'));
-            this.dom.addEventListener('focusin', () => Interaction.bringToTop(self.dom));
-            this.dom.addEventListener('displayed', () => Interaction.bringToTop(self.dom));
-            this.dom.addEventListener('pointerdown', () => Interaction.bringToTop(self.dom));
+            this.dom.addEventListener('focusout', () => { self.removeClass('osui-bring-top'); });
+            this.dom.addEventListener('focusin', () => { Interaction.bringToTop(self.dom); });
+            this.dom.addEventListener('displayed', () => { Interaction.bringToTop(self.dom);} );
+            this.dom.addEventListener('pointerdown', () => { Interaction.bringToTop(self.dom);} );
         }
     }
 

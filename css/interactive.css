@@ -3,7 +3,7 @@
 .osui-panel-button {
     pointer-events: all;
     border: var(--border-small) solid rgb(var(--icon));
-    outline: solid var(--border-small) rgba(0, 0, 0, 0.25);
+    outline: solid var(--border-small) rgba(var(--darkness), 0.25);
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
@@ -154,6 +154,7 @@
 
 .osui-title-bar {
     color: rgba(var(--highlight), 0.5);
+    border: var(--border-small) solid rgb(var(--button-light));
     border-radius: 9999px;
     background-color: rgba(var(--background-dark), 1.0);
     background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));
@@ -170,4 +171,5 @@
 .osui-panel.osui-bring-top .osui-title-bar {
     color: rgba(var(--highlight), 1);
     background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));
+    border: var(--border-small) solid rgb(var(--icon));
 }

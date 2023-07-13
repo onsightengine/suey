@@ -31,6 +31,7 @@ class Window extends Panel {
         super({ style, bringToTop: true });
         const self = this;
         this.addClass('osui-window');
+        this.dom.tabIndex = 0; /* enables user focusin / focusout */
 
         // Properties
         this.isWindow = true;
@@ -152,6 +153,12 @@ class Window extends Panel {
             this.setStyle('right', right);
             this.setStyle('bottom', bottom);
         }
+    }
+
+    /** Displays window, with focus */
+    showWindow() {
+        this.display();
+        this.focus();
     }
 
     toggleMinMax() {

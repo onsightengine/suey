@@ -53,6 +53,13 @@
     flex-direction: column;
 }
 
+.osui-window .osui-panel-fancy-border {
+    border: var(--border-small) solid rgb(var(--button-light));
+}
+.osui-window.osui-bring-top .osui-panel-fancy-border {
+    border: var(--border-small) solid rgb(var(--icon));
+}
+
 .osui-panel-fancy-inside {
     height: 100%;
     width: 100%;
