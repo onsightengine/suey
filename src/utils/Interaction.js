@@ -3,6 +3,7 @@
 //  makeDraggable()
 //  makeResizeable()
 import { Button } from '../input/Button.js';
+import { Css } from './Css.js';
 import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { GRID_SIZE, IMAGE_CLOSE, RESIZERS } from '../constants.js';
@@ -121,10 +122,19 @@ class Interaction extends Button {
             let newLeft = roundNearest(rect.left + diffX);
             let newTop = roundNearest(rect.top + diffY);
             if (limitToWindow) {
-                newLeft = Math.min(window.innerWidth - rect.width, newLeft);
-                newTop = Math.min(window.innerHeight - rect.height, newTop);
-                newLeft = Math.max(0, newLeft);
+                // // OPTION: Limit to Title Bar
+                const titleHeight = parseInt(Css.toPx('4em'));
+                newLeft = Math.min(window.innerWidth - (rect.width / 2), newLeft);
+                newTop = Math.min(window.innerHeight - titleHeight, newTop);
+                newLeft = Math.max(- (rect.width / 2), newLeft);
                 newTop = Math.max(0, newTop);
+
+                // // OPTION: Limit to Window
+                // const titleHeight = parseInt(Css.toPx('4em'));
+                // newLeft = Math.min(window.innerWidth - rect.width, newLeft);
+                // newTop = Math.min(window.innerHeight - rect.height, newTop);
+                // newLeft = Math.max(0, newLeft);
+                // newTop = Math.max(0, newTop);
             }
             dragElement.style.left = `${newLeft}px`;
             dragElement.style.top = `${newTop}px`;

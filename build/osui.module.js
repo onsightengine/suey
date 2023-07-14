@@ -1488,9 +1488,10 @@ class Interaction extends Button {
             let newLeft = roundNearest(rect.left + diffX);
             let newTop = roundNearest(rect.top + diffY);
             if (limitToWindow) {
-                newLeft = Math.min(window.innerWidth - rect.width, newLeft);
-                newTop = Math.min(window.innerHeight - rect.height, newTop);
-                newLeft = Math.max(0, newLeft);
+                const titleHeight = parseInt(Css.toPx('4em'));
+                newLeft = Math.min(window.innerWidth - (rect.width / 2), newLeft);
+                newTop = Math.min(window.innerHeight - titleHeight, newTop);
+                newLeft = Math.max(- (rect.width / 2), newLeft);
                 newTop = Math.max(0, newTop);
             }
             dragElement.style.left = `${newLeft}px`;
@@ -5077,19 +5078,26 @@ class Window extends Panel {
         if (document.readyState === 'complete') self.setInitialSize();
         else window.addEventListener('load', () => { self.setInitialSize(); }, { once: true });
         function keepInWindow() {
-            const rect = self.dom.getBoundingClientRect();
             if (resizeMode === RESIZE_MODE.FIXED) {
-                if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
-                if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
-                if (rect.top < 0) self.setStyle('top', '0px');
-                if (rect.left < 0) self.setStyle('left', '0px');
-                if (rect.width > window.innerWidth) self.setStyle('width', `${window.innerWidth}px`);
-                if (rect.height > window.innerHeight) self.setStyle('height', `${window.innerHeight}px`);
+                const computed = getComputedStyle(self.dom);
+                const rect = {
+                    left: parseFloat(computed.left),
+                    top: parseFloat(computed.top),
+                    width: parseFloat(computed.width),
+                    height: parseFloat(computed.height),
+                };
+                const titleHeight = parseInt(Css.toPx('4em'));
+                let newLeft = Math.min(window.innerWidth - (rect.width / 2), rect.left);
+                let newTop = Math.min(window.innerHeight - titleHeight, rect.top);
+                newLeft = Math.max(- (rect.width / 2), newLeft);
+                newTop = Math.max(0, newTop);
+                self.setStyle('top', `${newTop}px`);
+                self.setStyle('left', `${newLeft}px`);
             }
         }
         window.addEventListener('resize', () => { keepInWindow(); });
         this.dom.addEventListener('displayed', () => { keepInWindow(); });
-        this.dom.addEventListener('displayed', () => self.center(), { once: true });
+        this.dom.addEventListener('displayed', () => { self.center(); }, { once: true });
     }
     addTitleBar(title = '', draggable = false, scale = 1.3) {
         if (!this.#titleBar) {
