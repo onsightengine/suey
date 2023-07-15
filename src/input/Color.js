@@ -32,6 +32,10 @@ class Color extends Button {
             if (!selected) {
                 self.addClass('osui-selected');
                 selected = true;
+            } else {
+                event.stopPropagation();
+                event.preventDefault();
+                colorBox.blur();
             }
         }
 

@@ -7,7 +7,7 @@ class AssetBox extends Div {
     constructor(title = '', view = 'icon', isMini = true) {
         super();
         this.setClass('osui-asset-box');
-        this.dom.tabIndex = 0; /* enables user focus / selection */
+        this.allowFocus();
 
         // Tooltip
         if (title !== '') this.dom.setAttribute('tooltip', title);

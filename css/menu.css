@@ -23,6 +23,7 @@
               2px 0px 2px 0px rgba(var(--shadow), 0.5);
     border: 1px solid rgba(var(--shadow), 1.0);
     border-radius: var(--radius-large);
+    outline: none;
 
     min-width: 1.0em;
     z-index: 1000; /* Menu */
@@ -120,6 +121,7 @@
 
 /* Separator */
 .osui-menu-separator {
+    pointer-events: none;
     border-top: 1px solid rgba(var(--midlight), 0.5);
     border-radius: 1px;
     height: 1px;

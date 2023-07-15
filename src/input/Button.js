@@ -23,13 +23,13 @@ class Button extends Element {
             set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
         });
 
-        // Events
-        function buttonPointerDown(event) {
-            // Hide Tooltip
+        /***** EVENTS *****/
+
+        // Hide Tooltip
+        this.onPointerDown((event) => {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
-        }
-        this.onPointerDown(buttonPointerDown);
+        });
 
         this.dom.addEventListener('destroy', function() {
             if (self.attachedMenu) self.detachMenu();
@@ -83,6 +83,9 @@ class Button extends Element {
 
         // Handle button click
         function menuPointerDown(event) {
+            event.stopPropagation();
+            event.preventDefault();
+
             // Pop Menu
             if (self.hasClass('osui-selected') === false) {
                 self.addClass('osui-selected');
@@ -91,7 +94,13 @@ class Button extends Element {
                 popMenu();
 
                 // Apply class to show menu, CSS will handle the transition
-                if (self.dom) osuiMenu.showMenu(self.dom);
+                setTimeout(() => {
+                    if (!self.dom) return;
+                    osuiMenu.showMenu(self.dom, true /* giveFocus? */);
+                }, 0);
+
+            } else {
+                document.dispatchEvent(new Event('captured'));
             }
         };
 

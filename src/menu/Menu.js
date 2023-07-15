@@ -63,9 +63,7 @@ class Menu extends Div {
 
         // Show Menu
         this.addClass('osui-menu-show');
-
-        // Makes sure any click after click that opened menu will close menu
-        this.clickCount = 0;
+        this.focus();
 
         // Attach mouse area polygon if this menu is a child of another menu
         if (Utils.isChildOfElementWithClass(this.dom, 'osui-menu')) {
@@ -87,7 +85,7 @@ class Menu extends Div {
             this.traverse((child) => {
                 // Don't close menus that are children of 'dontCloseChildrenOf'
                 if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
-                    // Empty
+                    // EMPTY
                 } else {
                     child.removeClass('osui-menu-show', 'osui-selected');
                     if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
@@ -109,17 +107,23 @@ class Menu extends Div {
                 }
 
                 // Remove event listeners
-                if (parentDom.classList.contains('osui-menu-button')) {
-                    document.removeEventListener('pointerdown', onPointerDown);
-                    document.removeEventListener('keydown', onKeyDown);
-                }
+                removeHandlers();
+
+                // Remove Menu focus globally
+                document.dispatchEvent(new Event('nofocus'));
             }
         }
 
-        // If base / parent menu, add document event handler
-        if (parentDom.classList.contains('osui-menu-button')) {
-            document.addEventListener('pointerdown', onPointerDown);
-            document.addEventListener('keydown', onKeyDown);
+        // CLOSE EVENTS
+
+        function onCaptured() {
+            self.closeMenu();
+        }
+
+        function onKeyDown(event) {
+            if (event.key === 'Escape') {
+                self.closeMenu();
+            }
         }
 
         // Mouse Down, closes menu on 'document' click
@@ -146,23 +150,25 @@ class Menu extends Div {
                 }
             }
 
-            // Don't close on first click (first click is what opened it)
-            if (menuShouldClose) self.clickCount++;
-            if (self.clickCount === 1) menuShouldClose = false;
-
             // Close menu
-            if (menuShouldClose) {
-                self.closeMenu();
-                if (window.signals) signals.guiLostFocus.dispatch();
-            }
+            if (menuShouldClose) self.closeMenu();
         }
 
-        // Key Down, watch for 'Escape'
-        function onKeyDown(event) {
-            switch (event.key) {
-                case 'Escape': self.closeMenu(); break;
-            }
+        document.addEventListener('captured', onCaptured);
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('pointerdown', onPointerDown);
+
+        /***** DESTROY *****/
+
+        function removeHandlers() {
+            document.removeEventListener('captured', onCaptured);
+            document.removeEventListener('keydown', onKeyDown);
+            document.removeEventListener('pointerdown', onPointerDown);
         }
+
+        this.dom.addEventListener('destroy', function() {
+            removeHandlers();
+        }, { once: true });
 
         return this;
     }

@@ -152,6 +152,16 @@ class Element {
         if (event) this.dom.dispatchEvent(new Event('displayed'));
     }
 
+    /** Enable user focus */
+    allowFocus() {
+        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
+        // - turns on focusin / focusout events
+        // - keyup event doesn't work without setting tabIndex
+        this.dom.tabIndex = 0;
+        // // OR
+        // this.dom.setAttribute('tabindex', '0');
+    }
+
     focus() {
         this.dom.focus();
     }
@@ -463,13 +473,14 @@ captureEvents.forEach(function(event) {
     Element.prototype[method] = function(callback) {
         const self = this;
         const eventName = event.toLowerCase();
-        if (typeof callback === 'function') callback.bind(self);
+        if (typeof callback === 'function') callback = callback.bind(self);
         const eventHandler = function(event) {
             event.preventDefault();
             event.stopPropagation();
             if (typeof callback === 'function') {
                 if (!self.hasClass('osui-disabled')) {
                     callback(event);
+                    document.dispatchEvent(new Event('captured'));
                 }
             }
         }

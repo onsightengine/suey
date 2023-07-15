@@ -11,10 +11,7 @@ class TreeList extends Div {
         super();
         const self = this;
         this.setClass('osui-tree-list');
-
-        // Enable user focus (keyup event doesn't work without setting tabIndex)
-        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
-        this.dom.setAttribute('tabindex', '0');
+        this.allowFocus();
 
         // Properties
         this.multiSelect = multiSelect;     // multi-select allowed?

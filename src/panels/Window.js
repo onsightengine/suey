@@ -31,7 +31,7 @@ class Window extends Panel {
         super({ style });
         const self = this;
         this.addClass('osui-window');
-        this.dom.tabIndex = 0; /* enables user focusin / focusout */
+        this.allowFocus();
 
         // Properties
         this.isWindow = true;
