@@ -1470,6 +1470,7 @@ class Interaction extends Button {
             rect.height = parseFloat(computed.height);
             eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
+            document.dispatchEvent(new Event('captured'));
             onDown();
         }
         function dragPointerUp(event) {
@@ -1533,6 +1534,7 @@ class Interaction extends Button {
                 lastY = event.pageY;
                 resizeElement.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
                 resizeElement.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
+                document.dispatchEvent(new Event('captured'));
                 onDown();
             }
             function resizePointerUp(event) {
