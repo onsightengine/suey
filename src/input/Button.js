@@ -47,7 +47,7 @@ class Button extends Element {
 
         // Add menu to document, add event handler
         document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', menuPointerDown);
+        this.dom.addEventListener('pointerdown', buttonPointerDown);
 
         // Observer: Calls popMenu when button is initially added to the DOM. This is done to decide initial
         //           (over / under) popper placement, then the observer is removed.
@@ -82,9 +82,12 @@ class Button extends Element {
         }
 
         // Handle button click
-        function menuPointerDown(event) {
+        function buttonPointerDown(event) {
             event.stopPropagation();
             event.preventDefault();
+
+            // Let other menus know click occured
+            document.dispatchEvent(new Event('captured'));
 
             // Pop Menu
             if (self.hasClass('osui-selected') === false) {
@@ -98,9 +101,6 @@ class Button extends Element {
                     if (!self.dom) return;
                     osuiMenu.showMenu(self.dom, true /* giveFocus? */);
                 }, 0);
-
-            } else {
-                document.dispatchEvent(new Event('captured'));
             }
         };
 
@@ -109,7 +109,7 @@ class Button extends Element {
             if (self.hasClass('osui-menu-button') === false) return;
             self.removeClass('osui-menu-button');
             window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', menuPointerDown);
+            self.dom.removeEventListener('pointerdown', buttonPointerDown);
             self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;

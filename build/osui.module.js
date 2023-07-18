@@ -1247,7 +1247,7 @@ class Button extends Element {
         this.addClass('osui-menu-button');
         this.attachedMenu = osuiMenu;
         document.body.appendChild(osuiMenu.dom);
-        this.dom.addEventListener('pointerdown', menuPointerDown);
+        this.dom.addEventListener('pointerdown', buttonPointerDown);
         const observer = new MutationObserver((mutations, observer) => {
             if (document.contains(this.dom)) {
                 popMenu();
@@ -1273,9 +1273,10 @@ class Button extends Element {
                 osuiMenu.addClass('osui-slide-up');
             }
         }
-        function menuPointerDown(event) {
+        function buttonPointerDown(event) {
             event.stopPropagation();
             event.preventDefault();
+            document.dispatchEvent(new Event('captured'));
             if (self.hasClass('osui-selected') === false) {
                 self.addClass('osui-selected');
                 popMenu();
@@ -1283,15 +1284,13 @@ class Button extends Element {
                     if (!self.dom) return;
                     osuiMenu.showMenu(self.dom, true );
                 }, 0);
-            } else {
-                document.dispatchEvent(new Event('captured'));
             }
         };
         this.detachMenu = function() {
             if (self.hasClass('osui-menu-button') === false) return;
             self.removeClass('osui-menu-button');
             window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', menuPointerDown);
+            self.dom.removeEventListener('pointerdown', buttonPointerDown);
             self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
