@@ -1276,7 +1276,6 @@ class Button extends Element {
         function buttonPointerDown(event) {
             event.stopPropagation();
             event.preventDefault();
-            document.dispatchEvent(new Event('captured'));
             if (self.hasClass('osui-selected') === false) {
                 self.addClass('osui-selected');
                 popMenu();
@@ -1285,6 +1284,7 @@ class Button extends Element {
                     osuiMenu.showMenu(self.dom, true );
                 }, 0);
             }
+            document.dispatchEvent(new Event('captured'));
         };
         this.detachMenu = function() {
             if (self.hasClass('osui-menu-button') === false) return;
@@ -2755,9 +2755,7 @@ class Dropdown extends Button {
         for (const key in options) {
             const item = new MenuItem(options[key]);
             item.value = key;
-            item.onPointerDown((event) => {
-                event.stopPropagation();
-                event.preventDefault();
+            item.capturePointerDown((event) => {
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
             });

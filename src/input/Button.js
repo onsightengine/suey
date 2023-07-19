@@ -86,9 +86,6 @@ class Button extends Element {
             event.stopPropagation();
             event.preventDefault();
 
-            // Let other menus know click occured
-            document.dispatchEvent(new Event('captured'));
-
             // Pop Menu
             if (self.hasClass('osui-selected') === false) {
                 self.addClass('osui-selected');
@@ -102,6 +99,9 @@ class Button extends Element {
                     osuiMenu.showMenu(self.dom, true /* giveFocus? */);
                 }, 0);
             }
+
+            // Let other menus know click occured
+            document.dispatchEvent(new Event('captured'));
         };
 
         /** Removes attached menu */

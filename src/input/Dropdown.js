@@ -108,9 +108,7 @@ class Dropdown extends Button {
         for (const key in options) {
             const item = new MenuItem(options[key]);
             item.value = key;
-            item.onPointerDown((event) => {
-                event.stopPropagation()
-                event.preventDefault();
+            item.capturePointerDown((event) => {
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
             });
