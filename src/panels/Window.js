@@ -129,10 +129,17 @@ class Window extends Panel {
             }
         }
         window.addEventListener('resize', () => { keepInWindow(); });
-        this.dom.addEventListener('displayed', () => { keepInWindow(); });
 
-        // Center first time shown
-        this.dom.addEventListener('displayed', () => { self.center(); }, { once: true });
+        let firstTime = true;
+        this.dom.addEventListener('displayed', () => {
+            // Center first time shown
+            if (firstTime) {
+                self.center();
+                firstTime = false;
+            }
+            // Resize if necessary
+            keepInWindow();
+        });
     }
 
     /******************** WIDGETS */

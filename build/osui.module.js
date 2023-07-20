@@ -5112,8 +5112,14 @@ class Window extends Panel {
             }
         }
         window.addEventListener('resize', () => { keepInWindow(); });
-        this.dom.addEventListener('displayed', () => { keepInWindow(); });
-        this.dom.addEventListener('displayed', () => { self.center(); }, { once: true });
+        let firstTime = true;
+        this.dom.addEventListener('displayed', () => {
+            if (firstTime) {
+                self.center();
+                firstTime = false;
+            }
+            keepInWindow();
+        });
     }
     addTitleBar(title = '', draggable = false, scale = 1.3) {
         if (!this.#titleBar) {
