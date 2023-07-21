@@ -114,9 +114,10 @@
 }
 
 .osui-menu-shortcut-character {
-    /* background-color: blueviolet;
-    border: solid 1px; */
+    /* background-color: blueviolet; */
+    /* border: solid 1px; */
     text-align: center;
+    margin: auto;
 }
 
 /* Separator */

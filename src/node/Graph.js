@@ -61,7 +61,7 @@ class Graph extends Panel {
         // Mouse Wheel Zoom
         function graphMouseZoom(event) {
             event.preventDefault();
-            const delta = (event.deltaY * 0.002);
+            const delta = (event.deltaY * 0.001);
             self.stopAnimation();
             self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
 		};
