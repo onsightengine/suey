@@ -9,8 +9,8 @@ import { ShadowBox } from '../layout/ShadowBox.js';
 import { GRID_SIZE, IMAGE_CLOSE, RESIZERS } from '../constants.js';
 
 export const CLOSE_SIDES = {
-    LEFT:		'left',
-    RIGHT:		'right',
+    LEFT:       'left',
+    RIGHT:      'right',
     BOTH:       'both',
     NONE:       'none',
 }

@@ -108,7 +108,7 @@ class NumberBox extends Element {
         }
 
         let decimals = Math.min(this.precision, countDecimals(valueAsFloat));
-        //if ((this.precision >= 1) && (decimals < 1)) decimals = 1; 	// Keeps one decimal no matter what
+        // if ((this.precision >= 1) && (decimals < 1)) decimals = 1; /* keeps one decimal no matter what */
         valueAsFloat = valueAsFloat.toFixed(decimals);
 
         if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {

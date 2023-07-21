@@ -60,7 +60,7 @@ class Shrinkable extends Panel {
         this.titleDiv = title;
         this.bodyDiv = body;
 
-        this.contents = function() { return self.bodyDiv };            	// This is the accessor for the body div
+        this.contents = function() { return self.bodyDiv };         // Accessor for the body div
         this.setExpanded(true, false /* event? */);
 
         // Events

@@ -1,7 +1,7 @@
 import { Element } from '../core/Element.js';
 import { Div } from '../core/Div.js';
 
-const MAX_SLIDER_TICKS = 10;              	// Maximum number of ticks to show on Slider with 'step'
+const MAX_SLIDER_TICKS = 10;              // Maximum number of ticks to show on Slider with 'step'
 
 const _changeEvent = new Event('change', { 'bubbles': true, 'cancelable': true });
 

@@ -80,7 +80,7 @@ class ColorScheme {
         Css.setVariable('--darklight',          _clr.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
         Css.setVariable('--highlight',          _clr.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
 
-		Css.setVariable('--icon-dark',          _clr.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
+        Css.setVariable('--icon-dark',          _clr.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
         Css.setVariable('--icon',               _clr.set(ColorScheme.color(TRAIT.ICON)).rgbString());
         Css.setVariable('--icon-light',         _clr.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
         Css.setVariable('--complement',         _clr.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());

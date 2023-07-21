@@ -5,8 +5,8 @@ import { Panel, PANEL_STYLES } from './Panel.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
-    LEFT:		'left',
-    RIGHT:		'right',
+    LEFT:       'left',
+    RIGHT:      'right',
 }
 
 class Tabbed extends Panel {

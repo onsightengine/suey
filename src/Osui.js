@@ -29,27 +29,27 @@
 //      Dropdown                button                  .osui-dropdown, .osui-drop-arrow
 //      NumberBox               input['number']         .osui-number
 //      NumberScroll            input['number']         .osui-number-scroll
-//		Slider                  input['range']          .osui-slider
+//      Slider                  input['range']          .osui-slider
 //      TextArea                textarea                .osui-text-area
 //      TextBox                 input['text']           .osui-text-box
 //
 //  LAYOUT
 //      AbsoluteBox             div                     .osui-absolute-box
-//		AssetBox                div                     .osui-asset-box
+//      AssetBox                div                     .osui-asset-box
 //      Docker                  div                     .osui-docker-left, .osui-docker-right
-//		FlexBox                 div                     .osui-flex-box
+//      FlexBox                 div                     .osui-flex-box
 //      FlexSpacer              span                    -
 //      Row                     div                     .osui-row
 //      ShadowBox               div                     .osui-shadow-box
-//		VectorBox               div                     .osui-vector-box
+//      VectorBox               div                     .osui-vector-box
 //
 //  MENU
 //      Menu                    div                     .osui-menu, .osui-menu-show
 //      MenuItem                div                     .osui-menu-item
 //      MenuSeparator           div                     .osui-menu-separator
 //      MenuShortcut            div                     .osui-menu-shortcut
-//		ToolbarButton           button                  .osui-toolbar-button
-//		ToolbarSeparator        div                     .osui-toolbar-separator
+//      ToolbarButton           button                  .osui-toolbar-button
+//      ToolbarSeparator        div                     .osui-toolbar-separator
 //      ToolbarSpacer           div                     .osui-toolbar-spacer
 //
 //  NODE

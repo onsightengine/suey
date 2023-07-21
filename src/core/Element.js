@@ -172,10 +172,10 @@ class Element {
 
     // // WARNING: Setting any of the following will delete children!
     //
-    // 	Order of content, from least to most:
-    // 		textContents:	All text contained by an element and all its children that are for formatting purposes only.
-    // 		innerText:		All text contained by an element and all its child elements.
-    // 		innerHtml:		All text, including html tags, that is contained by an element.
+    // Order of content, from least to most:
+    //      textContents:   All text contained by an element and all its children that are for formatting purposes only.
+    //      innerText:      All text contained by an element and all its child elements.
+    //      innerHtml:      All text, including html tags, that is contained by an element.
     //
 
     /** The innerText property represents the "rendered" text content of a node and its descendants. */

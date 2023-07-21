@@ -36,7 +36,7 @@ export const TRAIT = {
     ICON_DARK:          'icon-dark',
     ICON:               'icon',                 // Main palette color
     ICON_LIGHT:         'icon-light',
-    COMPLEMENT:	        'complement',           // Complimentary (opposite) color
+    COMPLEMENT:         'complement',           // Complimentary (opposite) color
     TRIADIC1:           'triadic1',             // Triadic color 1 (icon shifted 120°)
     TRIADIC2:           'triadic2',             // Triadic color 2 (complement shifted 120°)
     TRIADIC3:           'triadic3',             // Triadic color 3 (icon shifted 90°)
@@ -47,13 +47,13 @@ export const TRAIT = {
 
 export const RESIZERS = {
     TOP:            'top',
-    BOTTOM:     	'bottom',
-    LEFT:       	'left',
-    RIGHT:			'right',
-    TOP_LEFT:		'top-left',
-    TOP_RIGHT:		'top-right',
-    BOTTOM_LEFT:	'bottom-left',
-    BOTTOM_RIGHT:	'bottom-right',
+    BOTTOM:         'bottom',
+    LEFT:           'left',
+    RIGHT:          'right',
+    TOP_LEFT:       'top-left',
+    TOP_RIGHT:      'top-right',
+    BOTTOM_LEFT:    'bottom-left',
+    BOTTOM_RIGHT:   'bottom-right',
 };
 
 export const GRAPH_LINE_TYPES = {

@@ -44,7 +44,7 @@ class Css {
         if (!element || !(element instanceof HTMLElement)) {
             element = document.querySelector(':root');
         }
-		element.style.setProperty(variable, valueAsString);
+        element.style.setProperty(variable, valueAsString);
     }
 
     /******************** FONT / GUI SIZING ********************/

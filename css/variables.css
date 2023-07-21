@@ -1,16 +1,16 @@
 /**
- *		Units
- *          px      Pixels
- *          %       Percentage relative to the parent element
- *          em      Relative to the font-size of the element (2em means 2 times the size of the current font)
- *          rem     Relative to the font-size of the root element
- *          ch      Relative to the width of the character '0' of the current font
- *          ex      Relative to the height of a lowercase letter ('x') of the current font
- *          cap     Relative to the height of a capital letter of the current font
- *          vw      Relative to 1% of the width of the viewport (browser window)
- *          vh      Relative to 1% of the width of the viewport (browser window)
- *          vmin    Relative to 1% of viewport's (browser window's) smaller dimension
- *          vmax    Relative to 1% of viewport's (browser window's) larger dimension
+ * Units
+ *  px      Pixels
+ *  %       Percentage relative to the parent element
+ *  em      Relative to the font-size of the element (2em means 2 times the size of the current font)
+ *  rem     Relative to the font-size of the root element
+ *  ch      Relative to the width of the character '0' of the current font
+ *  ex      Relative to the height of a lowercase letter ('x') of the current font
+ *  cap     Relative to the height of a capital letter of the current font
+ *  vw      Relative to 1% of the width of the viewport (browser window)
+ *  vh      Relative to 1% of the width of the viewport (browser window)
+ *  vmin    Relative to 1% of viewport's (browser window's) smaller dimension
+ *  vmax    Relative to 1% of viewport's (browser window's) larger dimension
  */
 
 :root {
@@ -61,7 +61,7 @@
     /* Font */
     font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px)
     --base-size:            10px;               /* Gui designed to scale from this original font size */
-    --font-size:			14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */
+    --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */
     --font-family:          'Roboto', Helvetica, Arial, sans-serif;
 
     /* Sizes */

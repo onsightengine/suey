@@ -44,7 +44,7 @@ class Graph extends Panel {
         // Elements
         this.input = new Div().setClass('osui-graph-input');
         this.grid = new Div().setClass('osui-graph-grid');
-		this.nodes = new Div().setClass('osui-graph-nodes');
+        this.nodes = new Div().setClass('osui-graph-nodes');
         this.lines = new Canvas(2048, 2048).setClass('osui-graph-lines');
         this.bandbox = new Div().setClass('osui-graph-band-box');
         this.minimap = new Div().setClass('osui-mini-map');
@@ -64,7 +64,7 @@ class Graph extends Panel {
             const delta = (event.deltaY * 0.001);
             self.stopAnimation();
             self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
-		};
+        };
         this.onWheel(graphMouseZoom);
 
         // Window Resize

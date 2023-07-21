@@ -5,9 +5,9 @@ import postcss from 'rollup-plugin-postcss';                // Include CSS
 import image from '@rollup/plugin-image';                   // Include Images
 
 function header() {
-	return {
-		renderChunk(code) {
-			return `/**
+    return {
+        renderChunk(code) {
+            return `/**
  * @description Osui
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
