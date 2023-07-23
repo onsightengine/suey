@@ -19,7 +19,7 @@ body {
 
     /* Color main text and background */
     color: rgba(var(--text-light), 0.75);
-    background-color: rgba(var(--background-dark));
+    background-color: rgb(var(--background-dark));
 }
 
 image {
