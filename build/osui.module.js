@@ -756,7 +756,7 @@ const _triadic4 = new Iris();
 const _triadic5 = new Iris();
 const _triadic6 = new Iris();
 let _background = BACKGROUNDS.DARK;
-let _color$1 = 0x00b4af;
+let _color$2 = 0x00b4af;
 let _tint = 0.0;
 let _saturation = 0.0;
 class ColorScheme {
@@ -767,7 +767,7 @@ class ColorScheme {
     }
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
-        _color$1 = _clr$1.set(color).hex();
+        _color$2 = _clr$1.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
         _icon.set(color);
@@ -2364,6 +2364,7 @@ class Checkbox extends Element {
     }
 }
 
+const _color$1 = new Iris();
 class Color extends Button {
     constructor() {
         super();
@@ -2409,22 +2410,18 @@ class Color extends Button {
         };
         this.getHexValue = function() {
             if (!colorBox.dom) return 0;
-            return parseInt(colorBox.dom.value.substring(1), 16);
+            _color$1.set(colorBox.dom.value);
+            return _color$1.hex();
         };
         this.setValue = function(value) {
             if (!colorBox.dom) return this;
-            colorBox.dom.value = value;
+            _color$1.set(value);
+            colorBox.dom.value = _color$1.hexString();
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
             return this;
         };
-        this.setHexValue = function(hex) {
-            if (!colorBox.dom) return this;
-            if (hex === undefined || hex === null || isNaN(hex)) hex = 0;
-            self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
-            return this;
-        };
-        this.setHexValue(0xffffff);
+        this.setValue(0xffffff);
     }
 }
 
@@ -3274,7 +3271,7 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setHexValue(_clr.set(params[variable]).hex()); return prop; };
+        prop.updateDisplay = function() { colorButton.setValue(_clr.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
         return prop;
     }

@@ -1,6 +1,9 @@
 import { Button } from '../input/Button.js';
 import { Element } from '../core/Element.js';
 import { Div } from '../core/Div.js';
+import { Iris } from '../utils/Iris.js';
+
+const _color = new Iris();
 
 class Color extends Button {
 
@@ -57,34 +60,31 @@ class Color extends Button {
 
         // Member Functions
 
+        /** Returns value as hex string, i.e. '#ff0000' */
         this.getValue = function() {
             if (!colorBox.dom) return 0;
             return colorBox.dom.value;
         }
 
+        /** Returns value as integer, i.e. 16711680 (equivalent to 0xff0000) */
         this.getHexValue = function() {
             if (!colorBox.dom) return 0;
-            return parseInt(colorBox.dom.value.substring(1), 16);
+            _color.set(colorBox.dom.value);
+            return _color.hex();
         }
 
         this.setValue = function(value) {
             if (!colorBox.dom) return this;
-            colorBox.dom.value = value;
+            _color.set(value);
+            colorBox.dom.value = _color.hexString();
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
             return this;
         }
 
-        this.setHexValue = function(hex) {
-            if (!colorBox.dom) return this;
-            if (hex === undefined || hex === null || isNaN(hex)) hex = 0;
-            self.setValue('#' + ('000000' + hex.toString(16)).slice(-6));
-            return this;
-        }
-
         // Init
 
-        this.setHexValue(0xffffff);
+        this.setValue(0xffffff);
 
     }
 
