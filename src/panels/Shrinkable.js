@@ -88,6 +88,7 @@ class Shrinkable extends Panel {
 
         for (let i = 0; i < items.length; i++) {
             items[i].setStyle('order', i);
+            // items[i].dom.tabIndex = i;
         }
     }
 

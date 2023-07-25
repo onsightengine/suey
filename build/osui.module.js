@@ -3918,24 +3918,6 @@ class AssetBox extends Div {
             this.assetText = spanText;
         }
         this.contents = function() { return assetImageHolder };
-        this.onKeyDown((event) => {
-            const assets = this.parent;
-            if (!assets || !assets.isElement) return;
-            const index = assets.children.indexOf(this);
-            if (index === -1) return;
-            switch (event.key) {
-                case 'ArrowUp':
-                case 'ArrowLeft':
-                    if (index === 0) return;
-                    assets.children[index - 1].focus();
-                    break;
-                case 'ArrowDown':
-                case 'ArrowRight':
-                    if (index === (assets.children.length - 1)) return;
-                    assets.children[index + 1].focus();
-                    break;
-            }
-        });
     }
 }
 
