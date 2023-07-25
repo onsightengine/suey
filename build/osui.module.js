@@ -1185,36 +1185,15 @@ events.forEach(function(event) {
     const method = 'on' + event;
     Element.prototype[method] = function(callback) {
         const eventName = event.toLowerCase();
+        if (typeof callback !== 'function') {
+            console.warn(`${method} in ${this.name}: No callback function provided!`);
+            return this;
+        }
         const eventHandler = callback.bind(this);
         const dom = this.dom;
         dom.addEventListener(eventName, eventHandler);
         dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
         return this;
-    };
-});
-const captureEvents = [
-    'PointerDown',
-];
-captureEvents.forEach(function(event) {
-    const method = 'capture' + event;
-    Element.prototype[method] = function(callback) {
-        const self = this;
-        const eventName = event.toLowerCase();
-        if (typeof callback === 'function') callback = callback.bind(self);
-        const eventHandler = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (typeof callback === 'function') {
-                if (!self.hasClass('osui-disabled')) {
-                    callback(event);
-                    document.dispatchEvent(new Event('captured'));
-                }
-            }
-        };
-        const dom = self.dom;
-        dom.addEventListener(eventName, eventHandler);
-        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return self;
     };
 });
 
@@ -1233,16 +1212,37 @@ class Button extends Element {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
             set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
         });
-        this.onPointerDown((event) => {
+        function onPointerDown(event) {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
-        });
+        }
+        this.dom.addEventListener('pointerdown', onPointerDown);
         this.dom.addEventListener('destroy', function() {
+            self.dom.removeEventListener('pointerdown', onPointerDown);
             if (self.attachedMenu) self.detachMenu();
         }, { once: true });
     }
     attachMenu(osuiMenu) {
         const self = this;
+        function buttonPointerDown(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (self.hasClass('osui-selected') === false) {
+                self.addClass('osui-selected');
+                popMenu();
+                setTimeout(() => {
+                    if (!self.dom) return;
+                    osuiMenu.showMenu(self.dom, true );
+                }, 0);
+            }
+            document.dispatchEvent(new Event('closemenu'));
+        }
+        function popMenu() {
+            const popped = Popper.popUnder(osuiMenu.dom, self.dom, self.alignMenu, self.menuOffsetX, self.menuOffsetY, self.overflowMenu);
+            osuiMenu.removeClass('osui-slide-up');
+            osuiMenu.removeClass('osui-slide-down');
+            osuiMenu.addClass((popped === POSITION.UNDER) ? 'osui-slide-down' : 'osui-slide-up');
+        }
         if (osuiMenu.hasClass('osui-menu') === false) return this;
         this.addClass('osui-menu-button');
         this.attachedMenu = osuiMenu;
@@ -1256,36 +1256,6 @@ class Button extends Element {
         });
         observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
         window.addEventListener('resize', popMenu);
-        function popMenu() {
-            const popped = Popper.popUnder(
-                osuiMenu.dom,
-                self.dom,
-                self.alignMenu,
-                self.menuOffsetX,
-                self.menuOffsetY,
-                self.overflowMenu
-            );
-            if (popped === POSITION.UNDER) {
-                osuiMenu.removeClass('osui-slide-up');
-                osuiMenu.addClass('osui-slide-down');
-            } else {
-                osuiMenu.removeClass('osui-slide-down');
-                osuiMenu.addClass('osui-slide-up');
-            }
-        }
-        function buttonPointerDown(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (self.hasClass('osui-selected') === false) {
-                self.addClass('osui-selected');
-                popMenu();
-                setTimeout(() => {
-                    if (!self.dom) return;
-                    osuiMenu.showMenu(self.dom, true );
-                }, 0);
-            }
-            document.dispatchEvent(new Event('captured'));
-        };
         this.detachMenu = function() {
             if (self.hasClass('osui-menu-button') === false) return;
             self.removeClass('osui-menu-button');
@@ -1469,7 +1439,7 @@ class Interaction extends Button {
             rect.height = parseFloat(computed.height);
             eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
-            document.dispatchEvent(new Event('captured'));
+            document.dispatchEvent(new Event('closemenu'));
             onDown();
         }
         function dragPointerUp(event) {
@@ -1533,7 +1503,7 @@ class Interaction extends Button {
                 lastY = event.pageY;
                 resizeElement.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
                 resizeElement.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
-                document.dispatchEvent(new Event('captured'));
+                document.dispatchEvent(new Event('closemenu'));
                 onDown();
             }
             function resizePointerUp(event) {
@@ -2472,6 +2442,9 @@ class Menu extends Div {
     }
     showMenu(parentDom) {
         const self = this;
+        document.addEventListener('closemenu', onCloseMenu);
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('pointerdown', onPointerDown);
         this.addClass('osui-menu-show');
         this.focus();
         if (Utils.isChildOfElementWithClass(this.dom, 'osui-menu')) {
@@ -2503,7 +2476,7 @@ class Menu extends Div {
                 document.dispatchEvent(new Event('nofocus'));
             }
         };
-        function onCaptured() {
+        function onCloseMenu() {
             self.closeMenu();
         }
         function onKeyDown(event) {
@@ -2512,28 +2485,13 @@ class Menu extends Div {
             }
         }
         function onPointerDown(event) {
-            let menuShouldClose = true;
             if (self.dom.contains(event.target)) {
-                let node = event.target;
-                let list = node.classList;
-                while (node.parentElement && list.contains('osui-menu') === false && list.contains('osui-menu-item') === false) {
-                    node = node.parentElement;
-                    list = node.classList;
-                }
-                if ((list.contains('osui-menu-item') && list.contains('osui-sub-menu-item')) || list.contains('osui-keep-open')) {
-                    menuShouldClose = false;
-                    if (event.target && event.target.tagName.toLowerCase() !== 'input') {
-                        event.preventDefault();
-                    }
-                }
+            } else {
+                self.closeMenu();
             }
-            if (menuShouldClose) self.closeMenu();
         }
-        document.addEventListener('captured', onCaptured);
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('pointerdown', onPointerDown);
         function removeHandlers() {
-            document.removeEventListener('captured', onCaptured);
+            document.removeEventListener('closemenu', onCloseMenu);
             document.removeEventListener('keydown', onKeyDown);
             document.removeEventListener('pointerdown', onPointerDown);
         }
@@ -2612,15 +2570,78 @@ class MenuItem extends Div {
         function onContextMenu(event) {
             event.preventDefault();
         }
-        this.onContextMenu(onContextMenu);
-        this.onPointerEnter(() => {
+        function onPointerEnter() {
             let parentMenu = self.parent;
             while (parentMenu && (parentMenu.hasClass('osui-menu') === false)) parentMenu = parentMenu.parent;
             if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
             if (self.subMenu) self.subMenu.showMenu(self.dom);
-        });
+        }
+        let pointerDown = false;
+        function onPointerDown(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.dispatchEvent(new Event('select'));
+            pointerDown = true;
+        }
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (pointerDown !== true) {
+                self.dom.dispatchEvent(new Event('select'));
+            }
+            pointerDown = false;
+        }
+        this.dom.addEventListener('contextmenu', onContextMenu);
+        this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.dom.addEventListener('pointerup', onPointerUp);
+        this.dom.addEventListener('destroy', () => {
+            self.dom.removeEventListener('contextmenu', onContextMenu);
+            self.dom.removeEventListener('pointerenter', onPointerEnter);
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.dom.removeEventListener('pointerup', onPointerUp);
+        }, { once: true });
         this.setText(text);
         this.selectable(false);
+    }
+    onPointerDown(callback) {
+        console.trace(`MenuItem.onPointerDown() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+    onPointerUp(callback) {
+        console.trace(`MenuItem.onPointerUp() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+    onClick(callback) {
+        console.trace(`MenuItem.onClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+    onDblClick(callback) {
+        console.trace(`MenuItem.onDblClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+    onSelect(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('osui-disabled')) {
+                callback(event);
+                if (!self.hasClass('osui-keep-open')) {
+                    document.dispatchEvent(new Event('closemenu'));
+                }
+            }
+        };
+        const dom = self.dom;
+        dom.addEventListener('select', eventHandler);
+        dom.addEventListener('destroy', () => { dom.removeEventListener('select', eventHandler); }, { once: true });
+        return self;
     }
     isChecked() {
         return this.checked;
@@ -2752,13 +2773,9 @@ class Dropdown extends Button {
         for (const key in options) {
             const item = new MenuItem(options[key]);
             item.value = key;
-            item.capturePointerDown((event) => {
+            item.onSelect(() => {
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
-            });
-            item.onPointerUp((event) => {
-                event.stopPropagation();
-                event.preventDefault();
             });
             this.items.push(item);
         }
@@ -3988,6 +4005,7 @@ class FlexBox extends Element {
 class ToolbarButton extends Button {
     constructor(innerHtml, position ) {
         super(innerHtml);
+        const self = this;
         this.setClass('osui-toolbar-button');
         this.setStyle('pointerEvents', 'all');
         switch (position) {
@@ -4000,6 +4018,45 @@ class ToolbarButton extends Button {
         buttonImageHolder.setStyle('pointer-events', 'none');
         this.add(buttonBackground, buttonImageHolder);
         this.contents = function() { return buttonImageHolder };
+        function onPointerDown(event) {
+            event.stopPropagation();
+        }
+        function onPointerUp(event) {
+            event.stopPropagation();
+        }
+        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.dom.addEventListener('pointerup', onPointerUp);
+        this.dom.addEventListener('destroy', () => {
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.dom.removeEventListener('pointerup', onPointerUp);
+        }, { once: true });
+    }
+    onPointerDown(callback) {
+        console.trace(`ToolbarButton.onPointerDown() deprecated, use onClick() instead, from: ${this.getName()}`);
+        this.onClick(callback);
+        return this;
+    }
+    onPointerUp(callback) {
+        console.trace(`ToolbarButton.onPointerUp() deprecated, use onClick() instead, from: ${this.getName()}`);
+        this.onClick(callback);
+        return this;
+    }
+    onClick(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('osui-disabled')) {
+                callback(event);
+                document.dispatchEvent(new Event('closemenu'));
+            }
+        };
+        const dom = self.dom;
+        dom.addEventListener('click', eventHandler);
+        dom.addEventListener('destroy', () => { dom.removeEventListener('click', eventHandler); }, { once: true });
+        return self;
     }
 }
 

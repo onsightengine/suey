@@ -452,6 +452,10 @@ events.forEach(function(event) {
 
     Element.prototype[method] = function(callback) {
         const eventName = event.toLowerCase();
+        if (typeof callback !== 'function') {
+            console.warn(`${method} in ${this.name}: No callback function provided!`);
+            return this;
+        }
         const eventHandler = callback.bind(this);
         const dom = this.dom;
         dom.addEventListener(eventName, eventHandler);
@@ -459,36 +463,6 @@ events.forEach(function(event) {
         return this;
     };
 
-});
-
-/******************** CAPTURE EVENTS ********************/
-
-const captureEvents = [
-    'PointerDown',
-]
-
-captureEvents.forEach(function(event) {
-    const method = 'capture' + event;
-
-    Element.prototype[method] = function(callback) {
-        const self = this;
-        const eventName = event.toLowerCase();
-        if (typeof callback === 'function') callback = callback.bind(self);
-        const eventHandler = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (typeof callback === 'function') {
-                if (!self.hasClass('osui-disabled')) {
-                    callback(event);
-                    document.dispatchEvent(new Event('captured'));
-                }
-            }
-        }
-        const dom = self.dom;
-        dom.addEventListener(eventName, eventHandler);
-        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return self;
-    };
 });
 
 /******************** REFERENCE ********************/

@@ -61,6 +61,10 @@ class Menu extends Div {
     showMenu(parentDom) {
         const self = this;
 
+        document.addEventListener('closemenu', onCloseMenu);
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('pointerdown', onPointerDown);
+
         // Show Menu
         this.addClass('osui-menu-show');
         this.focus();
@@ -116,7 +120,7 @@ class Menu extends Div {
 
         // CLOSE EVENTS
 
-        function onCaptured() {
+        function onCloseMenu() {
             self.closeMenu();
         }
 
@@ -126,42 +130,22 @@ class Menu extends Div {
             }
         }
 
-        // Mouse Down, closes menu on 'document' click
+        // Document Pointer Down (closes menu on 'document' click)
         function onPointerDown(event) {
-            let menuShouldClose = true;
-
-            // Handle menu item click
+            // MenuItem Click
             if (self.dom.contains(event.target)) {
-                let node = event.target;
-                let list = node.classList;
-                while (node.parentElement && list.contains('osui-menu') === false && list.contains('osui-menu-item') === false) {
-                    node = node.parentElement;
-                    list = node.classList;
-                }
-
-                // Don't close if clicked on a sub menu item (element that has both 'osui-menu' and 'osui-sub-menu-item' classes)
-                if ((list.contains('osui-menu-item') && list.contains('osui-sub-menu-item')) || list.contains('osui-keep-open')) {
-                    menuShouldClose = false;
-
-                    // If did not click an input (Number, Text, etc), stop focus from changing away from parent MenuButton owner
-                    if (event.target && event.target.tagName.toLowerCase() !== 'input') {
-                        event.preventDefault();
-                    }
-                }
+                //
+                // EMPTY
+                //
+            } else {
+                self.closeMenu();
             }
-
-            // Close menu
-            if (menuShouldClose) self.closeMenu();
         }
-
-        document.addEventListener('captured', onCaptured);
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('pointerdown', onPointerDown);
 
         /***** DESTROY *****/
 
         function removeHandlers() {
-            document.removeEventListener('captured', onCaptured);
+            document.removeEventListener('closemenu', onCloseMenu);
             document.removeEventListener('keydown', onKeyDown);
             document.removeEventListener('pointerdown', onPointerDown);
         }

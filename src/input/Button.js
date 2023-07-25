@@ -25,13 +25,16 @@ class Button extends Element {
 
         /***** EVENTS *****/
 
-        // Hide Tooltip
-        this.onPointerDown((event) => {
+        function onPointerDown(event) {
+            // Hide Tooltip
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
-        });
+        }
+
+        this.dom.addEventListener('pointerdown', onPointerDown);
 
         this.dom.addEventListener('destroy', function() {
+            self.dom.removeEventListener('pointerdown', onPointerDown);
             if (self.attachedMenu) self.detachMenu();
         }, { once: true });
     }
@@ -39,6 +42,33 @@ class Button extends Element {
     /** Attaches a PopUp menu to Button */
     attachMenu(osuiMenu) {
         const self = this;
+
+        // Button Click
+        function buttonPointerDown(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            // Pop Menu
+            if (self.hasClass('osui-selected') === false) {
+                self.addClass('osui-selected');
+                // Update position
+                popMenu();
+                // Apply class to show menu, CSS will handle the transition
+                setTimeout(() => {
+                    if (!self.dom) return;
+                    osuiMenu.showMenu(self.dom, true /* giveFocus? */);
+                }, 0);
+            }
+            // Let other menus know click occured
+            document.dispatchEvent(new Event('closemenu'));
+        }
+
+        // Pop Menu (internally calculates proper positioning)
+        function popMenu() {
+            const popped = Popper.popUnder(osuiMenu.dom, self.dom, self.alignMenu, self.menuOffsetX, self.menuOffsetY, self.overflowMenu);
+            osuiMenu.removeClass('osui-slide-up');
+            osuiMenu.removeClass('osui-slide-down');
+            osuiMenu.addClass((popped === POSITION.UNDER) ? 'osui-slide-down' : 'osui-slide-up');
+        }
 
         // Verify element is a 'osui-menu', apply 'osui-menu-button' class, store for later
         if (osuiMenu.hasClass('osui-menu') === false) return this;
@@ -61,48 +91,6 @@ class Button extends Element {
 
         // Handle document resize / positioning
         window.addEventListener('resize', popMenu);
-
-        // Pop this menu (calculate proper positioning)
-        function popMenu() {
-            const popped = Popper.popUnder(
-                osuiMenu.dom,
-                self.dom,
-                self.alignMenu,
-                self.menuOffsetX,
-                self.menuOffsetY,
-                self.overflowMenu
-            );
-            if (popped === POSITION.UNDER) {
-                osuiMenu.removeClass('osui-slide-up');
-                osuiMenu.addClass('osui-slide-down');
-            } else {
-                osuiMenu.removeClass('osui-slide-down');
-                osuiMenu.addClass('osui-slide-up');
-            }
-        }
-
-        // Handle button click
-        function buttonPointerDown(event) {
-            event.stopPropagation();
-            event.preventDefault();
-
-            // Pop Menu
-            if (self.hasClass('osui-selected') === false) {
-                self.addClass('osui-selected');
-
-                // Update position
-                popMenu();
-
-                // Apply class to show menu, CSS will handle the transition
-                setTimeout(() => {
-                    if (!self.dom) return;
-                    osuiMenu.showMenu(self.dom, true /* giveFocus? */);
-                }, 0);
-            }
-
-            // Let other menus know click occured
-            document.dispatchEvent(new Event('captured'));
-        };
 
         /** Removes attached menu */
         this.detachMenu = function() {

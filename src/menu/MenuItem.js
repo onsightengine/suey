@@ -32,10 +32,8 @@ class MenuItem extends Div {
             event.preventDefault();
         }
 
-        this.onContextMenu(onContextMenu);
-
-        // On Mouse Enter (hide all sub menus, show this sub menu)
-        this.onPointerEnter(() => {
+        // Mouse Enter (hide all sub menus, show this sub menu)
+        function onPointerEnter() {
             // // Don't process menu items that don't have sub menus
             // if (this.subMenu == undefined) return;
 
@@ -46,11 +44,86 @@ class MenuItem extends Div {
 
             // Show our sub menu
             if (self.subMenu) self.subMenu.showMenu(self.dom);
-        });
+        }
+
+        let pointerDown = false;
+        function onPointerDown(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            self.dom.dispatchEvent(new Event('select'));
+            pointerDown = true;
+        }
+
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (pointerDown !== true) {
+                self.dom.dispatchEvent(new Event('select'));
+            }
+            pointerDown = false;
+        }
+
+        this.dom.addEventListener('contextmenu', onContextMenu);
+        this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.dom.addEventListener('pointerup', onPointerUp);
+
+        this.dom.addEventListener('destroy', () => {
+            self.dom.removeEventListener('contextmenu', onContextMenu);
+            self.dom.removeEventListener('pointerenter', onPointerEnter);
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.dom.removeEventListener('pointerup', onPointerUp);
+        }, { once: true });
 
         // Text, Unselectable
         this.setText(text);
         this.selectable(false);
+    }
+
+    /******************** EVENT OVERRIDES ********************/
+
+    onPointerDown(callback) {
+        console.trace(`MenuItem.onPointerDown() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+
+    onPointerUp(callback) {
+        console.trace(`MenuItem.onPointerUp() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+
+    onClick(callback) {
+        console.trace(`MenuItem.onClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+
+    onDblClick(callback) {
+        console.trace(`MenuItem.onDblClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
+        this.onSelect(callback);
+        return this;
+    }
+
+    onSelect(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('osui-disabled')) {
+                callback(event);
+                if (!self.hasClass('osui-keep-open')) {
+                    document.dispatchEvent(new Event('closemenu'));
+                }
+            }
+        }
+        const dom = self.dom;
+        dom.addEventListener('select', eventHandler);
+        dom.addEventListener('destroy', () => { dom.removeEventListener('select', eventHandler); }, { once: true });
+        return self;
     }
 
     /******************** METHODS ********************/

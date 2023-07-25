@@ -6,6 +6,7 @@ class ToolbarButton extends Button {
 
     constructor(innerHtml, position /* left, middle, right */) {
         super(innerHtml)
+        const self = this;
         this.setClass('osui-toolbar-button');
         this.setStyle('pointerEvents', 'all');
 
@@ -20,6 +21,58 @@ class ToolbarButton extends Button {
         buttonImageHolder.setStyle('pointer-events', 'none');
         this.add(buttonBackground, buttonImageHolder);
         this.contents = function() { return buttonImageHolder };
+
+        /***** EVENTS *****/
+
+        function onPointerDown(event) {
+            event.stopPropagation();
+
+        }
+
+        function onPointerUp(event) {
+            event.stopPropagation();
+
+        }
+
+        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.dom.addEventListener('pointerup', onPointerUp);
+
+        this.dom.addEventListener('destroy', () => {
+            self.dom.removeEventListener('pointerdown', onPointerDown);
+            self.dom.removeEventListener('pointerup', onPointerUp);
+        }, { once: true });
+    }
+
+    /******************** EVENT OVERRIDES ********************/
+
+    onPointerDown(callback) {
+        console.trace(`ToolbarButton.onPointerDown() deprecated, use onClick() instead, from: ${this.getName()}`);
+        this.onClick(callback);
+        return this;
+    }
+
+    onPointerUp(callback) {
+        console.trace(`ToolbarButton.onPointerUp() deprecated, use onClick() instead, from: ${this.getName()}`);
+        this.onClick(callback);
+        return this;
+    }
+
+    onClick(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('osui-disabled')) {
+                callback(event);
+                document.dispatchEvent(new Event('closemenu'));
+            }
+        }
+        const dom = self.dom;
+        dom.addEventListener('click', eventHandler);
+        dom.addEventListener('destroy', () => { dom.removeEventListener('click', eventHandler); }, { once: true });
+        return self;
     }
 
 }

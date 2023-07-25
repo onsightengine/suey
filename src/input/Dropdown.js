@@ -18,7 +18,8 @@ class Dropdown extends Button {
         this.addClass('osui-dropdown');
         this.addClass('osui-drop-arrow');
 
-        // Events
+        // EVENTS
+
         function onWheel(event) {
             event.stopPropagation()
             event.preventDefault();
@@ -108,13 +109,9 @@ class Dropdown extends Button {
         for (const key in options) {
             const item = new MenuItem(options[key]);
             item.value = key;
-            item.capturePointerDown((event) => {
+            item.onSelect(() => {
                 self.setValue(item.value);
                 if (self.dom) self.dom.dispatchEvent(new Event('change'));
-            });
-            item.onPointerUp((event) => {
-                event.stopPropagation()
-                event.preventDefault();
             });
             this.items.push(item);
         }
