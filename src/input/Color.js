@@ -45,7 +45,6 @@ class Color extends Button {
         function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
-            selected = false;
         }
 
         function colorBoxBlur() {

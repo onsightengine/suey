@@ -120,7 +120,7 @@
     width: calc(100% - var(--pad-small)) !important;
 }
 
-.osui-property-full > * {
+.osui-property-full > *:not(.osui-property-space) {
     flex: 1 1 auto;
     min-height: var(--row-height);
     min-width: 0;
