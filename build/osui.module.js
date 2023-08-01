@@ -256,6 +256,9 @@ class Iris {
     copy(colorObject) {
         return this.set(colorObject);
     }
+    clone() {
+        return new this.constructor(this.r, this.g, this.b);
+    }
     set(r = 0, g, b, format = '') {
         if (arguments.length === 0) {
             return this.set(0);
@@ -268,7 +271,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                let offset = (g != null && !Number.isNaN(g) && g > 0) ? g : 0;
+                let offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
@@ -295,9 +298,9 @@ class Iris {
             console.warn(`Iris: Given decimal outside of range, value was ${hexColor}`);
             hexColor = clamp(hexColor, 0, 0xffffff);
         }
-        let r = (hexColor & 0xff0000) >> 16;
-        let g = (hexColor & 0x00ff00) >>  8;
-        let b = (hexColor & 0x0000ff);
+        const r = (hexColor & 0xff0000) >> 16;
+        const g = (hexColor & 0x00ff00) >>  8;
+        const b = (hexColor & 0x0000ff);
         return this.setRGB(r, g, b);
     }
     setHSL(h, s, l) {
@@ -330,7 +333,7 @@ class Iris {
         return this;
     }
     setRYB(r, y, b) {
-        let hexColor = cubicInterpolation(clamp(r, 0, 255), clamp(y, 0, 255), clamp(b, 0, 255), 255, CUBE.RYB_TO_RGB);
+        const hexColor = cubicInterpolation(clamp(r, 0, 255), clamp(y, 0, 255), clamp(b, 0, 255), 255, CUBE.RYB_TO_RGB);
         return this.setHex(hexColor);
     }
     setScalar(scalar) {
@@ -349,15 +352,15 @@ class Iris {
                 case 'rgb':
                 case 'rgba':
                     if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                        let r = Math.min(255, parseInt(color[1], 10));
-                        let g = Math.min(255, parseInt(color[2], 10));
-                        let b = Math.min(255, parseInt(color[3], 10));
+                        const r = Math.min(255, parseInt(color[1], 10));
+                        const g = Math.min(255, parseInt(color[2], 10));
+                        const b = Math.min(255, parseInt(color[3], 10));
                         return this.setRGB(r, g, b);
                     }
                     if (color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                        let r = (Math.min(100, parseInt(color[1], 10)) / 100);
-                        let g = (Math.min(100, parseInt(color[2], 10)) / 100);
-                        let b = (Math.min(100, parseInt(color[3], 10)) / 100);
+                        const r = (Math.min(100, parseInt(color[1], 10)) / 100);
+                        const g = (Math.min(100, parseInt(color[2], 10)) / 100);
+                        const b = (Math.min(100, parseInt(color[3], 10)) / 100);
                         return this.setRGBF(r, g, b);
                     }
                     break;
@@ -375,14 +378,14 @@ class Iris {
             const hex = m[1];
             const size = hex.length;
             if (size === 3) {
-                let r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
-                let g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
-                let b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+                const r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+                const g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+                const b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
                 return this.setRGB(r, g, b);
             } else if (size === 6) {
-                let r = parseInt(hex.charAt(0) + hex.charAt(1), 16);
-                let g = parseInt(hex.charAt(2) + hex.charAt(3), 16);
-                let b = parseInt(hex.charAt(4) + hex.charAt(5), 16);
+                const r = parseInt(hex.charAt(0) + hex.charAt(1), 16);
+                const g = parseInt(hex.charAt(2) + hex.charAt(3), 16);
+                const b = parseInt(hex.charAt(4) + hex.charAt(5), 16);
                 return this.setRGB(r, g, b);
             }
         }
@@ -397,26 +400,23 @@ class Iris {
     hex() {
         return ((this.red() << 16) + (this.green() << 8) + this.blue());
     }
-    hexString(hexColor ){
-        if (hexColor === undefined || typeof value !== 'number') hexColor = this.hex();
-        return Iris.hexString(hexColor);
+    hexString(inputColorData ){
+        if (inputColorData) this.set(inputColorData);
+        return Iris.hexString(this.hex());
     }
-    static hexString(hexColor = 0){
-        return '#' + ('000000' + ((hexColor) >>> 0).toString(16)).slice(-6);
+    static hexString(inputColorData = 0x000000){
+        _temp.set(inputColorData);
+        return '#' + ('000000' + ((_temp.hex()) >>> 0).toString(16)).slice(-6);
     }
     static randomHex() {
         return _random.setRandom().hex();
     }
     rgbString(alpha) {
-        let rgb = this.red() + ', ' + this.green() + ', ' + this.blue();
-        let rgba = (alpha != undefined) ? rgb + ', ' + alpha : rgb;
-        return rgba;
+        const rgb = this.red() + ', ' + this.green() + ', ' + this.blue();
+        return ((alpha != undefined) ? String(rgb + ', ' + alpha) : rgb);
     }
     toJSON() {
         return this.hex();
-    }
-    clone() {
-        return new this.constructor(this.r, this.g, this.b);
     }
     getHSL(target) {
         if (target && isHSL(target)) {
@@ -442,9 +442,13 @@ class Iris {
             target.r = redF(rybAsHex);
             target.y = greenF(rybAsHex);
             target.b = blueF(rybAsHex);
-        } else {
-            return { r: redF(rybAsHex), y: greenF(rybAsHex), b: blueF(rybAsHex) };
+            return target;
         }
+        return {
+            r: redF(rybAsHex),
+            y: greenF(rybAsHex),
+            b: blueF(rybAsHex)
+        };
     }
     toArray(array = [], offset = 0) {
         array[offset] = this.r;
@@ -468,7 +472,7 @@ class Iris {
         }
     }
     add(color) {
-        if (!color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
+        if (! color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
         return this.setRGBF(this.r + color.r, this.g + color.g, this.b + color.b);
     }
     addScalar(scalar) {
@@ -502,24 +506,24 @@ class Iris {
                 gray = (this.r + this.g + this.b) / 3;
         }
         percent = clamp(percent, 0, 1);
-        let r = (this.r * (1.0 - percent)) + (percent * gray);
-        let g = (this.g * (1.0 - percent)) + (percent * gray);
-        let b = (this.b * (1.0 - percent)) + (percent * gray);
+        const r = (this.r * (1.0 - percent)) + (percent * gray);
+        const g = (this.g * (1.0 - percent)) + (percent * gray);
+        const b = (this.b * (1.0 - percent)) + (percent * gray);
         return this.setRGBF(r, g, b);
     }
     hslOffset(h, s, l) {
         return this.setHSL(this.hue() + h, this.saturation() + s, this.lightness() + l);
     }
     mix(color, percent = 0.5) {
-        if (!color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
+        if (! color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
         percent = clamp(percent, 0, 1);
-        let r = (this.r * (1.0 - percent)) + (percent * color.r);
-        let g = (this.g * (1.0 - percent)) + (percent * color.g);
-        let b = (this.b * (1.0 - percent)) + (percent * color.b);
+        const r = (this.r * (1.0 - percent)) + (percent * color.r);
+        const g = (this.g * (1.0 - percent)) + (percent * color.g);
+        const b = (this.b * (1.0 - percent)) + (percent * color.b);
         return this.setRGBF(r, g, b);
     }
     multiply(color) {
-        if (!color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
+        if (! color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
         return this.setRGBF(this.r * color.r, this.g * color.g, this.b * color.b);
     }
     multiplyScalar(scalar) {
@@ -529,7 +533,7 @@ class Iris {
         return this.rgbRotateHue(180);
     }
     rgbRotateHue(degrees = 90) {
-        let newHue = keepInRange(this.hue() + degrees);
+        const newHue = keepInRange(this.hue() + degrees);
         return this.setHSL(newHue, this.saturation(), this.lightness());
     }
     rybAdjust() {
@@ -539,15 +543,15 @@ class Iris {
         return this.rybRotateHue(180);
     }
     rybRotateHue(degrees = 90) {
-        let newHue = keepInRange(this.hueRYB() + degrees);
+        const newHue = keepInRange(this.hueRYB() + degrees);
         return this.setHSL(hue(matchSpectrum(newHue, SPECTRUM.RYB)), this.saturation(), this.lightness());
     }
     subtract(color) {
-        if (!color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
+        if (! color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
         return this.setRGBF(this.r - color.r, this.g - color.g, this.b - color.b);
     }
     equals(color) {
-        if (!color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
+        if (! color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
         return (fuzzy(this.r, color.r) && fuzzy(this.g, color.g) && fuzzy(this.b, color.b));
     }
     isEqual(color) {
@@ -559,7 +563,7 @@ class Iris {
         return ((l < 0.60 && (h >= 210 || h <= 27)) || (l <= 0.32));
     }
     isLight() {
-        return (!this.isDark());
+        return (! this.isDark());
     }
 }
 function isRGB(object) { return (object.r !== undefined && object.g !== undefined && object.b !== undefined); }
@@ -582,10 +586,7 @@ function keepInRange(value, min = 0, max = 360) {
     while (value <  min) value += (max - min);
     return value;
 }
-let _hslHex;
-let _hslH;
-let _hslS;
-let _hslL;
+let _hslHex, _hslH, _hslS, _hslL;
 function hsl(hexColor, channel = 'h') {
     if (hexColor !== _hslHex) {
         if (hexColor === undefined || hexColor === null) return 0;
@@ -615,9 +616,11 @@ function hsl(hexColor, channel = 'h') {
     }
     return 0;
 }
+const _interpolate = new Iris();
 const _mix1 = new Iris();
 const _mix2 = new Iris();
 const _random = new Iris();
+const _temp = new Iris();
 function matchSpectrum(matchHue, spectrum = SPECTRUM.RYB) {
     let colorDegrees = 360 / spectrum.length;
     let degreeCount = colorDegrees;
@@ -633,27 +636,26 @@ function matchSpectrum(matchHue, spectrum = SPECTRUM.RYB) {
         }
     }
 }
-const _interpolate = new Iris();
 function cubicInterpolation(v1, v2, v3, scale = 255, table = CUBE.RYB_TO_RGB) {
     v1 = clamp(v1 / scale, 0, 1);
     v2 = clamp(v2 / scale, 0, 1);
     v3 = clamp(v3 / scale, 0, 1);
-    let f0 = table[0], f1 = table[1], f2 = table[2], f3 = table[3];
-    let f4 = table[4], f5 = table[5], f6 = table[6], f7 = table[7];
-    let i1 = 1.0 - v1;
-    let i2 = 1.0 - v2;
-    let i3 = 1.0 - v3;
-    let c0 = i1 * i2 * i3;
-    let c1 = i1 * i2 * v3;
-    let c2 = i1 * v2 * i3;
-    let c3 = v1 * i2 * i3;
-    let c4 = i1 * v2 * v3;
-    let c5 = v1 * i2 * v3;
-    let c6 = v1 * v2 * i3;
-    let v7 = v1 * v2 * v3;
-    let o1 = c0*f0[0] + c1*f1[0] + c2*f2[0] + c3*f3[0] + c4*f4[0] + c5*f5[0] + c6*f6[0] + v7*f7[0];
-    let o2 = c0*f0[1] + c1*f1[1] + c2*f2[1] + c3*f3[1] + c4*f4[1] + c5*f5[1] + c6*f6[1] + v7*f7[1];
-    let o3 = c0*f0[2] + c1*f1[2] + c2*f2[2] + c3*f3[2] + c4*f4[2] + c5*f5[2] + c6*f6[2] + v7*f7[2];
+    const f0 = table[0], f1 = table[1], f2 = table[2], f3 = table[3];
+    const f4 = table[4], f5 = table[5], f6 = table[6], f7 = table[7];
+    const i1 = 1.0 - v1;
+    const i2 = 1.0 - v2;
+    const i3 = 1.0 - v3;
+    const c0 = i1 * i2 * i3;
+    const c1 = i1 * i2 * v3;
+    const c2 = i1 * v2 * i3;
+    const c3 = v1 * i2 * i3;
+    const c4 = i1 * v2 * v3;
+    const c5 = v1 * i2 * v3;
+    const c6 = v1 * v2 * i3;
+    const v7 = v1 * v2 * v3;
+    const o1 = c0*f0[0] + c1*f1[0] + c2*f2[0] + c3*f3[0] + c4*f4[0] + c5*f5[0] + c6*f6[0] + v7*f7[0];
+    const o2 = c0*f0[1] + c1*f1[1] + c2*f2[1] + c3*f3[1] + c4*f4[1] + c5*f5[1] + c6*f6[1] + v7*f7[1];
+    const o3 = c0*f0[2] + c1*f1[2] + c2*f2[2] + c3*f3[2] + c4*f4[2] + c5*f5[2] + c6*f6[2] + v7*f7[2];
     return _interpolate.set(o1, o2, o3, 'gl').hex();
 }
 const CUBE = {
