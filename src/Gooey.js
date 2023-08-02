@@ -417,7 +417,7 @@ class Property {
 
 }
 
-/***** Internal *****/
+/******************** INTERNAL ********************/
 
 /**
  * Capitalizes every word in a string and adds spaces between CamelCaseWords

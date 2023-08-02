@@ -173,6 +173,7 @@ class Window extends Panel {
         const height = Css.toPx(Css.parseSize(this.#initialHeight), this, 'h');
         this.setStyle('width', width);
         this.setStyle('height', height);
+        this.dom.dispatchEvent(new Event('resizer'));
     }
 
     /** Displays window, with focus */
@@ -198,6 +199,7 @@ class Window extends Panel {
             this.setStyle('height', `${this.#lastKnownRect.height}px`);
             this.#maximized = false;
         }
+        this.dom.dispatchEvent(new Event('resizer'));
     }
 
 }
