@@ -106,7 +106,7 @@ class Tabbed extends Panel {
     /******************** TABS ********************/
 
     /** Add Tab */
-    addTab(id, content, icon, bgColor = undefined) {
+    addTab(id, content, icon, bgColor = undefined, shadow = true) {
         // Count ID's
         let numTabsWithId = 0;
         for (let i = 0; i < this.tabs.length; i++) {
@@ -122,7 +122,7 @@ class Tabbed extends Panel {
 
         // Create tab
         const label = capitalize(id);
-        const tab = new TabButton(this, label, icon, bgColor);
+        const tab = new TabButton(this, label, icon, bgColor, shadow);
         tab.setId(id);
         tab.count = numTabsWithId;
 
@@ -250,11 +250,12 @@ class Tabbed extends Panel {
 
 class TabButton extends Div {
 
-    constructor(parent, label, icon, bgColor = undefined) {
+    constructor(parent, label, icon, bgColor = undefined, shadow = true) {
         super();
         const self = this;
         this.setClass('osui-tab-button');
         this.setStyle('cursor', 'default');
+        if (shadow) this.addClass('osui-tab-shadow');
 
         // Icon / Label
         this.iconVector = new VectorBox(icon);

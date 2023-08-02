@@ -357,7 +357,7 @@
 }
 
 /* Tab Image SVG Shadow */
-.osui-tab-button .osui-vector-box > * {
+.osui-tab-button.osui-tab-shadow .osui-vector-box > * {
     filter: var(--drop-shadow);
 }
 
