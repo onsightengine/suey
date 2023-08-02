@@ -170,8 +170,12 @@
     height: 100%;
 }
 
-.osui-shadow-box:not(.osui-no-shadow) > * {
+.osui-shadow-box.osui-drop-shadow > * {
     filter: var(--drop-shadow);
+}
+
+.osui-shadow-box.osui-even-shadow > * {
+    filter: drop-shadow(0 0 var(--pad-micro) rgba(0, 0, 0, 0.75));
 }
 
 /********** Vector Box **********/

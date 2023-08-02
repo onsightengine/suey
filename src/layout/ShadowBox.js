@@ -7,6 +7,7 @@ class ShadowBox extends Div {
     constructor(/* any number of ImageUrls to add */) {
         super();
         this.setClass('osui-shadow-box');
+        this.addClass('osui-drop-shadow');
 
         // Parse Arguments, Add Osui Elements / ImageUrls
         let args = arguments;
@@ -19,7 +20,6 @@ class ShadowBox extends Div {
                 this.add(new VectorBox(argument));
             }
         }
-
     }
 
     fullSize() {
@@ -27,8 +27,21 @@ class ShadowBox extends Div {
         return this;
     }
 
+    dropShadow() {
+        this.addClass('osui-drop-shadow');
+        this.removeClass('osui-even-shadow');
+        return this;
+    }
+
+    evenShadow() {
+        this.removeClass('osui-drop-shadow');
+        this.addClass('osui-even-shadow');
+        return this;
+    }
+
     noShadow() {
-        this.addClass('osui-no-shadow');
+        this.removeClass('osui-drop-shadow');
+        this.removeClass('osui-even-shadow');
         return this;
     }
 

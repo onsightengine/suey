@@ -60,7 +60,7 @@ class Interaction extends Button {
                 break;
         }
 
-        const imageBox = new ShadowBox(cornerImage).fullSize().addClass('osui-corner-image');
+        const imageBox = new ShadowBox(cornerImage).evenShadow().fullSize().addClass('osui-corner-image');
         button.add(imageBox);
         button.dom.setAttribute('tooltip', buttonTooltip);
         button.setStyle('min-height', `${scale}em`, 'min-width', `${scale}em`);
