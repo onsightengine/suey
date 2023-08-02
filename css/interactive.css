@@ -26,41 +26,46 @@
     filter: brightness(100%);
 }
 
-/***** Close Button *****/
+/***** Corner Buttons *****/
 
-.osui-close-button {
+.osui-corner-button {
     cursor: pointer;
     border-radius: 50%;
-    background-color: #e24c4b;
     outline: none;
     opacity: 0;
-    overflow: hidden;
+    overflow: visible;
     transition: background-color 0.1s, opacity 0.25s ease-in-out;
 }
 
-.osui-close-button.osui-item-shown {
-    background-color: #e24c4b;
+/* Enlarge button click area */
+.osui-corner-button:before {
+    position: absolute;
+    content: '';
+    top: -0.25em;
+    right: -0.25em;
+    left: -0.25em;
+    bottom: -0.25em;
+    outline: none;
+}
+
+.osui-corner-button.osui-item-shown {
     opacity: 1.0;
     filter: brightness(100%);
     transition: opacity 0.1s;
 }
 
-.osui-close-button:hover {
-    background-color: #e24c4b;
-}
-
-.osui-close-button.osui-item-hidden {
+.osui-corner-button.osui-item-hidden {
     opacity: 0;
     transition: opacity 0.1s;
 }
 
-.osui-close-image {
+.osui-corner-image {
     outline: none;
     opacity: 0;
     transition: opacity 0.1s;
 }
 
-.osui-close-button:hover .osui-close-image {
+.osui-corner-button:hover .osui-corner-image {
     opacity: 1.0;
 }
 

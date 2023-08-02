@@ -1,12 +1,14 @@
 // INTERACTION
 //  addCloseButton()
+//  addMaxButton()
 //  makeDraggable()
 //  makeResizeable()
 import { Button } from '../input/Button.js';
 import { Css } from './Css.js';
 import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
-import { GRID_SIZE, IMAGE_CLOSE, RESIZERS } from '../constants.js';
+import { GRID_SIZE, RESIZERS } from '../constants.js';
+import { IMAGE_CLOSE, IMAGE_EXPAND } from '../constants.js';
 
 export const CLOSE_SIDES = {
     LEFT:       'left',
@@ -15,30 +17,61 @@ export const CLOSE_SIDES = {
     NONE:       'none',
 }
 
+export const CORNER_BUTTONS = {
+    CLOSE:      'close',
+    MAX:        'max',
+}
+
 const MOUSE_SLOP = 2;
 
 class Interaction extends Button {
 
-    static addCloseButton(closeElement, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
-        if (!closeElement || !closeElement.isElement) return console.warn(`Interaction.closeButton: Missing element`);
+    static addCloseButton(element, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
+        Interaction.addCornerButton(CORNER_BUTTONS.CLOSE, element, closeSide, offset, scale);
+    }
+
+    static addMaxButton(element, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
+        Interaction.addCornerButton(CORNER_BUTTONS.MAX, element, closeSide, offset, scale);
+    }
+
+    static addCornerButton(type = CORNER_BUTTONS.CLOSE, element, closeSide, offset = 0, scale = 1.3) {
+        if (!element || !element.isElement) {
+            console.warn(`Interaction.addCornerButton: Missing element argument`);
+            return undefined;
+        }
+
         const button = new Button();
-        button.setClass('osui-close-button');
+        button.setClass('osui-corner-button');
         button.addClass('osui-panel-button');
-        const closeImageBox = new ShadowBox(IMAGE_CLOSE).noShadow().addClass('osui-close-image');
-        button.add(closeImageBox);
-        button.dom.setAttribute('tooltip', 'Close Panel');
-        button.setStyle(
-            'min-height', `${scale}em`,
-            'min-width', `${scale}em`,
-        );
-        const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset}em`;
+
+        let cornerImage, buttonTooltip, buttonOffset;
+        switch (type) {
+            case CORNER_BUTTONS.CLOSE:
+                button.setStyle('background-color', '#e24c4b');
+                cornerImage = IMAGE_CLOSE;
+                buttonTooltip = 'Close Panel';
+                buttonOffset = 0;
+                break;
+            case CORNER_BUTTONS.MAX:
+                button.setStyle('background-color', '#2bc840');
+                cornerImage = IMAGE_EXPAND;
+                buttonTooltip = 'Toggle Panel';
+                buttonOffset = 1.2;
+                break;
+        }
+
+        const imageBox = new ShadowBox(cornerImage).fullSize().addClass('osui-corner-image');
+        button.add(imageBox);
+        button.dom.setAttribute('tooltip', buttonTooltip);
+        button.setStyle('min-height', `${scale}em`, 'min-width', `${scale}em`);
+        const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset + (buttonOffset * scale)}em`;
         button.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
         button.setStyle((closeSide === CLOSE_SIDES.LEFT) ? 'left' : 'right', sideways);
 
         if (closeSide === CLOSE_SIDES.BOTH) {
             let lastSide = CLOSE_SIDES.RIGHT;
-            closeElement.dom.addEventListener('pointermove', function(event) {
-                const rect = closeElement.dom.getBoundingClientRect();
+            element.dom.addEventListener('pointermove', function(event) {
+                const rect = element.dom.getBoundingClientRect();
                 const middle = rect.left + (rect.width / 2);
                 const x = event.pageX;
                 let changeSide = CLOSE_SIDES.NONE;
@@ -57,10 +90,22 @@ class Interaction extends Button {
             });
         }
 
-        button.dom.addEventListener('click', () => closeElement.hide());
-        closeElement.dom.addEventListener('pointerenter', () => button.addClass('osui-item-shown'));
-        closeElement.dom.addEventListener('pointerleave', () => button.removeClass('osui-item-shown'));
-        closeElement.addToSelf(button);
+        switch (type) {
+            case CORNER_BUTTONS.CLOSE:
+                button.dom.addEventListener('click', () => { element.hide(); });
+                break;
+            case CORNER_BUTTONS.MAX:
+                button.dom.addEventListener('click', () => {
+                    if (typeof element.toggleMinMax === 'function') {
+                        element.toggleMinMax();
+                    }
+                });
+                break;
+        }
+
+        element.dom.addEventListener('pointerenter', () => button.addClass('osui-item-shown'));
+        element.dom.addEventListener('pointerleave', () => button.removeClass('osui-item-shown'));
+        element.addToSelf(button);
     }
 
     static makeDraggable(element, parent = element, limitToWindow = false, onDown = () => {}, onMove = () => {}, onUp = () => {}) {

@@ -2,11 +2,10 @@
  * @description Osui
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
- * @license     MIT - Copyright (c) 2021-2022 Stephens Nunnally
+ * @license     MIT - Copyright (c) 2021-2023 Stephens Nunnally
  * @source      https://github.com/onsightengine/osui
  */
 
-//
 //  ---CATEGORY---              ---NODE TYPE---         ---CLASS NAME---
 //
 //  CORE
@@ -149,7 +148,6 @@ export { CLOSE_SIDES } from './utils/Interaction.js';
 export { CORNERS } from './layout/Docker.js';
 export { LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
-export { RESIZE_MODE } from './panels/Window.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
 // CSS

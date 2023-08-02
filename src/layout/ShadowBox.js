@@ -20,7 +20,12 @@ class ShadowBox extends Div {
             }
         }
 
-    } // end ctor
+    }
+
+    fullSize() {
+        this.addClass('osui-full-size');
+        return this;
+    }
 
     noShadow() {
         this.addClass('osui-no-shadow');

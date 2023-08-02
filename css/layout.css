@@ -165,7 +165,7 @@
     overflow: visible;
 }
 
-.osui-shadow-box.osui-no-shadow {
+.osui-shadow-box.osui-full-size {
     width: 100%;
     height: 100%;
 }
