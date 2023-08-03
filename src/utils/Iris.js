@@ -112,7 +112,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                let offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
+                const offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
@@ -292,7 +292,7 @@ class Iris {
     /** Example output: '255, 0, 0' */
     rgbString(alpha) {
         const rgb = this.red() + ', ' + this.green() + ', ' + this.blue();
-        return ((alpha != undefined) ? String(rgb + ', ' + alpha) : rgb);
+        return ((alpha !== undefined && alpha !== null) ? String(rgb + ', ' + alpha) : rgb);
     }
 
     /** Export to JSON */

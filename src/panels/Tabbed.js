@@ -1,7 +1,11 @@
+import { ColorScheme } from '../utils/ColorScheme.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { IMAGE_EMPTY } from '../constants.js';
 import { Interaction } from '../utils/Interaction.js';
+import { Iris } from '../utils/Iris.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
+import { TRAIT } from '../constants.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
@@ -106,7 +110,15 @@ class Tabbed extends Panel {
     /******************** TABS ********************/
 
     /** Add Tab */
-    addTab(id, content, icon, bgColor = undefined, shadow = true) {
+    addTab(id, content, options = {}) {
+        if (typeof options !== 'object') options = {};
+        if (!('color' in options) || options.color === undefined || options.color === null) {
+            options.color = ColorScheme.color(TRAIT.ICON);
+        }
+        if (!('alpha' in options)) options.alpha = 1.0;
+        if (!('icon' in options))options.icon = IMAGE_EMPTY;
+        if (!('shadow' in options)) options.shadow = 0x000000;
+
         // Count ID's
         let numTabsWithId = 0;
         for (let i = 0; i < this.tabs.length; i++) {
@@ -122,7 +134,7 @@ class Tabbed extends Panel {
 
         // Create tab
         const label = capitalize(id);
-        const tab = new TabButton(this, label, icon, bgColor, shadow);
+        const tab = new TabButton(this, label, options);
         tab.setId(id);
         tab.count = numTabsWithId;
 
@@ -248,92 +260,44 @@ class Tabbed extends Panel {
 
 /******************** TAB BUTTON ********************/
 
+const _color = new Iris();
+
 class TabButton extends Div {
 
-    constructor(parent, label, icon, bgColor = undefined, shadow = true) {
+    constructor(parent, label, options = {}) {
         super();
         const self = this;
         this.setClass('osui-tab-button');
         this.setStyle('cursor', 'default');
-        if (shadow) this.addClass('osui-tab-shadow');
+        if (options.shadow) this.addClass('osui-tab-shadow');
 
         // Icon / Label
-        this.iconVector = new VectorBox(icon);
-        this.iconBorder = new Div().setClass('osui-tab-icon');
+        this.iconVector = new VectorBox(options.icon);
+        this.iconBorder = new Div().setClass('osui-tab-icon-border');
         this.add(this.iconVector, this.iconBorder);
-        this.setLabel = function(label) {
-            self.iconBorder.dom.setAttribute('tooltip', label);
-        }
+        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); }
         this.setLabel(label);
 
         // Background Color
-        if (bgColor !== undefined && bgColor !== null) {
-            let m, r, g, b;
+        _color.set(options.color);
+        const light = `rgba(${_color.rgbString(options.alpha)})`;
+        const dark = `rgba(${_color.darken(0.75).rgbString(options.alpha)})`;
+        const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
+        this.iconVector.setStyle('background-image', background);
 
-            // Css String: rgb(255, 0, 0)
-            if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(bgColor)) {
-                let color;
-                const name = m[1];
-                const components = m[2];
-                switch (name) {
-                    case 'rgb':
-                    case 'rgba':
-                        if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                            // rgb(255,0,0) rgba(255,0,0,0.5)
-                            r = Math.min(255, parseInt(color[1], 10));
-                            g = Math.min(255, parseInt(color[2], 10));
-                            b = Math.min(255, parseInt(color[3], 10));
-                        }
-                        if (color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                            // rgb(100%,0%,0%) rgba(100%,0%,0%,0.5)
-                            r = (Math.min(100, parseInt(color[1], 10)) / 100);
-                            g = (Math.min(100, parseInt(color[2], 10)) / 100);
-                            b = (Math.min(100, parseInt(color[3], 10)) / 100);
-                        }
-                        break;
-                }
-
-            // String Color: #ff0000
-            } else if (m = /^\#([A-Fa-f\d]+)$/.exec(bgColor)) {
-                const hex = m[1];
-                const size = hex.length;
-                // #FF0
-                if (size === 3) {
-                    r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
-                    g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
-                    b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
-                // #FF0000
-                } else if (size === 6) {
-                    r = parseInt(hex.charAt(0) + hex.charAt(1), 16);
-                    g = parseInt(hex.charAt(2) + hex.charAt(3), 16);
-                    b = parseInt(hex.charAt(4) + hex.charAt(5), 16);
-                }
-
-            // Hex Color: 0xff0000
-            } else {
-                const hexColor = Math.min(Math.max(Math.floor(bgColor), 0), 0xffffff);
-                r = (hexColor & 0xff0000) >> 16;
-                g = (hexColor & 0x00ff00) >> 8;
-                b = (hexColor & 0x0000ff);
-            }
-
-            const rDark = parseInt(r * 0.75);
-            const gDark = parseInt(g * 0.75);
-            const bDark = parseInt(b * 0.75);
-
-            const light = `rgb(${r}, ${g}, ${b})`;
-            const dark = `rgb(${rDark}, ${gDark}, ${bDark})`;
-
-            const bgImage = `linear-gradient(to bottom left, ${light}, ${dark})`;
-            this.iconVector.setStyle('background-image', bgImage);
+        // Drop Shadow
+        const shadow = options.shadow;
+        if (this.iconVector.img && shadow !== false) {
+            _color.set(shadow);
+            const dropShadow = `drop-shadow(var(--minus) var(--pixel) var(--pad-micro) rgba(${_color.rgbString()}, 0.75))`;
+            this.iconVector.img.setStyle('filter', dropShadow);
         }
 
         // Events
-        function onClick() {
+        this.onClick(() => {
             parent.selectTab(self.dom.id, self.count, true);
             parent.dom.dispatchEvent(new Event('resized'));
-        }
-        this.onClick(onClick);
+        });
     }
 
 }
