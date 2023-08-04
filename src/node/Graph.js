@@ -449,7 +449,7 @@ class Graph extends Panel {
 
     drawLines() {
         if (!this.lines) return;
-        if (self.isHidden()) return;
+        if (this.isHidden()) return;
 
         const LINE_THICKNESS = 4;
         const self = this;
@@ -569,7 +569,7 @@ class Graph extends Panel {
 
     drawMiniMap() {
         if (!this.mapCanvas) return;
-        if (self.isHidden()) return;
+        if (this.isHidden()) return;
 
         // Clear
         const map = this.mapCanvas;
