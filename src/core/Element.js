@@ -152,6 +152,14 @@ class Element {
         if (event) this.dom.dispatchEvent(new Event('displayed'));
     }
 
+    isDisplayed() {
+        return getComputedStyle(this.dom).display != 'none';
+    }
+
+    isHidden() {
+        return getComputedStyle(this.dom).display == 'none';
+    }
+
     /** Enable user focus */
     allowFocus() {
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex

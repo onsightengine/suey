@@ -78,7 +78,7 @@ class Graph extends Panel {
         let grabbing = false, selecting = false;
         let spaceKey = false;
         function graphKeyDown(event) {
-            if (self.dom.style.display === 'none') return;
+            if (self.isHidden()) return;
             if (event.key === ' ') {
                 spaceKey = true;
                 self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
@@ -86,7 +86,7 @@ class Graph extends Panel {
             }
         }
         function graphKeyUp(event) {
-            if (self.dom.style.display === 'none') return;
+            if (self.isHidden()) return;
             if (event.key === ' ') {
                 spaceKey = false;
                 self.dom.style.cursor = 'auto';
@@ -449,7 +449,7 @@ class Graph extends Panel {
 
     drawLines() {
         if (!this.lines) return;
-        if (this.dom.style.display === 'none') return;
+        if (self.isHidden()) return;
 
         const LINE_THICKNESS = 4;
         const self = this;
@@ -569,7 +569,7 @@ class Graph extends Panel {
 
     drawMiniMap() {
         if (!this.mapCanvas) return;
-        if (this.dom.style.display === 'none') return;
+        if (self.isHidden()) return;
 
         // Clear
         const map = this.mapCanvas;

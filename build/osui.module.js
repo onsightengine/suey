@@ -1015,6 +1015,12 @@ class Element {
         this.setStyle('display', '');
         if (event) this.dom.dispatchEvent(new Event('displayed'));
     }
+    isDisplayed() {
+        return getComputedStyle(this.dom).display != 'none';
+    }
+    isHidden() {
+        return getComputedStyle(this.dom).display == 'none';
+    }
     allowFocus() {
         this.dom.tabIndex = 0;
     }
@@ -4136,7 +4142,7 @@ class Graph extends Panel {
         let grabbing = false, selecting = false;
         let spaceKey = false;
         function graphKeyDown(event) {
-            if (self.dom.style.display === 'none') return;
+            if (self.isHidden()) return;
             if (event.key === ' ') {
                 spaceKey = true;
                 self.dom.style.cursor = (grabbing) ? 'grabbing' : 'grab';
@@ -4144,7 +4150,7 @@ class Graph extends Panel {
             }
         }
         function graphKeyUp(event) {
-            if (self.dom.style.display === 'none') return;
+            if (self.isHidden()) return;
             if (event.key === ' ') {
                 spaceKey = false;
                 self.dom.style.cursor = 'auto';
@@ -4467,7 +4473,7 @@ class Graph extends Panel {
     }
     drawLines() {
         if (!this.lines) return;
-        if (this.dom.style.display === 'none') return;
+        if (self.isHidden()) return;
         const LINE_THICKNESS = 4;
         const self = this;
         const lines = this.lines;
@@ -4570,7 +4576,7 @@ class Graph extends Panel {
     }
     drawMiniMap() {
         if (!this.mapCanvas) return;
-        if (this.dom.style.display === 'none') return;
+        if (self.isHidden()) return;
         const map = this.mapCanvas;
         const ctx = map.ctx;
         ctx.clearRect(0, 0, map.width, map.height);
