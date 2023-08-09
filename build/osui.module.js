@@ -1828,6 +1828,7 @@ class Tooltipper {
         document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
         document.addEventListener('hidetooltip', hideTooltip, { capture: true, passive: true });
         document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
         document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
         function showTooltip(event) {
             const element = event.target;
