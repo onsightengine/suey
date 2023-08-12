@@ -11,7 +11,7 @@ class Checkbox extends Element {
         this.checkbox.setClass('osui-input');
         this.checkbox.addClass('osui-checkbox-input');
         this.checkbox.dom.type = 'checkbox';
-        let button = new Div().addClass('osui-checkbox-button');
+        const button = new Div().addClass('osui-checkbox-button');
         this.add(this.checkbox, button);
 
         this.setValue(boolean);

@@ -132,7 +132,7 @@ class ColorScheme {
                 case TRAIT.TEXT:                _clr.set( 50,  50,  50, 'rgb'); break;
                 case TRAIT.TEXT_LIGHT:          _clr.set( 25,  25,  25, 'rgb'); break;
 
-                case TRAIT.DARKLIGHT:           _clr.set(230, 230, 230, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr.set(200, 200, 200, 'rgb'); break;
                 case TRAIT.MIDLIGHT:            _clr.set(220, 220, 220, 'rgb'); break;
                 case TRAIT.HIGHLIGHT:           _clr.set(  4,   4,   4, 'rgb'); break;
             }
@@ -151,6 +151,9 @@ class ColorScheme {
                 case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); lightness = 0; break;
                 case TRAIT.MIDLIGHT:            _clr.set( 85,  85,  85, 'rgb'); break;
                 case TRAIT.HIGHLIGHT:           _clr.set(255, 255, 255, 'rgb'); break;
+            }
+            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
+                _clr.set( 64,  64,  64, 'rgb');
             }
         }
 
