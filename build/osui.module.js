@@ -749,7 +749,7 @@ const COLOR_KEYWORDS = {
     'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
 };
 
-const _clr$1 = new Iris();
+const _clr$2 = new Iris();
 const _icon = new Iris();
 const _icon_light = new Iris();
 const _icon_dark = new Iris();
@@ -772,7 +772,7 @@ class ColorScheme {
     }
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
-        _color$3 = _clr$1.set(color).hex();
+        _color$3 = _clr$2.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
         _icon.set(color);
@@ -788,36 +788,36 @@ class ColorScheme {
         ColorScheme.updateCSS();
     }
     static updateCSS() {
-        Css.setVariable('--shadow',             _clr$1.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
-        Css.setVariable('--darkness',           _clr$1.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
-        Css.setVariable('--background-dark',    _clr$1.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
-        Css.setVariable('--background-light',   _clr$1.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
-        Css.setVariable('--button-dark',        _clr$1.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
-        Css.setVariable('--button-light',       _clr$1.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
-        Css.setVariable('--text-dark',          _clr$1.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
-        Css.setVariable('--text',               _clr$1.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
-        Css.setVariable('--text-light',         _clr$1.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
-        Css.setVariable('--midlight',           _clr$1.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
-        Css.setVariable('--darklight',          _clr$1.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
-        Css.setVariable('--highlight',          _clr$1.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
-        Css.setVariable('--icon-dark',          _clr$1.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
-        Css.setVariable('--icon',               _clr$1.set(ColorScheme.color(TRAIT.ICON)).rgbString());
-        Css.setVariable('--icon-light',         _clr$1.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
-        Css.setVariable('--complement',         _clr$1.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
-        Css.setVariable('--triadic1',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
-        Css.setVariable('--triadic2',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
-        Css.setVariable('--triadic3',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
-        Css.setVariable('--triadic4',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
-        Css.setVariable('--triadic5',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
-        Css.setVariable('--triadic6',           _clr$1.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
+        Css.setVariable('--shadow',             _clr$2.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
+        Css.setVariable('--darkness',           _clr$2.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
+        Css.setVariable('--background-dark',    _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
+        Css.setVariable('--background-light',   _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
+        Css.setVariable('--button-dark',        _clr$2.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
+        Css.setVariable('--button-light',       _clr$2.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
+        Css.setVariable('--text-dark',          _clr$2.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
+        Css.setVariable('--text',               _clr$2.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
+        Css.setVariable('--text-light',         _clr$2.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
+        Css.setVariable('--midlight',           _clr$2.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
+        Css.setVariable('--darklight',          _clr$2.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
+        Css.setVariable('--highlight',          _clr$2.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
+        Css.setVariable('--icon-dark',          _clr$2.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
+        Css.setVariable('--icon',               _clr$2.set(ColorScheme.color(TRAIT.ICON)).rgbString());
+        Css.setVariable('--icon-light',         _clr$2.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
+        Css.setVariable('--complement',         _clr$2.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
+        Css.setVariable('--triadic1',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
+        Css.setVariable('--triadic2',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
+        Css.setVariable('--triadic3',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
+        Css.setVariable('--triadic4',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
+        Css.setVariable('--triadic5',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
+        Css.setVariable('--triadic6',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
         Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$1.set(0x00b4af).hue();
-        const newHue = _clr$1.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const startHue = _clr$2.set(0x00b4af).hue();
+        const newHue = _clr$2.set(ColorScheme.color(TRAIT.ICON, true )).hue();
         const diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
     static color(guiColor, ignoreSaturation = false) {
-        _clr$1.set(0);
+        _clr$2.set(0);
         let tint = _tint;
         let saturation = _saturation;
         let darkness = 0;
@@ -830,55 +830,55 @@ class ColorScheme {
         }
         if (_background == BACKGROUNDS.LIGHT) {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$1.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$1.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$1.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$1.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$1.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$1.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$1.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$1.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$1.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$1.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$1.set(  4,   4,   4, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$2.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$2.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$2.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$2.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$2.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$2.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$2.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$2.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$2.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$2.set(  4,   4,   4, 'rgb'); break;
             }
         } else {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$1.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$1.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$1.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$1.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$1.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$1.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$1.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$1.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$1.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$1.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$1.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$2.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$2.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$2.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$2.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$2.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$2.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$2.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$2.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr$2.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$2.set(255, 255, 255, 'rgb'); break;
             }
             if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$1.set( 64,  64,  64, 'rgb');
+                _clr$2.set( 64,  64,  64, 'rgb');
             }
         }
         if (guiColor === TRAIT.DARKNESS) {
             switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$1.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$1.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$1.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$1.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.DARK:      _clr$2.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr$2.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr$2.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr$2.set(  0,   0,   0, 'rgb');     break;
             }
         }
         switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$1.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$1.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$1.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$1.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$1.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$1.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$1.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$1.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr$1.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr$1.copy(_triadic6);   break;
+            case TRAIT.ICON_DARK:   _clr$2.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$2.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$2.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$2.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$2.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$2.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$2.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$2.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr$2.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr$2.copy(_triadic6);   break;
         }
         switch (guiColor) {
             case TRAIT.COMPLEMENT:
@@ -896,11 +896,11 @@ class ColorScheme {
                 lightness = 0;
                 break;
         }
-        if (tint !== 0) _clr$1.mix(_icon, tint);
-        if (lightness !== 0) _clr$1.brighten(lightness);
-        if (darkness !== 0) _clr$1.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$1.hslOffset(0, saturation, 0);
-        return _clr$1.hex();
+        if (tint !== 0) _clr$2.mix(_icon, tint);
+        if (lightness !== 0) _clr$2.brighten(lightness);
+        if (darkness !== 0) _clr$2.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr$2.hslOffset(0, saturation, 0);
+        return _clr$2.hex();
     }
 }
 
@@ -1829,10 +1829,10 @@ class Tooltipper {
         document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
         document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
         document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
-        document.addEventListener('hidetooltip', hideTooltip, { capture: true, passive: true });
         document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
         document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
         document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
         function showTooltip(event) {
             const element = event.target;
             if (!element || !(element instanceof HTMLElement)) return;
@@ -1850,9 +1850,11 @@ class Tooltipper {
             }, parseInt(Css.getVariable('--tooltip-delay')));
         }
         function hideTooltip(event) {
-            const element = event.target;
-            if (!element || !(element instanceof HTMLElement)) return;
-            if (!element.getAttribute('tooltip')) return;
+            if (event) {
+                const element = event.target;
+                if (!element || !(element instanceof HTMLElement)) return;
+                if (!element.getAttribute('tooltip')) return;
+            }
             clearTimeout(_showTimer);
             tooltip.removeClass('osui-updated');
         }
@@ -2439,6 +2441,7 @@ class MenuSeparator extends Div {
 }
 
 const TRIANGLE_SIZE = 3.0;
+const _clr$1 = new Iris();
 class Menu extends Div {
     #addedTo = false;
     constructor() {
@@ -2449,10 +2452,11 @@ class Menu extends Div {
         this.mouseSvg.setAttribute('pointer-events', 'none');
         this.mouseSvg.setAttribute('version', '1.1');
         this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        this.mouseArea.setAttribute('fill', 'aqua');
+        this.mouseArea.setAttribute('fill', _clr$1.setRandom().hexString());
         this.mouseArea.setAttribute('opacity', '0.0');
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
+        this.menuParentDom = undefined;
     }
     add() {
         if (!this.#addedTo && this.children) {
@@ -2473,11 +2477,37 @@ class Menu extends Div {
     newCategory() {
         this.#addedTo = false;
     }
+    closeMenu(applyToSelf = true, dontCloseChildrenOf = undefined) {
+        this.traverse((child) => {
+            if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
+            } else {
+                child.removeClass('osui-menu-show', 'osui-selected');
+                if (child.attachedMenu && typeof child.attachedMenu.closeMenu === 'function') {
+                    child.attachedMenu.closeMenu(true);
+                }
+                if (child.dom && typeof child.dom.blur === 'function') child.dom.blur();
+            }
+        }, applyToSelf);
+        if (applyToSelf) {
+            let parent = this.menuParentDom;
+            while (parent) {
+                if (this.menuParentDom.classList.contains('osui-menu-button')) {
+                    parent.classList.remove('osui-selected');
+                    parent = undefined;
+                } else {
+                    parent = parent.parentElement;
+                }
+            }
+            if (typeof this.removeHandlers === 'function') this.removeHandlers();
+            document.dispatchEvent(new Event('nofocus'));
+        }
+    }
     isShown() {
         return this.hasClass('osui-menu-show');
     }
     showMenu(parentDom) {
         const self = this;
+        this.menuParentDom = parentDom;
         document.addEventListener('closemenu', onCloseMenu);
         document.addEventListener('keydown', onKeyDown);
         document.addEventListener('pointerdown', onPointerDown);
@@ -2485,33 +2515,11 @@ class Menu extends Div {
         this.focus();
         if (Utils.isChildOfElementWithClass(this.dom, 'osui-menu')) {
             this.mouseArea.setAttribute('pointer-events', 'none');
-            this.contents().dom.appendChild(this.mouseSvg);
+            this.contents().dom.insertBefore(this.mouseSvg, this.contents().dom.firstChild);
+            this.updateMouseArea();
             const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0;
             setTimeout(() => this.updateMouseArea(), timeFloat);
         }
-        this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
-            this.traverse((child) => {
-                if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
-                } else {
-                    child.removeClass('osui-menu-show', 'osui-selected');
-                    if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
-                    if (child.dom && child.dom.blur) child.dom.blur();
-                }
-            }, applyToSelf);
-            if (applyToSelf) {
-                let parent = parentDom;
-                while (parent) {
-                    if (parentDom.classList.contains('osui-menu-button')) {
-                        parent.classList.remove('osui-selected');
-                        parent = undefined;
-                    } else {
-                        parent = parent.parentElement;
-                    }
-                }
-                removeHandlers();
-                document.dispatchEvent(new Event('nofocus'));
-            }
-        };
         function onCloseMenu() {
             self.closeMenu();
         }
@@ -2526,34 +2534,55 @@ class Menu extends Div {
                 self.closeMenu();
             }
         }
-        function removeHandlers() {
+        this.removeHandlers = function() {
             document.removeEventListener('closemenu', onCloseMenu);
             document.removeEventListener('keydown', onKeyDown);
             document.removeEventListener('pointerdown', onPointerDown);
-        }
+        };
         this.dom.addEventListener('destroy', function() {
-            removeHandlers();
+            self.removeHandlers();
         }, { once: true });
         return this;
     }
     updateMouseArea() {
-        let parentRect = this.dom.parentElement.getBoundingClientRect();
-        let myRect = this.dom.getBoundingClientRect();
-        let middle = (parentRect.top - myRect.top) + (parentRect.height / 2);
-        let middle1 = middle - (parentRect.height / 2);
-        let middle2 = middle + (parentRect.height / 2);
-        let leftSide = (parentRect.width / TRIANGLE_SIZE);
-        let topSides = 10;
-        this.mouseSvg.style['left'] = `-${leftSide}px`;
-        this.mouseSvg.style['top'] = `-${topSides}px`;
-        this.mouseSvg.setAttribute('width', `${this.getWidth() + leftSide}px`);
-        this.mouseSvg.setAttribute('height', `${this.getHeight() + topSides*2}px`);
-        let point1 = `${leftSide},0`;
-        let point2 = `0,${topSides + middle1}`;
-        let point3 = `0,${topSides + middle2}`;
-        let point4 = `${leftSide},${this.getHeight() + topSides*2}`;
-        this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4}`);
-        this.mouseArea.setAttribute('pointer-events', 'fill');
+        const parentRect = this.dom.parentElement.getBoundingClientRect();
+        const myRect = this.dom.getBoundingClientRect();
+        if (!this.hasClass('osui-menu-under')) {
+            const middle = (parentRect.top - myRect.top) + (parentRect.height / 2);
+            const middle1 = middle - (parentRect.height / 2);
+            const middle2 = middle + (parentRect.height / 2);
+            const leftSide = parentRect.width / TRIANGLE_SIZE;
+            const topSides = 10;
+            this.mouseSvg.style['left'] = `-${leftSide}px`;
+            this.mouseSvg.style['top'] = `-${topSides}px`;
+            this.mouseSvg.setAttribute('width', `${myRect.width + leftSide}px`);
+            this.mouseSvg.setAttribute('height', `${myRect.height + topSides*2}px`);
+            const point1 = `${leftSide},0`;
+            const point2 = `0,${topSides + middle1}`;
+            const point3 = `0,${topSides + middle2}`;
+            const point4 = `${leftSide},${myRect.height + topSides*2}`;
+            const point5 = `${leftSide + myRect.width},${myRect.height + topSides*2}`;
+            const point6 = `${leftSide + myRect.width},0`;
+            this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4} ${point5} ${point6}`);
+            this.mouseArea.setAttribute('pointer-events', 'fill');
+        } else {
+            const middle = myRect.width / 2;
+            const middle1 = middle - (parentRect.width / 2);
+            const middle2 = middle + (parentRect.width / 2);
+            const topSides = parentRect.height;
+            this.mouseSvg.style['left'] = '0';
+            this.mouseSvg.style['top'] = `-${topSides}px`;
+            this.mouseSvg.setAttribute('width', `${myRect.width}px`);
+            this.mouseSvg.setAttribute('height', `${myRect.height + topSides}px`);
+            const point1 = `${middle1},0`;
+            const point2 = `0,${topSides}`;
+            const point3 = `0,${myRect.height + topSides}`;
+            const point4 = `${myRect.width},${myRect.height + topSides}`;
+            const point5 = `${myRect.width},${topSides}`;
+            const point6 = `${middle2},0`;
+            this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4} ${point5} ${point6}`);
+            this.mouseArea.setAttribute('pointer-events', 'fill');
+        }
         return this;
     }
 }
@@ -2599,18 +2628,33 @@ class MenuItem extends Div {
         this.divText = new Div().setClass('osui-menu-text');
         this.divSpacer = new Div().setStyle('flex', '1 1 auto');
         this.divShortcut = new MenuShortcut(shortcutText);
-        this.add(new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut));
+        this.row = new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut);
+        this.add(this.row);
         this.checked = false;
         this.disabled = false;
         this.subMenu = undefined;
         function onContextMenu(event) {
             event.preventDefault();
         }
+        function hideSubMenus(dontCloseChildrenOf = undefined) {
+            let parentMenu = self.parent;
+            while (parentMenu && (parentMenu.hasClass('osui-menu') === false)) parentMenu = parentMenu.parent;
+            if (parentMenu && typeof parentMenu.closeMenu === 'function') {
+                parentMenu.closeMenu(false, dontCloseChildrenOf);
+            }
+        }
         function onPointerEnter() {
             let parentMenu = self.parent;
             while (parentMenu && (parentMenu.hasClass('osui-menu') === false)) parentMenu = parentMenu.parent;
-            if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
+            if (!parentMenu.hasClass('osui-invisible-menu')) {
+                const hideEvent = new Event('hidetooltip', { bubbles: true });
+                self.dom.dispatchEvent(hideEvent);
+            }
+            hideSubMenus(self.dom);
             if (self.subMenu) self.subMenu.showMenu(self.dom);
+        }
+        function onPointerLeave() {
+            hideSubMenus();
         }
         let pointerDown = false;
         function onPointerDown(event) {
@@ -2629,11 +2673,13 @@ class MenuItem extends Div {
         }
         this.dom.addEventListener('contextmenu', onContextMenu);
         this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.dom.addEventListener('pointerleave', onPointerLeave);
         this.dom.addEventListener('pointerdown', onPointerDown);
         this.dom.addEventListener('pointerup', onPointerUp);
         this.dom.addEventListener('destroy', () => {
             self.dom.removeEventListener('contextmenu', onContextMenu);
             self.dom.removeEventListener('pointerenter', onPointerEnter);
+            self.dom.removeEventListener('pointerleave', onPointerLeave);
             self.dom.removeEventListener('pointerdown', onPointerDown);
             self.dom.removeEventListener('pointerup', onPointerUp);
         }, { once: true });
@@ -5308,8 +5354,8 @@ var css_248z$8 = "/********** Absolute Box **********/\n\n.osui-absolute-box {\n
 var stylesheet$8="/********** Absolute Box **********/\n\n.osui-absolute-box {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    left: 0;\n    top: 0;\n    padding: 0;\n    margin: 0;\n    display: flex;\n    align-items: center;\n    vertical-align: middle;\n}\n\n/********** Asset Box / Asset Box Icon Only **********/\n\n.osui-asset-box {\n    position: relative;\n    display: flex;\n    cursor: pointer;\n\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    margin: var(--pad-x-small);\n    vertical-align: middle;\n\n    outline: none; /* for macos */\n}\n\n.osui-asset-box-selectable:hover {\n    background-color: rgba(var(--highlight), 0.15);\n    border: var(--border-small) solid rgba(var(--shadow), 0.5);\n    border-radius: var(--radius-large);\n}\n\n.osui-asset-box-selectable:active, .osui-asset-box-selectable:focus {\n    background-color: rgba(var(--shadow), 1.0);\n    border: var(--border-small) solid rgba(var(--icon-light), 1);\n    border-radius: 0;\n}\n\n.osui-asset-box-selectable:focus > *, .osui-asset-box-selectable:active > * {\n    filter: brightness(100%);\n}\n\n.osui-asset-box-selectable:hover > * {\n    filter: brightness(150%);\n}\n\n.osui-asset-box-mini {\n    /* Minimum Icon Size: */\n    min-width: var(--asset-size);\n    min-height: var(--asset-size);\n}\n\n.osui-asset-box-row {\n    width: 100%;\n    min-height: 2em;\n    padding: var(--pad-x-small);\n}\n\n.osui-asset-box-icon {\n    position: relative;\n    min-width: var(--row-height);\n    height: 100%;\n}\n\n.osui-asset-box-text {\n    position: relative;\n    width: calc(100% - var(--row-height));\n    margin: auto;\n    margin-left: 0.25em;\n    white-space: nowrap;\n}\n\n.osui-asset-box-combo {\n    overflow: hidden;\n    position: relative;\n}\n.osui-asset-box-combo:hover {\n    overflow: visible;\n}\n.osui-asset-box-label {\n    position: absolute;\n    bottom: 0;\n    left: 50%;\n    transform: translateX(-50%) scale(75%);\n}\n\n/********** Docker Left / Docker Right **********/\n\n.osui-docker-corner {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    pointer-events: none;\n    margin: auto;\n    z-index: 1; /* Docker Corner */\n    background: transparent;\n}\n\n.osui-docker-top-left {\n    /* background-color: rgba(255, 0, 0, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n}\n\n.osui-docker-top-right {\n    /* background-color: rgba(0, 255, 0, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n}\n\n.osui-docker-bottom-left {\n    /* background-color: rgba(0, 0, 255, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n.osui-docker-bottom-right {\n    /* background-color: rgba(128, 0, 128, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n    justify-content: end;\n}\n\n/********** Flex Box **********/\n\n.osui-flex-box {\n    display: flex;\n    align-items: center;\n    vertical-align: middle;\n}\n\n/********** Row **********/\n\n.osui-row {\n    width: 100%;\n    padding: 0 var(--border-small);\n    margin: var(--pad-x-small) 0;\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: left;\n    vertical-align: middle;\n}\n\n/********** Shadow Box **********/\n\n.osui-shadow-box { /* affects Toolbar icons! */\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    width: 80%;\n    height: 80%;\n    margin: 0;\n    padding: 0;\n    overflow: visible;\n}\n\n.osui-shadow-box.osui-full-size {\n    width: 100%;\n    height: 100%;\n}\n\n.osui-shadow-box.osui-drop-shadow > * {\n    filter: var(--drop-shadow);\n}\n\n.osui-shadow-box.osui-even-shadow > * {\n    filter: drop-shadow(0 0 var(--pad-micro) rgba(0, 0, 0, 0.75));\n}\n\n/********** Vector Box **********/\n\n.osui-vector-box {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n    overflow: visible;\n}\n\n.osui-enlarge-icon {\n    position: absolute;\n    overflow: hidden;\n    left: -20%;\n    top: -20%;\n    width: 140%;\n    height: 140%;\n}\n";
 styleInject(css_248z$8);
 
-var css_248z$7 = "/********** Menu Show (Show menu that was previously hidden) **********/\n\n.osui-menu.osui-menu-show {\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n    pointer-events: auto;\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.osui-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    border: 1px solid rgba(var(--shadow), 1.0);\n    border-radius: var(--radius-large);\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n/* Dropdown Menu Styling */\n.osui-select-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.osui-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.osui-menu-item:not(.osui-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.osui-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    flex: 0 0 auto;\n    filter: var(--drop-shadow);\n}\n\n/* Text */\n.osui-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.osui-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.osui-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.osui-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.osui-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.osui-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.osui-menu-item .osui-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.osui-menu-mouse-triangle {\n    position: absolute;\n}\n\n/************ Toolbar Button **********/\n\n.osui-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none; /* for macos */\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.osui-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none; /* for macos */\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n    z-index: -1;\n}\n\n/* Hover */\n.osui-toolbar-button:not(.osui-selected):enabled:hover .osui-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.osui-toolbar-button:not(.osui-selected):enabled:active,\n.osui-toolbar-button.osui-selected:enabled {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-toolbar-button.osui-selected:enabled .osui-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Gray Background */\n.osui-gray-button:enabled .osui-button-background {\n    filter: grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:hover .osui-button-background {\n    filter: brightness(125%) grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-gray-button.osui-selected:enabled .osui-button-background {\n    filter: brightness(50%) grayscale(90%);\n}\n\n/* Complement Background */\n.osui-complement-button:enabled .osui-button-background {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));\n}\n\n/* Disabled Button */\n.osui-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    background-image: linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05));\n    box-shadow: none;\n}\n.osui-toolbar-button:disabled {\n    filter: none;\n}\n.osui-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.osui-button-left, .osui-button-left .osui-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-middle, .osui-button-middle .osui-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-right, .osui-button-right .osui-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.osui-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.osui-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
-var stylesheet$7="/********** Menu Show (Show menu that was previously hidden) **********/\n\n.osui-menu.osui-menu-show {\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n    pointer-events: auto;\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.osui-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    border: 1px solid rgba(var(--shadow), 1.0);\n    border-radius: var(--radius-large);\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n/* Dropdown Menu Styling */\n.osui-select-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.osui-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.osui-menu-item:not(.osui-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.osui-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    flex: 0 0 auto;\n    filter: var(--drop-shadow);\n}\n\n/* Text */\n.osui-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.osui-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.osui-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.osui-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.osui-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.osui-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.osui-menu-item .osui-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.osui-menu-mouse-triangle {\n    position: absolute;\n}\n\n/************ Toolbar Button **********/\n\n.osui-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none; /* for macos */\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.osui-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none; /* for macos */\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n    z-index: -1;\n}\n\n/* Hover */\n.osui-toolbar-button:not(.osui-selected):enabled:hover .osui-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.osui-toolbar-button:not(.osui-selected):enabled:active,\n.osui-toolbar-button.osui-selected:enabled {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-toolbar-button.osui-selected:enabled .osui-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Gray Background */\n.osui-gray-button:enabled .osui-button-background {\n    filter: grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:hover .osui-button-background {\n    filter: brightness(125%) grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-gray-button.osui-selected:enabled .osui-button-background {\n    filter: brightness(50%) grayscale(90%);\n}\n\n/* Complement Background */\n.osui-complement-button:enabled .osui-button-background {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));\n}\n\n/* Disabled Button */\n.osui-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    background-image: linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05));\n    box-shadow: none;\n}\n.osui-toolbar-button:disabled {\n    filter: none;\n}\n.osui-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.osui-button-left, .osui-button-left .osui-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-middle, .osui-button-middle .osui-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-right, .osui-button-right .osui-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.osui-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.osui-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
+var css_248z$7 = "/********** Menu Show (Show menu that was previously hidden) **********/\n\n.osui-menu.osui-menu-show {\n    pointer-events: auto;\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n}\n\n.osui-menu.osui-menu-show.osui-menu-under {\n    transform: translate(-58%, 60%) scale(1.0, 1.0);\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.osui-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    border: 1px solid rgba(var(--shadow), 1.0);\n    border-radius: var(--radius-large);\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.osui-menu-under {\n    transform: translate(-58%, 60%) scale(0.0, 1.0);\n    transition: opacity 0.3s ease-in-out;\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n.osui-invisible-menu {\n    color: transparent;\n    background-color: transparent;\n    box-shadow: none;\n    border: 1px solid transparent;\n}\n\n/* Dropdown Menu Styling */\n.osui-select-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.osui-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.osui-menu:not(.osui-invisible-menu) .osui-menu-item:not(.osui-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.osui-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    flex: 0 0 auto;\n    filter: var(--drop-shadow);\n}\n\n/* Text */\n.osui-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.osui-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.osui-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.osui-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.osui-menu:not(.osui-invisible-menu) .osui-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.osui-menu:not(.osui-invisible-menu) .osui-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.osui-menu-item .osui-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.osui-menu-mouse-triangle {\n    position: absolute;\n}\n\n/************ Toolbar Button **********/\n\n.osui-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none; /* for macos */\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.osui-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none; /* for macos */\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n    z-index: -1;\n}\n\n/* Hover */\n.osui-toolbar-button:not(.osui-selected):not(.osui-hover-active):enabled:hover .osui-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.osui-toolbar-button:not(.osui-selected):enabled:active,\n.osui-toolbar-button.osui-selected:enabled,\n.osui-toolbar-button.osui-hover-active:hover {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-toolbar-button.osui-selected:enabled .osui-button-background,\n.osui-toolbar-button.osui-hover-active:hover .osui-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Gray Background */\n.osui-gray-button:enabled .osui-button-background {\n    filter: grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:hover .osui-button-background {\n    filter: brightness(125%) grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-gray-button.osui-selected:enabled .osui-button-background {\n    filter: brightness(50%) grayscale(90%);\n}\n\n/* Complement Background */\n.osui-complement-button:enabled .osui-button-background {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));\n}\n\n/* Disabled Button */\n.osui-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    background-image: linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05));\n    box-shadow: none;\n}\n.osui-toolbar-button:disabled {\n    filter: none;\n}\n.osui-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.osui-button-left, .osui-button-left .osui-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-middle, .osui-button-middle .osui-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-right, .osui-button-right .osui-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.osui-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.osui-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
+var stylesheet$7="/********** Menu Show (Show menu that was previously hidden) **********/\n\n.osui-menu.osui-menu-show {\n    pointer-events: auto;\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n}\n\n.osui-menu.osui-menu-show.osui-menu-under {\n    transform: translate(-58%, 60%) scale(1.0, 1.0);\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.osui-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    border: 1px solid rgba(var(--shadow), 1.0);\n    border-radius: var(--radius-large);\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.osui-menu-under {\n    transform: translate(-58%, 60%) scale(0.0, 1.0);\n    transition: opacity 0.3s ease-in-out;\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.osui-menu:not(.osui-menu-show).osui-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n.osui-invisible-menu {\n    color: transparent;\n    background-color: transparent;\n    box-shadow: none;\n    border: 1px solid transparent;\n}\n\n/* Dropdown Menu Styling */\n.osui-select-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.osui-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.osui-menu:not(.osui-invisible-menu) .osui-menu-item:not(.osui-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.osui-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    flex: 0 0 auto;\n    filter: var(--drop-shadow);\n}\n\n/* Text */\n.osui-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.osui-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.osui-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.osui-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.osui-menu:not(.osui-invisible-menu) .osui-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.osui-menu:not(.osui-invisible-menu) .osui-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.osui-menu-item .osui-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.osui-menu-mouse-triangle {\n    position: absolute;\n}\n\n/************ Toolbar Button **********/\n\n.osui-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none; /* for macos */\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.osui-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none; /* for macos */\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n    z-index: -1;\n}\n\n/* Hover */\n.osui-toolbar-button:not(.osui-selected):not(.osui-hover-active):enabled:hover .osui-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.osui-toolbar-button:not(.osui-selected):enabled:active,\n.osui-toolbar-button.osui-selected:enabled,\n.osui-toolbar-button.osui-hover-active:hover {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-toolbar-button.osui-selected:enabled .osui-button-background,\n.osui-toolbar-button.osui-hover-active:hover .osui-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Gray Background */\n.osui-gray-button:enabled .osui-button-background {\n    filter: grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:hover .osui-button-background {\n    filter: brightness(125%) grayscale(90%);\n}\n.osui-gray-button:not(.osui-selected):enabled:active .osui-button-background,\n.osui-gray-button.osui-selected:enabled .osui-button-background {\n    filter: brightness(50%) grayscale(90%);\n}\n\n/* Complement Background */\n.osui-complement-button:enabled .osui-button-background {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));\n}\n\n/* Disabled Button */\n.osui-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    background-image: linear-gradient(to right, rgba(var(--complement), 0.05), rgba(var(--complement), 0.05));\n    box-shadow: none;\n}\n.osui-toolbar-button:disabled {\n    filter: none;\n}\n.osui-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.osui-button-left, .osui-button-left .osui-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-middle, .osui-button-middle .osui-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);\n}\n.osui-button-right, .osui-button-right .osui-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n    box-shadow: /* pop-out-shadow */\n        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),\n        inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.osui-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.osui-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
 styleInject(css_248z$7);
 
 var css_248z$6 = "/********** Panel (simple / fancy) **********/\n\n.osui-panel {\n    pointer-events: auto;\n    position: relative;\n    overflow: visible;\n    outline: none; /* for macos */\n    z-index: 0; /* Panel */\n}\n\n.osui-panel-simple {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    margin: calc(var(--edge-thickness) + var(--pad-x-small));\n}\n\n.osui-panel-fancy-outer {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n    --border-radius-outer:  0.71429em;      /* 10px @ font size 1.4em (14px) */\n\n    height: 100%;\n\n    background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n    border-radius: var(--border-radius-outer);\n    box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);\n    padding: var(--edge-thickness); /* outside of border padding */\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n}\n\n.osui-panel-fancy-border {\n    height: 100%;\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    padding: var(--pad-small);\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n.osui-window .osui-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--button-light));\n}\n.osui-window.osui-active-window .osui-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.osui-panel-fancy-inside {\n    height: 100%;\n    width: 100%;\n    background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));\n    border-radius: var(--radius-small);\n    margin: 0;\n    padding: var(--pad-x-small) 0;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/********** Scroller ********/\n\n.osui-scroller {\n    overflow: auto;\n}\n\n/********** Shrinkable **********/\n\n.osui-shrinkable {\n    background-color: transparent;\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-large);\n    margin: var(--pad-x-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    overflow: hidden;\n}\n.osui-shrinkable.osui-borderless {\n    border: solid var(--border-small) transparent;\n    margin-bottom: 0;\n    box-shadow: none;\n    overflow: visible;\n}\n.osui-shrinkable.osui-borderless.osui-expanded {\n    border-bottom: none;\n}\n\n/* Shrinkable Title Div */\n.osui-shrink-title {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    min-height: calc(var(--row-height));\n    overflow: hidden;\n\n    cursor: default;\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--icon), 0.35);\n\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n\n    border-bottom: solid var(--border-micro) transparent;\n    border-top: solid var(--border-micro) transparent;\n    border-top-left-radius: var(--radius-small);\n    border-top-right-radius: var(--radius-small);\n    padding: 0 var(--pad-medium); /* vertical horizontal */\n}\n.osui-shrink-title:hover {\n    color: rgba(var(--highlight), 1.0)\n}\n.osui-shrinkable.osui-borderless .osui-shrink-title {\n    outline: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n\n/* Title Icon */\n.osui-shrink-icon > * {\n    filter: var(--drop-shadow);\n}\n.osui-shrink-icon {\n    flex-grow: 0;\n    flex-shrink: 0;\n\n    position: relative;\n    display: flex;\n    margin: 0.15em;\n    height: calc(var(--arrow-size) * 3.5);\n    min-height: calc(var(--arrow-size) * 3.5);\n}\n.osui-shrink-icon.osui-has-icon {\n    width: calc(var(--arrow-size) * 3.5);\n    min-width: calc(var(--arrow-size) * 3.5);\n}\n\n/* Title Text */\n.osui-shrink-text {\n    flex-grow: 1;\n    flex-shrink: 2;\n\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n\n    padding-left: 0.2em;\n}\n\n/* Title Arrow */\n.osui-shrink-arrow {\n    flex-grow: 0;\n    flex-shrink: 1;\n\n    position: relative;\n    content: '';\n    margin: 0 0.35em; /* vertical horizontal */\n    width: 0;\n    height: 0;\n    transform: translateX(25%);\n    z-index: 101; /* Shrink Arrow */\n    border: var(--arrow-size) solid transparent;\n    border-color: transparent transparent transparent rgba(var(--text));\n    transition: transform var(--menu-timing);\n}\n.osui-shrink-arrow-clicker {\n    position: absolute;\n    content: '';\n    width: 1.7em;\n    height: 1.7em;\n    left: calc(1.7em * -0.5);\n    top: calc(1.7em * -0.5);\n    cursor: pointer;\n}\n.osui-shrinkable.osui-expanded .osui-shrink-title .osui-shrink-arrow {\n    transform: rotate(90deg) translateX(25%);\n}\n.osui-shrink-title:hover .osui-shrink-arrow {\n    border-color: transparent transparent transparent rgba(var(--highlight));\n}\n\n/* Shrinkable Body Div */\n.osui-shrink-body {\n    position: relative;\n    display: flex;\n    flex-wrap: wrap;\n    border-bottom-left-radius: var(--radius-small);\n    border-bottom-right-radius: var(--radius-small);\n    padding: var(--pad-small);\n    overflow: hidden;\n    pointer-events: auto;\n}\n.osui-shrinkable.osui-borderless .osui-shrink-body {\n    padding-bottom: 0;\n}\n.osui-shrinkable:not(.osui-expanded) .osui-shrink-body {\n    pointer-events: none;\n    display: none;\n}\n.osui-shrinkable.osui-expanded:not(.osui-borderless) .osui-shrink-body {\n    border-top: solid var(--border-small) rgba(var(--shadow), 0.25);\n}\n\n/* Borderless Property List Row */\n.osui-shrinkable.osui-borderless .osui-property-row {\n    width: calc(100% + (var(--pad-small) * 5)) !important;\n    margin-left: calc(var(--pad-small) * -2.5) !important;\n    margin-right: calc(var(--pad-small) * -2.5) !important;\n}\n\n/********** Tabbed **********/\n\n.osui-tabbed {\n    position: relative;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/* Collection of Panels */\n.osui-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/* Interior panel of a Tabbed Panel */\n.osui-tab-panels .osui-tab-panel {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n}\n\n.osui-tab-panels .osui-tab-panel.osui-hidden {\n    display: none;\n    pointer-events: none;\n}\n\n/* Collection of Tabs */\n.osui-tabs {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    margin-top: calc(-1 * var(--pad-x-small));\n    z-index: 101; /* Tabs */\n}\n\n.osui-tabs.osui-left-side {\n    left: calc((var(--tab-size) / -2.0) + 0.3em);\n}\n\n.osui-tabs.osui-right-side {\n    left: calc(100% - ((var(--tab-size) / 2.0) + 0.65em));\n}\n\n.osui-tab-button {\n    --tab-timing: 200ms;\n\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    border-radius: var(--tab-size);\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    margin-top: -0.2em;\n    margin-bottom: -0.2em;\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.osui-tab-button.osui-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n.osui-tab-button > .osui-vector-box {\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n.osui-tab-button:hover > * {\n    filter: brightness(120%);\n}\n\n.osui-tab-button.osui-selected:hover > * {\n    filter: brightness(120%);\n}\n\n.osui-tab-button.osui-selected > * {\n    filter: none;\n}\n\n/* On Click */\n.osui-tab-button:active > .osui-tab-icon-border {\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */\n        inset -1px  1px 1px 1px rgba(var(--black), 0.5),\n        inset  1px -1px 1px 1px rgba(var(--black), 0.25);\n}\n.osui-tab-button:active > .osui-vector-box {\n    transform: translate(-1px, 1px);\n}\n\n/* Border, shadow holder */\n.osui-tab-icon-border {\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */\n        inset -1px  1px 1px 1px rgba(var(--white), 0.25),\n        inset  1px -1px 1px 1px rgba(var(--black), 0.5);\n    cursor: pointer;\n    position: absolute;\n    width: var(--tab-size);\n    height: var(--tab-size);\n    border: 0.21em solid rgb(var(--icon));\n    border-radius: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.osui-tab-button.osui-selected .osui-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/* Tab Image */\n.osui-tab-button .osui-vector-box {\n    position: absolute;\n    border-radius: var(--tab-size);\n    width: 95%;\n    height: 95%;\n    overflow: hidden;\n}\n\n/* Title Bar Class for top of Tabbed Panel */\n.osui-tab-title {\n    --font-size-increase:   1.3;\n    --border-radius-title:  0.35714em;\n\n    position: relative;\n    display: block;\n    flex-shrink: 0; /* don't allow title to shrink */\n    color: rgba(var(--text-light), 1);\n    background-color: transparent;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border: 0;\n    border-radius: calc(var(--border-radius-title) / var(--font-size-increase));\n    outline: solid calc(var(--border-small) / var(--font-size-increase)) rgba(var(--shadow), 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);\n    text-align: center;\n    overflow: hidden;\n\n    font-size: calc(100% * var(--font-size-increase));\n    margin: var(--pad-small);\n    margin-top: var(--pad-micro);\n    margin-bottom: var(--pad-x-small);\n    padding-top: var(--pad-medium);\n    padding-bottom: var(--pad-medium);\n}\n\n/********** Titled **********/\n\n.osui-titled {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n}\n\n.osui-title-arrow {\n    position: absolute;\n    content: '';\n    font-size: var(--font-size);\n    pointer-events: none;\n    width: 0;\n    height: 0;\n    top: 0;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: auto;\n    transform: translateY(-25%) scale(1.0, -1.0);\n    border: 0.5em solid transparent;\n    border-color: rgba(var(--text)) transparent transparent transparent;\n    transition: transform var(--menu-timing);\n}\n.osui-title-arrow-click {\n    position: absolute;\n    cursor: pointer;\n    content: '';\n    pointer-events: all;\n    width: 2em;\n    height: 2em;\n    top: 0;\n    bottom: 0;\n    margin-top: auto;\n    margin-bottom: auto;\n    right: 0.25em;\n    z-index: 101; /* Title Arrow */\n}\n.osui-title-arrow-click:hover .osui-title-arrow {\n    border-color: rgba(var(--highlight)) transparent transparent transparent;\n}\n.osui-titled.osui-expanded .osui-tab-title .osui-title-arrow {\n    transform: translateY(25%);\n}\n\n/***** Window *****/\n\n.osui-window {\n    --window-z-index: 200;\n\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.osui-window:not(.osui-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.osui-window:not(.osui-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.osui-panel-button.osui-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.osui-active-window .osui-panel-button.osui-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n";

@@ -1,9 +1,13 @@
 /********** Menu Show (Show menu that was previously hidden) **********/
 
 .osui-menu.osui-menu-show {
+    pointer-events: auto;
     opacity: 1.0;
     transform: translate(0, 0) scale(1.0, 1.0);
-    pointer-events: auto;
+}
+
+.osui-menu.osui-menu-show.osui-menu-under {
+    transform: translate(-58%, 60%) scale(1.0, 1.0);
 }
 
 /********** Menu **********/
@@ -38,12 +42,24 @@
     transition: all 0s; /* var(--menu-timing) */
 }
 
+.osui-menu-under {
+    transform: translate(-58%, 60%) scale(0.0, 1.0);
+    transition: opacity 0.3s ease-in-out;
+}
+
 .osui-menu:not(.osui-menu-show).osui-slide-down {
     transform: translate(0, -50%) scale(1.0, 0.0);
 }
 
 .osui-menu:not(.osui-menu-show).osui-slide-up {
     transform: translate(0, 50%) scale(1.0, 0.0);
+}
+
+.osui-invisible-menu {
+    color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    border: 1px solid transparent;
 }
 
 /* Dropdown Menu Styling */
@@ -73,7 +89,7 @@
 }
 
 /* Hover Item */
-.osui-menu-item:not(.osui-disabled):hover {
+.osui-menu:not(.osui-invisible-menu) .osui-menu-item:not(.osui-disabled):hover {
     color: rgba(var(--highlight), 1);
     background-color: rgba(var(--icon-light), 0.1);
     border: 1px solid rgba(var(--icon-light), 0.3);
@@ -131,7 +147,7 @@
 }
 
 /* Little Arrow */
-.osui-sub-menu-item::after {
+.osui-menu:not(.osui-invisible-menu) .osui-sub-menu-item::after {
     content: '';
     position: absolute;
     right: 0.50em;
@@ -141,7 +157,7 @@
     border-left-color: rgba(var(--text), 1.0);
 }
 
-.osui-sub-menu-item:hover::after {
+.osui-menu:not(.osui-invisible-menu) .osui-sub-menu-item:hover::after {
     border-left-color: rgba(var(--highlight), 1.0);
 }
 
@@ -194,7 +210,7 @@
 }
 
 /* Hover */
-.osui-toolbar-button:not(.osui-selected):enabled:hover .osui-button-background {
+.osui-toolbar-button:not(.osui-selected):not(.osui-hover-active):enabled:hover .osui-button-background {
     filter: brightness(125%);
     box-shadow: /* pop-out-shadow */
         inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),
@@ -205,11 +221,13 @@
 
 /* Active / Selected */
 .osui-toolbar-button:not(.osui-selected):enabled:active,
-.osui-toolbar-button.osui-selected:enabled {
+.osui-toolbar-button.osui-selected:enabled,
+.osui-toolbar-button.osui-hover-active:hover {
     box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
 }
 .osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,
-.osui-toolbar-button.osui-selected:enabled .osui-button-background {
+.osui-toolbar-button.osui-selected:enabled .osui-button-background,
+.osui-toolbar-button.osui-hover-active:hover .osui-button-background {
     filter: brightness(50%) grayscale(20%);
 }
 

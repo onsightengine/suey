@@ -1,9 +1,12 @@
 import { Div } from '../core/Div.js';
 import { Css } from '../utils/Css.js';
+import { Iris } from '../utils/Iris.js';
 import { MenuSeparator } from './MenuSeparator.js';
 import { Utils } from '../utils/Utils.js';
 
 const TRIANGLE_SIZE = 3.0;                  // Bigger value is smaller triangle (size = width / TRIANGLE_SIZE)
+
+const _clr = new Iris();
 
 class Menu extends Div {
 
@@ -21,10 +24,13 @@ class Menu extends Div {
         this.mouseSvg.setAttribute('version', '1.1');
 
         this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        this.mouseArea.setAttribute('fill', 'aqua');
+        this.mouseArea.setAttribute('fill', _clr.setRandom().hexString());
         this.mouseArea.setAttribute('opacity', '0.0');                          // NOTE: Comment out to see triangle
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
+
+        // Flag
+        this.menuParentDom = undefined;
     }
 
     /******************** CATEGORIES ********************/
@@ -52,6 +58,42 @@ class Menu extends Div {
 
     /******************** SHOW MENU ********************/
 
+    closeMenu(applyToSelf = true, dontCloseChildrenOf = undefined) {
+        // Close children menus and attached sub menus
+        this.traverse((child) => {
+            // Don't close menus that are children of 'dontCloseChildrenOf'
+            if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
+                // NOTHING
+            } else {
+                child.removeClass('osui-menu-show', 'osui-selected');
+                if (child.attachedMenu && typeof child.attachedMenu.closeMenu === 'function') {
+                    child.attachedMenu.closeMenu(true);
+                }
+                if (child.dom && typeof child.dom.blur === 'function') child.dom.blur();
+            }
+        }, applyToSelf);
+
+        // Close self
+        if (applyToSelf) {
+            // Un-select button that spawned menu
+            let parent = this.menuParentDom;
+            while (parent) {
+                if (this.menuParentDom.classList.contains('osui-menu-button')) {
+                    parent.classList.remove('osui-selected');
+                    parent = undefined;
+                } else {
+                    parent = parent.parentElement;
+                }
+            }
+
+            // Remove event listeners
+            if (typeof this.removeHandlers === 'function') this.removeHandlers();
+
+            // Remove Menu focus globally
+            document.dispatchEvent(new Event('nofocus'));
+        }
+    }
+
     /** Is Shown? */
     isShown() {
         return this.hasClass('osui-menu-show');
@@ -60,6 +102,7 @@ class Menu extends Div {
     /** Shows Menu, adds Menu Closer listenser to base menu */
     showMenu(parentDom) {
         const self = this;
+        this.menuParentDom = parentDom;
 
         document.addEventListener('closemenu', onCloseMenu);
         document.addEventListener('keydown', onKeyDown);
@@ -75,47 +118,12 @@ class Menu extends Div {
             this.mouseArea.setAttribute('pointer-events', 'none');
 
             // Make sure svg has been added to this sub menu
-            this.contents().dom.appendChild(this.mouseSvg);
+            this.contents().dom.insertBefore(this.mouseSvg, this.contents().dom.firstChild);
+            this.updateMouseArea();
 
             // Update svg size when animation is complete
             const timeFloat = parseFloat(Css.getVariable('--menu-timing')) * 1000.0
             setTimeout(() => this.updateMouseArea(), timeFloat);
-        }
-
-        // Close Menu
-        this.closeMenu = function(applyToSelf = true, dontCloseChildrenOf = undefined) {
-
-            // Close children menus and attached sub menus
-            this.traverse((child) => {
-                // Don't close menus that are children of 'dontCloseChildrenOf'
-                if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
-                    // EMPTY
-                } else {
-                    child.removeClass('osui-menu-show', 'osui-selected');
-                    if (child.attachedMenu && child.attachedMenu.closeMenu) child.attachedMenu.closeMenu(true);
-                    if (child.dom && child.dom.blur) child.dom.blur();
-                }
-            }, applyToSelf);
-
-            // Close self
-            if (applyToSelf) {
-                // Un-select button that spawned menu
-                let parent = parentDom;
-                while (parent) {
-                    if (parentDom.classList.contains('osui-menu-button')) {
-                        parent.classList.remove('osui-selected');
-                        parent = undefined;
-                    } else {
-                        parent = parent.parentElement;
-                    }
-                }
-
-                // Remove event listeners
-                removeHandlers();
-
-                // Remove Menu focus globally
-                document.dispatchEvent(new Event('nofocus'));
-            }
         }
 
         // CLOSE EVENTS
@@ -134,9 +142,7 @@ class Menu extends Div {
         function onPointerDown(event) {
             // MenuItem Click
             if (self.dom.contains(event.target)) {
-                //
-                // EMPTY
-                //
+                // NOTHING
             } else {
                 self.closeMenu();
             }
@@ -144,14 +150,14 @@ class Menu extends Div {
 
         /***** DESTROY *****/
 
-        function removeHandlers() {
+        this.removeHandlers = function() {
             document.removeEventListener('closemenu', onCloseMenu);
             document.removeEventListener('keydown', onKeyDown);
             document.removeEventListener('pointerdown', onPointerDown);
         }
 
         this.dom.addEventListener('destroy', function() {
-            removeHandlers();
+            self.removeHandlers();
         }, { once: true });
 
         return this;
@@ -161,26 +167,51 @@ class Menu extends Div {
 
     /** Updates mouse polygon svg points */
     updateMouseArea() {
-        let parentRect = this.dom.parentElement.getBoundingClientRect();
-        let myRect = this.dom.getBoundingClientRect();
-        let middle = (parentRect.top - myRect.top) + (parentRect.height / 2);
-        let middle1 = middle - (parentRect.height / 2);
-        let middle2 = middle + (parentRect.height / 2);
+        const parentRect = this.dom.parentElement.getBoundingClientRect();
+        const myRect = this.dom.getBoundingClientRect();
 
-        let leftSide = (parentRect.width / TRIANGLE_SIZE);
-        let topSides = 10;
+        if (!this.hasClass('osui-menu-under')) {
+            const middle = (parentRect.top - myRect.top) + (parentRect.height / 2);
+            const middle1 = middle - (parentRect.height / 2);
+            const middle2 = middle + (parentRect.height / 2);
+            const leftSide = parentRect.width / TRIANGLE_SIZE;
+            const topSides = 10;
 
-        this.mouseSvg.style['left'] = `-${leftSide}px`;
-        this.mouseSvg.style['top'] = `-${topSides}px`;
-        this.mouseSvg.setAttribute('width', `${this.getWidth() + leftSide}px`);
-        this.mouseSvg.setAttribute('height', `${this.getHeight() + topSides*2}px`);
+            this.mouseSvg.style['left'] = `-${leftSide}px`;
+            this.mouseSvg.style['top'] = `-${topSides}px`;
+            this.mouseSvg.setAttribute('width', `${myRect.width + leftSide}px`);
+            this.mouseSvg.setAttribute('height', `${myRect.height + topSides*2}px`);
 
-        let point1 = `${leftSide},0`;
-        let point2 = `0,${topSides + middle1}`;
-        let point3 = `0,${topSides + middle2}`;
-        let point4 = `${leftSide},${this.getHeight() + topSides*2}`;
-        this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4}`);
-        this.mouseArea.setAttribute('pointer-events', 'fill');
+            const point1 = `${leftSide},0`;
+            const point2 = `0,${topSides + middle1}`;
+            const point3 = `0,${topSides + middle2}`;
+            const point4 = `${leftSide},${myRect.height + topSides*2}`;
+            const point5 = `${leftSide + myRect.width},${myRect.height + topSides*2}`;
+            const point6 = `${leftSide + myRect.width},0`;
+            this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4} ${point5} ${point6}`);
+            this.mouseArea.setAttribute('pointer-events', 'fill');
+
+        } else {
+            const middle = myRect.width / 2;
+            const middle1 = middle - (parentRect.width / 2);
+            const middle2 = middle + (parentRect.width / 2);
+            const topSides = parentRect.height;
+
+            this.mouseSvg.style['left'] = '0';
+            this.mouseSvg.style['top'] = `-${topSides}px`;
+            this.mouseSvg.setAttribute('width', `${myRect.width}px`);
+            this.mouseSvg.setAttribute('height', `${myRect.height + topSides}px`);
+
+            const point1 = `${middle1},0`;
+            const point2 = `0,${topSides}`;
+            const point3 = `0,${myRect.height + topSides}`;
+            const point4 = `${myRect.width},${myRect.height + topSides}`;
+            const point5 = `${myRect.width},${topSides}`;
+            const point6 = `${middle2},0`;
+            this.mouseArea.setAttributeNS(null, 'points', `${point1} ${point2} ${point3} ${point4} ${point5} ${point6}`);
+            this.mouseArea.setAttribute('pointer-events', 'fill');
+        }
+
         return this;
     }
 

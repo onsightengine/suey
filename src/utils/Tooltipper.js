@@ -27,13 +27,16 @@ class Tooltipper {
         document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
         document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
 
-        // Standard events
+        // Show Tooltip Events
         document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
         // document.addEventListener('focus', showTooltip, { capture: true, passive: true });
-        document.addEventListener('hidetooltip', hideTooltip, { capture: true, passive: true }); /* custom */
+
+        // Hide Tooltip Events
         document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
         document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
         document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
+        /* custom */
+        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
 
         function showTooltip(event) {
             const element = event.target;
@@ -56,9 +59,11 @@ class Tooltipper {
         }
 
         function hideTooltip(event) {
-            const element = event.target;
-            if (!element || !(element instanceof HTMLElement)) return;
-            if (!element.getAttribute('tooltip')) return;
+            if (event) {
+                const element = event.target;
+                if (!element || !(element instanceof HTMLElement)) return;
+                if (!element.getAttribute('tooltip')) return;
+            }
 
             clearTimeout(_showTimer);
             tooltip.removeClass('osui-updated')

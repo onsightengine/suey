@@ -20,7 +20,8 @@ class MenuItem extends Div {
         this.divText = new Div().setClass('osui-menu-text');
         this.divSpacer = new Div().setStyle('flex', '1 1 auto');
         this.divShortcut = new MenuShortcut(shortcutText);
-        this.add(new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut));
+        this.row = new Row().add(this.divIconHolder, this.divText, this.divSpacer, this.divShortcut);
+        this.add(this.row);
 
         // Properties
         this.checked = false;
@@ -32,18 +33,38 @@ class MenuItem extends Div {
             event.preventDefault();
         }
 
-        // Mouse Enter (hide all sub menus, show this sub menu)
-        function onPointerEnter() {
-            // // Don't process menu items that don't have sub menus
-            // if (this.subMenu == undefined) return;
-
-            // Have parent menu hide all other children menus
+        function hideSubMenus(dontCloseChildrenOf = undefined) {
             let parentMenu = self.parent;
             while (parentMenu && (parentMenu.hasClass('osui-menu') === false)) parentMenu = parentMenu.parent;
-            if (parentMenu && parentMenu.closeMenu) parentMenu.closeMenu(false, self.dom);
+            if (parentMenu && typeof parentMenu.closeMenu === 'function') {
+                parentMenu.closeMenu(false, dontCloseChildrenOf);
+            }
+        }
+
+        /** Mouse enter (hide all sub menus, show this sub menu) */
+        function onPointerEnter() {
+            // // Don't process menu items that don't have sub menus
+            // if (!self.subMenu) return;
+
+            // Hide Tooltip
+            let parentMenu = self.parent;
+            while (parentMenu && (parentMenu.hasClass('osui-menu') === false)) parentMenu = parentMenu.parent;
+            if (!parentMenu.hasClass('osui-invisible-menu')) {
+                const hideEvent = new Event('hidetooltip', { bubbles: true });
+                self.dom.dispatchEvent(hideEvent);
+            }
+
+            // Have parent menu hide all other children menus
+            hideSubMenus(self.dom);
 
             // Show our sub menu
             if (self.subMenu) self.subMenu.showMenu(self.dom);
+        }
+
+        /** Mouse leave (hide all sub menus) */
+        function onPointerLeave() {
+            // Have parent menu hide all other children menus
+            hideSubMenus();
         }
 
         let pointerDown = false;
@@ -65,12 +86,14 @@ class MenuItem extends Div {
 
         this.dom.addEventListener('contextmenu', onContextMenu);
         this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.dom.addEventListener('pointerleave', onPointerLeave);
         this.dom.addEventListener('pointerdown', onPointerDown);
         this.dom.addEventListener('pointerup', onPointerUp);
 
         this.dom.addEventListener('destroy', () => {
             self.dom.removeEventListener('contextmenu', onContextMenu);
             self.dom.removeEventListener('pointerenter', onPointerEnter);
+            self.dom.removeEventListener('pointerleave', onPointerLeave);
             self.dom.removeEventListener('pointerdown', onPointerDown);
             self.dom.removeEventListener('pointerup', onPointerUp);
         }, { once: true });
@@ -189,9 +212,7 @@ class MenuItem extends Div {
         return this.hasClass('osui-sub-menu-item');
     }
 
-    /**
-     * Remove any attached sub menu, returns OSUI.Menu that was attached
-     */
+    /** Remove any attached sub menu, returns OSUI.Menu that was attached */
     removeSubMenu() {
         this.removeClass('osui-sub-menu-item');
         const osuiMenu = this.subMenu;
