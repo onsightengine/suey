@@ -7,7 +7,7 @@
 }
 
 .osui-menu.osui-menu-show.osui-menu-under {
-    transform: translate(-58%, 60%) scale(1.0, 1.0);
+    transform: translate(-58%, 62%) scale(1.0, 1.0);
 }
 
 /********** Menu **********/
@@ -25,8 +25,10 @@
         inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),
              -2px 2px 2px 0px rgba(var(--shadow), 0.5),
               2px 0px 2px 0px rgba(var(--shadow), 0.5);
-    border: 1px solid rgba(var(--shadow), 1.0);
+    /* border: 1px solid rgba(var(--shadow), 1.0); */
+    border: 2px solid rgba(var(--icon), 1.0);
     border-radius: var(--radius-large);
+    /* outline: 1px solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5)); */
     outline: none;
 
     min-width: 1.0em;
@@ -42,9 +44,13 @@
     transition: all 0s; /* var(--menu-timing) */
 }
 
+.osui-border-icon {
+    border: 2px solid rgba(var(--complement), 1.0);
+}
+
 .osui-menu-under {
-    transform: translate(-58%, 60%) scale(0.0, 1.0);
-    transition: opacity 0.3s ease-in-out;
+    transform: translate(-58%, 62%) scale(0.0, 1.0);
+    transition: opacity 0.2s ease-in-out;
 }
 
 .osui-menu:not(.osui-menu-show).osui-slide-down {
@@ -55,15 +61,8 @@
     transform: translate(0, 50%) scale(1.0, 0.0);
 }
 
-.osui-invisible-menu {
-    color: transparent;
-    background-color: transparent;
-    box-shadow: none;
-    border: 1px solid transparent;
-}
-
 /* Dropdown Menu Styling */
-.osui-select-menu {
+.osui-select-menu, .osui-popup-menu {
     box-shadow: none;
     color: rgba(var(--highlight), 1);
     background: rgba(var(--darklight), 1);
@@ -172,6 +171,24 @@
     position: absolute;
 }
 
+/***** Invisible Hover Menu *****/
+
+.osui-invisible-menu, .osui-invisible-menu-item {
+    color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+
+.osui-invisible-menu-item {
+    margin: 0;
+}
+
 /************ Toolbar Button **********/
 
 .osui-toolbar-button {
@@ -210,7 +227,7 @@
 }
 
 /* Hover */
-.osui-toolbar-button:not(.osui-selected):not(.osui-hover-active):enabled:hover .osui-button-background {
+.osui-toolbar-button:not(.osui-selected):enabled:hover .osui-button-background {
     filter: brightness(125%);
     box-shadow: /* pop-out-shadow */
         inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),
@@ -221,14 +238,21 @@
 
 /* Active / Selected */
 .osui-toolbar-button:not(.osui-selected):enabled:active,
-.osui-toolbar-button.osui-selected:enabled,
-.osui-toolbar-button.osui-hover-active:hover {
+.osui-toolbar-button.osui-selected:enabled {
     box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
 }
 .osui-toolbar-button:not(.osui-selected):enabled:active .osui-button-background,
-.osui-toolbar-button.osui-selected:enabled .osui-button-background,
-.osui-toolbar-button.osui-hover-active:hover .osui-button-background {
+.osui-toolbar-button.osui-selected:enabled .osui-button-background {
     filter: brightness(50%) grayscale(20%);
+}
+
+/* Hover Active */
+.osui-hover-active:hover, .osui-hover-active:active {
+    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */
+}
+.osui-hover-active:hover .osui-button-background,
+.osui-hover-active:active .osui-button-background {
+    filter: brightness(50%) grayscale(20%) !important;
 }
 
 /* Gray Background */

@@ -195,7 +195,7 @@ class Menu extends Div {
             const middle = myRect.width / 2;
             const middle1 = middle - (parentRect.width / 2);
             const middle2 = middle + (parentRect.width / 2);
-            const topSides = parentRect.height;
+            const topSides = parentRect.height / 1.5;
 
             this.mouseSvg.style['left'] = '0';
             this.mouseSvg.style['top'] = `-${topSides}px`;

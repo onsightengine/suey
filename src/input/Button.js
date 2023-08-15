@@ -40,8 +40,9 @@ class Button extends Element {
     }
 
     /** Attaches a PopUp menu to Button */
-    attachMenu(osuiMenu) {
+    attachMenu(osuiMenu, popupStyle = false) {
         const self = this;
+        if (popupStyle) osuiMenu.addClass('osui-popup-menu');
 
         // Button Click
         function buttonPointerDown(event) {
