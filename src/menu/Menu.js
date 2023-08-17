@@ -104,10 +104,6 @@ class Menu extends Div {
         const self = this;
         this.menuParentDom = parentDom;
 
-        document.addEventListener('closemenu', onCloseMenu);
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('pointerdown', onPointerDown);
-
         // Show Menu
         this.addClass('osui-menu-show');
         this.focus();
@@ -126,7 +122,7 @@ class Menu extends Div {
             setTimeout(() => this.updateMouseArea(), timeFloat);
         }
 
-        // CLOSE EVENTS
+        /***** EVENTS *****/
 
         function onCloseMenu() {
             self.closeMenu();
@@ -147,6 +143,10 @@ class Menu extends Div {
                 self.closeMenu();
             }
         }
+
+        document.addEventListener('closemenu', onCloseMenu);
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('pointerdown', onPointerDown);
 
         /***** DESTROY *****/
 

@@ -49,7 +49,6 @@
 }
 
 .osui-menu-under {
-    transform: translate(-58%, 62%) scale(0.0, 1.0);
     transition: opacity 0.2s ease-in-out;
 }
 

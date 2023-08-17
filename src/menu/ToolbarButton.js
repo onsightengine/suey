@@ -4,11 +4,13 @@ import { ShadowBox } from '../layout/ShadowBox.js';
 
 class ToolbarButton extends Button {
 
-    constructor(innerHtml, position /* left, middle, right */) {
+    constructor(innerHtml, position /* left, middle, right */, addBackground = true, closesMenus = true) {
         super(innerHtml)
         const self = this;
         this.setClass('osui-toolbar-button');
         this.setStyle('pointerEvents', 'all');
+
+        this.closesMenus = closesMenus;
 
         switch (position) {
             case 'left': this.addClass('osui-button-left'); break;
@@ -17,9 +19,11 @@ class ToolbarButton extends Button {
         }
 
         const buttonBackground = new Div().addClass('osui-button-background');
-        const buttonImageHolder = new ShadowBox();
-        buttonImageHolder.setStyle('pointer-events', 'none');
-        this.add(buttonBackground, buttonImageHolder);
+        if (addBackground) this.add(buttonBackground);
+
+        const buttonImageHolder = new ShadowBox().setStyle('pointer-events', 'none');
+        this.add(buttonImageHolder);
+
         this.contents = function() { return buttonImageHolder };
 
         /***** EVENTS *****/
@@ -66,7 +70,7 @@ class ToolbarButton extends Button {
             event.stopPropagation();
             if (!self.hasClass('osui-disabled')) {
                 callback(event);
-                document.dispatchEvent(new Event('closemenu'));
+                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
             }
         }
         const dom = self.dom;
