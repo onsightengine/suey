@@ -162,25 +162,22 @@ class TreeList extends Div {
         return this.selectedValues;
     }
 
-    setValues(valueArray, scrollTo = false) {
+    setValues(valueArray = [], scrollTo = false) {
         let lastElement = undefined;
 
         // Deselect
-        for (let i = 0; i < this.options.length; i++) {
-            this.options[i].classList.remove('osui-active');
-            this.options[i].classList.remove('osui-active-top');
-            this.options[i].classList.remove('osui-active-bottom');
+        for (const div of this.options) {
+            div.classList.remove('osui-active');
+            div.classList.remove('osui-active-top');
+            div.classList.remove('osui-active-bottom');
         }
 
         // Select
-        for (let v = 0; v < valueArray.length; v++) {
-            const value = valueArray[v];
-
-            for (let i = 0; i < this.options.length; i++) {
-                const element = this.options[i];
-                if (element.value == value) {
-                    element.classList.add('osui-active');
-                    lastElement = element;
+        for (const value of valueArray) {
+            for (const div of this.options) {
+                if (div.value == value) {
+                    div.classList.add('osui-active');
+                    lastElement = div;
                 }
             }
         }
@@ -189,7 +186,6 @@ class TreeList extends Div {
         for (let i = 0; i < this.options.length - 1; i++) {
             const element = this.options[i];
             const elementAfter = this.options[i + 1];
-
             if (element.classList.contains('osui-active') && elementAfter.classList.contains('osui-active')) {
                 element.classList.add('osui-active-top');
                 elementAfter.classList.add('osui-active-bottom');
@@ -197,7 +193,7 @@ class TreeList extends Div {
         }
 
         // Scroll Into View
-        if (lastElement && scrollTo) setTimeout(() => Utils.scrollIntoView(lastElement), 0);
+        if (lastElement && scrollTo) setTimeout(() => { Utils.scrollIntoView(lastElement); }, 0);
 
         // Set Values, Return
         this.selectedValues = [...valueArray];

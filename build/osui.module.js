@@ -3717,20 +3717,18 @@ class TreeList extends Div {
     getValues() {
         return this.selectedValues;
     }
-    setValues(valueArray, scrollTo = false) {
+    setValues(valueArray = [], scrollTo = false) {
         let lastElement = undefined;
-        for (let i = 0; i < this.options.length; i++) {
-            this.options[i].classList.remove('osui-active');
-            this.options[i].classList.remove('osui-active-top');
-            this.options[i].classList.remove('osui-active-bottom');
+        for (const div of this.options) {
+            div.classList.remove('osui-active');
+            div.classList.remove('osui-active-top');
+            div.classList.remove('osui-active-bottom');
         }
-        for (let v = 0; v < valueArray.length; v++) {
-            const value = valueArray[v];
-            for (let i = 0; i < this.options.length; i++) {
-                const element = this.options[i];
-                if (element.value == value) {
-                    element.classList.add('osui-active');
-                    lastElement = element;
+        for (const value of valueArray) {
+            for (const div of this.options) {
+                if (div.value == value) {
+                    div.classList.add('osui-active');
+                    lastElement = div;
                 }
             }
         }
@@ -3742,7 +3740,7 @@ class TreeList extends Div {
                 elementAfter.classList.add('osui-active-bottom');
             }
         }
-        if (lastElement && scrollTo) setTimeout(() => Utils.scrollIntoView(lastElement), 0);
+        if (lastElement && scrollTo) setTimeout(() => { Utils.scrollIntoView(lastElement); }, 0);
         this.selectedValues = [...valueArray];
         return this;
     }
