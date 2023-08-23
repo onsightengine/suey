@@ -303,9 +303,11 @@
 /* Tab Image */
 .osui-tab-button .osui-vector-box {
     position: absolute;
+    border: none;
     border-radius: var(--tab-size);
-    width: 95%;
-    height: 95%;
+    outline: solid var(--pixel) transparent;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     filter: contrast(75%) grayscale(100%) brightness(75%);
 }
