@@ -2182,7 +2182,7 @@ class Tabbed extends Panel {
         if (!('icon' in options))options.icon = IMAGE_EMPTY;
         if (!('shadow' in options)) options.shadow = 0x000000;
         if (!('shrink' in options)) options.shrink = 1;
-        if (options.shrink === true) options.shrink = 0.7;
+        if (options.shrink === true) options.shrink = 0.75;
         if (typeof options.shrink === 'string') {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
