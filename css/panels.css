@@ -280,10 +280,12 @@
     align-items: center;
     justify-content: center;
 
-    border-radius: var(--tab-size);
     color: rgba(var(--text), 1.0);
     background-color: transparent;
-    margin-left: var(--pad-x-small);
+    border: none;
+    border-radius: var(--tab-size);
+    outline: none;
+    margin: var(--pad-x-small);
     margin-right: var(--pad-x-small);
     margin-top: -0.2em;
     margin-bottom: -0.2em;
@@ -298,54 +300,6 @@
     transform: scale(100%);
 }
 
-.osui-tab-button > .osui-vector-box {
-    filter: contrast(75%) grayscale(100%) brightness(75%);
-}
-
-.osui-tab-button:hover > * {
-    filter: brightness(120%);
-}
-
-.osui-tab-button.osui-selected:hover > * {
-    filter: brightness(120%);
-}
-
-.osui-tab-button.osui-selected > * {
-    filter: none;
-}
-
-/* On Click */
-.osui-tab-button:active > .osui-tab-icon-border {
-    box-shadow:
-        0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */
-        inset -1px  1px 1px 1px rgba(var(--black), 0.5),
-        inset  1px -1px 1px 1px rgba(var(--black), 0.25);
-}
-.osui-tab-button:active > .osui-vector-box {
-    transform: translate(-1px, 1px);
-}
-
-/* Border, shadow holder */
-.osui-tab-icon-border {
-    box-shadow:
-        0px 0px 3px 2px rgba(var(--shadow), 0.25), /* drop shadow */
-        inset -1px  1px 1px 1px rgba(var(--white), 0.25),
-        inset  1px -1px 1px 1px rgba(var(--black), 0.5);
-    cursor: pointer;
-    position: absolute;
-    width: var(--tab-size);
-    height: var(--tab-size);
-    border: 0.21em solid rgb(var(--icon));
-    border-radius: var(--tab-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.osui-tab-button.osui-selected .osui-tab-icon-border {
-    border: 0.15em solid rgb(var(--icon));
-}
-
 /* Tab Image */
 .osui-tab-button .osui-vector-box {
     position: absolute;
@@ -353,6 +307,50 @@
     width: 95%;
     height: 95%;
     overflow: hidden;
+    filter: contrast(75%) grayscale(100%) brightness(75%);
+}
+
+.osui-tab-button.osui-selected .osui-vector-box {
+    filter: none;
+}
+
+.osui-tab-button:hover .osui-vector-box {
+    filter: brightness(120%) !important;
+}
+
+.osui-tab-button:active .osui-vector-box {
+    transform: translate(0, 0.07em);
+    filter: brightness(120%) !important;
+}
+
+/* Tab Image Border / Shadow */
+.osui-tab-icon-border {
+    cursor: pointer;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 0.21em solid rgba(var(--icon));
+    border-radius: calc(var(--tab-size) * 0.7);
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.osui-tab-button:hover .osui-tab-icon-border {
+    box-shadow:
+        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),
+        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);
+}
+
+.osui-tab-button:active .osui-tab-icon-border {
+    box-shadow:
+        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35),
+        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);
+}
+
+.osui-tab-button.osui-selected .osui-tab-icon-border {
+    border: 0.15em solid rgb(var(--icon));
 }
 
 /* Title Bar Class for top of Tabbed Panel */

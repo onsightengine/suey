@@ -103,6 +103,9 @@
     width: var(--menu-icon-size);
     flex: 0 0 auto;
     filter: var(--drop-shadow);
+
+    border-radius: 0.5em;
+    overflow: hidden;
 }
 
 /* Text */

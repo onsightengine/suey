@@ -118,6 +118,11 @@ class Tabbed extends Panel {
         if (!('alpha' in options)) options.alpha = 1.0;
         if (!('icon' in options))options.icon = IMAGE_EMPTY;
         if (!('shadow' in options)) options.shadow = 0x000000;
+        if (!('shrink' in options)) options.shrink = 1;
+        if (options.shrink === true) options.shrink = 0.7;
+        if (typeof options.shrink === 'string') {
+            options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
+        }
 
         // Count ID's
         let numTabsWithId = 0;
@@ -291,6 +296,14 @@ class TabButton extends Div {
             _color.set(shadow);
             const dropShadow = `drop-shadow(var(--minus) var(--pixel) var(--pad-micro) rgba(${_color.rgbString()}, 0.75))`;
             this.iconVector.img.setStyle('filter', dropShadow);
+        }
+
+        // Shrink?
+        const shrink = options.shrink;
+        if (this.iconVector.img && !isNaN(shrink)) {
+            this.iconVector.img.setStyle('position', 'absolute');
+            this.iconVector.img.setStyle('left', `${(100 - (shrink * 100)) / 2}%`, 'width', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('top', `${(100 - (shrink * 100)) / 2}%`, 'height', `${shrink * 100}%`);
         }
 
         // Events
