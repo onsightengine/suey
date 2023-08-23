@@ -50,8 +50,8 @@ class PropertyList extends Div {
 
     /******************** ADD WIDGETS ********************/
 
-    addHeader(text = '', iconUrl, enlarge = false) {
-        const header = this.createHeader(text, iconUrl, enlarge);
+    addHeader(text = '', iconUrl) {
+        const header = this.createHeader(text, iconUrl);
         this.add(header);
         return header;
     }
@@ -71,10 +71,9 @@ class PropertyList extends Div {
     /******************** CREATE WIDGETS ********************/
 
     /** Separating category header title */
-    createHeader(text = '', iconUrl, enlarge = false) {
+    createHeader(text = '', iconUrl) {
         const header = new Div().setClass('osui-property-header-title');
         const icon = new VectorBox(iconUrl);
-        if (enlarge) icon.addClass('osui-enlarge-icon');
         const iconHolder = new Span().setClass('osui-property-header-icon').add(icon);
         const textHolder = new Span().setClass('osui-property-header-text').setTextContent(text);
         header.add(iconHolder, textHolder);

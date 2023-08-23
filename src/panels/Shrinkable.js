@@ -11,8 +11,7 @@ class Shrinkable extends Panel {
         text = '',
         icon = '',
         arrow = 'left',
-        border = true,
-        enlargeIcon = false
+        border = true
     } = {}) {
         super();
         const self = this;
@@ -38,9 +37,6 @@ class Shrinkable extends Panel {
         const titleIcon = new Span().setClass('osui-shrink-icon');
         if (icon) titleIcon.addClass('osui-has-icon');
         const iconBox = new VectorBox(icon);
-        if (enlargeIcon) {
-            iconBox.addClass('osui-enlarge-icon');
-        }
         titleIcon.add(iconBox);
 
         // Add Title Elements
