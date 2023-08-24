@@ -264,11 +264,11 @@
 }
 
 .osui-tabs.osui-left-side {
-    left: calc((var(--tab-size) / -2.0) + 0.3em);
+    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */
 }
 
 .osui-tabs.osui-right-side {
-    left: calc(100% - ((var(--tab-size) / 2.0) + 0.65em));
+    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */
 }
 
 .osui-tab-button {
@@ -305,9 +305,9 @@
     position: absolute;
     border: none;
     border-radius: var(--tab-size);
-    outline: solid var(--pixel) transparent;
-    width: 100%;
-    height: 100%;
+    outline: none;
+    width: 94%;
+    height: 94%;
     overflow: hidden;
     filter: contrast(75%) grayscale(100%) brightness(75%);
 }
