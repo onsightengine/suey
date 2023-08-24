@@ -6,51 +6,49 @@ import { IMAGE_EMPTY } from '../constants.js';
 /** Holds a SVG vector image stretched to fit */
 class VectorBox extends Div {
 
-    constructor(/* any number of ImageUrls to add */) {
+    constructor(/* any number of image urls to add */) {
         super();
         this.setClass('osui-vector-box');
 
-        // Process Arguments, Add them as Images
-        let args = arguments;
-        if (arguments.length === 0) {
-            args = [ IMAGE_EMPTY ];
-        } else if (arguments.length === 1 && Array.isArray(arguments[0])) {
-            args = arguments[0];
-        }
+        // Properties
+        this.img = undefined;
 
-        // Add images, image no images were passed, sets 'IMAGE_EMPTY' image
-        for (let i = 0; i < args.length; i++) {
-            const newImage = this.addImage(args[i]);
-            if (i === 0) this.img = newImage;
+        // Parse Arguments
+        if (arguments.length === 0) return this.addImage(IMAGE_EMPTY);
+        const images = Array.isArray(arguments[0]) ? arguments[0] : [...arguments];
+
+        // Add images
+        for (const image of images) {
+            this.addImage(image);
         }
     }
 
-    addImage(imageUrl) {
+    firstImage() {
+        for (const child of this.contents().children) {
+            if (!child || !child.isElement) continue;
+            if (child.hasClass('osui-image')) return child;
+        }
+    }
+
+    addImage(imageUrl = IMAGE_EMPTY) {
         const stretchX = '100%';
         const stretchY = '100%';
-
-        if (imageUrl === undefined || imageUrl === '') imageUrl = IMAGE_EMPTY;
-
         const newImage = new Image(imageUrl, stretchX, stretchY, false /* draggable */);
-        this.add(newImage);
         if (!this.img) this.img = newImage;
-
-        return newImage;
+        this.add(newImage);
+        return this;
     }
 
     enableDragging() {
         if (this.dom) this.dom.draggable = true;
-        for (let j = 0; j < this.contents().children.length; j++) {
-            if (this.contents().children[j].dom) {
-                this.contents().children[j].dom.ondragstart = () => {};
-            }
+        for (const child of this.contents().children) {
+            if (child.isElement && child.dom) child.dom.ondragstart = () => {};
         }
         return this;
     }
 
     setImage(imageUrl) {
-        this.img.setImage(imageUrl);
-        return this;
+        return this.img.setImage(imageUrl);
     }
 
 }

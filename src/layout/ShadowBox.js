@@ -9,16 +9,20 @@ class ShadowBox extends Div {
         this.setClass('osui-shadow-box');
         this.addClass('osui-drop-shadow');
 
-        // Parse Arguments, Add Osui Elements / ImageUrls
-        let args = arguments;
-        if (arguments.length === 1 && Array.isArray(arguments[0])) args = arguments[0];
-        for (let i = 0; i < args.length; i++) {
-            let argument = args[i];
-            if (argument && argument.isElement === true) {
-                this.add(argument);
-            } else {
-                this.add(new VectorBox(argument));
-            }
+        // Parse Arguments
+        if (arguments.length === 0) return;
+        const elements = Array.isArray(arguments[0]) ? arguments[0] : [...arguments];
+
+        // Add Osui Elements / ImageUrls
+        for (const element of elements) {
+            this.add((element && element.isElement) ? element : new VectorBox(element));
+        }
+    }
+
+    firstImage() {
+        for (const child of this.contents().children) {
+            if (!child || !child.isElement) continue;
+            if (child.hasClass('osui-image') || child.hasClass('osui-vector-box')) return child;
         }
     }
 

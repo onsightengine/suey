@@ -53,7 +53,7 @@ class Tabbed extends Panel {
         this.selectedCount = 0;
 
         // Resizers
-        let rect = {};
+        const rect = {};
         function resizerDown() {
             rect.width = self.getWidth();
             rect.height = self.getHeight();

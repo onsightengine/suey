@@ -407,10 +407,22 @@
     font-size: 100%;
 }
 
-.osui-text-opaque { opacity: 1.0; }
-.osui-text-transparent { opacity: 0.0; }
+.osui-tab-title-text::selection {
+    color: rgba(var(--darklight), 1);
+    background-color: rgba(var(--complement), 1);
+}
+
+.osui-text-opaque {
+    user-select: all;
+    opacity: 1.0;
+}
+.osui-text-transparent {
+    user-select: none;
+    opacity: 0.0;
+}
 
 .osui-text-opaque.osui-fade-out {
+    user-select: none;
     animation: osui-animate-fade-out 0.7s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
