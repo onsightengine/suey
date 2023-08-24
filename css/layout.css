@@ -11,6 +11,8 @@
     display: flex;
     align-items: center;
     vertical-align: middle;
+    justify-content: center;
+    text-align: center;
 }
 
 /********** Asset Box / Asset Box Icon Only **********/

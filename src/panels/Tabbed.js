@@ -112,9 +112,7 @@ class Tabbed extends Panel {
     /** Add Tab */
     addTab(id, content, options = {}) {
         if (typeof options !== 'object') options = {};
-        if (!('color' in options) || options.color === undefined || options.color === null) {
-            options.color = ColorScheme.color(TRAIT.ICON);
-        }
+        if (!('color' in options) || options.color == null) options.color = ColorScheme.color(TRAIT.ICON);
         if (!('alpha' in options)) options.alpha = 1.0;
         if (!('icon' in options))options.icon = IMAGE_EMPTY;
         if (!('shadow' in options)) options.shadow = 0x000000;
@@ -284,11 +282,15 @@ class TabButton extends Div {
         this.setLabel(label);
 
         // Background Color
-        _color.set(options.color);
-        const light = `rgba(${_color.rgbString(options.alpha)})`;
-        const dark = `rgba(${_color.darken(0.75).rgbString(options.alpha)})`;
-        const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
-        this.iconVector.setStyle('background-image', background);
+        if (typeof options.color === 'string' && options.color.includes('var(--')) {
+            this.iconVector.setStyle('background-color', `rgba(${options.color}, ${options.alpha})`);
+        } else {
+            _color.set(options.color);
+            const light = `rgba(${_color.rgbString(options.alpha)})`;
+            const dark = `rgba(${_color.darken(0.75).rgbString(options.alpha)})`;
+            const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
+            this.iconVector.setStyle('background-image', background);
+        }
 
         // Drop Shadow
         const shadow = options.shadow;
@@ -302,7 +304,7 @@ class TabButton extends Div {
         const shrink = options.shrink;
         if (this.iconVector.img && !isNaN(shrink)) {
             this.iconVector.img.setStyle('position', 'absolute');
-            this.iconVector.img.setStyle('left', `${(100 - (shrink * 100)) / 2}%`, 'width', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('left', `calc(${(100 - (shrink * 100)) / 2}% + 1px)`, 'width', `${shrink * 100}%`);
             this.iconVector.img.setStyle('top', `${(100 - (shrink * 100)) / 2}%`, 'height', `${shrink * 100}%`);
         }
 

@@ -306,8 +306,8 @@
     border: none;
     border-radius: var(--tab-size);
     outline: none;
-    width: 94%;
-    height: 94%;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     filter: contrast(75%) grayscale(100%) brightness(75%);
 }
@@ -375,6 +375,7 @@
     text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);
     text-align: center;
     overflow: hidden;
+    user-select: all;
 
     font-size: calc(100% * var(--font-size-increase));
     margin: var(--pad-small);
@@ -382,6 +383,7 @@
     margin-bottom: var(--pad-x-small);
     padding-top: var(--pad-medium);
     padding-bottom: var(--pad-medium);
+    min-height: 1.867em;
 }
 
 @keyframes osui-animate-fade-out {
