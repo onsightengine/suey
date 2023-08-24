@@ -19,8 +19,6 @@ const _triadic1 = new Iris();
 const _triadic2 = new Iris();
 const _triadic3 = new Iris();
 const _triadic4 = new Iris();
-const _triadic5 = new Iris();
-const _triadic6 = new Iris();
 
 // Save state
 let _background = BACKGROUNDS.DARK;
@@ -56,8 +54,6 @@ class ColorScheme {
         _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
         _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
         _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
-        _triadic5.copy(_icon).rybRotateHue(150).brighten(0.2);
-        _triadic6.copy(_complement).rybRotateHue(150).brighten(0.2);
 
         ColorScheme.updateCSS();
     }
@@ -67,6 +63,7 @@ class ColorScheme {
     static updateCSS() {
         Css.setVariable('--shadow',             _clr.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
         Css.setVariable('--darkness',           _clr.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
+
         Css.setVariable('--background-dark',    _clr.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
         Css.setVariable('--background-light',   _clr.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
         Css.setVariable('--button-dark',        _clr.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
@@ -76,8 +73,9 @@ class ColorScheme {
         Css.setVariable('--text',               _clr.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
         Css.setVariable('--text-light',         _clr.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
 
-        Css.setVariable('--midlight',           _clr.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
+        Css.setVariable('--blacklight',         _clr.set(ColorScheme.color(TRAIT.BLACKLIGHT)).rgbString());
         Css.setVariable('--darklight',          _clr.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
+        Css.setVariable('--midlight',           _clr.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
         Css.setVariable('--highlight',          _clr.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
 
         Css.setVariable('--icon-dark',          _clr.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
@@ -88,8 +86,6 @@ class ColorScheme {
         Css.setVariable('--triadic2',           _clr.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
         Css.setVariable('--triadic3',           _clr.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
         Css.setVariable('--triadic4',           _clr.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
-        Css.setVariable('--triadic5',           _clr.set(ColorScheme.color(TRAIT.TRIADIC5)).rgbString());
-        Css.setVariable('--triadic6',           _clr.set(ColorScheme.color(TRAIT.TRIADIC6)).rgbString());
 
         Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
 
@@ -123,6 +119,7 @@ class ColorScheme {
         if (_background == BACKGROUNDS.LIGHT) {
             switch (guiColor) {
                 case TRAIT.SHADOW:              _clr.set(140, 140, 140, 'rgb'); break;
+
                 case TRAIT.BACKGROUND_DARK:     _clr.set(180, 180, 180, 'rgb'); break;
                 case TRAIT.BACKGROUND_LIGHT:    _clr.set(190, 190, 190, 'rgb'); break;
                 case TRAIT.BUTTON_DARK:         _clr.set(200, 200, 200, 'rgb'); break;
@@ -132,13 +129,15 @@ class ColorScheme {
                 case TRAIT.TEXT:                _clr.set( 50,  50,  50, 'rgb'); break;
                 case TRAIT.TEXT_LIGHT:          _clr.set( 25,  25,  25, 'rgb'); break;
 
+                case TRAIT.BLACKLIGHT:          _clr.set(255, 255, 255, 'rgb'); break;
                 case TRAIT.DARKLIGHT:           _clr.set(200, 200, 200, 'rgb'); break;
                 case TRAIT.MIDLIGHT:            _clr.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr.set(  4,   4,   4, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr.set(  0,   0,   0, 'rgb'); break;
             }
         } else {
             switch (guiColor) {
                 case TRAIT.SHADOW:              _clr.set(  0,   0,   0, 'rgb'); tint = 0; break;
+
                 case TRAIT.BACKGROUND_DARK:     _clr.set( 24,  24,  24, 'rgb'); break;
                 case TRAIT.BACKGROUND_LIGHT:    _clr.set( 32,  32,  32, 'rgb'); break;
                 case TRAIT.BUTTON_DARK:         _clr.set( 40,  40,  40, 'rgb'); break;
@@ -148,6 +147,7 @@ class ColorScheme {
                 case TRAIT.TEXT:                _clr.set(190, 190, 190, 'rgb'); break;
                 case TRAIT.TEXT_LIGHT:          _clr.set(225, 225, 225, 'rgb'); break;
 
+                case TRAIT.BLACKLIGHT:          _clr.set(  0,   0,   0, 'rgb'); lightness = 0; break;
                 case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); lightness = 0; break;
                 case TRAIT.MIDLIGHT:            _clr.set( 85,  85,  85, 'rgb'); break;
                 case TRAIT.HIGHLIGHT:           _clr.set(255, 255, 255, 'rgb'); break;
@@ -177,8 +177,6 @@ class ColorScheme {
             case TRAIT.TRIADIC2:    _clr.copy(_triadic2);   break;
             case TRAIT.TRIADIC3:    _clr.copy(_triadic3);   break;
             case TRAIT.TRIADIC4:    _clr.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr.copy(_triadic6);   break;
         }
 
         // Tint / Lightness / Saturation
@@ -188,8 +186,6 @@ class ColorScheme {
             case TRAIT.TRIADIC2:
             case TRAIT.TRIADIC3:
             case TRAIT.TRIADIC4:
-            case TRAIT.TRIADIC5:
-            case TRAIT.TRIADIC6:
                 saturation = 0.0;
                 /* NO BREAK ON PURPOSE */
             case TRAIT.ICON_DARK:

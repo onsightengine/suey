@@ -27,6 +27,7 @@ export const TRAIT = {
     BUTTON_DARK:        'button-dark',
     BUTTON_LIGHT:       'button-light',
 
+    BLACKLIGHT:         'blacklight',
     DARKLIGHT:          'darklight',
     MIDLIGHT:           'midlight',
     HIGHLIGHT:          'highlight',
@@ -43,8 +44,6 @@ export const TRAIT = {
     TRIADIC2:           'triadic2',             // Triadic color 2 (complement shifted 120°)
     TRIADIC3:           'triadic3',             // Triadic color 3 (icon shifted 90°)
     TRIADIC4:           'triadic4',             // Triadic color 4 (complement shifted 90°)
-    TRIADIC5:           'triadic5',             // Triadic color 5 (icon shifted 150°)
-    TRIADIC6:           'triadic6',             // Triadic color 6 (complement shifted 150°)
 };
 
 export const RESIZERS = {

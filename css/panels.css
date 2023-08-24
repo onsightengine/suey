@@ -408,8 +408,8 @@
 }
 
 .osui-tab-title-text::selection {
-    color: rgba(var(--darklight), 1);
-    background-color: rgba(var(--complement), 1);
+    color: rgba(var(--icon), 1);
+    background-color: rgba(var(--blacklight), 1);
 }
 
 .osui-text-opaque {

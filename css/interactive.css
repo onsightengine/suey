@@ -3,7 +3,7 @@
 .osui-panel-button {
     pointer-events: all;
     border: var(--border-small) solid rgb(var(--icon));
-    outline: solid var(--border-small) rgba(var(--darkness), 0.25);
+    outline: solid var(--border-small) rgba(var(--shadow), 0.2);
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
