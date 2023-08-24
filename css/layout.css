@@ -141,9 +141,8 @@
 /********** Row **********/
 
 .osui-row {
-    width: 100%;
-    padding: 0 var(--border-small);
-    margin: var(--pad-x-small) 0;
+    padding: var(--pad-micro) var(--border-small);
+    margin: 0;
     position: relative;
     display: flex;
     align-items: center;
