@@ -385,16 +385,10 @@
 }
 
 @keyframes osui-animate-fade-out {
-  0%   { opacity: 1.0; }
-  50%  { opacity: 1.0; }
-  70%  { opacity: 0.0; }
-  100% { opacity: 0.0; }
-}
-
-@keyframes osui-animate-fade-in {
-    0%   { opacity: 0.0; }
+    0%   { opacity: 1.0; }
+    70%  { opacity: 1.0; }
     90%  { opacity: 0.0; }
-    100% { opacity: 1.0; }
+    100% { opacity: 0.0; }
 }
 
 .osui-tab-title-text {
@@ -416,20 +410,10 @@
     user-select: all;
     opacity: 1.0;
 }
-.osui-text-transparent {
-    user-select: none;
-    opacity: 0.0;
-}
 
 .osui-text-opaque.osui-fade-out {
     user-select: none;
-    animation: osui-animate-fade-out 0.7s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-}
-
-.osui-text-transparent.osui-fade-in {
-    animation: osui-animate-fade-in 0.7s;
+    animation: osui-animate-fade-out 1s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
 }
