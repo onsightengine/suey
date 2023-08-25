@@ -83,7 +83,7 @@
     border: solid var(--border-small) rgba(var(--shadow), 0.25);
     border-radius: var(--radius-large);
     margin: var(--pad-x-small);
-    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
+    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */
     overflow: hidden;
 }
 .osui-shrinkable.osui-borderless {
@@ -110,7 +110,7 @@
     color: rgba(var(--text-light), 1.0);
     background-color: rgba(var(--icon), 0.35);
 
-    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.75); /* inner-glow */
+    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */
     text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 
     border-bottom: solid var(--border-micro) transparent;
@@ -375,7 +375,6 @@
     text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);
     text-align: center;
     overflow: hidden;
-    user-select: all;
 
     font-size: calc(100% * var(--font-size-increase));
     margin: var(--pad-small);

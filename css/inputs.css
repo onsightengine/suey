@@ -3,7 +3,7 @@
 .osui-input {
     color: rgba(var(--text), 1);
     background-color: rgba(var(--background-dark), 0.35);
-    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.5);
+    box-shadow: inset 0 0.075em 0.15em 0 rgba(var(--shadow), 0.35);
 
     border: var(--border-micro) solid rgba(var(--shadow), 0.5);
     border-radius: var(--radius-large);
@@ -133,14 +133,15 @@
 
 /* Little borderless buttons */
 .osui-borderless-button {
+    user-select: none;
     border: none;
     border-radius: var(--radius-large);
     background: transparent;
     box-shadow: none;
     outline: none;
 
-    min-height: 1.6em;
-    min-width: 1.75em;
+    min-height: 1.5em;
+    min-width: 1.5em;
 }
 
 .osui-borderless-button:not(.osui-selected):enabled:hover {
