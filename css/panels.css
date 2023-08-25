@@ -316,13 +316,13 @@
     filter: none;
 }
 
-.osui-tab-button:hover .osui-vector-box {
+.osui-tab-button:hover .osui-vector-box,
+.osui-tab-button:active .osui-vector-box {
     filter: brightness(120%) !important;
 }
 
-.osui-tab-button:active .osui-vector-box {
+.osui-tab-button:active .osui-vector-box .osui-image {
     transform: translate(0, 0.07em);
-    filter: brightness(120%) !important;
 }
 
 /* Tab Image Border / Shadow */

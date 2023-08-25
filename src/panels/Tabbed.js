@@ -304,8 +304,10 @@ class TabButton extends Div {
         const shrink = options.shrink;
         if (this.iconVector.img && !isNaN(shrink)) {
             this.iconVector.img.setStyle('position', 'absolute');
-            this.iconVector.img.setStyle('left', `calc(${(100 - (shrink * 100)) / 2}% + 1px)`, 'width', `${shrink * 100}%`);
-            this.iconVector.img.setStyle('top', `${(100 - (shrink * 100)) / 2}%`, 'height', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('left', '1px', 'right', '0', 'top', '0', 'bottom', '0');
+            this.iconVector.img.setStyle('margin', 'auto');
+            this.iconVector.img.setStyle('width', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('height', `${shrink * 100}%`);
         }
 
         // Events
