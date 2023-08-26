@@ -385,13 +385,6 @@
     min-height: 1.867em;
 }
 
-@keyframes osui-animate-fade-out {
-    0%   { opacity: 1.0; }
-    70%  { opacity: 1.0; }
-    90%  { opacity: 0.0; }
-    100% { opacity: 0.0; }
-}
-
 .osui-tab-title-text {
     position: absolute;
     left: 0;
@@ -400,23 +393,12 @@
     bottom: 0;
     margin: auto;
     font-size: 100%;
+    user-select: all;
 }
 
 .osui-tab-title-text::selection {
     color: rgba(var(--icon), 1);
     background-color: rgba(var(--blacklight), 1);
-}
-
-.osui-text-opaque {
-    user-select: all;
-    opacity: 1.0;
-}
-
-.osui-text-opaque.osui-fade-out {
-    user-select: none;
-    animation: osui-animate-fade-out 1s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
 }
 
 /********** Titled **********/
