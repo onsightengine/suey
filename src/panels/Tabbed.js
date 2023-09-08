@@ -117,7 +117,7 @@ class Tabbed extends Panel {
         if (!('icon' in options))options.icon = IMAGE_EMPTY;
         if (!('shadow' in options)) options.shadow = 0x000000;
         if (!('shrink' in options)) options.shrink = 1;
-        if (options.shrink === true) options.shrink = 0.78;
+        if (options.shrink === true) options.shrink = 0.7;
         if (typeof options.shrink === 'string') {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
@@ -296,7 +296,7 @@ class TabButton extends Div {
         const shadow = options.shadow;
         if (this.iconVector.img && shadow !== false) {
             _color.set(shadow);
-            const dropShadow = `drop-shadow(var(--minus) var(--pixel) var(--pad-micro) rgba(${_color.rgbString()}, 0.75))`;
+            const dropShadow = `drop-shadow(0 0 var(--pad-micro) rgba(${_color.rgbString()}, 0.8))`;
             this.iconVector.img.setStyle('filter', dropShadow);
         }
 
@@ -304,7 +304,7 @@ class TabButton extends Div {
         const shrink = options.shrink;
         if (this.iconVector.img && !isNaN(shrink)) {
             this.iconVector.img.setStyle('position', 'absolute');
-            this.iconVector.img.setStyle('left', '1px', 'right', '0', 'top', '0', 'bottom', '0');
+            this.iconVector.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
             this.iconVector.img.setStyle('margin', 'auto');
             this.iconVector.img.setStyle('width', `${shrink * 100}%`);
             this.iconVector.img.setStyle('height', `${shrink * 100}%`);

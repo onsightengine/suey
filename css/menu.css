@@ -99,12 +99,10 @@
     --menu-icon-size:   1.45em;
 
     position: relative;
+    flex: 0 0 auto;
     height: var(--menu-icon-size);
     width: var(--menu-icon-size);
-    flex: 0 0 auto;
     filter: var(--drop-shadow);
-
-    border-radius: 0.5em;
     overflow: hidden;
 }
 

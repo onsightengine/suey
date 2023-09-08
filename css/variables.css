@@ -93,11 +93,12 @@
     --tab-size:             2.5em;              /* Tab button diameter */
 
     /* Timing */
-    --menu-timing:          0.2s;               /* ..in seconds */
+    --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */
     --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */
 
-    /* Drop Shadows:        'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */
+    /* Box Shadows:         'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */
 
     /* Filters */
-    --drop-shadow:          drop-shadow(var(--minus) var(--pixel) var(--pad-micro) rgba(0, 0, 0, 0.75));
+    --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);
+
 }
