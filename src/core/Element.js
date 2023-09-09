@@ -55,7 +55,10 @@ class Element {
             // Attempt to remove element from contents(), then try to remove from self.dom
             let removed = removeFromParent(this.contents(), element);
             if (!removed) removed = removeFromParent(this, element);
-            if (!removed) console.log(`Element.removeFromParent: Could not remove child!`);
+            if (!removed) {
+                // // DEBUG: Could not remove element(s)
+                // console.log(`Element.removeFromParent: Could not remove child!`);
+            }
         }
         return this;
     }

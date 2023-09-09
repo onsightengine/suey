@@ -933,7 +933,8 @@ class Element {
             const element = arguments[i];
             let removed = removeFromParent(this.contents(), element);
             if (!removed) removed = removeFromParent(this, element);
-            if (!removed) console.log(`Element.removeFromParent: Could not remove child!`);
+            if (!removed) {
+            }
         }
         return this;
     }
