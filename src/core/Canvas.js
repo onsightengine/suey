@@ -3,12 +3,16 @@ import { Element } from './Element.js';
 class Canvas extends Element {
 
     constructor(width = 300, height = 150) {
-        const canvas = document.createElement('canvas');
+        // const canvas = document.createElement('canvas');
+        // // OR
+        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
         canvas.width = width;
         canvas.height = height;
 
+        // Base
         super(canvas);
 
+        // Context
         this.ctx = this.dom.getContext('2d');
     }
 
