@@ -198,7 +198,7 @@ class MenuItem extends Div {
         if (osuiMenu.hasClass('osui-menu') === false) return this;
 
         // Add Animation
-        osuiMenu.addClass('SlideDown');
+        osuiMenu.addClass('osui-slide-down');
 
         // Remove any existing sub menu, add new sub menu
         this.removeSubMenu();

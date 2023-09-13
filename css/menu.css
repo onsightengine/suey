@@ -7,7 +7,9 @@
 }
 
 .osui-menu.osui-menu-show.osui-menu-under {
-    transform: translate(-58%, 62%) scale(1.0, 1.0);
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0) scale(1.0, 1.0);
 }
 
 /********** Menu **********/
