@@ -182,37 +182,13 @@ class Element {
     }
 
     // // WARNING: Setting any of the following will delete children!
-    //
+    // // SEE: https://kellegous.com/j/2013/02/27/innertext-vs-textcontent/
     // Order of content, from least to most:
-    //      textContents:   All text contained by an element and all its children that are for formatting purposes only.
-    //      innerText:      All text contained by an element and all its child elements.
-    //      innerHtml:      All text, including html tags, that is contained by an element.
-    //
+    //      textContent:    All text contained by an element and all its children
+    //      innerText:      All text contained by an element and all its children, affected by 'style'
+    //      innerHtml:      All text, including html tags, that is contained by an element
 
-    /** The innerText property represents the "rendered" text content of a node and its descendants. */
-    getInnerText() {
-        return this.contents().dom.innerText;
-    }
-
-    setInnerText(value) {
-        if (value != undefined) this.contents().dom.innerText = value;
-        return this;
-    }
-
-    /** The innerHTML returns all text, including html tags, that is contained by an element. */
-    setInnerHtml(value) {
-        if (value != undefined) this.contents().dom.innerHTML = value;
-        return this;
-    }
-
-    getInnerHtml() {
-        return this.contents().dom.innerHTML;
-    }
-
-    /**
-     * The textContent property represents the text content of the node and its descendants.
-     * NOTE: textContent and innerText are easily confused. Basically, innerText only shows "human-readable" elements.
-     */
+    /** The textContent property represents the text content of the node and its descendants */
     setTextContent(value) {
         if (value != undefined) this.contents().dom.textContent = value;
         return this;
@@ -220,6 +196,24 @@ class Element {
 
     getTextContent() {
         return this.contents().dom.textContent;
+    }
+
+    /** The innerHTML returns all text, including html tags, that is contained by an element */
+    setInnerHtml(value) {
+        if (value === undefined || value === null) value = '';
+        // NOTE: Attempt to sanitize html
+        // https://developer.mozilla.org/en-US/docs/Web/API/Element/setHTML#
+        // https://github.com/WICG/sanitizer-api
+        if (typeof this.contents().dom.setHTML === 'function') {
+            this.contents().dom.setHTML(value);
+        } else {
+            this.contents().dom.innerHTML = value;
+        }
+        return this;
+    }
+
+    getInnerHtml() {
+        return this.contents().dom.innerHTML;
     }
 
     /********** CSS **********/

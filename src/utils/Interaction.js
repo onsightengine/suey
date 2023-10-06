@@ -24,7 +24,7 @@ export const CORNER_BUTTONS = {
 
 const MOUSE_SLOP = 2;
 
-class Interaction extends Button {
+class Interaction {
 
     static addCloseButton(element, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
         Interaction.addCornerButton(CORNER_BUTTONS.CLOSE, element, closeSide, offset, scale);

@@ -5,12 +5,12 @@ import { ALIGN, OVERFLOW, POSITION } from '../utils/Popper.js';
 
 class Button extends Element {
 
-    constructor(innerHtml) {
+    constructor(buttonText) {
         super(document.createElement('button'));
         const self = this;
 
         this.setClass('osui-button');
-        this.dom.innerHTML = innerHtml ?? '';
+        this.dom.textContent = buttonText ?? ' ';
 
         this.attachedMenu = undefined;
         this.menuOffsetX = 0;
@@ -20,7 +20,7 @@ class Button extends Element {
 
         Object.defineProperty(this, 'disabled', {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
-            set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
+            set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
         });
 
         /***** EVENTS *****/

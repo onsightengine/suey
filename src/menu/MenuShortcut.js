@@ -36,7 +36,7 @@ class MenuShortcut extends Div {
             }
 
             // Add letter(s)
-            letter.dom.innerHTML = subString;
+            letter.dom.textContent = subString;
             this.add(letter);
         }
         return this;

@@ -1026,26 +1026,24 @@ class Element {
     blur() {
         this.dom.blur();
     }
-    getInnerText() {
-        return this.contents().dom.innerText;
-    }
-    setInnerText(value) {
-        if (value != undefined) this.contents().dom.innerText = value;
-        return this;
-    }
-    setInnerHtml(value) {
-        if (value != undefined) this.contents().dom.innerHTML = value;
-        return this;
-    }
-    getInnerHtml() {
-        return this.contents().dom.innerHTML;
-    }
     setTextContent(value) {
         if (value != undefined) this.contents().dom.textContent = value;
         return this;
     }
     getTextContent() {
         return this.contents().dom.textContent;
+    }
+    setInnerHtml(value) {
+        if (value === undefined || value === null) value = '';
+        if (typeof this.contents().dom.setHTML === 'function') {
+            this.contents().dom.setHTML(value);
+        } else {
+            this.contents().dom.innerHTML = value;
+        }
+        return this;
+    }
+    getInnerHtml() {
+        return this.contents().dom.innerHTML;
     }
     setStyle() {
         for (let i = 0, l = arguments.length; i < l; i += 2) {
@@ -1205,11 +1203,11 @@ events.forEach(function(event) {
 });
 
 class Button extends Element {
-    constructor(innerHtml) {
+    constructor(buttonText) {
         super(document.createElement('button'));
         const self = this;
         this.setClass('osui-button');
-        this.dom.innerHTML = innerHtml ?? '';
+        this.dom.textContent = buttonText ?? ' ';
         this.attachedMenu = undefined;
         this.menuOffsetX = 0;
         this.menuOffsetY = 0;
@@ -1217,7 +1215,7 @@ class Button extends Element {
         this.overflowMenu = OVERFLOW.RIGHT;
         Object.defineProperty(this, 'disabled', {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
-            set: function(innerHtml) { if (this.dom) this.dom.disabled = innerHtml; }
+            set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
         });
         function onPointerDown(event) {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
@@ -1393,7 +1391,7 @@ const CORNER_BUTTONS = {
     MAX:        'max',
 };
 const MOUSE_SLOP = 2;
-class Interaction extends Button {
+class Interaction {
     static addCloseButton(element, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
         Interaction.addCornerButton(CORNER_BUTTONS.CLOSE, element, closeSide, offset, scale);
     }
@@ -2611,7 +2609,7 @@ class MenuShortcut extends Div {
                 letter.setStyle('paddingLeft', '0.15em');
                 letter.setStyle('paddingRight', '0.15em');
             }
-            letter.dom.innerHTML = subString;
+            letter.dom.textContent = subString;
             this.add(letter);
         }
         return this;
@@ -2755,7 +2753,7 @@ class MenuItem extends Div {
         return this;
     }
     setText(text) {
-        this.divText.dom.innerHTML = text ?? ' ';
+        this.divText.dom.textContent = text ?? ' ';
         return this;
     }
     attachSubMenu(osuiMenu) {
@@ -2783,8 +2781,8 @@ class MenuItem extends Div {
 }
 
 class Dropdown extends Button {
-    constructor(innerHtml = '&nbsp') {
-        super(innerHtml);
+    constructor(buttonText) {
+        super(buttonText);
         const self = this;
         this.items = [];
         this.currentIndex = -1;
@@ -2829,7 +2827,7 @@ class Dropdown extends Button {
         item.setChecked(true);
         this.currentIndex = index;
         this.value = item.value;
-        if (this.dom) this.dom.innerHTML = item.dom.innerText;
+        if (this.dom) this.dom.textContent = item.dom.textContent;
         return this;
     }
     setValue(value) {
@@ -2842,7 +2840,7 @@ class Dropdown extends Button {
                     item.setChecked(true);
                     this.currentIndex = i;
                     this.value = value;
-                    if (this.dom) this.dom.innerHTML = item.dom.innerText;
+                    if (this.dom) this.dom.textContent = item.dom.textContent;
                     return this;
                 }
             }
@@ -4066,8 +4064,8 @@ class FlexBox extends Element {
 }
 
 class ToolbarButton extends Button {
-    constructor(innerHtml, position , addBackground = true, closesMenus = true) {
-        super(innerHtml);
+    constructor(buttonText, position , addBackground = true, closesMenus = true) {
+        super(buttonText);
         const self = this;
         this.setClass('osui-toolbar-button');
         this.setStyle('pointerEvents', 'all');

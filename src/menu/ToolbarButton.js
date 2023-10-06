@@ -4,8 +4,8 @@ import { ShadowBox } from '../layout/ShadowBox.js';
 
 class ToolbarButton extends Button {
 
-    constructor(innerHtml, position /* left, middle, right */, addBackground = true, closesMenus = true) {
-        super(innerHtml)
+    constructor(buttonText, position /* left, middle, right */, addBackground = true, closesMenus = true) {
+        super(buttonText)
         const self = this;
         this.setClass('osui-toolbar-button');
         this.setStyle('pointerEvents', 'all');

@@ -4,8 +4,8 @@ import { MenuItem } from '../menu/MenuItem.js';
 
 class Dropdown extends Button {
 
-    constructor(innerHtml = '&nbsp') {
-        super(innerHtml);
+    constructor(buttonText) {
+        super(buttonText);
         const self = this;
 
         this.items = [];
@@ -72,7 +72,7 @@ class Dropdown extends Button {
 
         this.currentIndex = index;
         this.value = item.value;
-        if (this.dom) this.dom.innerHTML = item.dom.innerText;
+        if (this.dom) this.dom.textContent = item.dom.textContent;
         return this;
     }
 
@@ -90,7 +90,7 @@ class Dropdown extends Button {
                     // Set value and text
                     this.currentIndex = i;
                     this.value = value;
-                    if (this.dom) this.dom.innerHTML = item.dom.innerText;
+                    if (this.dom) this.dom.textContent = item.dom.textContent;
                     return this;
                 }
             }

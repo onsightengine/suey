@@ -186,7 +186,7 @@ class MenuItem extends Div {
     }
 
     setText(text) {
-        this.divText.dom.innerHTML = text ?? ' ';
+        this.divText.dom.textContent = text ?? ' ';
         return this;
     }
 
