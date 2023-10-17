@@ -9,7 +9,7 @@ class Element {
         this.dom = dom;                                 // HTML Element
         this.name = undefined;                          // Object Name
 
-        this.contents = function() { return self; }     // Inner Osui Element to be filled with other elements
+        this.contents = function() { return self; };    // Inner Osui Element to be filled with other elements
         this.children = [];                             // Holds Osui Children (.add / .remove / .clearContents)
         this.parent = undefined;
     }
@@ -467,7 +467,6 @@ events.forEach(function(event) {
         dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
         return this;
     };
-
 });
 
 /******************** REFERENCE ********************/

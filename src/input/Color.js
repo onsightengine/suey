@@ -63,14 +63,14 @@ class Color extends Button {
         this.getValue = function() {
             if (!colorBox.dom) return 0;
             return colorBox.dom.value;
-        }
+        };
 
         /** Returns value as integer, i.e. 16711680 (equivalent to 0xff0000) */
         this.getHexValue = function() {
             if (!colorBox.dom) return 0;
             _color.set(colorBox.dom.value);
             return _color.hex();
-        }
+        };
 
         this.setValue = function(value) {
             if (!colorBox.dom) return this;
@@ -79,7 +79,7 @@ class Color extends Button {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
             return this;
-        }
+        };
 
         // Init
 

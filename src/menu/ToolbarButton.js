@@ -72,7 +72,7 @@ class ToolbarButton extends Button {
                 callback(event);
                 if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
             }
-        }
+        };
         const dom = self.dom;
         dom.addEventListener('click', eventHandler);
         dom.addEventListener('destroy', () => { dom.removeEventListener('click', eventHandler); }, { once: true });

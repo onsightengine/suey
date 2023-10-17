@@ -142,7 +142,7 @@ class MenuItem extends Div {
                     document.dispatchEvent(new Event('closemenu'));
                 }
             }
-        }
+        };
         const dom = self.dom;
         dom.addEventListener('select', eventHandler);
         dom.addEventListener('destroy', () => { dom.removeEventListener('select', eventHandler); }, { once: true });

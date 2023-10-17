@@ -47,7 +47,7 @@ class Node extends Div {
         const border = new Div().addClass('osui-node-border');
         const sizers = new Div().addClass('osui-node-resizers');
         this.addToSelf(sizers, panel, border);
-        this.contents = function() { return panel; }
+        this.contents = function() { return panel; };
 
         // Interior
         this.header = new Div().setClass('osui-node-header-title').setStyle('display', 'none');

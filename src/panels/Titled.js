@@ -31,7 +31,7 @@ class Titled extends Panel {
         this.add(this.scroller);
 
         // Override Contents
-        this.contents = function() { return this.scroller; }
+        this.contents = function() { return this.scroller; };
     }
 
     setExpanded(expand = true) {

@@ -102,7 +102,7 @@ class Button extends Element {
             self.attachedMenu.destroy();
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
-        }
+        };
     }
 
 }

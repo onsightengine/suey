@@ -154,7 +154,7 @@ class Menu extends Div {
             document.removeEventListener('closemenu', onCloseMenu);
             document.removeEventListener('keydown', onKeyDown);
             document.removeEventListener('pointerdown', onPointerDown);
-        }
+        };
 
         this.dom.addEventListener('destroy', function() {
             self.removeHandlers();

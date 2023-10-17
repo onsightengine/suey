@@ -77,7 +77,7 @@ class Gooey extends Tabbed {
 
         const titlePanel = new Titled({ title: title, collapsible: true });
         this.add(titlePanel);
-        this.contents = function() { return titlePanel.scroller; }
+        this.contents = function() { return titlePanel.scroller; };
 
         document.body.appendChild(this.dom);
     }
@@ -160,7 +160,7 @@ class Folder extends Shrinkable {
             } else if (Array.isArray(value) && value.length > 0) {
                 return this.addVector(params, variable);
             }
-        }
+        };
     }
 
     addBoolean(params, variable) {
