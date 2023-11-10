@@ -198,16 +198,16 @@
 
 /* Visible Background: Checked */
 .osui-checkbox-input:checked + .osui-checkbox-button {
+    --bg-color-light: var(--icon-light);
+    --bg-color-dark: var(--icon-dark);
     background-color: rgba(var(--highlight), 0.2);
-    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7));
+    background-image: linear-gradient(to bottom, rgba(var(--bg-color-light), 0.7), rgba(var(--bg-color-dark), 0.7));
     border: var(--border-micro) solid rgba(var(--shadow), 1.0);
 }
 
 /* Visible Background: Checked & Hover */
 .osui-checkbox-input:checked:hover + .osui-checkbox-button {
     background-color: rgba(var(--highlight), 0.5);
-    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.7), rgba(var(--icon-dark), 0.7));
-    border: var(--border-micro) solid rgba(var(--shadow), 1.0);
 }
 
 /* Button: Unchecked */

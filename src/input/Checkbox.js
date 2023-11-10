@@ -11,8 +11,8 @@ class Checkbox extends Element {
         this.checkbox.setClass('osui-input');
         this.checkbox.addClass('osui-checkbox-input');
         this.checkbox.dom.type = 'checkbox';
-        const button = new Div().addClass('osui-checkbox-button');
-        this.add(this.checkbox, button);
+        this.button = new Div().addClass('osui-checkbox-button');
+        this.add(this.checkbox, this.button);
 
         this.setValue(boolean);
     }
@@ -24,7 +24,7 @@ class Checkbox extends Element {
 
     setValue(value) {
         if (!this.checkbox.dom) return this;
-        this.checkbox.dom.checked = (value) ? true : false;
+        this.checkbox.dom.checked = Boolean(value) ? true : false;
         return this;
     }
 
