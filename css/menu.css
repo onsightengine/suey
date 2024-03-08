@@ -223,8 +223,8 @@
     border: none;
     outline: none; /* for macos */
     box-shadow: /* pop-out-shadow */
-        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
-        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
+        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.15);
     z-index: -1;
 }
 
@@ -293,27 +293,32 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
-    box-shadow: /* pop-out-shadow */
-        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
-        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),
-        inset var(--pixel) 0 var(--pixel) rgba(var(--black), 0.15);
 }
 .osui-button-middle, .osui-button-middle .osui-button-background {
     border-radius: 0;
     margin-right: 0;
     margin-left: 0;
-    box-shadow: /* pop-out-shadow */
-        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
-        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15);
 }
 .osui-button-right, .osui-button-right .osui-button-background {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin-left: 0;
+}
+
+.osui-button-left .osui-button-background {
     box-shadow: /* pop-out-shadow */
-        inset 0 var(--pixel) var(--pixel) rgba(var(--white), 0.15),
-        inset 0 var(--minus) var(--pixel) rgba(var(--black), 0.15),
-        inset var(--minus) 0 var(--pixel) rgba(var(--white), 0.15);
+        inset            0 var(--pixel) rgba(var(--white), 0.25),
+        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);
+}
+.osui-button-middle .osui-button-background {
+    box-shadow: /* pop-out-shadow */
+        inset            0 var(--pixel) rgba(var(--white), 0.25),
+        inset            0 var(--minus) rgba(var(--black), 0.25);
+}
+.osui-button-right .osui-button-background {
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),
+        inset            0 var(--minus) rgba(var(--black), 0.25);
 }
 
 /********** Toolbar Separator / Toolbar Spacer **********/
