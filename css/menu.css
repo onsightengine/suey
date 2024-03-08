@@ -223,8 +223,8 @@
     border: none;
     outline: none; /* for macos */
     box-shadow: /* pop-out-shadow */
-        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
-        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.15);
+        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),
+        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);
     z-index: -1;
 }
 
