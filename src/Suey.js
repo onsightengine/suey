@@ -3,6 +3,7 @@
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2024 Stephens Nunnally
+ * @source      https://github.com/salinityengine/suey
  */
 
 //  ---CATEGORY---              ---NODE TYPE---         ---CLASS NAME---
@@ -79,10 +80,12 @@ export { Popper } from './utils/Popper.js';
 export { Utils } from './utils/Utils.js';
 export { Signal, SignalBinding } from './utils/Signal.js';
 
-import { tooltipper } from './utils/Tooltipper.js';
 export { tooltipper } from './utils/Tooltipper.js';
 
 /***** WIDGETS *****/
+
+// Little Property Gui
+export { Gooey } from './Gooey.js';
 
 // Core
 export { Break } from './core/Break.js';
@@ -145,3 +148,17 @@ export { CORNERS } from './layout/Docker.js';
 export { LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
+
+// CSS
+import '../css/variables.css';
+import '../css/core.css';
+import '../css/inputs.css';
+import '../css/layout.css';
+import '../css/menu.css';
+import '../css/panels.css';
+import '../css/gooey.css';
+import '../css/data.css';
+import '../css/node.css';
+import '../css/interactive.css';
+import '../css/tooltip.css';
+import '../css/options.css';

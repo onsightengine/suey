@@ -1,7 +1,11 @@
-export const IMAGE_CHECK = '../../files/gui/check.svg';
-export const IMAGE_CLOSE = '../../files/gui/close.svg';
-export const IMAGE_EMPTY = '../../files/gui/empty.svg';
-export const IMAGE_EXPAND = '../../files/gui/expand.svg';
+import imageCheck from '../files/images/check.svg';
+import imageClose from '../files/images/close.svg';
+import imageEmpty from '../files/images/empty.svg';
+import imageExpand from '../files/images/expand.svg';
+export const IMAGE_CHECK = imageCheck;
+export const IMAGE_CLOSE = imageClose;
+export const IMAGE_EMPTY = imageEmpty;
+export const IMAGE_EXPAND = imageExpand;
 
 export const GRID_SIZE = 25;
 

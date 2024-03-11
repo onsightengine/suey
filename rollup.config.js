@@ -26,12 +26,11 @@ const builds = [
     { // Standard
         input: './src/Suey.js',
         treeshake: false,
-        external: p => /^three/.test(p),
 
         plugins: [
             cleanup({
-                comments: "none",
-                extensions: [ "js", "ts" ],
+                comments: 'none',
+                extensions: [ 'js', 'ts' ],
                 sourcemap: false,
             }),
             header(),
@@ -51,7 +50,6 @@ const builds = [
     { // Minified
         input: './src/Suey.js',
         treeshake: false,
-        external: p => /^three/.test(p),
 
         plugins: [
             header(),
