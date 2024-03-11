@@ -13,7 +13,7 @@ function header() {
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2021 Stephens Nunnally
  * @source      https://github.com/scidian/osui
- * @version     v0.1.18
+ * @version     v0.1.19
  */
 ${code}`;
         }
