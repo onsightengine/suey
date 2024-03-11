@@ -1,0 +1,105 @@
+/**
+ * Units
+ *  px      Pixels
+ *  %       Percentage relative to the parent element
+ *  em      Relative to the font-size of the element (2em means 2 times the size of the current font)
+ *  rem     Relative to the font-size of the root element
+ *  ch      Relative to the width of the character '0' of the current font
+ *  ex      Relative to the height of a lowercase letter ('x') of the current font
+ *  cap     Relative to the height of a capital letter of the current font
+ *  vw      Relative to 1% of the width of the viewport (browser window)
+ *  vh      Relative to 1% of the width of the viewport (browser window)
+ *  vmin    Relative to 1% of viewport's (browser window's) smaller dimension
+ *  vmax    Relative to 1% of viewport's (browser window's) larger dimension
+ */
+
+:root {
+    color-scheme: light dark;
+
+    /* Scheme Colors */
+    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */
+    --darkness:               0,   0,   0;      /* lightens as theme lightens */
+
+    --background-dark:       24,  24,  24;
+    --background-light:      32,  32,  32;
+    --button-dark:           40,  40,  40;
+    --button-light:          60,  60,  60;
+
+    --text-dark:            100, 100, 100;
+    --text:                 190, 190, 190;
+    --text-light:           225, 225, 225;
+
+    --blacklight:             0,   0,   0;
+    --darklight:             16,  16,  16;
+    --midlight:              85,  85,  85;
+    --highlight:            255, 255, 255;
+
+    --icon-dark:              0,  85, 128;      /* icon darkened            dark classic aqua   #005580 */
+    --icon:                   0, 136, 204;      /* icon color               classic aqua        #0088cc */
+    --icon-light:           102, 204, 255;      /* icon brightened          light clasic aqua   #66ccff */
+
+    --complement:             0,   0,   0;      /* icon shifted 180°        orange */
+    --triadic1:               0,   0,   0;      /* icon shifted 120°        pink */
+    --triadic2:               0,   0,   0;      /* complement shifted 120°  lime green */
+    --triadic3:               0,   0,   0;      /* icon shifted 90°         purple */
+    --triadic4:               0,   0,   0;      /* complement shifted 90°   yellow */
+
+    /* Theme Multiplier */
+    --bright:               1;                  /* 1: Mid/Dark, 0: Light */
+
+    /* Basic Colors */
+    --white:                255, 255, 255;
+    --gray:                 128, 128, 128;
+    --black:                  0,   0,   0;
+
+    /* Input Colors */
+    --valid:                  0, 255,   0;
+    --invalid:              255,   0,   0;
+
+    /* Hue Rotation for Icon Color */
+    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */
+
+    /* Transparency */
+    --panel-transparency:   1.0;
+
+    /* Font */
+    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px)
+    --base-size:            10px;               /* Gui designed to scale from this original font size */
+    --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */
+    --font-family:          'Roboto', Helvetica, Arial, sans-serif;
+
+    /* Sizes */
+    --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */
+    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */
+
+    --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */
+    --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */
+
+    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */
+    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */
+
+    --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */
+    --pad-x-small:          0.14286em;          /*  2px; */
+    --pad-small:            0.21429em;          /*  3px; */
+    --pad-smallish:         0.28571em;          /*  4px; */
+    --pad-medium:           0.35714em;          /*  5px; */
+    --pad-large:            0.71429em;          /* 10px; */
+
+    --arrow-size:           0.4em;              /* Dropdown arrow */
+    --asset-size:           3.2em;              /* AssetBox size */
+    --button-size:          2.65em;             /* Toolbar button size */
+    --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */
+    --resize-size:          1.0em;              /* 14px, panel resizer thickness */
+    --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */
+    --tab-size:             2.5em;              /* Tab button diameter */
+
+    /* Timing */
+    --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */
+    --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */
+
+    /* Box Shadows:         'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */
+
+    /* Filters */
+    --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);
+
+}

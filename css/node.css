@@ -1,0 +1,368 @@
+/***** GRAPH *****/
+
+.suey-graph-input, .suey-graph-grid, .suey-graph-nodes, .suey-graph-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Div used for processing user input */
+.suey-graph-input {
+    background: transparent;
+    z-index: -1; /* Graph Input */
+}
+
+/* Background div that holds tiled grid */
+.suey-graph-grid {
+    pointer-events: none;
+    background-color: rgb(var(--darkness));
+    background-repeat: repeat;
+    transition: none;
+}
+
+/* Scalable div to hold nodes */
+.suey-graph-nodes {
+    pointer-events: none;
+    background-color: transparent;
+    transition: none;
+}
+
+/* Canvas where lines are drawn */
+.suey-graph-lines {
+    pointer-events: none;
+}
+
+/* Shows rubberband box */
+.suey-graph-band-box {
+    position: absolute;
+    display: none;
+    background-color: rgba(var(--icon), 0.2);
+    border: solid var(--border-small) rgba(var(--icon), 0.75);
+}
+
+/***** MINIMAP *****/
+
+.suey-mini-map {
+    position: absolute;
+    background-color: rgba(var(--background-dark), 0.5);
+    border: var(--border-small) solid rgba(var(--icon), 0.75);
+    border-radius: var(--radius-large);
+    bottom: var(--pad-large);
+    right: var(--pad-large);
+    width: 20%;
+    height: 20%;
+    z-index: 101; /* GraphMap */
+    cursor: grab;
+}
+
+.suey-mini-map-canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    outline: none;
+}
+
+.suey-mini-map-resizers {
+    position: absolute;
+    width: calc(100% + var(--resize-size));
+    height: calc(100% + var(--resize-size));
+    margin: calc(var(--resize-size) / -2);
+    outline: none;
+}
+
+/***** NODE *****/
+
+.suey-node {
+    --node-color:       255, 0, 0;
+
+    pointer-events: all;
+    position: absolute;
+    background-color: transparent;
+    border-radius: var(--radius-large);
+    border: none;
+    outline: solid var(--pad-micro) rgb(var(--black), 0.5);
+    margin: 0;
+    cursor: inherit;
+    overflow: visible;
+    z-index: 0; /* Node */
+}
+
+.suey-active-node {
+    z-index: 1; /* Active Node */
+}
+
+.suey-node:hover, .suey-node.suey-node-selected {
+    filter: brightness(120%);
+}
+
+.suey-node.suey-node-selected, .suey-node.suey-node-displayed {
+    outline: solid var(--pad-small) rgb(var(--black), 0.5);
+}
+
+.suey-node.suey-too-small .suey-resizer {
+    pointer-events: none;
+}
+
+.suey-node-panel {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background-color: rgba(var(--button-dark), 1);
+    border-radius: var(--radius-large);
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: 0;
+    padding: 0;
+    cursor: inherit;
+    overflow: visible;
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+}
+
+.suey-node-border {
+    pointer-events: none;
+    border: var(--border-small) solid transparent;
+    border-radius: var(--radius-large);
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: calc(var(--border-small) * -0.5);
+    padding: 0;
+}
+
+.suey-node.suey-node-displayed .suey-node-border {
+    border: var(--border-small) solid rgba(var(--complement), 1);
+}
+
+.suey-node.suey-node-selected .suey-node-border {
+    border: var(--border-small) solid rgba(var(--icon), 1);
+}
+
+.suey-node-resizers {
+    pointer-events: all;
+    position: absolute;
+    opacity: 0;
+    left: 0; top: 0; right: 0; bottom: 0;
+    margin: calc(var(--resize-size) / -2);
+    padding: 0;
+}
+
+/***** NODE HEADER *****/
+
+.suey-node-header-title {
+    pointer-events: none;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));
+    border-top-right-radius: var(--radius-large);
+    border-top-left-radius: var(--radius-large);
+    width: 100%;
+    height: 1.82em;
+    margin: 0;
+    padding: var(--pad-x-small) 0.5em; /* vertical | horizontal */
+    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);
+}
+
+.suey-node-header-icon .suey-vector-box {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+    filter: drop-shadow(0 0 var(--pad-micro) rgba(var(--shadow), 0.8));
+}
+
+.suey-node-header-icon .suey-image {
+    filter: brightness(calc(10 * var(--bright))) opacity(0.9);
+}
+
+.suey-node-header-icon {
+    pointer-events: none;
+    position: absolute;
+    background-color: rgba(var(--button-dark), 1);
+    border-radius: 0.25em;
+    left: 0.2em;
+    top: 0.2em;
+    width: 1.65em;
+    height: 1.35em;
+    opacity: 1;
+    box-shadow: inset 0 0 var(--pixel) rgba(var(--shadow), 0.5);
+}
+
+.suey-node-header-text {
+    pointer-events: none;
+    flex-grow: 1;
+    flex-shrink: 2;
+    color: rgba(var(--text-light), 1.0);
+    font-size: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 0.5em;
+}
+
+/***** NODE ITEM *****/
+
+.suey-node-interior {
+    pointer-events: none;
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    position: relative;
+    background-color: transparent;
+    min-width: 100px;
+    min-height: 25px;
+}
+
+.suey-node-item-list {
+    pointer-events: none;
+    display: block;
+    flex: 1 1 auto;
+    position: relative;
+    background-color: transparent;
+    width: 50%;
+    min-height: 25px;
+}
+
+/* Item */
+.suey-node-item {
+    pointer-events: none;
+    position: relative;
+    background-color: transparent;
+    color: var(--text);
+    font-size: 85%;
+    width: 100%;
+    padding: var(--pad-medium);
+    margin-top: var(--pad-x-small);
+    margin-bottom: var(--pad-x-small);
+    vertical-align: middle;
+}
+
+.suey-node-left {
+    text-align: left;
+    padding-left: 1.2em;
+}
+
+.suey-node-right {
+    text-align: right;
+    padding-right: 1.2em;
+}
+
+/* Item point */
+.suey-node-item-point {
+    pointer-events: all;
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    background-color: rgba(var(--background-dark), 1);
+    border: var(--border-small) solid rgba(var(--button-light), 1);
+    border-radius: 0.3em;
+    outline: none;
+    top: 50%;
+    overflow: visible;
+    z-index: 100; /* Node Item Point */
+}
+
+.suey-node-left .suey-node-item-point {
+    left: 0;
+    transform: translate(-50%, -50%);
+}
+.suey-node-right .suey-node-item-point {
+    right: 0;
+    transform: translate( 50%, -50%);
+}
+
+/* Increases mouse over hit area */
+.suey-node-item-point::before {
+    content: ' ';
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: -0.5em;
+    background-color: transparent;
+}
+
+/* Inner square */
+.suey-node-item.suey-item-connected .suey-node-item-point::after,
+.suey-node-item .suey-node-item-point.suey-active-item::after {
+    content: ' ';
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: var(--pad-x-small);
+    background-color: rgb(var(--node-color));
+    border-radius: 0.08em;
+}
+
+/* Item point highlight border */
+.suey-node.suey-node-displayed .suey-node-item-point {
+    border: var(--border-small) solid rgba(var(--complement), 1);
+}
+.suey-node.suey-node-selected .suey-node-item-point {
+    border: var(--border-small) solid rgba(var(--icon), 1);
+}
+
+.suey-node-item-point.suey-hover-point, .suey-node.suey-node-selected .suey-node-item-point.suey-hover-point,
+.suey-node-item-point.suey-active-item, .suey-node.suey-node-selected .suey-node-item-point.suey-active-item {
+    border: var(--border-small) solid rgba(var(--highlight), 1);
+    width: 1.2em;
+    height: 1.2em;
+}
+
+/* Item detacher (little 'X') */
+.suey-node-item-detach {
+    pointer-events: none;
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    top: 10%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    overflow: visible;
+    filter: brightness(50%);
+    transform: translateY(-50%);
+    opacity: 0;
+}
+
+.suey-node-right .suey-node-item-detach {
+    left: calc(100% + 0.7em);
+}
+.suey-node-left .suey-node-item-detach {
+    left: calc(0em - var(--row-height));
+}
+
+/* Increases mouse over hit area */
+.suey-node-item-detach::before {
+    content: ' ';
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: -0.5em;
+    background-color: transparent;
+}
+
+.suey-node-item.suey-item-connected .suey-node-item-detach {
+    pointer-events: all;
+}
+
+.suey-node-item.suey-item-connected:hover .suey-node-item-detach {
+    opacity: 1;
+}
+
+.suey-node-item-detach .suey-image {
+    filter: var(--drop-shadow);
+}
+
+.suey-node-item.suey-item-connected .suey-node-item-detach:hover {
+    filter: brightness(100%);
+}

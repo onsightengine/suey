@@ -1,0 +1,76 @@
+import cleanup from 'rollup-plugin-cleanup';                // Remove comments, supports sourcemap
+import postcss from 'rollup-plugin-postcss';                // Include CSS
+import image from '@rollup/plugin-image';                   // Include Images
+import terser from '@rollup/plugin-terser';                 // Remove comments, minify
+
+const pkg = require('./package.json');
+
+function header() {
+    return {
+        renderChunk(code) {
+            return `/**
+ * @description Suey
+ * @about       Lightweight JavaScript UI library.
+ * @author      Stephens Nunnally <@stevinz>
+ * @license     MIT - Copyright (c) 2024 Stephens Nunnally
+ * @source      https://github.com/salinityengine/suey
+ * @version     v${pkg.version}
+ */
+${code}`;
+        }
+    };
+}
+
+const builds = [
+
+    { // Standard
+        input: './src/Suey.js',
+        treeshake: false,
+        external: p => /^three/.test(p),
+
+        plugins: [
+            cleanup({
+                comments: "none",
+                extensions: [ "js", "ts" ],
+                sourcemap: false,
+            }),
+            header(),
+            postcss({
+                extensions: [ '.css' ],
+            }),
+            image(),
+        ],
+
+        output: [{
+            format: 'esm',
+            file: './build/suey.module.js',
+            sourcemap: false,
+        }],
+    },
+
+    { // Minified
+        input: './src/Suey.js',
+        treeshake: false,
+        external: p => /^three/.test(p),
+
+        plugins: [
+            header(),
+            postcss({
+                extensions: [ '.css' ],
+            }),
+            image(),
+        ],
+
+        output: [{
+            format: 'esm',
+            file: './build/suey.min.js',
+            sourcemap: false,
+            plugins: [
+                terser({ format: { comments: false } }),
+            ],
+        }],
+    },
+
+];
+
+export default builds;

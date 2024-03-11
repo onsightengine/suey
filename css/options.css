@@ -1,0 +1,64 @@
+/********** Disabled **********/
+
+/** Grayscale filter for disabled items */
+.suey-disabled {
+    filter: contrast(75%) grayscale(100%) !important;
+    opacity: 0.7 !important;
+    cursor: default !important;
+    /* pointer-events: none !important; */
+}
+
+/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */
+.suey-unselectable {
+    user-select: none;
+}
+
+/********** Coloring **********/
+
+.suey-icon-colorize /* aqua */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 150deg));
+}
+
+.suey-complement-colorize /* orange */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));
+}
+
+.suey-rotate-colorize /* purple */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));
+}
+
+.suey-triadic-colorize /* red */ {
+    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));
+}
+
+.suey-match-scheme {
+    filter: saturate(125%) hue-rotate(var(--rotate-hue));
+}
+
+.suey-match-complement {
+    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));
+}
+
+.suey-black-or-white {
+    filter: brightness(calc(1 * var(--bright)));
+}
+
+.suey-black-or-white.suey-highlight {
+    filter: brightness(calc((2 * var(--bright)) + 0.35));
+}
+
+.suey-black-or-white.suey-drop-shadow {
+    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);
+}
+
+/********** Menu **********/
+
+.suey-keep-open {
+    /* keeps menu open on click, handled in Menu */
+}
+
+/********** Tree List **********/
+
+.suey-no-select {
+    /* disables tree list option, handled in Tree List */
+}
