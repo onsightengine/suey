@@ -3,7 +3,9 @@ import postcss from 'rollup-plugin-postcss';                // Include CSS
 import image from '@rollup/plugin-image';                   // Include Images
 import terser from '@rollup/plugin-terser';                 // Remove comments, minify
 
-const pkg = require('./package.json');
+// const pkg = require('./package.json');
+import pkg from './package.json'; // with { type: "json" };
+
 
 function header() {
     return {
