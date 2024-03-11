@@ -11,8 +11,8 @@ function header() {
  * @description Osui
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
- * @license     MIT - Copyright (c) 2021-2023 Stephens Nunnally
- * @source      https://github.com/onsightengine/osui
+ * @license     MIT - Copyright (c) 2021 Stephens Nunnally
+ * @source      https://github.com/scidian/osui
  * @version     v0.1.18
  */
 ${code}`;

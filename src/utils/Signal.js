@@ -5,7 +5,7 @@
  * @license     MIT - Copyright (c) 2023 Stephens Nunnally
  * @version     v1.0.1
  * @author      stevinz (module)
- * @source      https://github.com/onsightengine/osui
+ * @source      https://github.com/scidian/osui
  *
  * @license     MIT - Copyright (c) 2012 Miller Medeiros
  * @version:    1.0.0 - Build: 268 (2012/11/29 05:48 PM)
