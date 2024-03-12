@@ -150,15 +150,15 @@ export { PANEL_STYLES } from './panels/Panel.js';
 export { TAB_SIDES } from './panels/Tabbed.js';
 
 // CSS
-import '../css/variables.css';
-import '../css/core.css';
-import '../css/inputs.css';
-import '../css/layout.css';
-import '../css/menu.css';
-import '../css/panels.css';
-import '../css/gooey.css';
-import '../css/data.css';
-import '../css/node.css';
-import '../css/interactive.css';
-import '../css/tooltip.css';
-import '../css/options.css';
+import '../files/css/variables.css';
+import '../files/css/core.css';
+import '../files/css/inputs.css';
+import '../files/css/layout.css';
+import '../files/css/menu.css';
+import '../files/css/panels.css';
+import '../files/css/gooey.css';
+import '../files/css/data.css';
+import '../files/css/node.css';
+import '../files/css/interactive.css';
+import '../files/css/tooltip.css';
+import '../files/css/options.css';
