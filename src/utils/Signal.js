@@ -4,8 +4,8 @@
  *
  * @license     MIT - Copyright (c) 2024 Stephens Nunnally
  * @version     v1.0.2
- * @author      stevinz (module)
- * @source      https://github.com/stevinz/salinity
+ * @author      stevinz (ES6)
+ * @source      https://github.com/salinityengine/suey
  *
  * @license     MIT - Copyright (c) 2012 Miller Medeiros
  * @version:    1.0.0 - Build: 268 (2012/11/29 05:48 PM)

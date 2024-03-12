@@ -22,7 +22,7 @@ const _triadic3 = new Iris();
 const _triadic4 = new Iris();
 
 // Save state
-const DEFAULT_CLR = 0x0088cc; /* (0, 136, 204) - classic icon aqua */
+const DEFAULT_CLR = 0x00b4af; /* classic icon aqua */
 let _background = BACKGROUNDS.DARK;
 let _color = DEFAULT_CLR;
 let _tint = 0.0;
@@ -94,7 +94,7 @@ class ColorScheme {
         // Update necessary hue rotation degrees
         const startHue = _clr.set(DEFAULT_CLR).hue();
         const newHue = _clr.set(ColorScheme.color(TRAIT.ICON, true /* ignoreSaturation */)).hue();
-        const diffHue = `${newHue - startHue + 30}deg`;
+        const diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
 

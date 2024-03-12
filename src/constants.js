@@ -20,7 +20,7 @@ export const BACKGROUNDS = {
 
 // Colors
 export const THEMES = {
-    CLASSIC:            0x0088cc,               // (  0, 136, 204)      classic (aqua)
+    CLASSIC:            0x00aacc,               // (  0, 170, 204)      classic (aqua)
     STEEL:              0x00c8c3,               // (  0, 200, 195)      light aqua (fully unsaturated)
     NAVY:               0x1a48cf,               // ( 26,  72, 207)      violet blue (navy)
     GRAPE:              0x960ef4,               // (150,  14, 244)      electric violet (purple)
