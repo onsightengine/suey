@@ -40,7 +40,7 @@ class Element {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
         } else {
-            console.warn(`Element.addSlot(): '${this.name}' failed to add slot`, slot);
+            console.warn(`Element.addSlot: '${this.name}' failed to add slot`, slot);
         }
     }
 
