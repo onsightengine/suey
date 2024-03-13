@@ -1,11 +1,10 @@
 import cleanup from 'rollup-plugin-cleanup';                // Remove comments, supports sourcemap
 import postcss from 'rollup-plugin-postcss';                // Include CSS
 import image from '@rollup/plugin-image';                   // Include Images
+import json from '@rollup/plugin-json';                     // Import JSON
 import terser from '@rollup/plugin-terser';                 // Remove comments, minify
 
-// const pkg = require('./package.json');
-import pkg from './package.json'; // with { type: "json" };
-
+import pkg from './package.json';
 
 function header() {
     return {
@@ -36,6 +35,7 @@ const builds = [
                 sourcemap: false,
             }),
             header(),
+            json(),
             postcss({
                 extensions: [ '.css' ],
             }),
@@ -55,6 +55,7 @@ const builds = [
 
         plugins: [
             header(),
+            json(),
             postcss({
                 extensions: [ '.css' ],
             }),
