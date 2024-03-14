@@ -34,7 +34,6 @@ const builds = [
                 extensions: [ 'js', 'ts' ],
                 sourcemap: false,
             }),
-            header(),
             json(),
             postcss({
                 extensions: [ '.css' ],
@@ -46,6 +45,9 @@ const builds = [
             format: 'esm',
             file: './build/suey.module.js',
             sourcemap: false,
+            plugins: [
+                header(),
+            ],
         }],
     },
 
@@ -54,7 +56,6 @@ const builds = [
         treeshake: false,
 
         plugins: [
-            header(),
             json(),
             postcss({
                 extensions: [ '.css' ],
@@ -68,6 +69,7 @@ const builds = [
             sourcemap: false,
             plugins: [
                 terser({ format: { comments: false } }),
+                header(),
             ],
         }],
     },

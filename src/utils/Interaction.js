@@ -3,6 +3,7 @@
 //  addMaxButton()
 //  makeDraggable()
 //  makeResizeable()
+
 import { Button } from '../input/Button.js';
 import { Css } from './Css.js';
 import { Div } from '../core/Div.js';
@@ -111,9 +112,8 @@ class Interaction {
     static makeDraggable(element, parent = element, limitToWindow = false, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
-        let downX, downY, rect = {};
+        let downX, downY, rect = {}, startingRect = {};
         let lastX, lastY;
-        let computed = getComputedStyle(dragElement);
         let minDistance = 0;
         function roundNearest(decimal, increment = GRID_SIZE) {
             if (!element.snapToGrid) return decimal;
@@ -130,11 +130,11 @@ class Interaction {
             downY = event.pageY;
             lastX = event.pageX;
             lastY = event.pageY;
-            computed = getComputedStyle(dragElement);
-            rect.left = parseFloat(computed.left);
-            rect.top = parseFloat(computed.top);
-            rect.width = parseFloat(computed.width);
-            rect.height = parseFloat(computed.height);
+            const computed = getComputedStyle(dragElement);
+            startingRect.left = rect.left = parseFloat(computed.left);
+            startingRect.top = rect.top = parseFloat(computed.top);
+            startingRect.width = rect.width = parseFloat(computed.width);
+            startingRect.height = rect.height = parseFloat(computed.height);
             eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
             document.dispatchEvent(new Event('closemenu'));
@@ -158,13 +158,18 @@ class Interaction {
                 lastX = event.pageX;
                 lastY = event.pageY;
             }
+            const computed = getComputedStyle(dragElement);
+            rect.width = parseFloat(computed.width);
+            rect.height = parseFloat(computed.height);
+            const xDiff = (startingRect.width - rect.width) / 2;
+            const yDiff = 0; //(startingRect.height - rect.height) / 2;
             minDistance = Math.max(minDistance, Math.abs(downX - lastX));
             minDistance = Math.max(minDistance, Math.abs(downY - lastY));
             if (minDistance < MOUSE_SLOP) return;
             eventElement.style.cursor = 'move';
             const scale = ((element && element.getScale) ? element.getScale() : 1);
-            const diffX = (lastX - downX) * (1 / scale);
-            const diffY = (lastY - downY) * (1 / scale);
+            const diffX = (lastX - downX + xDiff) * (1 / scale);
+            const diffY = (lastY - downY + yDiff) * (1 / scale);
             let newLeft = roundNearest(rect.left + diffX);
             let newTop = roundNearest(rect.top + diffY);
             if (limitToWindow) {
@@ -184,6 +189,16 @@ class Interaction {
             }
             dragElement.style.left = `${newLeft}px`;
             dragElement.style.top = `${newTop}px`;
+            if (parent.isWindow) {
+                const parentRect = parent.dom.parentElement.getBoundingClientRect();
+                if (event.clientX < parentRect.left + 50) {
+                    parent.dockLeft();
+                } else if (event.clientX > parentRect.right - 50) {
+                    parent.dockRight();
+                } else {
+                    parent.undock();
+                }
+            }
             /* CUSTOM CALLBACK */
             onMove(diffX, diffY);
         }

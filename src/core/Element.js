@@ -4,6 +4,10 @@ import { SignalBinding } from '../utils/Signal.js';
 class Element {
 
     constructor(dom) {
+        if (dom == null) {
+            console.trace('Element.constructor: No HTMLElement provided!');
+            dom = document.createElement('div');
+        }
         const self = this;
 
         this.isElement = true;

@@ -492,3 +492,17 @@
     border: var(--border-small) solid rgb(var(--icon));
     text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 }
+
+.suey-docked-left {
+    left: 0 !important;
+    top: 0 !important;
+    width: 50% !important;
+    height: 100% !important;
+}
+
+.suey-docked-right {
+    left: 50% !important;
+    top: 0 !important;
+    width: 50% !important;
+    height: 100% !important;
+}

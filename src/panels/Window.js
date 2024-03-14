@@ -183,6 +183,7 @@ class Window extends Panel {
     }
 
     toggleMinMax() {
+        this.undock();
         if (!this.#maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
@@ -200,6 +201,38 @@ class Window extends Panel {
             this.#maximized = false;
         }
         this.dom.dispatchEvent(new Event('resizer'));
+    }
+
+    /******************** DOCKING */
+
+    dockLeft() {
+        if (!this.hasClass('suey-docked-left')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.addClass('suey-docked-left');
+            this.removeClass('suey-docked-right');
+        }
+    }
+
+    dockRight() {
+        if (!this.hasClass('suey-docked-right')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.addClass('suey-docked-right');
+            this.removeClass('suey-docked-left');
+        }
+    }
+
+    undock() {
+        if (this.hasClass('suey-docked-right') || this.hasClass('suey-docked-left')) {
+            const currentRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left');
+            this.removeClass('suey-docked-right');
+            if (this.#lastKnownRect) {
+                const newLeft = currentRect.left + ((currentRect.width - this.#lastKnownRect.width) / 2);
+                this.setStyle('left', `${newLeft}px`);
+                this.setStyle('width', `${this.#lastKnownRect.width}px`);
+                this.setStyle('height', `${this.#lastKnownRect.height}px`);
+            }
+        }
     }
 
 }
@@ -234,6 +267,7 @@ class TitleBar extends Div {
             if (self.parent && self.parent.isElement) {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
                 if (typeof self.parent.center === 'function') self.parent.center();
+                self.parent.undock();
                 window.dispatchEvent(new Event('resize'));
             }
         });
