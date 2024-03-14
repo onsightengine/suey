@@ -34,9 +34,9 @@
     --midlight:              85,  85,  85;
     --highlight:            255, 255, 255;
 
-    --icon-dark:              0, 107, 128;      /* icon darkened            dark classic aqua   #006b80 */
+    --icon-dark:              0,  85, 102;      /* icon darkened            dark classic aqua   #005566 */
     --icon:                   0, 170, 204;      /* icon color               classic aqua        #00aacc */
-    --icon-light:           102, 230, 255;      /* icon brightened          light clasic aqua   #66e6ff */
+    --icon-light:            76, 225, 255;      /* icon brightened          light clasic aqua   #4ce1ff */
 
     --complement:             0,   0,   0;      /* icon shifted 180°        orange */
     --triadic1:               0,   0,   0;      /* icon shifted 120°        pink */
