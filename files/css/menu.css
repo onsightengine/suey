@@ -267,6 +267,16 @@
     background-image: linear-gradient(to bottom, rgba(var(--midlight), 0.9), rgba(var(--midlight), 0.65));
 }
 
+/* Brown Background */
+.suey-brown-button:enabled .suey-button-background {
+    background-image: linear-gradient(to bottom, rgba(150, 100, 50, 0.9), rgba(150, 100, 50, 0.65));
+}
+
+/* Red Background */
+.suey-red-button:enabled .suey-button-background {
+    background-image: linear-gradient(to bottom, rgba(220, 0, 0, 0.9), rgba(220, 0, 0, 0.65));
+}
+
 /* Complement Background */
 .suey-complement-button:enabled .suey-button-background {
     background-color: rgb(var(--darkness));
@@ -276,7 +286,7 @@
 /* Triadic1 Background */
 .suey-triadic1-button:enabled .suey-button-background {
     background-color: rgb(var(--darkness));
-    background-image: linear-gradient(to bottom, rgba(var(--triadic1), 0.9), rgba(var(--triadic1), 0.65));
+    background-image: linear-gradient(to bottom, rgba(var(--triadic1), 0.75), rgba(var(--triadic1), 0.50));
 }
 
 /* Triadic2 Background */
