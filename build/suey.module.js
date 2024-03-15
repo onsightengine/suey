@@ -5175,7 +5175,6 @@ class Window extends Panel {
     #initialWidth;
     #initialHeight;
     #lastKnownRect;
-    #maximized = false;
     #titleBar = undefined;
     constructor({
         style = PANEL_STYLES.FANCY,
@@ -5190,6 +5189,7 @@ class Window extends Panel {
         this.isWindow = true;
         this.#initialWidth = width;
         this.#initialHeight = height;
+        this.maximized = false;
         this.dom.addEventListener('focusout', () => { self.removeClass('suey-active-window'); });
         this.dom.addEventListener('focusin', () => { self.activeWindow(); });
         this.dom.addEventListener('displayed', () => { self.activeWindow(); } );
@@ -5220,6 +5220,7 @@ class Window extends Panel {
                 const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
                 self.setStyle('height', `${newHeight}px`);
             }
+            self.maximized = false;
             self.dom.dispatchEvent(new Event('resizer'));
         }
         function resizerUp() {
@@ -5303,13 +5304,13 @@ class Window extends Panel {
     }
     toggleMinMax() {
         this.undock();
-        if (!this.#maximized) {
+        if (!this.maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
             this.setStyle('top', `0`);
             this.setStyle('width', `${window.innerWidth}px`);
             this.setStyle('height', `${window.innerHeight}px`);
-            this.#maximized = true;
+            this.maximized = true;
         } else {
             const newLeft = Math.max(0, Math.min(window.innerWidth - this.#lastKnownRect.width, this.#lastKnownRect.left));
             const newTop = Math.max(0, Math.min(window.innerHeight - this.#lastKnownRect.height, this.#lastKnownRect.top));
@@ -5317,7 +5318,7 @@ class Window extends Panel {
             this.setStyle('top', `${newTop}px`);
             this.setStyle('width', `${this.#lastKnownRect.width}px`);
             this.setStyle('height', `${this.#lastKnownRect.height}px`);
-            this.#maximized = false;
+            this.maximized = false;
         }
         this.dom.dispatchEvent(new Event('resizer'));
     }
@@ -5370,6 +5371,7 @@ class TitleBar extends Div {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
                 if (typeof self.parent.center === 'function') self.parent.center();
                 self.parent.undock();
+                self.parent.maximized = false;
                 window.dispatchEvent(new Event('resize'));
             }
         });
