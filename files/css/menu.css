@@ -264,7 +264,7 @@
 
 /* Dark Background */
 .suey-dark-button:enabled .suey-button-background {
-    background-image: linear-gradient(to bottom, rgba(var(--midlight), 0.9), rgba(var(--midlight), 0.65));
+    background-image: linear-gradient(to bottom, rgba(var(--button-light), 0.9), rgba(var(--button-light), 0.65));
 }
 
 /* Brown Background */
@@ -274,7 +274,7 @@
 
 /* Red Background */
 .suey-red-button:enabled .suey-button-background {
-    background-image: linear-gradient(to bottom, rgba(220, 0, 0, 0.9), rgba(220, 0, 0, 0.65));
+    background-image: linear-gradient(to bottom, rgba(223, 32, 32, 0.9), rgba(223, 32, 32, 0.65));
 }
 
 /* Complement Background */
