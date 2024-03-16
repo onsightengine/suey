@@ -115,6 +115,7 @@ class Interaction {
         let downX, downY, rect = {}, startingRect = {};
         let lastX, lastY;
         let minDistance = 0;
+        let moreThanSlop = false;
         function roundNearest(decimal, increment = GRID_SIZE) {
             if (!element.snapToGrid) return decimal;
             return Math.round(decimal / increment) * increment;
@@ -138,6 +139,7 @@ class Interaction {
             eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
             eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
             document.dispatchEvent(new Event('closemenu'));
+            moreThanSlop = false;
             /* CUSTOM CALLBACK */
             onDown();
         }
@@ -165,7 +167,8 @@ class Interaction {
             const yDiff = 0; //(startingRect.height - rect.height) / 2;
             minDistance = Math.max(minDistance, Math.abs(downX - lastX));
             minDistance = Math.max(minDistance, Math.abs(downY - lastY));
-            if (minDistance < MOUSE_SLOP) return;
+            if (!moreThanSlop && minDistance < MOUSE_SLOP) return;
+            moreThanSlop = true;
             eventElement.style.cursor = 'move';
             const scale = ((element && element.getScale) ? element.getScale() : 1);
             const diffX = (lastX - downX + xDiff) * (1 / scale);

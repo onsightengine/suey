@@ -261,6 +261,8 @@
     flex-direction: column;
     margin-top: calc(-1 * var(--pad-x-small));
     z-index: 101; /* Tabs */
+    min-width: var(--tab-size);
+    min-height: var(--tab-size);
 }
 
 .suey-tabs.suey-left-side {
@@ -291,6 +293,14 @@
     margin-bottom: -0.2em;
     transform: scale(70%);
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
+}
+
+.suey-tab-button.suey-dragging {
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0.5;
+    transform: scale(100%);
 }
 
 .suey-tab-button.suey-selected {

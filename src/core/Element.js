@@ -20,6 +20,18 @@ class Element {
         this.parent = undefined;                        // Parent 'Element'
         this.slots = [];                                // Holds all 'SignalBinding' slots
 
+        // Suey Reference
+        let suey = null;
+
+        // Dom Suey Access
+        Object.defineProperties(this.dom, {
+            suey: {
+                get: function() { return suey; },
+                set: function(element) { suey = element; },
+            },
+        });
+        this.dom.suey = self;
+
         // Clean Slots
         this.dom.addEventListener('destroy', function() {
             for (const slot of self.slots) {
@@ -71,6 +83,13 @@ class Element {
     clearContents() {
         clearChildren(this.contents(), false /* destroy event */);
         return this;
+    }
+
+    /** Removes child but does not destroy it */
+    detach(element) {
+        let removed = removeFromParent(this.contents(), element, false /* destroy? */);
+        if (!removed) removed = removeFromParent(this, element, false /* destroy? */);
+        return removed;
     }
 
     /** Removes any number of 'Element' / 'HTMLElement' from self.contents() or self.children */
@@ -304,6 +323,25 @@ class Element {
         return this.dom.getBoundingClientRect().height;
     }
 
+    /** Position relative to the closest positioned ancestor (i.e. ancestor with position: relative / absolute) */
+    getRelativePosition() {
+        const rect = this.dom.getBoundingClientRect();
+        let parentRect = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let parent = this.dom.offsetParent;
+        while (parent) {
+            parentRect = parent.getBoundingClientRect();
+            offsetX += parentRect.left;
+            offsetY += parentRect.top;
+            // parent = parent.offsetParent;
+            parent = null;
+        }
+        const relativeLeft = rect.left - offsetX;
+        const relativeTop = rect.top - offsetY;
+        return { left: relativeLeft, top: relativeTop };
+    }
+
     /********** TRAVERSE **********/
 
     /** Applies a callback function to all Element children, recursively */
@@ -324,6 +362,17 @@ export { Element };
 
 function addToParent(parent, element) {
     if (!element) return;
+    if (!parent) return;
+
+    // Check if already parent
+    if (element.isElement) {
+        if (parent.isElement && element.parent === parent) return;
+
+        // Detach from current parent
+        if (element.parent && element.parent.isElement) {
+            removeFromParent(element.parent, element, false);
+        }
+    }
 
     // Suey 'Element'
     if (element.isElement) {
@@ -397,10 +446,10 @@ function clearChildren(element, destroy = true) {
     }
 }
 
-/** Returns true if element was removed */
-function removeFromParent(parent, element) {
-    if (!parent) return;
-    if (!element) return;
+/** Returns dom element that was removed */
+function removeFromParent(parent, element, destroy = true) {
+    if (!parent) return undefined;
+    if (!element) return undefined;
 
     // Suey 'Element'
     if (element.isElement && parent.isElement) {
@@ -413,19 +462,18 @@ function removeFromParent(parent, element) {
         }
     }
 
-    // Clear Children
-    clearChildren(element);
+   // Clear Children
+   if (destroy) clearChildren(element);
 
     // Remove from Parent
     try {
         if (parent.isElement) {
-            parent.dom.removeChild((element.isElement) ? element.dom : element);
+            return parent.dom.removeChild((element.isElement) ? element.dom : element);
         } else {
-            parent.removeChild((element.isElement) ? element.dom : element);
+            return parent.removeChild((element.isElement) ? element.dom : element);
         }
-        return true;
     } catch (error) {
-        return false; /* REMOVE FAILED */
+        return undefined; /* REMOVE FAILED */
     }
 }
 

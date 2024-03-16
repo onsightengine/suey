@@ -6,12 +6,15 @@ import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
 import { TRAIT } from '../constants.js';
+import { Utils } from '../utils/Utils.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 export const TAB_SIDES = {
     LEFT:       'left',
     RIGHT:      'right',
 }
+
+const MOUSE_SLOP = 5;
 
 class Tabbed extends Panel {
 
@@ -49,8 +52,8 @@ class Tabbed extends Panel {
         // Public Properties
         this.tabs = [];
         this.panels = [];
-        this.selectedId = '';
-        this.selectedCount = 0;
+        this.selectedId = '';       // id of selected tab
+        this.selectedCount = 0;     // count of selected tab (for when there is more than one tab with same id)
 
         // Resizers
         const rect = {};
@@ -109,8 +112,56 @@ class Tabbed extends Panel {
 
     /******************** TABS ********************/
 
-    /** Add Tab */
-    addTab(id, content, options = {}) {
+    /********** ADD */
+
+    addTab(tab, panel) {
+        if (!tab || !tab.hasClass('suey-tab-button')) {
+            console.error(`Tabbed.addTab: Expected TabButton as first argument`, tab);
+            return null;
+        }
+
+        // Update Parent Dock
+        tab.dock = this;
+
+        // Count ID's
+        let numTabsWithId = 0;
+        for (const checkTab of this.tabs) {
+            if (checkTab.dom.id === tab.dom.id) numTabsWithId++;
+        }
+        tab.count = numTabsWithId;
+        panel.count = numTabsWithId;
+
+        // Push onto containers
+        this.tabs.push(tab);
+        this.tabsDiv.add(tab);
+        this.panels.push(panel);
+        this.panelsDiv.add(panel);
+
+        // // NOTE: If below is changed from '0' to '1', tabs will be hidden when there is only 1 tab
+        const hideWhenNumberOfTabs = 0;
+        if (this.tabs.length > hideWhenNumberOfTabs) this.tabsDiv.setDisplay('');
+
+        // Minimum height (so tab buttons dont float over nothing)
+        this.setContentsStyle('minHeight', '');
+        if (this.tabsDiv.hasClass('suey-left-side') || this.tabsDiv.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.tabs.length) + 0.4) + 'em');
+        }
+
+        return panel;
+    }
+
+    addExistingTab(tab, panel) {
+        return this.addTab(tab, panel);
+    }
+
+    addNewTab(id, content, options = {}) {
+        function capitalize(string) {
+            const words = String(string).split(' ');
+            for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+            return words.join(' ');
+        }
+
+        // Create Tab / Panel
         if (typeof options !== 'object') options = {};
         if (!('color' in options) || options.color == null) options.color = ColorScheme.color(TRAIT.ICON);
         if (!('alpha' in options)) options.alpha = 1.0;
@@ -121,49 +172,16 @@ class Tabbed extends Panel {
         if (typeof options.shrink === 'string') {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
-
-        // Count ID's
-        let numTabsWithId = 0;
-        for (let i = 0; i < this.tabs.length; i++) {
-            const tab = this.tabs[i];
-            if (tab.dom.id === id) numTabsWithId++;
-        }
-
-        function capitalize(string) {
-            const words = String(string).split(' ');
-            for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-            return words.join(' ');
-        }
-
-        // Create tab
-        const label = capitalize(id);
-        const tab = new TabButton(this, label, options);
-        tab.setId(id);
-        tab.count = numTabsWithId;
-
-        // Push onto containers
-        this.tabs.push(tab);
-        this.tabsDiv.add(tab);
-
-        // // NOTE: If below is changed from '0' to '1', tabs will be hidden when there is only 1 tab
-        const hideWhenNumberOfTabs = 0;
-        if (this.tabs.length > hideWhenNumberOfTabs) this.tabsDiv.setDisplay('');
-
+        const tab = new TabButton(this, capitalize(id) /* label */, options).setId(id);
         const panel = new Panel().setId(id);
         panel.addClass('suey-tab-panel', 'suey-hidden');
         panel.add(content);
-        panel.count = numTabsWithId;
-        this.panels.push(panel);
-        this.panelsDiv.add(panel);
 
-        // Minimum height (so tab buttons dont float over nothing)
-        this.setContentsStyle('minHeight', '');
-        if (this.tabsDiv.hasClass('suey-left-side') || this.tabsDiv.hasClass('suey-right-side')) {
-            this.setContentsStyle('minHeight', ((2.2 * this.tabs.length) + 0.4) + 'em');
-        }
-
-        return panel;
+        // Add Tab
+        return this.addTab(tab, panel);
     }
+
+    /********** SELECT */
 
     /** Select first tab */
     selectFirst() {
@@ -175,9 +193,9 @@ class Tabbed extends Panel {
 
     /** Select last known tab */
     selectLastKnownTab() {
-
+        //
         // TO BE IMPLEMENTED IN APP
-
+        //
     }
 
     /** Select Tab */
@@ -226,10 +244,7 @@ class Tabbed extends Panel {
         return false;
     }
 
-    destroy() {
-        this.clearTabs();
-        super.destroy();
-    }
+    /********** REMOVE */
 
     clearTabs() {
         if (this.tabsDiv) this.tabsDiv.clearContents();
@@ -245,8 +260,55 @@ class Tabbed extends Panel {
         this.setStyle('minHeight', '');
     }
 
+    destroy() {
+        this.clearTabs();
+        super.destroy();
+    }
+
+    removeTab(index) {
+        if (index >= 0 && index < this.tabs.length) {
+            const tab = this.tabs[index];
+            const panel = this.panels[index];
+            if (tab) tab.removeClass('suey-selected');
+            if (panel) panel.addClass('suey-hidden');
+            this.tabs.splice(index, 1);
+            this.tabsDiv.detach(tab);
+            this.panels.splice(index, 1);
+            this.panelsDiv.detach(panel);
+        }
+    }
+
+    /********** DROP */
+
+    handleTabDrop(tab, dropX, dropY) {
+        const droppedOnPanel = Utils.findElementAt('suey-tabbed', dropX, dropY, this.dom);
+        if (droppedOnPanel && droppedOnPanel !== this) {
+            const tabIndex = this.tabs.indexOf(tab);
+            if (tabIndex !== -1) {
+                const panel = this.panels[tabIndex];
+                this.removeTab(tabIndex);
+                if (this.currentId() === tab.getId() && tabIndex > 0) {
+                    this.selectTab(this.tabs[tabIndex - 1].getId());
+                } else {
+                    this.selectFirst();
+                }
+                droppedOnPanel.addExistingTab(tab, panel);
+                droppedOnPanel.selectTab(tab.id, tab.count, false);
+            }
+        }
+        tab.setStyle('left', '', 'top', '');
+    }
+
+    /******************** INFO ********************/
+
     currentId() {
         return this.selectedId;
+    }
+
+    getTabSide() {
+        if (this.tabsDiv.hasClass('suey-left-side')) return 'left';
+        if (this.tabsDiv.hasClass('suey-right-side')) return 'right';
+        return 'unknown';
     }
 
     setTabSide(side) {
@@ -273,6 +335,9 @@ class TabButton extends Div {
         this.setClass('suey-tab-button');
         this.setStyle('cursor', 'default');
         if (options.shadow) this.addClass('suey-tab-shadow');
+
+        // Set Parent Dock
+        this.dock = parent;
 
         // Icon / Label
         this.iconVector = new VectorBox(options.icon);
@@ -310,11 +375,55 @@ class TabButton extends Div {
             this.iconVector.img.setStyle('height', `${shrink * 100}%`);
         }
 
-        // Events
+        // Select on Click
         this.onClick(() => {
-            parent.selectTab(self.dom.id, self.count, true);
-            parent.dom.dispatchEvent(new Event('resized'));
+            self.dock.selectTab(self.dom.id, self.count, true);
+            self.dock.dom.dispatchEvent(new Event('resized'));
         });
+
+        // Dragging Tabs
+        let downX = 0, downY = 0;
+        let relativePosition;
+        let isDragging = false;
+        let minDistance = 0;
+        let moreThanSlop = false;
+        function onPointerDown(event) {
+            if (event.button !== 0) return;
+            event.stopPropagation();
+            event.preventDefault();
+            isDragging = true;
+            minDistance = 0;
+            moreThanSlop = false;
+            relativePosition = self.getRelativePosition();
+            downX = event.pageX;
+            downY = event.pageY;
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+        }
+        function onPointerMove(event) {
+            if (!isDragging) return;
+            event.stopPropagation();
+            event.preventDefault();
+            minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
+            minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
+            if (!moreThanSlop && minDistance < MOUSE_SLOP) return;
+            moreThanSlop = true;
+            const newLeft = relativePosition.left - (downX - event.pageX);
+            const newTop = relativePosition.top - (downY - event.pageY);
+            self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
+            self.addClass('suey-dragging');
+        }
+        function onPointerUp(event) {
+            if (!isDragging) return;
+            event.stopPropagation();
+            event.preventDefault();
+            isDragging = false;
+            self.removeClass('suey-dragging');
+            document.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('pointerup', onPointerUp);
+            self.dock.handleTabDrop(self, event.pageX, event.pageY);
+        }
+        this.dom.addEventListener('pointerdown', onPointerDown);
     }
 
 }

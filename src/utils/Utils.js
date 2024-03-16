@@ -1,4 +1,5 @@
 // PARENT / CHILD
+//  findElementAt()                 Finds an Element at pointer position with class name
 //  isChildOf()                     Check if 'element' is a descendant of 'possibleParent'
 //  isChildOfElementWithClass()     Check if 'element' is a descendant of a parent element with class type 'className'
 //  parentElementWithClass()        Finds and returns parent of 'element' with class 'className'
@@ -12,6 +13,17 @@ import { Css } from './Css.js';
 class Utils {
 
     /********** PARENT / CHILD **********/
+
+    static findElementAt(className, centerX, centerY, exclude = null) {
+        const domElements = document.elementsFromPoint(centerX, centerY);
+        for (const dom of domElements) {
+            if (dom.classList.contains(className)) {
+                if (exclude && dom === exclude) continue;
+                return dom.suey;
+            }
+        }
+        return null;
+    }
 
     /** Check if 'element' is a descendant of 'possibleParent' */
     static isChildOf(element, possibleParent) {
