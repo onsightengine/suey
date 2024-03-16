@@ -296,7 +296,6 @@ class Tabbed extends Panel {
                 droppedOnPanel.selectTab(tab.id, tab.count, false);
             }
         }
-        tab.setStyle('left', '', 'top', '');
     }
 
     /******************** INFO ********************/
@@ -383,18 +382,16 @@ class TabButton extends Div {
 
         // Dragging Tabs
         let downX = 0, downY = 0;
-        let relativePosition;
         let isDragging = false;
         let minDistance = 0;
-        let moreThanSlop = false;
+        let currentParent = undefined;
+        let tabIndex = -1;
         function onPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
             isDragging = true;
             minDistance = 0;
-            moreThanSlop = false;
-            relativePosition = self.getRelativePosition();
             downX = event.pageX;
             downY = event.pageY;
             document.addEventListener('pointermove', onPointerMove);
@@ -406,21 +403,39 @@ class TabButton extends Div {
             event.preventDefault();
             minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
             minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
-            if (!moreThanSlop && minDistance < MOUSE_SLOP) return;
-            moreThanSlop = true;
-            const newLeft = relativePosition.left - (downX - event.pageX);
-            const newTop = relativePosition.top - (downY - event.pageY);
+            if (!self.hasClass('suey-dragging')) {
+                if (minDistance < MOUSE_SLOP) return;
+                // Drag Start
+                self.addClass('suey-dragging');
+                currentParent = self.dom.parentElement;
+                if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
+                document.body.appendChild(self.dom);
+            }
+            const newLeft = event.pageX - (self.getWidth() / 2);
+            const newTop = event.pageY - (self.getHeight() / 2);
             self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
-            self.addClass('suey-dragging');
         }
         function onPointerUp(event) {
             if (!isDragging) return;
             event.stopPropagation();
             event.preventDefault();
             isDragging = false;
-            self.removeClass('suey-dragging');
+            // Drag End
+            if (self.hasClass('suey-dragging')) {
+                self.removeClass('suey-dragging');
+                if (currentParent) {
+                    if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
+                        currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
+                    } else {
+                        currentParent.appendChild(self.dom);
+                    }
+                }
+                currentParent = null;
+                tabIndex = -1;
+            }
             document.removeEventListener('pointermove', onPointerMove);
             document.removeEventListener('pointerup', onPointerUp);
+            self.setStyle('left', '', 'top', '');
             self.dock.handleTabDrop(self, event.pageX, event.pageY);
         }
         this.dom.addEventListener('pointerdown', onPointerDown);

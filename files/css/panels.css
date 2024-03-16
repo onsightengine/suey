@@ -297,9 +297,9 @@
 
 .suey-tab-button.suey-dragging {
     position: absolute;
-    z-index: 1000;
+    z-index: 10000;
     pointer-events: none;
-    opacity: 0.5;
+    opacity: 0.8;
     transform: scale(100%);
 }
 
@@ -347,6 +347,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.suey-tab-button.suey-dragging > .suey-tab-icon-border {
+    border: 0.21em solid rgba(var(--complement)) !important;
 }
 
 .suey-tab-button:hover .suey-tab-icon-border {
