@@ -52,7 +52,7 @@ import { PANEL_STYLES } from './panels/Panel.js';
 import { PropertyList, LEFT_SPACING } from './data/PropertyList.js';
 import { RESIZERS } from './constants.js';
 import { Shrinkable } from './panels/Shrinkable.js';
-import { Tabbed } from './panels/Tabbed.js';
+import { Tabbed } from './docking/Tabbed.js';
 import { Titled } from './panels/Titled.js';
 
 import { Button } from './input/Button.js';

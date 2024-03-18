@@ -1,8 +1,8 @@
-import { Div } from '../core/Div.js';
 import { Css } from '../utils/Css.js';
+import { Div } from '../core/Div.js';
+import { Dom } from '../utils/Dom.js';
 import { Iris } from '../utils/Iris.js';
 import { MenuSeparator } from './MenuSeparator.js';
-import { Utils } from '../utils/Utils.js';
 
 const TRIANGLE_SIZE = 3.0;                  // Bigger value is smaller triangle (size = width / TRIANGLE_SIZE)
 
@@ -62,7 +62,7 @@ class Menu extends Div {
         // Close children menus and attached sub menus
         this.traverse((child) => {
             // Don't close menus that are children of 'dontCloseChildrenOf'
-            if (dontCloseChildrenOf && Utils.isChildOf(child.dom, dontCloseChildrenOf)) {
+            if (dontCloseChildrenOf && Dom.isChildOf(child.dom, dontCloseChildrenOf)) {
                 // NOTHING
             } else {
                 child.removeClass('suey-menu-show', 'suey-selected');
@@ -109,7 +109,7 @@ class Menu extends Div {
         this.focus();
 
         // Attach mouse area polygon if this menu is a child of another menu
-        if (Utils.isChildOfElementWithClass(this.dom, 'suey-menu')) {
+        if (Dom.isChildOfElementWithClass(this.dom, 'suey-menu')) {
             // Turn off mouse events temporarily while when give menu time to animate
             this.mouseArea.setAttribute('pointer-events', 'none');
 

@@ -9,6 +9,10 @@ export const IMAGE_EXPAND = imageExpand;
 
 export const GRID_SIZE = 25;
 
+export const MOUSE_CLICK = 500;         // milliseconds for "click" event
+export const MOUSE_SLOP_SMALL = 2;
+export const MOUSE_SLOP_LARGE = 5;
+
 export const TOOLTIP_Y_OFFSET = '0.3em';
 
 export const BACKGROUNDS = {

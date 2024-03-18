@@ -1,7 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
-import { Panel, PANEL_STYLES } from './Panel.js';
+import { Panel, PANEL_STYLES } from '../panels/Panel.js';
 import { RESIZERS } from '../constants.js';
 
 const MIN_W = 300;

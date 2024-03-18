@@ -21,6 +21,11 @@
 //      PropertyList            div                     .suey-property-list
 //      TreeList                div                     .suey-tree-list
 //
+//  DOCKING
+//      Docker                  div                     .suey-docker-left, .suey-docker-right
+//      Tabbed                  div                     .suey-tabbed
+//      Window                  div                     .suey-window
+//
 //  INPUT
 //      Button                  button                  .suey-button
 //      Checkbox                input['checkbox']       .suey-checkbox
@@ -35,7 +40,6 @@
 //  LAYOUT
 //      AbsoluteBox             div                     .suey-absolute-box
 //      AssetBox                div                     .suey-asset-box
-//      Docker                  div                     .suey-docker-left, .suey-docker-right
 //      FlexBox                 div                     .suey-flex-box
 //      FlexSpacer              span                    -
 //      Row                     div                     .suey-row
@@ -59,9 +63,8 @@
 //  PANELS
 //      Panel                   div                     .suey-panel
 //      Shrinkable              div                     .suey-shrinkable
-//      Tabbed                  div                     .suey-tabbed, .suey-tab-button
-//      Titled                  div                     .suey-titled
-//      Window                  div                     .suey-window
+//      Tab                     div                     .suey-tab-panel, .suey-tab-button
+//      Titled                  duv                     .suey-titled
 //
 
 /***** CONSTANTS *****/
@@ -74,10 +77,10 @@ export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
 
 export { ColorScheme } from './utils/ColorScheme.js';
 export { Css } from './utils/Css.js';
+export { Dom } from './utils/Dom.js';
 export { Interaction } from './utils/Interaction.js';
 export { Iris } from './utils/Iris.js';
 export { Popper } from './utils/Popper.js';
-export { Utils } from './utils/Utils.js';
 export { Signal, SignalBinding } from './utils/Signal.js';
 
 export { tooltipper } from './utils/Tooltipper.js';
@@ -100,6 +103,12 @@ export { Text } from './core/Text.js';
 export { PropertyList } from './data/PropertyList.js';
 export { TreeList } from './data/TreeList.js';
 
+// Docking
+export { Docker } from './docking/Docker.js';
+export { Docker2 } from './docking/Docker2.js';
+export { Tabbed } from './docking/Tabbed.js';
+export { Window } from './docking/Window.js';
+
 // Inputs
 export { Button } from './input/Button.js';
 export { Checkbox } from './input/Checkbox.js';
@@ -114,7 +123,6 @@ export { TextBox } from './input/TextBox.js';
 // Layout
 export { AbsoluteBox } from './layout/AbsoluteBox.js';
 export { AssetBox } from './layout/AssetBox.js';
-export { Docker } from './layout/Docker.js';
 export { FlexBox } from './layout/FlexBox.js';
 export { FlexSpacer } from './layout/FlexSpacer.js';
 export { Row } from './layout/Row.js';
@@ -138,16 +146,15 @@ export { NodeItem } from './node/NodeItem.js';
 // Panels
 export { Panel } from './panels/Panel.js';
 export { Shrinkable } from './panels/Shrinkable.js';
-export { Tabbed } from './panels/Tabbed.js';
+export { Tab } from './panels/Tab.js';
 export { Titled } from './panels/Titled.js';
-export { Window } from './panels/Window.js';
 
 // Enums
 export { CLOSE_SIDES } from './utils/Interaction.js';
-export { CORNERS } from './layout/Docker.js';
+export { CORNERS } from './docking/Docker.js';
 export { LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
-export { TAB_SIDES } from './panels/Tabbed.js';
+export { TAB_SIDES } from './docking/Tabbed.js';
 
 // CSS
 import '../files/css/variables.css';
@@ -156,6 +163,7 @@ import '../files/css/inputs.css';
 import '../files/css/layout.css';
 import '../files/css/menu.css';
 import '../files/css/panels.css';
+import '../files/css/docking.css';
 import '../files/css/gooey.css';
 import '../files/css/data.css';
 import '../files/css/node.css';

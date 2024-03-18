@@ -90,48 +90,6 @@
     transform: translateX(-50%) scale(75%);
 }
 
-/********** Docker Left / Docker Right **********/
-
-.suey-docker-corner {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    pointer-events: none;
-    margin: auto;
-    z-index: 1; /* Docker Corner */
-    background: transparent;
-}
-
-.suey-docker-top-left {
-    /* background-color: rgba(255, 0, 0, 0.5); */
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    left: 0;
-}
-
-.suey-docker-top-right {
-    /* background-color: rgba(0, 255, 0, 0.5); */
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    right: 0;
-}
-
-.suey-docker-bottom-left {
-    /* background-color: rgba(0, 0, 255, 0.5); */
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    left: 0;
-    justify-content: end;
-}
-
-.suey-docker-bottom-right {
-    /* background-color: rgba(128, 0, 128, 0.5); */
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    right: 0;
-    justify-content: end;
-}
-
 /********** Flex Box **********/
 
 .suey-flex-box {

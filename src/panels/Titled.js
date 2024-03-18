@@ -1,5 +1,5 @@
 import { Div } from '../core/Div.js';
-import { Panel } from '../panels/Panel.js';
+import { Panel } from './Panel.js';
 
 class Titled extends Panel {
 

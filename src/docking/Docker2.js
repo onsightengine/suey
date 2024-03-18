@@ -1,7 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { RESIZERS } from '../constants.js';
-import { TAB_SIDES } from '../panels/Tabbed.js';
+import { TAB_SIDES } from './Tabbed.js';
 
 export const CORNERS = {
     TOP_LEFT:       'top-left',
@@ -10,7 +10,7 @@ export const CORNERS = {
     BOTTOM_RIGHT:   'bottom-right',
 };
 
-class Docker extends Div {
+class Docker2 extends Div {
 
     #corners = {};
 
@@ -73,4 +73,4 @@ class Docker extends Div {
 
 }
 
-export { Docker };
+export { Docker2 };

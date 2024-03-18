@@ -10,7 +10,7 @@
 
 import { Css } from './Css.js';
 
-class Utils {
+class Dom {
 
     /********** PARENT / CHILD **********/
 
@@ -65,7 +65,7 @@ class Utils {
         if (element.isElement && element.dom) element = element.dom;
         if (applyToSelf) applyFunction(element);
         for (let i = 0; i < element.children.length; i++) {
-            Utils.traverse(element.children[i], applyFunction, true);
+            Dom.traverse(element.children[i], applyFunction, true);
         }
     }
 
@@ -78,13 +78,13 @@ class Utils {
         if (element.scrollHeight > element.clientHeight) {
             return element;
         } else {
-            return Utils.parentScroller(element.parentElement);
+            return Dom.parentScroller(element.parentElement);
         }
     }
 
     /** If element has a scorllable parent, scrolls element into view */
     static scrollIntoView(element) {
-        const parent = Utils.parentScroller(element);
+        const parent = Dom.parentScroller(element);
         if (parent) {
             const onePixel = parseInt(Css.toPx('0.2em'));
 
@@ -101,4 +101,4 @@ class Utils {
 
 }
 
-export { Utils };
+export { Dom };

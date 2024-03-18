@@ -8,8 +8,10 @@ import { Button } from '../input/Button.js';
 import { Css } from './Css.js';
 import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
+
 import { GRID_SIZE, RESIZERS } from '../constants.js';
 import { IMAGE_CLOSE, IMAGE_EXPAND } from '../constants.js';
+import { MOUSE_SLOP_SMALL } from '../constants.js';
 
 export const CLOSE_SIDES = {
     LEFT:       'left',
@@ -22,8 +24,6 @@ export const CORNER_BUTTONS = {
     CLOSE:      'close',
     MAX:        'max',
 }
-
-const MOUSE_SLOP = 2;
 
 class Interaction {
 
@@ -167,7 +167,7 @@ class Interaction {
             const yDiff = 0; //(startingRect.height - rect.height) / 2;
             minDistance = Math.max(minDistance, Math.abs(downX - lastX));
             minDistance = Math.max(minDistance, Math.abs(downY - lastY));
-            if (!moreThanSlop && minDistance < MOUSE_SLOP) return;
+            if (!moreThanSlop && minDistance < MOUSE_SLOP_SMALL) return;
             moreThanSlop = true;
             eventElement.style.cursor = 'move';
             const scale = ((element && element.getScale) ? element.getScale() : 1);
