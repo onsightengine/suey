@@ -46,7 +46,7 @@ class Tabbed extends Panel {
         // Public Properties
         this.buttons = [];
         this.panels = [];
-        this.selectedId = '';       // id of selected tab
+        this.selectedID = '';       // 'id' (name) of selected tab
 
         // Resizers
         const rect = {};
@@ -116,14 +116,6 @@ class Tabbed extends Panel {
         // Update Parent Dock
         tabPanel.dock = this;
 
-        // Count ID's
-        let numTabsWithId = 0;
-        for (const checkTab of this.panels) {
-            if (checkTab.dom.id === tabPanel.dom.id) numTabsWithId++;
-        }
-        tabPanel.count = numTabsWithId;
-        tabPanel.button.count = numTabsWithId;
-
         // Push onto containers
         this.buttons.push(tabPanel.button);
         this.buttonsDiv.add(tabPanel.button);
@@ -143,8 +135,8 @@ class Tabbed extends Panel {
         return tabPanel;
     }
 
-    addNewTab(id, content, options = {}) {
-        return this.addTab(new Tab(id, content, options));
+    addNewTab(tabID, content, options = {}) {
+        return this.addTab(new Tab(tabID, content, options));
     }
 
     /********** SELECT */
@@ -152,7 +144,7 @@ class Tabbed extends Panel {
     /** Select first tab */
     selectFirst() {
         if (this.panels.length > 0) {
-            return this.selectTab(this.panels[0].getId());
+            return this.selectTab(this.panels[0].getID());
         }
         return false;
     }
@@ -165,12 +157,11 @@ class Tabbed extends Panel {
     }
 
     /** Select Tab */
-    selectTab(id, wasClicked = false) {
-        if (this.panels == undefined) return this;
-        const self = this;
+    selectTab(newID, wasClicked = false) {
+        const selectedID = this.selectedID;
 
-        // Find button / panel by id
-        const panel = this.panels.find(function(item) { return (item.dom.id === id); });
+        // Find button / panel with New ID
+        const panel = this.panels.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
             const button = panel.button;
 
@@ -178,7 +169,7 @@ class Tabbed extends Panel {
             if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
 
             // Deselect current selection
-            const currentPanel = this.panels.find(function(item) { return (item.dom.id === self.selectedId); });
+            const currentPanel = this.panels.find((item) => (item.getID() === selectedID));
             if (currentPanel) {
                 currentPanel.addClass('suey-hidden');
                 if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
@@ -188,13 +179,13 @@ class Tabbed extends Panel {
             panel.removeClass('suey-hidden');
             button.addClass('suey-selected');
 
-            // Set id
-            this.selectedId = id;
+            // Set New ID
+            this.selectedID = newID;
 
             // Emit event
             if (wasClicked) {
                 const tabChange = new Event('tab-changed');
-                tabChange.value = id;
+                tabChange.value = newID;
                 this.dom.dispatchEvent(tabChange);
             }
 
@@ -248,8 +239,8 @@ class Tabbed extends Panel {
             if (tabIndex !== -1) {
                 const panel = this.panels[tabIndex];
                 this.removeTab(tabIndex);
-                if (this.currentId() === tabButton.tabPanel.getId() && tabIndex > 0) {
-                    this.selectTab(this.buttons[tabIndex - 1].getId());
+                if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
+                    this.selectTab(this.buttons[tabIndex - 1].getID());
                 } else {
                     this.selectFirst();
                 }
@@ -260,10 +251,6 @@ class Tabbed extends Panel {
     }
 
     /******************** INFO ********************/
-
-    currentId() {
-        return this.selectedId;
-    }
 
     getTabSide() {
         if (this.buttonsDiv.hasClass('suey-left-side')) return 'left';

@@ -1225,12 +1225,12 @@ class Element {
         }
         return this;
     }
-    setId(id) {
+    setID(id) {
         this.dom.id = id;
         if (this.name === undefined) this.name = id;
         return this;
     }
-    getId() {
+    getID() {
         return this.dom.id;
     }
     setName(name) {
@@ -1443,10 +1443,10 @@ properties.forEach(function(property) {
 Object.defineProperties(Element.prototype, {
     id: {
         get: function() {
-            return this.getId();
+            return this.getID();
         },
         set: function(value) {
-            this.setId(value);
+            this.setID(value);
         }
     },
 });
@@ -2174,7 +2174,7 @@ const _color$2 = new Iris();
 class Tab extends Panel {
     constructor(id = 'unknown', content, options = {}) {
         super();
-        this.setId(id);
+        this.setID(id);
         this.addClass('suey-tab-panel', 'suey-hidden');
         this.add(content);
         this.dock = null;
@@ -2276,7 +2276,7 @@ class TabButton extends Div {
                 self.tabPanel.dock.handleTabDrop(self, event.pageX, event.pageY);
             } else {
                 if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.dom.id, true);
+                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
                 }
             }
@@ -2284,6 +2284,9 @@ class TabButton extends Div {
             document.removeEventListener('pointerup', onPointerUp);
         }
         this.dom.addEventListener('pointerdown', onPointerDown);
+    }
+    getID() {
+        return this.tabPanel?.getID();
     }
 }
 function capitalize$1(string) {
@@ -2326,7 +2329,7 @@ class Tabbed extends Panel {
         this.#maxHeight = maxHeight;
         this.buttons = [];
         this.panels = [];
-        this.selectedId = '';
+        this.selectedID = '';
         const rect = {};
         function resizerDown() {
             rect.width = self.getWidth();
@@ -2378,12 +2381,6 @@ class Tabbed extends Panel {
             return null;
         }
         tabPanel.dock = this;
-        let numTabsWithId = 0;
-        for (const checkTab of this.panels) {
-            if (checkTab.dom.id === tabPanel.dom.id) numTabsWithId++;
-        }
-        tabPanel.count = numTabsWithId;
-        tabPanel.button.count = numTabsWithId;
         this.buttons.push(tabPanel.button);
         this.buttonsDiv.add(tabPanel.button);
         this.panels.push(tabPanel);
@@ -2396,35 +2393,34 @@ class Tabbed extends Panel {
         }
         return tabPanel;
     }
-    addNewTab(id, content, options = {}) {
-        return this.addTab(new Tab(id, content, options));
+    addNewTab(tabID, content, options = {}) {
+        return this.addTab(new Tab(tabID, content, options));
     }
     selectFirst() {
         if (this.panels.length > 0) {
-            return this.selectTab(this.panels[0].getId());
+            return this.selectTab(this.panels[0].getID());
         }
         return false;
     }
     selectLastKnownTab() {
     }
-    selectTab(id, wasClicked = false) {
-        if (this.panels == undefined) return this;
-        const self = this;
-        const panel = this.panels.find(function(item) { return (item.dom.id === id); });
+    selectTab(newID, wasClicked = false) {
+        const selectedID = this.selectedID;
+        const panel = this.panels.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
             const button = panel.button;
             if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
-            const currentPanel = this.panels.find(function(item) { return (item.dom.id === self.selectedId); });
+            const currentPanel = this.panels.find((item) => (item.getID() === selectedID));
             if (currentPanel) {
                 currentPanel.addClass('suey-hidden');
                 if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
             }
             panel.removeClass('suey-hidden');
             button.addClass('suey-selected');
-            this.selectedId = id;
+            this.selectedID = newID;
             if (wasClicked) {
                 const tabChange = new Event('tab-changed');
-                tabChange.value = id;
+                tabChange.value = newID;
                 this.dom.dispatchEvent(tabChange);
             }
             if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
@@ -2468,8 +2464,8 @@ class Tabbed extends Panel {
             if (tabIndex !== -1) {
                 const panel = this.panels[tabIndex];
                 this.removeTab(tabIndex);
-                if (this.currentId() === tabButton.tabPanel.getId() && tabIndex > 0) {
-                    this.selectTab(this.buttons[tabIndex - 1].getId());
+                if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
+                    this.selectTab(this.buttons[tabIndex - 1].getID());
                 } else {
                     this.selectFirst();
                 }
@@ -2477,9 +2473,6 @@ class Tabbed extends Panel {
                 droppedOnPanel.selectTab(panel.id, false);
             }
         }
-    }
-    currentId() {
-        return this.selectedId;
     }
     getTabSide() {
         if (this.buttonsDiv.hasClass('suey-left-side')) return 'left';

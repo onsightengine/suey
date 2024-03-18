@@ -145,13 +145,13 @@ class Element {
         return this;
     }
 
-    setId(id) {
+    setID(id) {
         this.dom.id = id;
         if (this.name === undefined) this.name = id;
         return this;
     }
 
-    getId() {
+    getID() {
         return this.dom.id;
     }
 
@@ -499,10 +499,10 @@ Object.defineProperties(Element.prototype, {
 
     id: {
         get: function() {
-            return this.getId();
+            return this.getID();
         },
         set: function(value) {
-            this.setId(value);
+            this.setID(value);
         }
     },
 

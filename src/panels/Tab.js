@@ -14,7 +14,7 @@ class Tab extends Panel {
 
     constructor(id = 'unknown', content, options = {}) {
         super();
-        this.setId(id);
+        this.setID(id);
         this.addClass('suey-tab-panel', 'suey-hidden');
         this.add(content);
 
@@ -138,7 +138,7 @@ class TabButton extends Div {
             // Click?
             } else {
                 if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.dom.id, true);
+                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
                 }
             }
@@ -146,6 +146,10 @@ class TabButton extends Div {
             document.removeEventListener('pointerup', onPointerUp);
         }
         this.dom.addEventListener('pointerdown', onPointerDown);
+    }
+
+    getID() {
+        return this.tabPanel?.getID();
     }
 
 }
