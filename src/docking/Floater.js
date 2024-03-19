@@ -1,7 +1,7 @@
 import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
-import { Panel } from './Panel.js';
+import { Panel } from '../panels/Panel.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
 import { IMAGE_EMPTY } from '../constants.js';
@@ -10,12 +10,12 @@ import { TRAIT } from '../constants.js';
 
 const _color = new Iris();
 
-class Tab extends Panel {
+class Floater extends Panel {
 
     constructor(id = 'unknown', content, options = {}) {
         super();
         this.setID(id);
-        this.addClass('suey-tab-panel', 'suey-hidden');
+        this.addClass('suey-floater', 'suey-hidden');
         this.add(content);
 
         // Dock
@@ -154,7 +154,7 @@ class TabButton extends Div {
 
 }
 
-export { Tab };
+export { Floater };
 
 /******************** INTERNAL ********************/
 

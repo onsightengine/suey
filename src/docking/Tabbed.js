@@ -1,9 +1,9 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
+import { Floater } from './Floater.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel, PANEL_STYLES } from '../panels/Panel.js';
-import { Tab } from '../panels/Tab.js';
 
 export const TAB_SIDES = {
     LEFT:       'left',
@@ -64,7 +64,7 @@ class Tabbed extends Panel {
         Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
 
         // Children Elements
-        this.buttonsDiv = new Div().setClass('suey-buttons').setDisplay('none');
+        this.buttonsDiv = new Div().setClass('suey-tab-buttons').setDisplay('none');
         this.panelsDiv = new Div().setClass('suey-tab-panels');
         this.add(this.buttonsDiv);
         this.add(this.panelsDiv);
@@ -108,7 +108,7 @@ class Tabbed extends Panel {
     /********** ADD */
 
     addTab(tabPanel) {
-        if (!tabPanel || !tabPanel.hasClass('suey-tab-panel')) {
+        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
             console.error(`Tabbed.addTab: Expected Tab as first argument`, tabPanel);
             return null;
         }
@@ -136,7 +136,7 @@ class Tabbed extends Panel {
     }
 
     addNewTab(tabID, content, options = {}) {
-        return this.addTab(new Tab(tabID, content, options));
+        return this.addTab(new Floater(tabID, content, options));
     }
 
     /********** SELECT */
@@ -147,13 +147,6 @@ class Tabbed extends Panel {
             return this.selectTab(this.panels[0].getID());
         }
         return false;
-    }
-
-    /** Select last known tab */
-    selectLastKnownTab() {
-        //
-        // TO BE IMPLEMENTED IN APP
-        //
     }
 
     /** Select Tab */

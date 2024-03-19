@@ -23,6 +23,7 @@
 //
 //  DOCKING
 //      Docker                  div                     .suey-docker-left, .suey-docker-right
+//      Floater                 div                     .suey-floater, .suey-tab-button
 //      Tabbed                  div                     .suey-tabbed
 //      Window                  div                     .suey-window
 //
@@ -63,7 +64,6 @@
 //  PANELS
 //      Panel                   div                     .suey-panel
 //      Shrinkable              div                     .suey-shrinkable
-//      Tab                     div                     .suey-tab-panel, .suey-tab-button
 //      Titled                  duv                     .suey-titled
 //
 
@@ -106,6 +106,7 @@ export { TreeList } from './data/TreeList.js';
 // Docking
 export { Docker } from './docking/Docker.js';
 export { Docker2 } from './docking/Docker2.js';
+export { Floater } from './docking/Floater.js';
 export { Tabbed } from './docking/Tabbed.js';
 export { Window } from './docking/Window.js';
 
@@ -146,7 +147,6 @@ export { NodeItem } from './node/NodeItem.js';
 // Panels
 export { Panel } from './panels/Panel.js';
 export { Shrinkable } from './panels/Shrinkable.js';
-export { Tab } from './panels/Tab.js';
 export { Titled } from './panels/Titled.js';
 
 // Enums
