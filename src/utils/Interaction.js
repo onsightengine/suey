@@ -278,7 +278,7 @@ class Interaction {
             return resizeElement;
         };
         // Enable
-        for (let key in RESIZERS) {
+        for (const key in RESIZERS) {
             const resizerName = RESIZERS[key];
             resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
         }

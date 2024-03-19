@@ -22,7 +22,7 @@
 //      TreeList                div                     .suey-tree-list
 //
 //  DOCKING
-//      Docker                  div                     .suey-docker-left, .suey-docker-right
+//      Docker                  div                     .suey-docker-corner, .suey-docker-top-left, .suey-bottom-left, etc.
 //      Floater                 div                     .suey-floater, .suey-tab-button
 //      Tabbed                  div                     .suey-tabbed
 //      Window                  div                     .suey-window
@@ -63,6 +63,7 @@
 //
 //  PANELS
 //      Panel                   div                     .suey-panel
+//      Resizeable              div                     .suey-resizeable
 //      Shrinkable              div                     .suey-shrinkable
 //      Titled                  duv                     .suey-titled
 //
@@ -146,12 +147,13 @@ export { NodeItem } from './node/NodeItem.js';
 
 // Panels
 export { Panel } from './panels/Panel.js';
+export { Resizeable } from './panels/Resizeable.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Titled } from './panels/Titled.js';
 
 // Enums
 export { CLOSE_SIDES } from './utils/Interaction.js';
-export { CORNERS } from './docking/Docker.js';
+export { DOCK_LOCATIONS } from './docking/Docker.js';
 export { LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
 export { TAB_SIDES } from './docking/Tabbed.js';

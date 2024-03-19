@@ -1887,7 +1887,7 @@ class Interaction {
             toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
             return resizeElement;
         };
-        for (let key in RESIZERS) {
+        for (const key in RESIZERS) {
             const resizerName = RESIZERS[key];
             resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
         }
@@ -2108,6 +2108,74 @@ class PropertyList extends Div {
     }
 }
 
+class Resizeable extends Panel {
+    #startWidth = null;
+    #startHeight = null;
+    #minWidth = 0;
+    #maxWidth = Infinity;
+    #minHeight = 0;
+    #maxHeight = Infinity;
+    constructor({
+        style = PANEL_STYLES.FANCY,
+        resizers = [],
+        startWidth = null,
+        startHeight = null,
+        minWidth = 0,
+        maxWidth = Infinity,
+        minHeight = 0,
+        maxHeight = Infinity,
+    }) {
+        super({ style });
+        const self = this;
+        this.addClass('suey-resizeable');
+        this.#startWidth = startWidth;
+        this.#minWidth = minWidth;
+        this.#maxWidth = maxWidth;
+        this.#startHeight = startHeight;
+        this.#minHeight = minHeight;
+        this.#maxHeight = maxHeight;
+        const rect = {};
+        function resizerDown() {
+            rect.width = self.getWidth();
+            rect.height = self.getHeight();
+            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('right')) self.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('top')) self.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('bottom')) self.changeHeight(rect.height + diffY);
+        }
+        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
+    }
+    changeWidth(width) {
+        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
+        if (width == null) {
+            this.dom.style.removeProperty('width');
+            return null;
+        }
+        const scaledMinWidth = this.#minWidth * Css.guiScale(this.dom);
+        const scaledMaxWidth = this.#maxWidth * Css.guiScale(this.dom);
+        width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
+        this.setStyle('width', Css.toEm(width, this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+        return width;
+    }
+    changeHeight(height) {
+        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = this.#startHeight;
+        if (height == null) {
+            this.dom.style.removeProperty('height');
+            return null;
+        }
+        const scaledMinHeight = this.#minHeight * Css.guiScale(this.dom);
+        const scaledMaxHeight = this.#maxHeight * Css.guiScale(this.dom);
+        height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
+        this.setStyle('height', Css.toEm(height, this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+        return height;
+    }
+}
+
 class Shrinkable extends Panel {
     constructor({
         text = '',
@@ -2167,323 +2235,6 @@ class Shrinkable extends Panel {
     }
     toggle() {
         this.setExpanded(!this.isExpanded);
-    }
-}
-
-const _color$2 = new Iris();
-class Floater extends Panel {
-    constructor(id = 'unknown', content, options = {}) {
-        super();
-        this.setID(id);
-        this.addClass('suey-floater', 'suey-hidden');
-        this.add(content);
-        this.dock = null;
-        if (typeof options !== 'object') options = {};
-        if (!('color' in options) || options.color == null) options.color = ColorScheme.color(TRAIT.ICON);
-        if (!('alpha' in options)) options.alpha = 1.0;
-        if (!('icon' in options))options.icon = IMAGE_EMPTY;
-        if (!('shadow' in options)) options.shadow = 0x000000;
-        if (!('shrink' in options)) options.shrink = 1;
-        if (options.shrink === true) options.shrink = 0.7;
-        if (typeof options.shrink === 'string') {
-            options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
-        }
-        this.button = new TabButton(this, capitalize$1(id), options);
-    }
-}
-class TabButton extends Div {
-    constructor(tabPanel, label, options = {}) {
-        super();
-        const self = this;
-        this.setClass('suey-tab-button');
-        this.setStyle('cursor', 'default');
-        if (options.shadow) this.addClass('suey-tab-shadow');
-        this.tabPanel = tabPanel;
-        this.iconVector = new VectorBox(options.icon);
-        this.iconBorder = new Div().setClass('suey-tab-icon-border');
-        this.add(this.iconVector, this.iconBorder);
-        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); };
-        this.setLabel(label);
-        if (typeof options.color === 'string' && options.color.includes('var(--')) {
-            this.iconVector.setStyle('background-color', `rgba(${options.color}, ${options.alpha})`);
-        } else {
-            _color$2.set(options.color);
-            const light = `rgba(${_color$2.rgbString(options.alpha)})`;
-            const dark = `rgba(${_color$2.darken(0.75).rgbString(options.alpha)})`;
-            const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
-            this.iconVector.setStyle('background-image', background);
-        }
-        const shadow = options.shadow;
-        if (this.iconVector.img && shadow !== false) {
-            _color$2.set(shadow);
-            const dropShadow = `drop-shadow(0 0 var(--pad-micro) rgba(${_color$2.rgbString()}, 0.8))`;
-            this.iconVector.img.setStyle('filter', dropShadow);
-        }
-        const shrink = options.shrink;
-        if (this.iconVector.img && !isNaN(shrink)) {
-            this.iconVector.img.setStyle('position', 'absolute');
-            this.iconVector.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
-            this.iconVector.img.setStyle('margin', 'auto');
-            this.iconVector.img.setStyle('width', `${shrink * 100}%`);
-            this.iconVector.img.setStyle('height', `${shrink * 100}%`);
-        }
-        let downX = 0, downY = 0, downTime = 0;
-        let minDistance = 0;
-        let currentParent = undefined;
-        let tabIndex = -1;
-        function onPointerDown(event) {
-            if (event.button !== 0) return;
-            event.stopPropagation();
-            event.preventDefault();
-            downTime = performance.now();
-            minDistance = 0;
-            downX = event.pageX;
-            downY = event.pageY;
-            document.addEventListener('pointermove', onPointerMove);
-            document.addEventListener('pointerup', onPointerUp);
-        }
-        function onPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
-            minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
-            if (!self.hasClass('suey-dragging')) {
-                if (minDistance < MOUSE_SLOP_LARGE) return;
-                self.addClass('suey-dragging');
-                currentParent = self.dom.parentElement;
-                if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
-                document.body.appendChild(self.dom);
-            }
-            const newLeft = event.pageX - (self.getWidth() / 2);
-            const newTop = event.pageY - (self.getHeight() / 2);
-            self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
-        }
-        function onPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (self.hasClass('suey-dragging')) {
-                self.removeClass('suey-dragging');
-                if (currentParent) {
-                    if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
-                        currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
-                    } else {
-                        currentParent.appendChild(self.dom);
-                    }
-                }
-                currentParent = null;
-                tabIndex = -1;
-                self.setStyle('left', '', 'top', '');
-                self.tabPanel.dock.handleTabDrop(self, event.pageX, event.pageY);
-            } else {
-                if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
-                    self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
-                }
-            }
-            document.removeEventListener('pointermove', onPointerMove);
-            document.removeEventListener('pointerup', onPointerUp);
-        }
-        this.dom.addEventListener('pointerdown', onPointerDown);
-    }
-    getID() {
-        return this.tabPanel?.getID();
-    }
-}
-function capitalize$1(string) {
-    const words = String(string).split(' ');
-    for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    return words.join(' ');
-}
-
-const TAB_SIDES = {
-    LEFT:       'left',
-    RIGHT:      'right',
-};
-class Tabbed extends Panel {
-    #startWidth = null;
-    #startHeight = null;
-    #minWidth = 0;
-    #maxWidth = Infinity;
-    #minHeight = 0;
-    #maxHeight = Infinity;
-    constructor({
-        tabSide = TAB_SIDES.RIGHT,
-        style = PANEL_STYLES.FANCY,
-        resizers = [],
-        startWidth = null,
-        startHeight = null,
-        minWidth = 0,
-        maxWidth = Infinity,
-        minHeight = 0,
-        maxHeight = Infinity,
-    } = {}) {
-        super({ style });
-        const self = this;
-        this.addClass('suey-tabbed');
-        this.setName('suey-tabbed');
-        this.#startWidth = startWidth;
-        this.#minWidth = minWidth;
-        this.#maxWidth = maxWidth;
-        this.#startHeight = startHeight;
-        this.#minHeight = minHeight;
-        this.#maxHeight = maxHeight;
-        this.buttons = [];
-        this.panels = [];
-        this.selectedID = '';
-        const rect = {};
-        function resizerDown() {
-            rect.width = self.getWidth();
-            rect.height = self.getHeight();
-            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
-        }
-        function resizerMove(resizer, diffX, diffY) {
-            if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);
-            if (resizer.hasClassWithString('right')) self.changeWidth(rect.width + diffX);
-            if (resizer.hasClassWithString('top')) self.changeHeight(rect.height - diffY);
-            if (resizer.hasClassWithString('bottom')) self.changeHeight(rect.height + diffY);
-        }
-        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
-        this.buttonsDiv = new Div().setClass('suey-tab-buttons').setDisplay('none');
-        this.panelsDiv = new Div().setClass('suey-tab-panels');
-        this.add(this.buttonsDiv);
-        this.add(this.panelsDiv);
-        this.setTabSide(tabSide);
-    }
-    changeWidth(width) {
-        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
-        if (width == null) {
-            this.dom.style.removeProperty('width');
-            return null;
-        }
-        const scaledMinWidth = this.#minWidth * Css.guiScale(this.dom);
-        const scaledMaxWidth = this.#maxWidth * Css.guiScale(this.dom);
-        width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
-        this.setStyle('width', Css.toEm(width, this.dom));
-        this.dom.dispatchEvent(new Event('resized'));
-        return width;
-    }
-    changeHeight(height) {
-        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = this.#startHeight;
-        if (height == null) {
-            this.dom.style.removeProperty('height');
-            return null;
-        }
-        const scaledMinHeight = this.#minHeight * Css.guiScale(this.dom);
-        const scaledMaxHeight = this.#maxHeight * Css.guiScale(this.dom);
-        height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
-        this.setStyle('height', Css.toEm(height, this.dom));
-        this.dom.dispatchEvent(new Event('resized'));
-        return height;
-    }
-    addTab(tabPanel) {
-        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
-            console.error(`Tabbed.addTab: Expected Tab as first argument`, tabPanel);
-            return null;
-        }
-        tabPanel.dock = this;
-        this.buttons.push(tabPanel.button);
-        this.buttonsDiv.add(tabPanel.button);
-        this.panels.push(tabPanel);
-        this.panelsDiv.add(tabPanel);
-        const hideWhenNumberOfTabs = 0;
-        if (this.buttons.length > hideWhenNumberOfTabs) this.buttonsDiv.setDisplay('');
-        this.setContentsStyle('minHeight', '');
-        if (this.buttonsDiv.hasClass('suey-left-side') || this.buttonsDiv.hasClass('suey-right-side')) {
-            this.setContentsStyle('minHeight', ((2.2 * this.buttons.length) + 0.4) + 'em');
-        }
-        return tabPanel;
-    }
-    addNewTab(tabID, content, options = {}) {
-        return this.addTab(new Floater(tabID, content, options));
-    }
-    selectFirst() {
-        if (this.panels.length > 0) {
-            return this.selectTab(this.panels[0].getID());
-        }
-        return false;
-    }
-    selectTab(newID, wasClicked = false) {
-        const selectedID = this.selectedID;
-        const panel = this.panels.find((item) => (item.getID() === newID));
-        if (panel && panel.button) {
-            const button = panel.button;
-            if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
-            const currentPanel = this.panels.find((item) => (item.getID() === selectedID));
-            if (currentPanel) {
-                currentPanel.addClass('suey-hidden');
-                if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
-            }
-            panel.removeClass('suey-hidden');
-            button.addClass('suey-selected');
-            this.selectedID = newID;
-            if (wasClicked) {
-                const tabChange = new Event('tab-changed');
-                tabChange.value = newID;
-                this.dom.dispatchEvent(tabChange);
-            }
-            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
-            return true;
-        }
-        return false;
-    }
-    clearTabs() {
-        if (this.buttonsDiv) this.buttonsDiv.clearContents();
-        if (this.panelsDiv) this.panelsDiv.clearContents();
-        if (this.buttons) {
-            for (const button of this.buttons) button.destroy();
-            this.buttons.length = 0;
-        }
-        if (this.panels) {
-            for (const panel of this.panels) panel.destroy();
-            this.panels.length = 0;
-        }
-        this.setStyle('minHeight', '');
-    }
-    destroy() {
-        this.clearTabs();
-        super.destroy();
-    }
-    removeTab(index) {
-        if (index >= 0 && index < this.panels.length) {
-            const button = this.buttons[index];
-            const panel = this.panels[index];
-            if (button) button.removeClass('suey-selected');
-            if (panel) panel.addClass('suey-hidden');
-            this.buttons.splice(index, 1);
-            this.buttonsDiv.detach(button);
-            this.panels.splice(index, 1);
-            this.panelsDiv.detach(panel);
-        }
-    }
-    handleTabDrop(tabButton, dropX, dropY) {
-        const droppedOnPanel = Dom.findElementAt('suey-tabbed', dropX, dropY, this.dom);
-        if (droppedOnPanel && droppedOnPanel !== this) {
-            const tabIndex = this.buttons.indexOf(tabButton);
-            if (tabIndex !== -1) {
-                const panel = this.panels[tabIndex];
-                this.removeTab(tabIndex);
-                if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
-                    this.selectTab(this.buttons[tabIndex - 1].getID());
-                } else {
-                    this.selectFirst();
-                }
-                droppedOnPanel.addTab(panel);
-                droppedOnPanel.selectTab(panel.id, false);
-            }
-        }
-    }
-    getTabSide() {
-        if (this.buttonsDiv.hasClass('suey-left-side')) return 'left';
-        if (this.buttonsDiv.hasClass('suey-right-side')) return 'right';
-        return 'unknown';
-    }
-    setTabSide(side) {
-        side = String(side).toLowerCase();
-        this.buttonsDiv.removeClass('suey-left-side', 'suey-right-side');
-        this.buttonsDiv.addClass((side === TAB_SIDES.RIGHT) ? 'suey-right-side' : 'suey-left-side');
-    }
-    tabIndex(id) {
-        return this.panels.indexOf(id);
     }
 }
 
@@ -2548,7 +2299,7 @@ class Checkbox extends Element {
     }
 }
 
-const _color$1 = new Iris();
+const _color$2 = new Iris();
 class Color extends Button {
     constructor() {
         super();
@@ -2593,13 +2344,13 @@ class Color extends Button {
         };
         this.getHexValue = function() {
             if (!colorBox.dom) return 0;
-            _color$1.set(colorBox.dom.value);
-            return _color$1.hex();
+            _color$2.set(colorBox.dom.value);
+            return _color$2.hex();
         };
         this.setValue = function(value) {
             if (!colorBox.dom) return this;
-            _color$1.set(value);
-            colorBox.dom.value = _color$1.hexString();
+            _color$2.set(value);
+            colorBox.dom.value = _color$2.hexString();
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.dom.setAttribute('tooltip', colorBox.dom.value);
             return this;
@@ -3423,9 +3174,9 @@ class TextBox extends Element {
 }
 
 const _clr = new Iris();
-class Gooey extends Tabbed {
+class Gooey extends Resizeable {
     constructor(title, opacity) {
-        super({ style: PANEL_STYLES.FANCY });
+        super({ style: PANEL_STYLES.FANCY, minWidth: 100 });
         this.addClass('suey-gooey');
         this.toggleResize(RESIZERS.LEFT, true);
         this.minWidth = 180;
@@ -3436,7 +3187,7 @@ class Gooey extends Tabbed {
         document.body.appendChild(this.dom);
     }
     addFolder(folderName = '', icon = '') {
-        if (folderName && folderName !== '') folderName = capitalize(folderName);
+        if (folderName && folderName !== '') folderName = capitalize$1(folderName);
         const folder = new Folder({ title: folderName, icon });
         this.add(folder);
         return folder;
@@ -3723,13 +3474,13 @@ class Property {
     }
 }
 function prettyTitle(string) {
-    return addSpaces(capitalize(string));
+    return addSpaces(capitalize$1(string));
 }
 function addSpaces(string) {
     if (!string || string === '') return '';
     return String(string).replace(/([A-Z])/g, ' $1').trim();
 }
-function capitalize(string) {
+function capitalize$1(string) {
     if (!string || string === '') return '';
     let words = String(string);
     words = words.split(' ');
@@ -4102,7 +3853,271 @@ class TreeList extends Div {
     }
 }
 
-const CORNERS$1 = {
+const _color$1 = new Iris();
+class Floater extends Panel {
+    constructor(id = 'unknown', content, options = {}) {
+        super();
+        this.setID(id);
+        this.addClass('suey-floater', 'suey-hidden');
+        this.add(content);
+        this.dock = null;
+        if (typeof options !== 'object') options = {};
+        if (!('color' in options) || options.color == null) options.color = ColorScheme.color(TRAIT.ICON);
+        if (!('alpha' in options)) options.alpha = 1.0;
+        if (!('icon' in options))options.icon = IMAGE_EMPTY;
+        if (!('shadow' in options)) options.shadow = 0x000000;
+        if (!('shrink' in options)) options.shrink = 1;
+        if (options.shrink === true) options.shrink = 0.7;
+        if (typeof options.shrink === 'string') {
+            options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
+        }
+        this.button = new TabButton(this, capitalize(id), options);
+    }
+}
+class TabButton extends Div {
+    constructor(tabPanel, label, options = {}) {
+        super();
+        const self = this;
+        this.setClass('suey-tab-button');
+        this.setStyle('cursor', 'default');
+        if (options.shadow) this.addClass('suey-tab-shadow');
+        this.tabPanel = tabPanel;
+        this.iconVector = new VectorBox(options.icon);
+        this.iconBorder = new Div().setClass('suey-tab-icon-border');
+        this.add(this.iconVector, this.iconBorder);
+        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); };
+        this.setLabel(label);
+        if (typeof options.color === 'string' && options.color.includes('var(--')) {
+            this.iconVector.setStyle('background-color', `rgba(${options.color}, ${options.alpha})`);
+        } else {
+            _color$1.set(options.color);
+            const light = `rgba(${_color$1.rgbString(options.alpha)})`;
+            const dark = `rgba(${_color$1.darken(0.75).rgbString(options.alpha)})`;
+            const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
+            this.iconVector.setStyle('background-image', background);
+        }
+        const shadow = options.shadow;
+        if (this.iconVector.img && shadow !== false) {
+            _color$1.set(shadow);
+            const dropShadow = `drop-shadow(0 0 var(--pad-micro) rgba(${_color$1.rgbString()}, 0.8))`;
+            this.iconVector.img.setStyle('filter', dropShadow);
+        }
+        const shrink = options.shrink;
+        if (this.iconVector.img && !isNaN(shrink)) {
+            this.iconVector.img.setStyle('position', 'absolute');
+            this.iconVector.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
+            this.iconVector.img.setStyle('margin', 'auto');
+            this.iconVector.img.setStyle('width', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('height', `${shrink * 100}%`);
+        }
+        let downX = 0, downY = 0, downTime = 0;
+        let minDistance = 0;
+        let currentParent = undefined;
+        let tabIndex = -1;
+        function onPointerDown(event) {
+            if (event.button !== 0) return;
+            event.stopPropagation();
+            event.preventDefault();
+            downTime = performance.now();
+            minDistance = 0;
+            downX = event.pageX;
+            downY = event.pageY;
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+        }
+        function onPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
+            minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
+            if (!self.hasClass('suey-dragging')) {
+                if (minDistance < MOUSE_SLOP_LARGE) return;
+                self.addClass('suey-dragging');
+                currentParent = self.dom.parentElement;
+                if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
+                document.body.appendChild(self.dom);
+            }
+            const newLeft = event.pageX - (self.getWidth() / 2);
+            const newTop = event.pageY - (self.getHeight() / 2);
+            self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
+        }
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (self.hasClass('suey-dragging')) {
+                self.removeClass('suey-dragging');
+                if (currentParent) {
+                    if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
+                        currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
+                    } else {
+                        currentParent.appendChild(self.dom);
+                    }
+                }
+                currentParent = null;
+                tabIndex = -1;
+                self.setStyle('left', '', 'top', '');
+                self.tabPanel.dock.handleTabDrop(self, event.pageX, event.pageY);
+            } else {
+                if (performance.now() - downTime < MOUSE_CLICK) {
+                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
+                    self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
+                }
+            }
+            document.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('pointerup', onPointerUp);
+        }
+        this.dom.addEventListener('pointerdown', onPointerDown);
+    }
+    getID() {
+        return this.tabPanel?.getID();
+    }
+}
+function capitalize(string) {
+    const words = String(string).split(' ');
+    for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+    return words.join(' ');
+}
+
+const TAB_SIDES = {
+    LEFT:       'left',
+    RIGHT:      'right',
+};
+class Tabbed extends Resizeable {
+    constructor({
+        tabSide = TAB_SIDES.RIGHT,
+        style = PANEL_STYLES.FANCY,
+        resizers = [],
+        startWidth = null,
+        startHeight = null,
+        minWidth = 0,
+        maxWidth = Infinity,
+        minHeight = 0,
+        maxHeight = Infinity,
+    } = {}) {
+        super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
+        this.addClass('suey-tabbed');
+        this.buttons = [];
+        this.panels = [];
+        this.selectedID = '';
+        this.buttonsDiv = new Div().setClass('suey-tab-buttons').setDisplay('none');
+        this.panelsDiv = new Div().setClass('suey-tab-panels');
+        this.add(this.buttonsDiv);
+        this.add(this.panelsDiv);
+        this.setTabSide(tabSide);
+    }
+    addTab(tabPanel) {
+        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
+            console.error(`Tabbed.addTab: Expected Tab as first argument`, tabPanel);
+            return null;
+        }
+        tabPanel.dock = this;
+        this.buttons.push(tabPanel.button);
+        this.buttonsDiv.add(tabPanel.button);
+        this.panels.push(tabPanel);
+        this.panelsDiv.add(tabPanel);
+        const hideWhenNumberOfTabs = 0;
+        if (this.buttons.length > hideWhenNumberOfTabs) this.buttonsDiv.setDisplay('');
+        this.setContentsStyle('minHeight', '');
+        if (this.buttonsDiv.hasClass('suey-left-side') || this.buttonsDiv.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.buttons.length) + 0.4) + 'em');
+        }
+        return tabPanel;
+    }
+    addNewTab(tabID, content, options = {}) {
+        return this.addTab(new Floater(tabID, content, options));
+    }
+    selectFirst() {
+        if (this.panels.length > 0) {
+            return this.selectTab(this.panels[0].getID());
+        }
+        return false;
+    }
+    selectTab(newID, wasClicked = false) {
+        const selectedID = this.selectedID;
+        const panel = this.panels.find((item) => (item.getID() === newID));
+        if (panel && panel.button) {
+            const button = panel.button;
+            if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
+            const currentPanel = this.panels.find((item) => (item.getID() === selectedID));
+            if (currentPanel) {
+                currentPanel.addClass('suey-hidden');
+                if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
+            }
+            panel.removeClass('suey-hidden');
+            button.addClass('suey-selected');
+            this.selectedID = newID;
+            if (wasClicked) {
+                const tabChange = new Event('tab-changed');
+                tabChange.value = newID;
+                this.dom.dispatchEvent(tabChange);
+            }
+            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
+            return true;
+        }
+        return false;
+    }
+    clearTabs() {
+        if (this.buttonsDiv) this.buttonsDiv.clearContents();
+        if (this.panelsDiv) this.panelsDiv.clearContents();
+        if (this.buttons) {
+            for (const button of this.buttons) button.destroy();
+            this.buttons.length = 0;
+        }
+        if (this.panels) {
+            for (const panel of this.panels) panel.destroy();
+            this.panels.length = 0;
+        }
+        this.setStyle('minHeight', '');
+    }
+    destroy() {
+        this.clearTabs();
+        super.destroy();
+    }
+    removeTab(index) {
+        if (index >= 0 && index < this.panels.length) {
+            const button = this.buttons[index];
+            const panel = this.panels[index];
+            if (button) button.removeClass('suey-selected');
+            if (panel) panel.addClass('suey-hidden');
+            this.buttons.splice(index, 1);
+            this.buttonsDiv.detach(button);
+            this.panels.splice(index, 1);
+            this.panelsDiv.detach(panel);
+        }
+    }
+    handleTabDrop(tabButton, dropX, dropY) {
+        const droppedOnPanel = Dom.findElementAt('suey-tabbed', dropX, dropY, this.dom);
+        if (droppedOnPanel && droppedOnPanel !== this) {
+            const tabIndex = this.buttons.indexOf(tabButton);
+            if (tabIndex !== -1) {
+                const panel = this.panels[tabIndex];
+                this.removeTab(tabIndex);
+                if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
+                    this.selectTab(this.buttons[tabIndex - 1].getID());
+                } else {
+                    this.selectFirst();
+                }
+                droppedOnPanel.addTab(panel);
+                droppedOnPanel.selectTab(panel.id, false);
+            }
+        }
+    }
+    getTabSide() {
+        if (this.buttonsDiv.hasClass('suey-left-side')) return 'left';
+        if (this.buttonsDiv.hasClass('suey-right-side')) return 'right';
+        return 'unknown';
+    }
+    setTabSide(side) {
+        side = String(side).toLowerCase();
+        this.buttonsDiv.removeClass('suey-left-side', 'suey-right-side');
+        this.buttonsDiv.addClass((side === TAB_SIDES.RIGHT) ? 'suey-right-side' : 'suey-left-side');
+    }
+    tabIndex(id) {
+        return this.panels.indexOf(id);
+    }
+}
+
+const DOCK_LOCATIONS$1 = {
     TOP_LEFT:       'top-left',
     TOP_RIGHT:      'top-right',
     BOTTOM_LEFT:    'bottom-left',
@@ -4114,8 +4129,8 @@ class Docker extends Div {
         super();
         const self = this;
         let zIndex = 1;
-        for (let key in CORNERS$1) {
-            const cornerName = CORNERS$1[key];
+        for (let key in DOCK_LOCATIONS$1) {
+            const cornerName = DOCK_LOCATIONS$1[key];
             const className = `suey-docker-${cornerName}`;
             const corner = new Div().addClass('suey-docker-corner').addClass(className);
             corner.setStyle('zIndex', `${zIndex}`);
@@ -4135,7 +4150,7 @@ class Docker extends Div {
             this.add(corner);
         }
     }
-    addDockPanel(dockPanel, cornerName = CORNERS$1.TOP_LEFT) {
+    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS$1.TOP_LEFT) {
         if (!dockPanel) return;
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
@@ -4153,45 +4168,31 @@ class Docker extends Div {
             }
         }
     }
-    getCorner(cornerName = CORNERS$1.TOP_LEFT) {
+    getCorner(cornerName = DOCK_LOCATIONS$1.TOP_LEFT) {
         return this.#corners[cornerName];
     }
 }
 
-const CORNERS = {
+const DOCK_LOCATIONS = {
     TOP_LEFT:       'top-left',
     TOP_RIGHT:      'top-right',
     BOTTOM_LEFT:    'bottom-left',
     BOTTOM_RIGHT:   'bottom-right',
+    BOTTOM_MIDDLE:  'bottom-middle',
 };
 class Docker2 extends Div {
     #corners = {};
     constructor() {
         super();
-        const self = this;
-        let zIndex = 1;
-        for (let key in CORNERS) {
-            const cornerName = CORNERS[key];
+        for (const key in DOCK_LOCATIONS) {
+            const cornerName = DOCK_LOCATIONS[key];
             const className = `suey-docker-${cornerName}`;
             const corner = new Div().addClass('suey-docker-corner').addClass(className);
-            corner.setStyle('zIndex', `${zIndex}`);
-            zIndex++;
-            function bringCornerToTop() {
-                for (let cornerDiv in self.#corners) {
-                    const style = getComputedStyle(self.#corners[cornerDiv].dom);
-                    let computedZ = style.getPropertyValue('z-index');
-                    if (computedZ > 1) computedZ--;
-                    self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
-                };
-                corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
-            }
-            corner.dom.addEventListener('pointerdown', bringCornerToTop);
-            corner.dom.addEventListener('clicked', bringCornerToTop);
             this.#corners[cornerName] = corner;
             this.add(corner);
         }
     }
-    addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
+    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS.TOP_LEFT) {
         if (!dockPanel) return;
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
@@ -4209,7 +4210,7 @@ class Docker2 extends Div {
             }
         }
     }
-    getCorner(cornerName = CORNERS.TOP_LEFT) {
+    getCorner(cornerName = DOCK_LOCATIONS.TOP_LEFT) {
         return this.#corners[cornerName];
     }
 }
@@ -5623,8 +5624,8 @@ var css_248z$7 = "/********** Panel (simple / fancy) **********/\n\n.suey-panel 
 var stylesheet$7="/********** Panel (simple / fancy) **********/\n\n.suey-panel {\n    pointer-events: auto;\n    position: relative;\n    overflow: visible;\n    outline: none; /* for macos */\n    z-index: 0; /* Panel */\n}\n\n.suey-panel-simple {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    margin: calc(var(--edge-thickness) + var(--pad-x-small));\n}\n\n.suey-panel-fancy-outer {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n    --border-radius-outer:  0.71429em;      /* 10px @ font size 1.4em (14px) */\n\n    height: 100%;\n\n    background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n    border-radius: var(--border-radius-outer);\n    box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);\n    padding: var(--edge-thickness); /* outside of border padding */\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n}\n\n.suey-panel-fancy-border {\n    height: 100%;\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    padding: var(--pad-small);\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n.suey-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--button-light));\n}\n.suey-window.suey-active-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.suey-panel-fancy-inside {\n    height: 100%;\n    width: 100%;\n    background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));\n    border-radius: var(--radius-small);\n    margin: 0;\n    padding: var(--pad-x-small) 0;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/********** Scroller ********/\n\n.suey-scroller {\n    overflow: auto;\n}\n\n/********** Shrinkable **********/\n\n.suey-shrinkable {\n    background-color: transparent;\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-large);\n    margin: var(--pad-x-small);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    overflow: hidden;\n}\n.suey-shrinkable.suey-borderless {\n    border: solid var(--border-small) transparent;\n    margin-bottom: 0;\n    box-shadow: none;\n    overflow: visible;\n}\n.suey-shrinkable.suey-borderless.suey-expanded {\n    border-bottom: none;\n}\n\n/* Shrinkable Title Div */\n.suey-shrink-title {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    min-height: calc(var(--row-height));\n    overflow: hidden;\n\n    cursor: default;\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--icon), 0.35);\n\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n\n    border-bottom: solid var(--border-micro) transparent;\n    border-top: solid var(--border-micro) transparent;\n    border-top-left-radius: var(--radius-small);\n    border-top-right-radius: var(--radius-small);\n    padding: 0 var(--pad-medium); /* vertical horizontal */\n}\n.suey-shrink-title:hover {\n    color: rgba(var(--highlight), 1.0)\n}\n.suey-shrinkable.suey-borderless .suey-shrink-title {\n    outline: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n\n/* Title Icon */\n.suey-shrink-icon > * {\n    filter: var(--drop-shadow);\n}\n.suey-shrink-icon {\n    flex-grow: 0;\n    flex-shrink: 0;\n\n    position: relative;\n    display: flex;\n    margin: 0.15em;\n    height: calc(var(--arrow-size) * 3.5);\n    min-height: calc(var(--arrow-size) * 3.5);\n}\n.suey-shrink-icon.suey-has-icon {\n    width: calc(var(--arrow-size) * 3.5);\n    min-width: calc(var(--arrow-size) * 3.5);\n}\n\n/* Title Text */\n.suey-shrink-text {\n    flex-grow: 1;\n    flex-shrink: 2;\n\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n\n    padding-left: 0.2em;\n}\n\n/* Title Arrow */\n.suey-shrink-arrow {\n    flex-grow: 0;\n    flex-shrink: 1;\n\n    position: relative;\n    content: '';\n    margin: 0 0.35em; /* vertical horizontal */\n    width: 0;\n    height: 0;\n    transform: translateX(25%);\n    z-index: 101; /* Shrink Arrow */\n    border: var(--arrow-size) solid transparent;\n    border-color: transparent transparent transparent rgba(var(--text));\n    transition: transform var(--menu-timing);\n}\n.suey-shrink-arrow-clicker {\n    position: absolute;\n    content: '';\n    width: 1.7em;\n    height: 1.7em;\n    left: calc(1.7em * -0.5);\n    top: calc(1.7em * -0.5);\n    cursor: pointer;\n}\n.suey-shrinkable.suey-expanded .suey-shrink-title .suey-shrink-arrow {\n    transform: rotate(90deg) translateX(25%);\n}\n.suey-shrink-title:hover .suey-shrink-arrow {\n    border-color: transparent transparent transparent rgba(var(--highlight));\n}\n\n/* Shrinkable Body Div */\n.suey-shrink-body {\n    position: relative;\n    display: flex;\n    flex-wrap: wrap;\n    border-bottom-left-radius: var(--radius-small);\n    border-bottom-right-radius: var(--radius-small);\n    padding: var(--pad-small);\n    overflow: hidden;\n    pointer-events: auto;\n}\n.suey-shrinkable.suey-borderless .suey-shrink-body {\n    padding-bottom: 0;\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-body {\n    pointer-events: none;\n    display: none;\n}\n.suey-shrinkable.suey-expanded:not(.suey-borderless) .suey-shrink-body {\n    border-top: solid var(--border-small) rgba(var(--shadow), 0.25);\n}\n\n/* Borderless Property List Row */\n.suey-shrinkable.suey-borderless .suey-property-row {\n    width: calc(100% + (var(--pad-small) * 5)) !important;\n    margin-left: calc(var(--pad-small) * -2.5) !important;\n    margin-right: calc(var(--pad-small) * -2.5) !important;\n}\n\n/********** Titled **********/\n\n.suey-titled {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n}\n\n.suey-title-arrow {\n    position: absolute;\n    content: '';\n    font-size: var(--font-size);\n    pointer-events: none;\n    width: 0;\n    height: 0;\n    top: 0;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: auto;\n    transform: translateY(-25%) scale(1.0, -1.0);\n    border: 0.5em solid transparent;\n    border-color: rgba(var(--text)) transparent transparent transparent;\n    transition: transform var(--menu-timing);\n}\n.suey-title-arrow-click {\n    position: absolute;\n    cursor: pointer;\n    content: '';\n    pointer-events: all;\n    width: 2em;\n    height: 2em;\n    top: 0;\n    bottom: 0;\n    margin-top: auto;\n    margin-bottom: auto;\n    right: 0.25em;\n    z-index: 101; /* Title Arrow */\n}\n.suey-title-arrow-click:hover .suey-title-arrow {\n    border-color: rgba(var(--highlight)) transparent transparent transparent;\n}\n.suey-titled.suey-expanded .suey-tab-title .suey-title-arrow {\n    transform: translateY(25%);\n}\n\n/* Title Bar Class for top of Title Panel */\n.suey-tab-title {\n    --font-size-increase:   1.3;\n    --border-radius-title:  0.35714em;\n\n    position: relative;\n    display: block;\n    flex-shrink: 0; /* don't allow title to shrink */\n    color: rgba(var(--text-light), 1);\n    background-color: transparent;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border: 0;\n    border-radius: calc(var(--border-radius-title) / var(--font-size-increase));\n    outline: solid calc(var(--border-small) / var(--font-size-increase)) rgba(var(--shadow), 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);\n    text-align: center;\n    overflow: hidden;\n\n    font-size: calc(100% * var(--font-size-increase));\n    margin: var(--pad-small);\n    margin-top: var(--pad-micro);\n    margin-bottom: var(--pad-x-small);\n    padding-top: var(--pad-medium);\n    padding-bottom: var(--pad-medium);\n    min-height: 1.867em;\n}\n.suey-tab-title-text {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    font-size: 100%;\n    user-select: all;\n}\n.suey-tab-title-text::selection {\n    color: rgba(var(--icon), 1);\n    background-color: rgba(var(--blacklight), 1);\n}\n";
 styleInject(css_248z$7);
 
-var css_248z$6 = "/********** Docker Left / Docker Right **********/\n\n.suey-docker-corner {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    pointer-events: none;\n    margin: auto;\n    z-index: 1; /* Docker Corner */\n    background: transparent;\n}\n\n.suey-docker-top-left {\n    /* background-color: rgba(255, 0, 0, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n}\n\n.suey-docker-top-right {\n    /* background-color: rgba(0, 255, 0, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n}\n\n.suey-docker-bottom-left {\n    /* background-color: rgba(0, 0, 255, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n.suey-docker-bottom-right {\n    /* background-color: rgba(128, 0, 128, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n    justify-content: end;\n}\n\n/********** Tabbed / Floater **********/\n\n.suey-tabbed {\n    position: relative;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/* Collection of Panels */\n.suey-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/* Interior panel of a Tabbed Panel */\n.suey-tab-panels .suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n}\n\n.suey-tab-panels .suey-floater.suey-hidden {\n    display: none;\n    pointer-events: none;\n}\n\n/* Collection of 'TabButton's */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    margin-top: calc(-1 * var(--pad-x-small));\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n}\n\n.suey-tab-buttons.suey-left-side {\n    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n.suey-tab-buttons.suey-right-side {\n    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    --tab-timing: 200ms;\n\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    margin-top: -0.2em;\n    margin-bottom: -0.2em;\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-button.suey-dragging {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n\n.suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n.suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, 0.07em);\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: 0.21em solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.suey-tab-button.suey-dragging > .suey-tab-icon-border {\n    border: 0.21em solid rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/***** Window *****/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.suey-docked-left {\n    left: 0 !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n\n.suey-docked-right {\n    left: 50% !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n";
-var stylesheet$6="/********** Docker Left / Docker Right **********/\n\n.suey-docker-corner {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    pointer-events: none;\n    margin: auto;\n    z-index: 1; /* Docker Corner */\n    background: transparent;\n}\n\n.suey-docker-top-left {\n    /* background-color: rgba(255, 0, 0, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n}\n\n.suey-docker-top-right {\n    /* background-color: rgba(0, 255, 0, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n}\n\n.suey-docker-bottom-left {\n    /* background-color: rgba(0, 0, 255, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n.suey-docker-bottom-right {\n    /* background-color: rgba(128, 0, 128, 0.5); */\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n    justify-content: end;\n}\n\n/********** Tabbed / Floater **********/\n\n.suey-tabbed {\n    position: relative;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/* Collection of Panels */\n.suey-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/* Interior panel of a Tabbed Panel */\n.suey-tab-panels .suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n}\n\n.suey-tab-panels .suey-floater.suey-hidden {\n    display: none;\n    pointer-events: none;\n}\n\n/* Collection of 'TabButton's */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    margin-top: calc(-1 * var(--pad-x-small));\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n}\n\n.suey-tab-buttons.suey-left-side {\n    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n.suey-tab-buttons.suey-right-side {\n    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    --tab-timing: 200ms;\n\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    margin-top: -0.2em;\n    margin-bottom: -0.2em;\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-button.suey-dragging {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n\n.suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n.suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, 0.07em);\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: 0.21em solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.suey-tab-button.suey-dragging > .suey-tab-icon-border {\n    border: 0.21em solid rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/***** Window *****/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.suey-docked-left {\n    left: 0 !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n\n.suey-docked-right {\n    left: 50% !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n";
+var css_248z$6 = "/********** Docker Left / Docker Right **********/\n\n.suey-docker-corner {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    pointer-events: none;\n    margin: auto;\n    z-index: 1; /* Docker Corner */\n    background: transparent;\n}\n\n.suey-docker-top-left {\n    background-color: rgba(255, 0, 0, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n}\n\n.suey-docker-top-right {\n    background-color: rgba(0, 255, 0, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n}\n\n.suey-docker-bottom-left {\n    background-color: rgba(0, 0, 255, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n.suey-docker-bottom-right {\n    background-color: rgba(128, 0, 128, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n    justify-content: end;\n}\n\n.suey-docker-bottom-middle {\n    background-color: rgba(0, 128, 128, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n/********** Tabbed / Floater **********/\n\n.suey-tabbed {\n    position: relative;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/* Collection of Panels */\n.suey-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/* Interior panel of a Tabbed Panel */\n.suey-tab-panels .suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n}\n\n.suey-tab-panels .suey-floater.suey-hidden {\n    display: none;\n    pointer-events: none;\n}\n\n/* Collection of 'TabButton's */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    margin-top: calc(-1 * var(--pad-x-small));\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n}\n\n.suey-tab-buttons.suey-left-side {\n    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n.suey-tab-buttons.suey-right-side {\n    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    --tab-timing: 200ms;\n\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    margin-top: -0.2em;\n    margin-bottom: -0.2em;\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-button.suey-dragging {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n\n.suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n.suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, 0.07em);\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: 0.21em solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.suey-tab-button.suey-dragging > .suey-tab-icon-border {\n    border: 0.21em solid rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/***** Window *****/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.suey-docked-left {\n    left: 0 !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n\n.suey-docked-right {\n    left: 50% !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n";
+var stylesheet$6="/********** Docker Left / Docker Right **********/\n\n.suey-docker-corner {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    pointer-events: none;\n    margin: auto;\n    z-index: 1; /* Docker Corner */\n    background: transparent;\n}\n\n.suey-docker-top-left {\n    background-color: rgba(255, 0, 0, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n}\n\n.suey-docker-top-right {\n    background-color: rgba(0, 255, 0, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n}\n\n.suey-docker-bottom-left {\n    background-color: rgba(0, 0, 255, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n.suey-docker-bottom-right {\n    background-color: rgba(128, 0, 128, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    right: 0;\n    justify-content: end;\n}\n\n.suey-docker-bottom-middle {\n    background-color: rgba(0, 128, 128, 0.5);\n    top: calc(var(--button-size) + (var(--pad-small) * 2));\n    bottom: 0;\n    left: 0;\n    justify-content: end;\n}\n\n/********** Tabbed / Floater **********/\n\n.suey-tabbed {\n    position: relative;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/* Collection of Panels */\n.suey-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/* Interior panel of a Tabbed Panel */\n.suey-tab-panels .suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n}\n\n.suey-tab-panels .suey-floater.suey-hidden {\n    display: none;\n    pointer-events: none;\n}\n\n/* Collection of 'TabButton's */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    margin-top: calc(-1 * var(--pad-x-small));\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n}\n\n.suey-tab-buttons.suey-left-side {\n    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n.suey-tab-buttons.suey-right-side {\n    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */\n}\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    --tab-timing: 200ms;\n\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    margin-top: -0.2em;\n    margin-bottom: -0.2em;\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-button.suey-dragging {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n\n.suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n.suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, 0.07em);\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: 0.21em solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.suey-tab-button.suey-dragging > .suey-tab-icon-border {\n    border: 0.21em solid rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/***** Window *****/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: fixed;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: 9999px;\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.suey-docked-left {\n    left: 0 !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n\n.suey-docked-right {\n    left: 50% !important;\n    top: 0 !important;\n    width: 50% !important;\n    height: 100% !important;\n}\n";
 styleInject(css_248z$6);
 
 var css_248z$5 = "/***** Gooey Panel *****/\n\n.suey-gooey {\n    position: absolute;\n    top: 0;\n    right: 0;\n    width: 21em;\n    z-index: 1; /* Gooey */\n}\n";
@@ -5651,4 +5652,4 @@ var css_248z = "/********** Disabled **********/\n\n/** Grayscale filter for dis
 var stylesheet="/********** Disabled **********/\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-rotate-colorize /* purple */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));\n}\n\n.suey-triadic-colorize /* red */ {\n    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNERS$1 as CORNERS, Canvas, Checkbox, Color, ColorScheme, Css, Div, Docker, Docker2, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_LOCATIONS$1 as DOCK_LOCATIONS, Div, Docker, Docker2, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

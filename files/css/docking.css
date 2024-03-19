@@ -11,21 +11,21 @@
 }
 
 .suey-docker-top-left {
-    /* background-color: rgba(255, 0, 0, 0.5); */
+    background-color: rgba(255, 0, 0, 0.5);
     top: calc(var(--button-size) + (var(--pad-small) * 2));
     bottom: 0;
     left: 0;
 }
 
 .suey-docker-top-right {
-    /* background-color: rgba(0, 255, 0, 0.5); */
+    background-color: rgba(0, 255, 0, 0.5);
     top: calc(var(--button-size) + (var(--pad-small) * 2));
     bottom: 0;
     right: 0;
 }
 
 .suey-docker-bottom-left {
-    /* background-color: rgba(0, 0, 255, 0.5); */
+    background-color: rgba(0, 0, 255, 0.5);
     top: calc(var(--button-size) + (var(--pad-small) * 2));
     bottom: 0;
     left: 0;
@@ -33,10 +33,18 @@
 }
 
 .suey-docker-bottom-right {
-    /* background-color: rgba(128, 0, 128, 0.5); */
+    background-color: rgba(128, 0, 128, 0.5);
     top: calc(var(--button-size) + (var(--pad-small) * 2));
     bottom: 0;
     right: 0;
+    justify-content: end;
+}
+
+.suey-docker-bottom-middle {
+    background-color: rgba(0, 128, 128, 0.5);
+    top: calc(var(--button-size) + (var(--pad-small) * 2));
+    bottom: 0;
+    left: 0;
     justify-content: end;
 }
 

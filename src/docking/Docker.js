@@ -3,7 +3,7 @@ import { Div } from '../core/Div.js';
 import { RESIZERS } from '../constants.js';
 import { TAB_SIDES } from './Tabbed.js';
 
-export const CORNERS = {
+export const DOCK_LOCATIONS = {
     TOP_LEFT:       'top-left',
     TOP_RIGHT:      'top-right',
     BOTTOM_LEFT:    'bottom-left',
@@ -20,8 +20,8 @@ class Docker extends Div {
 
         // Build Corners
         let zIndex = 1;
-        for (let key in CORNERS) {
-            const cornerName = CORNERS[key];
+        for (let key in DOCK_LOCATIONS) {
+            const cornerName = DOCK_LOCATIONS[key];
             const className = `suey-docker-${cornerName}`;
             const corner = new Div().addClass('suey-docker-corner').addClass(className);
             corner.setStyle('zIndex', `${zIndex}`);
@@ -46,7 +46,7 @@ class Docker extends Div {
         }
     }
 
-    addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
+    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS.TOP_LEFT) {
         if (!dockPanel) return;
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
@@ -67,7 +67,7 @@ class Docker extends Div {
         }
     }
 
-    getCorner(cornerName = CORNERS.TOP_LEFT) {
+    getCorner(cornerName = DOCK_LOCATIONS.TOP_LEFT) {
         return this.#corners[cornerName];
     }
 

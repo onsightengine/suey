@@ -3,11 +3,12 @@ import { Div } from '../core/Div.js';
 import { RESIZERS } from '../constants.js';
 import { TAB_SIDES } from './Tabbed.js';
 
-export const CORNERS = {
+export const DOCK_LOCATIONS = {
     TOP_LEFT:       'top-left',
     TOP_RIGHT:      'top-right',
     BOTTOM_LEFT:    'bottom-left',
     BOTTOM_RIGHT:   'bottom-right',
+    BOTTOM_MIDDLE:  'bottom-middle',
 };
 
 class Docker2 extends Div {
@@ -16,29 +17,12 @@ class Docker2 extends Div {
 
     constructor() {
         super();
-        const self = this;
 
         // Build Corners
-        let zIndex = 1;
-        for (let key in CORNERS) {
-            const cornerName = CORNERS[key];
+        for (const key in DOCK_LOCATIONS) {
+            const cornerName = DOCK_LOCATIONS[key];
             const className = `suey-docker-${cornerName}`;
             const corner = new Div().addClass('suey-docker-corner').addClass(className);
-            corner.setStyle('zIndex', `${zIndex}`);
-            zIndex++;
-
-            // Bring corner div to top on 'Click' event
-            function bringCornerToTop() {
-                for (let cornerDiv in self.#corners) {
-                    const style = getComputedStyle(self.#corners[cornerDiv].dom);
-                    let computedZ = style.getPropertyValue('z-index');
-                    if (computedZ > 1) computedZ--;
-                    self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
-                };
-                corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
-            }
-            corner.dom.addEventListener('pointerdown', bringCornerToTop);
-            corner.dom.addEventListener('clicked', bringCornerToTop);
 
             // Add to Docker
             this.#corners[cornerName] = corner;
@@ -46,7 +30,7 @@ class Docker2 extends Div {
         }
     }
 
-    addDockPanel(dockPanel, cornerName = CORNERS.TOP_LEFT) {
+    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS.TOP_LEFT) {
         if (!dockPanel) return;
         const corner = this.getCorner(cornerName);
         corner.add(dockPanel);
@@ -67,7 +51,7 @@ class Docker2 extends Div {
         }
     }
 
-    getCorner(cornerName = CORNERS.TOP_LEFT) {
+    getCorner(cornerName = DOCK_LOCATIONS.TOP_LEFT) {
         return this.#corners[cornerName];
     }
 
