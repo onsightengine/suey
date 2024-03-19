@@ -229,7 +229,7 @@
 }
 
 /* Hover */
-.suey-toolbar-button:not(.suey-selected):enabled:hover .suey-button-background {
+.suey-toolbar-button:not(.suey-selected):enabled:hover > .suey-button-background {
     filter: brightness(125%);
     box-shadow: /* pop-out-shadow */
         inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),
@@ -243,8 +243,8 @@
 .suey-toolbar-button.suey-selected:enabled {
     box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
 }
-.suey-toolbar-button:not(.suey-selected):enabled:active .suey-button-background,
-.suey-toolbar-button.suey-selected:enabled .suey-button-background {
+.suey-toolbar-button:not(.suey-selected):enabled:active > .suey-button-background,
+.suey-toolbar-button.suey-selected:enabled > .suey-button-background {
     filter: brightness(50%) grayscale(20%);
 }
 
@@ -252,57 +252,62 @@
 .suey-hover-active:hover, .suey-hover-active:active {
     box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */
 }
-.suey-hover-active:hover .suey-button-background,
-.suey-hover-active:active .suey-button-background {
+.suey-hover-active:hover > .suey-button-background,
+.suey-hover-active:active > .suey-button-background {
     filter: brightness(50%) grayscale(20%) !important;
 }
 
 /* Gray Background */
-.suey-gray-button:enabled .suey-button-background {
+.suey-gray-button:enabled > .suey-button-background {
     background-image: linear-gradient(to bottom, rgba(var(--gray), 0.9), rgba(var(--gray), 0.65));
 }
 
 /* Dark Background */
-.suey-dark-button:enabled .suey-button-background {
+.suey-dark-button:enabled > .suey-button-background {
     background-image: linear-gradient(to bottom, rgba(var(--button-light), 0.9), rgba(var(--button-light), 0.65));
 }
 
 /* Brown Background */
-.suey-brown-button:enabled .suey-button-background {
+.suey-brown-button:enabled > .suey-button-background {
     background-image: linear-gradient(to bottom, rgba(150, 100, 50, 0.9), rgba(150, 100, 50, 0.65));
 }
 
 /* Red Background */
-.suey-red-button:enabled .suey-button-background {
+.suey-red-button:enabled > .suey-button-background {
     background-image: linear-gradient(to bottom, rgba(223, 32, 32, 0.9), rgba(223, 32, 32, 0.65));
 }
 
+/* Red Background */
+.suey-green-button:enabled > .suey-button-background {
+    background-image: linear-gradient(to bottom, rgba(32, 223, 32, 0.9), rgba(32, 223, 32, 0.65));
+}
+
 /* Complement Background */
-.suey-complement-button:enabled .suey-button-background {
+.suey-complement-button:enabled > .suey-button-background {
     background-color: rgb(var(--darkness));
     background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));
 }
 
 /* Triadic1 Background */
-.suey-triadic1-button:enabled .suey-button-background {
+.suey-triadic1-button:enabled > .suey-button-background {
     background-color: rgb(var(--darkness));
     background-image: linear-gradient(to bottom, rgba(var(--triadic1), 0.75), rgba(var(--triadic1), 0.50));
 }
 
 /* Triadic2 Background */
-.suey-triadic2-button:enabled .suey-button-background {
+.suey-triadic2-button:enabled > .suey-button-background {
     background-color: rgb(var(--darkness));
     background-image: linear-gradient(to bottom, rgba(var(--triadic2), 0.9), rgba(var(--triadic2), 0.65));
 }
 
 /* Triadic3 Background */
-.suey-triadic3-button:enabled .suey-button-background {
+.suey-triadic3-button:enabled > .suey-button-background {
     background-color: rgb(var(--darkness));
     background-image: linear-gradient(to bottom, rgba(var(--triadic3), 0.9), rgba(var(--triadic3), 0.65));
 }
 
 /* Triadic4 Background */
-.suey-triadic4-button:enabled .suey-button-background {
+.suey-triadic4-button:enabled > .suey-button-background {
     background-color: rgb(var(--darkness));
     background-image: linear-gradient(to bottom, rgba(var(--triadic4), 0.9), rgba(var(--triadic4), 0.65));
 }
@@ -320,33 +325,33 @@
 }
 
 /* Left / Middle / Right */
-.suey-button-left, .suey-button-left .suey-button-background {
+.suey-button-left, .suey-button-left > .suey-button-background {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin-right: 0;
 }
-.suey-button-middle, .suey-button-middle .suey-button-background {
+.suey-button-middle, .suey-button-middle > .suey-button-background {
     border-radius: 0;
     margin-right: 0;
     margin-left: 0;
 }
-.suey-button-right, .suey-button-right .suey-button-background {
+.suey-button-right, .suey-button-right > .suey-button-background {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin-left: 0;
 }
 
-.suey-button-left .suey-button-background {
+.suey-button-left > .suey-button-background {
     box-shadow: /* pop-out-shadow */
         inset            0 var(--pixel) rgba(var(--white), 0.25),
         inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);
 }
-.suey-button-middle .suey-button-background {
+.suey-button-middle > .suey-button-background {
     box-shadow: /* pop-out-shadow */
         inset            0 var(--pixel) rgba(var(--white), 0.25),
         inset            0 var(--minus) rgba(var(--black), 0.25);
 }
-.suey-button-right .suey-button-background {
+.suey-button-right > .suey-button-background {
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),
         inset            0 var(--minus) rgba(var(--black), 0.25);
