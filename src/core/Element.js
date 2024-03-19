@@ -463,7 +463,7 @@ function removeFromParent(parent, element, destroy = true) {
     }
 
    // Clear Children
-   if (destroy) clearChildren(element);
+   if (destroy) clearChildren(element, true /* destroy */);
 
     // Remove from Parent
     try {

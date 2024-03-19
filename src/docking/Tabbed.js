@@ -10,6 +10,8 @@ export const TAB_SIDES = {
     RIGHT:      'right',
 }
 
+const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when there are 2 or more tabs */
+
 class Tabbed extends Resizeable {
 
     constructor({
@@ -27,17 +29,14 @@ class Tabbed extends Resizeable {
         this.addClass('suey-tabbed');
 
         // Public Properties
-        this.buttons = [];
-        this.panels = [];
         this.selectedID = '';       // 'id' (name) of selected tab
 
         // Children Elements
-        this.buttonsDiv = new Div().setClass('suey-tab-buttons').setDisplay('none');
-        this.panelsDiv = new Div().setClass('suey-tab-panels');
-        this.add(this.buttonsDiv);
-        this.add(this.panelsDiv);
+        this.buttons = new Div().setClass('suey-tab-buttons').setDisplay('none');
+        this.panels = new Div().setClass('suey-tab-panels');
+        this.add(this.buttons, this.panels);
 
-        // Set side (LEFT / RIGHT) that buttons should appear
+        // Set TAB_SIDES that Tab Buttons should appear
         this.setTabSide(tabSide);
     }
 
@@ -53,19 +52,16 @@ class Tabbed extends Resizeable {
         tabPanel.dock = this;
 
         // Push onto containers
-        this.buttons.push(tabPanel.button);
-        this.buttonsDiv.add(tabPanel.button);
-        this.panels.push(tabPanel);
-        this.panelsDiv.add(tabPanel);
+        this.buttons.add(tabPanel.button);
+        this.panels.add(tabPanel);
 
-        // // NOTE: If below is changed from '0' to '1', buttons will be hidden when there is only 1 tab
-        const hideWhenNumberOfTabs = 0;
-        if (this.buttons.length > hideWhenNumberOfTabs) this.buttonsDiv.setDisplay('');
+        // Minimum Tabs to Show
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
 
-        // Minimum height (so tab buttons dont float over nothing)
+        // Minimum height (so Tab Buttons dont float over nothing)
         this.setContentsStyle('minHeight', '');
-        if (this.buttonsDiv.hasClass('suey-left-side') || this.buttonsDiv.hasClass('suey-right-side')) {
-            this.setContentsStyle('minHeight', ((2.2 * this.buttons.length) + 0.4) + 'em');
+        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
         }
 
         return tabPanel;
@@ -79,8 +75,8 @@ class Tabbed extends Resizeable {
 
     /** Select first tab */
     selectFirst() {
-        if (this.panels.length > 0) {
-            return this.selectTab(this.panels[0].getID());
+        if (this.panels.children.length > 0) {
+            return this.selectTab(this.panels.children[0].getID());
         }
         return false;
     }
@@ -90,7 +86,7 @@ class Tabbed extends Resizeable {
         const selectedID = this.selectedID;
 
         // Find button / panel with New ID
-        const panel = this.panels.find((item) => (item.getID() === newID));
+        const panel = this.panels.children.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
             const button = panel.button;
 
@@ -98,7 +94,7 @@ class Tabbed extends Resizeable {
             if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
 
             // Deselect current selection
-            const currentPanel = this.panels.find((item) => (item.getID() === selectedID));
+            const currentPanel = this.panels.children.find((item) => (item.getID() === selectedID));
             if (currentPanel) {
                 currentPanel.addClass('suey-hidden');
                 if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
@@ -128,17 +124,12 @@ class Tabbed extends Resizeable {
     /******************** REMOVE */
 
     clearTabs() {
-        if (this.buttonsDiv) this.buttonsDiv.clearContents();
-        if (this.panelsDiv) this.panelsDiv.clearContents();
-        if (this.buttons) {
-            for (const button of this.buttons) button.destroy();
-            this.buttons.length = 0;
-        }
-        if (this.panels) {
-            for (const panel of this.panels) panel.destroy();
-            this.panels.length = 0;
-        }
+        if (this.buttons) this.buttons.clearContents();
+        if (this.panels) this.panels.clearContents();
         this.setStyle('minHeight', '');
+
+        // Minimum Tabs to Show
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
 
     destroy() {
@@ -147,16 +138,17 @@ class Tabbed extends Resizeable {
     }
 
     removeTab(index) {
-        if (index >= 0 && index < this.panels.length) {
-            const button = this.buttons[index];
-            const panel = this.panels[index];
+        if (index >= 0 && index < this.panels.children.length) {
+            const button = this.buttons.children[index];
+            const panel = this.panels.children[index];
             if (button) button.removeClass('suey-selected');
             if (panel) panel.addClass('suey-hidden');
-            this.buttons.splice(index, 1);
-            this.buttonsDiv.detach(button);
-            this.panels.splice(index, 1);
-            this.panelsDiv.detach(panel);
+            this.buttons.detach(button);
+            this.panels.detach(panel);
         }
+
+        // Minimum Tabs to Show
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
 
     /******************** DROP */
@@ -164,12 +156,12 @@ class Tabbed extends Resizeable {
     handleTabDrop(tabButton, dropX, dropY) {
         const droppedOnPanel = Dom.findElementAt('suey-tabbed', dropX, dropY, this.dom);
         if (droppedOnPanel && droppedOnPanel !== this) {
-            const tabIndex = this.buttons.indexOf(tabButton);
+            const tabIndex = this.buttons.children.indexOf(tabButton);
             if (tabIndex !== -1) {
-                const panel = this.panels[tabIndex];
+                const panel = this.panels.children[tabIndex];
                 this.removeTab(tabIndex);
                 if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
-                    this.selectTab(this.buttons[tabIndex - 1].getID());
+                    this.selectTab(this.buttons.children[tabIndex - 1].getID());
                 } else {
                     this.selectFirst();
                 }
@@ -182,19 +174,18 @@ class Tabbed extends Resizeable {
     /******************** INFO */
 
     getTabSide() {
-        if (this.buttonsDiv.hasClass('suey-left-side')) return 'left';
-        if (this.buttonsDiv.hasClass('suey-right-side')) return 'right';
+        if (this.buttons.hasClass('suey-left-side')) return 'left';
+        if (this.buttons.hasClass('suey-right-side')) return 'right';
         return 'unknown';
     }
 
     setTabSide(side) {
         side = String(side).toLowerCase();
-        this.buttonsDiv.removeClass('suey-left-side', 'suey-right-side');
-        this.buttonsDiv.addClass((side === TAB_SIDES.RIGHT) ? 'suey-right-side' : 'suey-left-side');
-    }
-
-    tabIndex(id) {
-        return this.panels.indexOf(id);
+        this.buttons.removeClass('suey-left-side', 'suey-right-side');
+        switch (side) {
+            case TAB_SIDES.RIGHT:   this.buttons.addClass('suey-right-side'); break;
+            case TAB_SIDES.LEFT:    this.buttons.addClass('suey-left-side'); break;
+        }
     }
 
 }

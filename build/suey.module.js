@@ -1418,7 +1418,7 @@ function removeFromParent(parent, element, destroy = true) {
             }
         }
     }
-   if (destroy) clearChildren(element);
+   if (destroy) clearChildren(element, true );
     try {
         if (parent.isElement) {
             return parent.dom.removeChild((element.isElement) ? element.dom : element);
@@ -3982,6 +3982,7 @@ const TAB_SIDES = {
     LEFT:       'left',
     RIGHT:      'right',
 };
+const MINIMUM_TABS_TO_SHOW = 1;
 class Tabbed extends Resizeable {
     constructor({
         tabSide = TAB_SIDES.RIGHT,
@@ -3996,13 +3997,10 @@ class Tabbed extends Resizeable {
     } = {}) {
         super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
         this.addClass('suey-tabbed');
-        this.buttons = [];
-        this.panels = [];
         this.selectedID = '';
-        this.buttonsDiv = new Div().setClass('suey-tab-buttons').setDisplay('none');
-        this.panelsDiv = new Div().setClass('suey-tab-panels');
-        this.add(this.buttonsDiv);
-        this.add(this.panelsDiv);
+        this.buttons = new Div().setClass('suey-tab-buttons').setDisplay('none');
+        this.panels = new Div().setClass('suey-tab-panels');
+        this.add(this.buttons, this.panels);
         this.setTabSide(tabSide);
     }
     addTab(tabPanel) {
@@ -4011,15 +4009,12 @@ class Tabbed extends Resizeable {
             return null;
         }
         tabPanel.dock = this;
-        this.buttons.push(tabPanel.button);
-        this.buttonsDiv.add(tabPanel.button);
-        this.panels.push(tabPanel);
-        this.panelsDiv.add(tabPanel);
-        const hideWhenNumberOfTabs = 0;
-        if (this.buttons.length > hideWhenNumberOfTabs) this.buttonsDiv.setDisplay('');
+        this.buttons.add(tabPanel.button);
+        this.panels.add(tabPanel);
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
         this.setContentsStyle('minHeight', '');
-        if (this.buttonsDiv.hasClass('suey-left-side') || this.buttonsDiv.hasClass('suey-right-side')) {
-            this.setContentsStyle('minHeight', ((2.2 * this.buttons.length) + 0.4) + 'em');
+        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
         }
         return tabPanel;
     }
@@ -4027,18 +4022,18 @@ class Tabbed extends Resizeable {
         return this.addTab(new Floater(tabID, content, options));
     }
     selectFirst() {
-        if (this.panels.length > 0) {
-            return this.selectTab(this.panels[0].getID());
+        if (this.panels.children.length > 0) {
+            return this.selectTab(this.panels.children[0].getID());
         }
         return false;
     }
     selectTab(newID, wasClicked = false) {
         const selectedID = this.selectedID;
-        const panel = this.panels.find((item) => (item.getID() === newID));
+        const panel = this.panels.children.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
             const button = panel.button;
             if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
-            const currentPanel = this.panels.find((item) => (item.getID() === selectedID));
+            const currentPanel = this.panels.children.find((item) => (item.getID() === selectedID));
             if (currentPanel) {
                 currentPanel.addClass('suey-hidden');
                 if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
@@ -4057,43 +4052,35 @@ class Tabbed extends Resizeable {
         return false;
     }
     clearTabs() {
-        if (this.buttonsDiv) this.buttonsDiv.clearContents();
-        if (this.panelsDiv) this.panelsDiv.clearContents();
-        if (this.buttons) {
-            for (const button of this.buttons) button.destroy();
-            this.buttons.length = 0;
-        }
-        if (this.panels) {
-            for (const panel of this.panels) panel.destroy();
-            this.panels.length = 0;
-        }
+        if (this.buttons) this.buttons.clearContents();
+        if (this.panels) this.panels.clearContents();
         this.setStyle('minHeight', '');
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
     destroy() {
         this.clearTabs();
         super.destroy();
     }
     removeTab(index) {
-        if (index >= 0 && index < this.panels.length) {
-            const button = this.buttons[index];
-            const panel = this.panels[index];
+        if (index >= 0 && index < this.panels.children.length) {
+            const button = this.buttons.children[index];
+            const panel = this.panels.children[index];
             if (button) button.removeClass('suey-selected');
             if (panel) panel.addClass('suey-hidden');
-            this.buttons.splice(index, 1);
-            this.buttonsDiv.detach(button);
-            this.panels.splice(index, 1);
-            this.panelsDiv.detach(panel);
+            this.buttons.detach(button);
+            this.panels.detach(panel);
         }
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
     handleTabDrop(tabButton, dropX, dropY) {
         const droppedOnPanel = Dom.findElementAt('suey-tabbed', dropX, dropY, this.dom);
         if (droppedOnPanel && droppedOnPanel !== this) {
-            const tabIndex = this.buttons.indexOf(tabButton);
+            const tabIndex = this.buttons.children.indexOf(tabButton);
             if (tabIndex !== -1) {
-                const panel = this.panels[tabIndex];
+                const panel = this.panels.children[tabIndex];
                 this.removeTab(tabIndex);
                 if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
-                    this.selectTab(this.buttons[tabIndex - 1].getID());
+                    this.selectTab(this.buttons.children[tabIndex - 1].getID());
                 } else {
                     this.selectFirst();
                 }
@@ -4103,17 +4090,17 @@ class Tabbed extends Resizeable {
         }
     }
     getTabSide() {
-        if (this.buttonsDiv.hasClass('suey-left-side')) return 'left';
-        if (this.buttonsDiv.hasClass('suey-right-side')) return 'right';
+        if (this.buttons.hasClass('suey-left-side')) return 'left';
+        if (this.buttons.hasClass('suey-right-side')) return 'right';
         return 'unknown';
     }
     setTabSide(side) {
         side = String(side).toLowerCase();
-        this.buttonsDiv.removeClass('suey-left-side', 'suey-right-side');
-        this.buttonsDiv.addClass((side === TAB_SIDES.RIGHT) ? 'suey-right-side' : 'suey-left-side');
-    }
-    tabIndex(id) {
-        return this.panels.indexOf(id);
+        this.buttons.removeClass('suey-left-side', 'suey-right-side');
+        switch (side) {
+            case TAB_SIDES.RIGHT:   this.buttons.addClass('suey-right-side'); break;
+            case TAB_SIDES.LEFT:    this.buttons.addClass('suey-left-side'); break;
+        }
     }
 }
 
