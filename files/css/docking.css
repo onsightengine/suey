@@ -47,7 +47,7 @@
 
 .suey-docker2 {
     position: absolute;
-    /* display: flex; */
+    display: flex;
 }
 
 .suey-docker2-vertical {
@@ -107,26 +107,20 @@
 .suey-tab-buttons.suey-left-side,
 .suey-tab-buttons.suey-right-side {
     flex-direction: column;
+    top: 1em;
 }
 
 .suey-tab-buttons.suey-top-side,
 .suey-tab-buttons.suey-bottom-side {
     flex-direction: row;
+    left: 1em;
 }
 
-.suey-tab-buttons.suey-top-side {
-    top: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
-}
-.suey-tab-buttons.suey-bottom-side {
-    bottom: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
-}
+.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }
+.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }
 
-.suey-tab-buttons.suey-left-side {
-    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
-}
-.suey-tab-buttons.suey-right-side {
-    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
-}
+.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }
+.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }
 
 /***** TabButton *****/
 
@@ -149,16 +143,16 @@
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
 }
 
-.suey-tab-buttons.suey-top-side .suey-tab-button,
-.suey-tab-buttons.suey-bottom-side .suey-tab-button {
-    margin-left: 0;
-    margin-right: 0;
+.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),
+.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {
+    margin-left: calc(-1 * var(--pad-x-small));
+    margin-right: calc(-1 * var(--pad-x-small));
 }
 
-.suey-tab-buttons.suey-left-side .suey-tab-button,
-.suey-tab-buttons.suey-right-side .suey-tab-button {
-    margin-top: 0;
-    margin-bottom: 0;
+.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),
+.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {
+    margin-top: calc(-1 * var(--pad-x-small));
+    margin-bottom: calc(-1 * var(--pad-x-small));
 }
 
 .suey-tab-button.suey-dragging {
@@ -215,7 +209,7 @@
     justify-content: center;
 }
 
-.suey-tab-button.suey-dragging > .suey-tab-icon-border {
+.suey-tab-button.suey-dragging .suey-tab-icon-border {
     border: 0.21em solid rgba(var(--complement)) !important;
 }
 

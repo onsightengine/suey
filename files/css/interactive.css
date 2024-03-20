@@ -72,10 +72,16 @@
 /***** Resizeable *****/
 
 .suey-resizer {
+    --height: 100%;
+    --width: 100%;
     position: absolute;
     pointer-events: all;
-    opacity: 0.5;                           /* NOTE: Change to 1.0 to see 'Resizers' */
+    opacity: 0.2;                           /* NOTE: Change to > 0.0 to see 'Resizers' */
     z-index: 99; /* Resizer */
+}
+
+.suey-no-resize .suey-resizer {
+    pointer-events: none;
 }
 
 .suey-resizer-left {
@@ -83,7 +89,7 @@
     left: 0;
     top: 0;
     width: var(--resize-size);
-    height: 100%;
+    height: var(--height);
     margin-top: 0;
     cursor: col-resize;
 }
@@ -102,7 +108,7 @@
     background-color: rgb(0, 255, 0);
     top: 0;
     left: 0;
-    width: 100%;
+    width: var(--width);
     height: var(--resize-size);
     cursor: row-resize;
 }
@@ -110,7 +116,7 @@
 .suey-resizer-top-right {
     background-color: rgb(0, 255, 255);
     top: 0;
-    left: calc(100% - (var(--resize-size)));
+    left: calc(var(--width) - (var(--resize-size)));
     width: var(--resize-size);
     height: var(--resize-size);
     cursor: nesw-resize;
@@ -120,18 +126,18 @@
 .suey-resizer-right {
     background-color: rgb(0, 0, 255);
     top: 0;
-    left: calc(100% - (var(--resize-size)));
+    left: calc(var(--width) - (var(--resize-size)));
     width: var(--resize-size);
-    height: 100%;
+    height: var(--height);
     cursor: col-resize;
 }
 
 .suey-resizer-bottom-right {
     background-color: rgb(255, 0, 255);
-    left: calc(100% - (var(--resize-size)));
+    left: calc(var(--width) - (var(--resize-size)));
     width: var(--resize-size);
     height: var(--resize-size);
-    top: calc(100% - (var(--resize-size)));
+    top: calc(var(--height) - (var(--resize-size)));
     cursor: nwse-resize;
     z-index: 100; /* Resizer Corner */
 }
@@ -139,9 +145,9 @@
 .suey-resizer-bottom {
     background-color: rgb(255, 255, 255);
     left: 0;
-    width: 100%;
+    width: var(--width);
     height: var(--resize-size);
-    top: calc(100% - (var(--resize-size)));
+    top: calc(var(--height) - (var(--resize-size)));
     cursor: row-resize;
 }
 
@@ -150,7 +156,7 @@
     left: 0;
     width: var(--resize-size);
     height: var(--resize-size);
-    top: calc(100% - (var(--resize-size)));
+    top: calc(var(--height) - (var(--resize-size)));
     cursor: nesw-resize;
     z-index: 100; /* Resizer Corner */
 }

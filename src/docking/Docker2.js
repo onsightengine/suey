@@ -18,14 +18,20 @@ const _clr = new Iris();
 
 class Docker2 extends Resizeable {
 
+    #primary = false;
     #tabbed = null;
 
-    constructor(resizers = []) {
+    constructor(primary = false, resizers = []) {
         super({ style: PANEL_STYLES.NONE, resizers });
         this.addClass('suey-docker2');
 
-        if (resizers.length === 0) {
+        this.#primary = primary;
+        if (primary) {
             window.addEventListener('resize', () => {
+                for (const child of this.children) child.dom.dispatchEvent(new Event('resized'));
+            });
+        } else {
+            this.dom.addEventListener('resized', () => {
                 for (const child of this.children) child.dom.dispatchEvent(new Event('resized'));
             });
         }
@@ -40,7 +46,7 @@ class Docker2 extends Resizeable {
             case DOCK_SIDES.TOP: resizers.push(RESIZERS.BOTTOM); break;
             case DOCK_SIDES.BOTTOM: resizers.push(RESIZERS.TOP); break;
         }
-        const dock = new Docker2(resizers).setStyle('background-color', `rgba(${_clr.setRGBF(1, 0, 0).rgbString(0.25)})`);
+        const dock = new Docker2(false, resizers);//.setStyle('background-color', `rgba(${_clr.setRGBF(1, 0, 0).rgbString(0.25)})`);
         const twin = new Docker2();
 
         // Initial Size
@@ -59,6 +65,9 @@ class Docker2 extends Resizeable {
                 if (side === DOCK_SIDES.TOP) { dock.setStyle('top', 0); twin.setStyle('bottom', 0); }
                 if (side === DOCK_SIDES.BOTTOM) { dock.setStyle('bottom', 0); twin.setStyle('top', 0); }
                 break;
+        }
+        if (!this.#primary) {
+            twin.add(...this.contents().children);
         }
         this.add(twin, dock);
 
@@ -101,12 +110,33 @@ class Docker2 extends Resizeable {
 
     enableTabs() {
         if (this.#tabbed) return this.#tabbed;
+        const self = this;
 
         // Create 'Tabbed'
         const tabbed = new Tabbed();
         tabbed.setTabSide(this.dockSide, true /* opposite? */)
         tabbed.setStyle('width', '100%');
-        tabbed.setStyle('height', '100%');
+        tabbed.setStyle('height', (this.isHorizontal) ? '100%' : 'fit-content');
+
+        // Resize Resizers
+        function resizeResizers() {
+            const tabbedRect = tabbed.dom.getBoundingClientRect();
+            const parentRect = tabbed.parent.dom.getBoundingClientRect();
+            const height = `${tabbedRect.height / parentRect.height * 100}%`;
+            const width = `${tabbedRect.width / parentRect.width * 100}%`;
+            // Find Resizers
+            const resizers = [];
+            for (const child of tabbed.parent.children) {
+                if (child.hasClass('suey-resizer')) resizers.push(child)
+            }
+            // Resize Resizers
+            for (const resizer of resizers) {
+                Css.setVariable('--width', width, resizer);
+                Css.setVariable('--height', height, resizer);
+            }
+        }
+        tabbed.dom.addEventListener('tab-changed', resizeResizers);
+        tabbed.dom.addEventListener('resized', resizeResizers);
 
         // Save, Add, Return
         this.#tabbed = tabbed;

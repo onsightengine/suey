@@ -21,6 +21,7 @@ class Tabbed extends Panel {
         style = PANEL_STYLES.FANCY,
     } = {}) {
         super({ style });
+        self = this;
         this.addClass('suey-tabbed');
 
         // Public Properties
@@ -33,6 +34,13 @@ class Tabbed extends Panel {
 
         // Set TAB_SIDES that Tab Buttons should appear
         this.setTabSide(tabSide);
+
+        // Keep buttons on top
+        this.dom.addEventListener('parentChanged', () => {
+            if (self.parent && self.parent.isElement) {
+                self.parent.add(self.buttons);
+            }
+        });
     }
 
     /******************** ADD */
@@ -103,11 +111,9 @@ class Tabbed extends Panel {
             this.selectedID = newID;
 
             // Emit event
-            if (wasClicked) {
-                const tabChange = new Event('tab-changed');
-                tabChange.value = newID;
-                this.dom.dispatchEvent(tabChange);
-            }
+            const tabChange = new Event('tab-changed');
+            tabChange.value = newID;
+            this.dom.dispatchEvent(tabChange);
 
             // Re-enable animationss
             if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);

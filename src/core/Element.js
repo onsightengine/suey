@@ -400,6 +400,9 @@ function addToParent(parent, element) {
             // REMOVE FAILED
         }
     }
+
+    if (element.isElement) element = element.dom;
+    if (element && element.dispatchEvent) element.dispatchEvent(new Event('parentChanged'));
 }
 
 // Clears 'Element' Children

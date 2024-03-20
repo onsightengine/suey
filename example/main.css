@@ -1,5 +1,7 @@
 /***** Base *****/
 
+#gtx-trans { display: none !important; } /* disable google translate */
+
 * {
     box-sizing: border-box;
 }

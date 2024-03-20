@@ -1,4 +1,5 @@
 import { Css } from '../utils/Css.js';
+import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel, PANEL_STYLES } from './Panel.js';
 
@@ -34,23 +35,55 @@ class Resizeable extends Panel {
         this.#maxHeight = maxHeight;
 
         // Resizers
-        const rect = {};
-        function resizerDown() {
-            rect.width = self.getWidth();
-            rect.height = self.getHeight();
-            self.dom.dispatchEvent(new Event('resizeStart', { 'bubbles': true, 'cancelable': true }));
+        for (const resizerName of resizers) {
+            const className = `suey-resizer-${resizerName}`;
+            const resizer = new Div().addClass('suey-resizer', className);
+            const rect = {};
+            let downX, downY, lastX, lastY;
+            function resizePointerDown(event) {
+                if (event.button !== 0) return;
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.setPointerCapture(event.pointerId);
+                downX = event.pageX;
+                downY = event.pageY;
+                lastX = event.pageX;
+                lastY = event.pageY;
+                self.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
+                self.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
+                document.dispatchEvent(new Event('closemenu'));
+                rect.width = self.getWidth();
+                rect.height = self.getHeight();
+                self.dom.dispatchEvent(new Event('resizeStart', { 'bubbles': true, 'cancelable': true }));
+            }
+            function resizePointerUp(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
+                self.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
+                self.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
+            }
+            function resizePointerMove(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (event.isTrusted /* not generated programmatically */) {
+                    lastX = event.pageX;
+                    lastY = event.pageY;
+                }
+                const diffX = lastX - downX;
+                const diffY = lastY - downY;
+                let newWidth = null;
+                let newHeight = null;
+                if (resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
+                if (resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
+                if (resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
+                if (resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
+                if (newWidth != null) self.changeWidth(newWidth);
+                if (newHeight != null) self.changeHeight(newHeight);
+            }
+            resizer.dom.addEventListener('pointerdown', resizePointerDown);
+            self.addToSelf(resizer);
         }
-        function resizerMove(resizer, diffX, diffY) {
-            let newWidth = null;
-            let newHeight = null;
-            if (resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
-            if (resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
-            if (resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
-            if (resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
-            if (newWidth != null) self.changeWidth(newWidth);
-            if (newHeight != null) self.changeHeight(newHeight);
-        }
-        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
 
         // Initial Sizes
         if (startWidth != null) this.changeWidth(startWidth);
@@ -69,7 +102,7 @@ class Resizeable extends Panel {
         const scaledMaxWidth = Number.isFinite(this.#maxWidth) ? this.#maxWidth * Css.guiScale(this.dom) : Infinity;
         width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
         this.setStyle('width', Css.toEm(width, this.dom));
-        this.dom.dispatchEvent(new Event('resized'));
+        this.dom.dispatchEvent(new Event('resized', { 'bubbles': true }));
         return width;
     }
 
@@ -83,7 +116,7 @@ class Resizeable extends Panel {
         const scaledMaxHeight = Number.isFinite(this.#maxHeight) ? this.#maxHeight * Css.guiScale(this.dom) : Infinity;
         height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
         this.setStyle('height', Css.toEm(height, this.dom));
-        this.dom.dispatchEvent(new Event('resized'));
+        this.dom.dispatchEvent(new Event('resized', { 'bubbles': true }));
         return height;
     }
 

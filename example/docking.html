@@ -27,17 +27,25 @@
 
     <script type="module">
 
+        import { ColorScheme } from 'suey';
         import { Div } from 'suey';
         import { Docker2 } from 'suey';
+        import { Iris } from 'suey';
         import { Tabbed } from 'suey';
         import { Titled } from 'suey';
 
         import { DOCK_SIDES, RESIZERS, TAB_SIDES } from 'suey';
 
-        const docker = new Docker2();
+        ColorScheme.changeColor(0x00aacc, 0, 0);
+
+        const docker = new Docker2(true /* primary */);
         docker.setStyle('width', '100%');
         docker.setStyle('height', '100%');
         document.body.appendChild(docker.dom);
+
+        docker.onClick(() => {
+            docker.setStyle('background-color', `rgba(${new Iris().setRandom().rgbString(0.25)})`);
+        });
 
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
         const dockRight = docker.addDock(DOCK_SIDES.RIGHT, '20%');
@@ -60,12 +68,40 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
         `)));
         tabby1.addNewTab('doody', new Titled({ title: 'doody' }));
         tabby1.selectFirst();
 
         const tabby2 = dockRight.enableTabs();
-        tabby2.addNewTab('handy', new Titled({ title: 'handy' }));
+        tabby2.addNewTab('handy', new Titled({ title: 'handy' }), { icon: `../files/logo/suey.svg`, color: '#773399', shrink: 0.5 });
         tabby2.addNewTab('dandy', new Titled({ title: 'dandy' }));
         tabby2.selectFirst();
 
