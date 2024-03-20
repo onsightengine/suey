@@ -2,8 +2,8 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Floater } from './Floater.js';
+import { Panel } from '../panels/Panel.js';
 import { PANEL_STYLES } from '../panels/Panel.js';
-import { Resizeable } from '../panels/Resizeable.js';
 
 export const TAB_SIDES = {
     LEFT:       'left',
@@ -14,20 +14,13 @@ export const TAB_SIDES = {
 
 const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when there are 2 or more tabs */
 
-class Tabbed extends Resizeable {
+class Tabbed extends Panel {
 
     constructor({
         tabSide = TAB_SIDES.RIGHT,
         style = PANEL_STYLES.FANCY,
-        resizers = [],
-        startWidth = null,
-        startHeight = null,
-        minWidth = 0,
-        maxWidth = Infinity,
-        minHeight = 0,
-        maxHeight = Infinity,
     } = {}) {
-        super({ style, resizers, startWidth, startHeight, minWidth, maxWidth, minHeight, maxHeight });
+        super({ style });
         this.addClass('suey-tabbed');
 
         // Public Properties

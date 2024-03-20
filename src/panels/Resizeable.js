@@ -20,7 +20,7 @@ class Resizeable extends Panel {
         maxWidth = Infinity,
         minHeight = 0,
         maxHeight = Infinity,
-    }) {
+    } = {}) {
         super({ style });
         const self = this;
         this.addClass('suey-resizeable');
@@ -38,7 +38,7 @@ class Resizeable extends Panel {
         function resizerDown() {
             rect.width = self.getWidth();
             rect.height = self.getHeight();
-            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+            self.dom.dispatchEvent(new Event('resizeStart', { 'bubbles': true, 'cancelable': true }));
         }
         function resizerMove(resizer, diffX, diffY) {
             let newWidth = null;

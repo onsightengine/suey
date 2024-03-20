@@ -46,20 +46,18 @@
 /********** Docker2 **********/
 
 .suey-docker2 {
-    position: relative;
+    position: absolute;
     display: flex;
-    background: transparent;
-    margin: 0;
-    width: 100%;
-    height: 100%;
 }
 
 .suey-docker2-vertical {
     flex-direction: row;
+    height: 100%;
 }
 
 .suey-docker2-horizontal {
     flex-direction: column;
+    width: 100%;
 }
 
 /********** Tabbed / Floater **********/

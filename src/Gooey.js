@@ -68,10 +68,13 @@ const _clr = new Iris();
 class Gooey extends Resizeable {
 
     constructor(title, opacity) {
-        super({ style: PANEL_STYLES.FANCY, minWidth: 100 });
+        super({
+            style: PANEL_STYLES.FANCY,
+            resizers: [ RESIZERS.LEFT ],
+            minWidth: 100,
+        });
         this.addClass('suey-gooey');
 
-        this.toggleResize(RESIZERS.LEFT, true);
         this.minWidth = 180;
         this.opacity(opacity);
 

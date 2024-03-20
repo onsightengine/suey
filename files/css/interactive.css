@@ -74,7 +74,7 @@
 .suey-resizer {
     position: absolute;
     pointer-events: all;
-    opacity: 0.0;                           /* NOTE: Change to 1.0 to see 'Resizers' */
+    opacity: 0.5;                           /* NOTE: Change to 1.0 to see 'Resizers' */
     z-index: 99; /* Resizer */
 }
 

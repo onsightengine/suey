@@ -214,12 +214,9 @@ class Interaction {
         resizeElement.addClass('suey-resizeable');
         // Build
         const resizerDivs = {};
-        for (const key in RESIZERS) {
-            const resizerName = RESIZERS[key];
+        for (const resizerName of resizers) {
             const className = `suey-resizer-${resizerName}`;
-            const resizer = new Div();
-            resizer.addClass('suey-resizer');
-            resizer.addClass(className);
+            const resizer = new Div().addClass('suey-resizer', className);
             let downX, downY, lastX, lastY;
             function resizePointerDown(event) {
                 if (event.button !== 0) return;
@@ -261,6 +258,7 @@ class Interaction {
             resizerDivs[resizerName] = resizer;
             addToElement.addToSelf(resizer);
         }
+
         // Toggle
         const resizerEnabled = {};
         resizeElement.toggleResize = function(resizerName, enable = true) {
@@ -277,6 +275,7 @@ class Interaction {
             toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
             return resizeElement;
         };
+
         // Enable
         for (const key in RESIZERS) {
             const resizerName = RESIZERS[key];

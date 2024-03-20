@@ -27,6 +27,7 @@
 
     <script type="module">
 
+        import { Div } from 'suey';
         import { Docker2 } from 'suey';
         import { Tabbed } from 'suey';
         import { Titled } from 'suey';
@@ -34,15 +35,32 @@
         import { DOCK_SIDES, RESIZERS, TAB_SIDES } from 'suey';
 
         const docker = new Docker2();
+        docker.setStyle('width', '100%');
+        docker.setStyle('height', '100%');
         document.body.appendChild(docker.dom);
 
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
         const dockRight = docker.addDock(DOCK_SIDES.RIGHT, '20%');
         const dockBottom = docker.addDock(DOCK_SIDES.BOTTOM, '35%');
-        const dockTop = docker.addDock(DOCK_SIDES.TOP);
+        const dockTop = docker.addDock(DOCK_SIDES.TOP, '20%');
 
         const tabby1 = dockLeft.enableTabs();
-        tabby1.addNewTab('howdy', new Titled({ title: 'howdy' }));
+        tabby1.addNewTab('howdy', new Titled({ title: 'howdy' }).add(new Div(`
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+        `)));
         tabby1.addNewTab('doody', new Titled({ title: 'doody' }));
         tabby1.selectFirst();
 
@@ -60,6 +78,28 @@
         tabby4.addNewTab('hoopy', new Titled({ title: 'hoopy' }));
         tabby4.addNewTab('doopy', new Titled({ title: 'doopy' }));
         tabby4.selectFirst();
+
+        const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
+        const tabby5 = miniDock.enableTabs();
+        tabby5.setTabSide(TAB_SIDES.RIGHT);
+        tabby5.addNewTab('hoopy', new Titled({ title: 'howdy' }).add(new Div(`
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+sdfasdfasdfasdfsdfasdfasdfasdfsd
+        `)));
+        tabby5.addNewTab('doopy', new Titled({ title: 'doopy' }));
+        tabby5.selectFirst();
 
     </script>
 
