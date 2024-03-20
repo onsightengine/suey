@@ -8,6 +8,8 @@ import { Resizeable } from '../panels/Resizeable.js';
 export const TAB_SIDES = {
     LEFT:       'left',
     RIGHT:      'right',
+    TOP:        'top',
+    BOTTOM:     'bottom',
 }
 
 const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when there are 2 or more tabs */
