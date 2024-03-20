@@ -54,7 +54,9 @@ class Css {
     }
 
     static fontSize(element = document.body) {
-        return parseFloat(getComputedStyle(element).fontSize);
+        let size = getComputedStyle(element).fontSize;
+        if (size == null || Number.isNaN(size) || !Number.isFinite(size)) size = getComputedStyle(document.body).fontSize;
+        return parseFloat(size);
     }
 
     /** Calculates current GUI scale based on <body> font size */
@@ -99,7 +101,7 @@ class Css {
             }
             parent = parent.parentElement;
         }
-        return undefined;
+        return document.body;
     }
 
     /******************** SIZE PARSING ********************/

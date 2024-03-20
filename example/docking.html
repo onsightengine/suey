@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Suey • Docking</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+    <link rel="icon" type="image/png" href="../files/logo/suey256.png" />
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+
+    <!-- ALTERNATIVE IMPORTS
+            CDN:
+                "suey":             "https://unpkg.com/suey/build/suey.module.js",
+    -->
+
+    <script type='importmap'>
+        {
+            "imports": {
+                "suey":             "../build/suey.module.js"
+            }
+        }
+    </script>
+
+    <img id="backgroundImage" src="../files/logo/suey256.png" style="position: absolute; margin: auto; left: 0; top: 0; right: 0; bottom: 0;">
+
+    <script type="module">
+
+        import { Docker2 } from 'suey';
+        import { Tabbed } from 'suey';
+        import { Titled } from 'suey';
+
+        import { DOCK_SIDES, RESIZERS, TAB_SIDES } from 'suey';
+
+        const docker = new Docker2();
+        document.body.appendChild(docker.dom);
+
+        // let computed = getComputedStyle(docker.dom);
+        // const dockSize = computed.width
+
+        const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
+        const dockRight = docker.addDock(DOCK_SIDES.RIGHT, '20%');
+        const dockBottom = docker.addDock(DOCK_SIDES.BOTTOM);
+        // const dockTop = docker.addDock(DOCK_SIDES.TOP);
+
+        const tabby1 = new Tabbed({
+            tabSide: TAB_SIDES.RIGHT,
+            resizers: [ RESIZERS.RIGHT ],
+            startWidth: parseFloat(getComputedStyle(dockLeft.dom).width),
+            minWidth: 100,
+        });
+        dockLeft.add(tabby1);
+        dockLeft.setStyle('width', 'fit-content');
+        tabby1.addNewTab('howdy', new Titled({ title: 'howdy' }));
+        tabby1.addNewTab('doody', new Titled({ title: 'doody' }));
+        tabby1.selectFirst();
+
+        const tabby2 = new Tabbed({
+            tabSide: TAB_SIDES.LEFT,
+            resizers: [ RESIZERS.LEFT ],
+            startWidth: parseFloat(getComputedStyle(dockRight.dom).width),
+            minWidth: 100,
+        });
+        dockRight.add(tabby2);
+        dockRight.setStyle('width', 'fit-content');
+        tabby2.addNewTab('handy', new Titled({ title: 'handy' }));
+        tabby2.addNewTab('dandy', new Titled({ title: 'dandy' }));
+        tabby2.selectFirst();
+
+        const tabby3 = new Tabbed({
+            tabSide: TAB_SIDES.LEFT,
+            resizers: [ RESIZERS.TOP ],
+            startHeight: parseFloat(getComputedStyle(dockBottom.dom).height),
+            minHeight: 100,
+        });
+        dockBottom.add(tabby3);
+        dockBottom.setStyle('height', 'fit-content');
+        tabby3.addNewTab('hippy', new Titled({ title: 'hippy' }));
+        tabby3.addNewTab('dippy', new Titled({ title: 'dippy' }));
+        tabby3.selectFirst();
+
+    </script>
+
+</body>
+</html>

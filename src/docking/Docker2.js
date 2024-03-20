@@ -1,58 +1,68 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { RESIZERS } from '../constants.js';
-import { TAB_SIDES } from './Tabbed.js';
+import { Iris } from '../utils/Iris.js';
+import { Tabbed } from './Tabbed.js';
 
-export const DOCK_LOCATIONS = {
-    TOP_LEFT:       'top-left',
-    TOP_RIGHT:      'top-right',
-    BOTTOM_LEFT:    'bottom-left',
-    BOTTOM_RIGHT:   'bottom-right',
-    BOTTOM_MIDDLE:  'bottom-middle',
+export const DOCK_SIDES = {
+    LEFT:       'left',
+    RIGHT:      'right',
+    TOP:        'top',
+    BOTTOM:     'bottom',
 };
+
+const _clr = new Iris();
 
 class Docker2 extends Div {
 
-    #corners = {};
-
     constructor() {
         super();
-
-        // Build Corners
-        for (const key in DOCK_LOCATIONS) {
-            const cornerName = DOCK_LOCATIONS[key];
-            const className = `suey-docker-${cornerName}`;
-            const corner = new Div().addClass('suey-docker-corner').addClass(className);
-
-            // Add to Docker
-            this.#corners[cornerName] = corner;
-            this.add(corner);
-        }
+        this.addClass('suey-docker2');
     }
 
-    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS.TOP_LEFT) {
-        if (!dockPanel) return;
-        const corner = this.getCorner(cornerName);
-        corner.add(dockPanel);
+    addDock(side = DOCK_SIDES.LEFT, size = '20%') {
+        const split = new Docker2();
+        const contents = new Docker2();
 
-        dockPanel.dom.addEventListener('resized', () => {
-            corner.dom.dispatchEvent(new Event('resized'));
-        });
+        // TEMP: Color
+        split.setStyle('background-color', `rgba(${_clr.setRandom().rgbString(0.5)})`);
 
-        if (dockPanel.isElement) {
-            if (dockPanel.hasClass('suey-tabbed')) {
-                if (cornerName.includes('right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
-            }
-            if (dockPanel.hasClass('suey-resizeable')) {
-                dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('right'));
-                dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('left'));
-            }
+        // Initial Size
+        let splitSize;
+        switch (side) {
+            case DOCK_SIDES.LEFT:
+            case DOCK_SIDES.RIGHT:
+                this.contents().addClass('suey-docker2-vertical');
+                split.addClass('suey-docker2-vertical');
+                split.setStyle('width', Css.toPx(size, this.dom, 'w'));
+                if (side === DOCK_SIDES.LEFT) this.add(split, contents);
+                if (side === DOCK_SIDES.RIGHT) this.add(contents, split);
+                break;
+
+            case DOCK_SIDES.TOP:
+            case DOCK_SIDES.BOTTOM:
+                this.contents().addClass('suey-docker2-horizontal');
+                split.addClass('suey-docker2-horizontal');
+                split.setStyle('height', Css.toPx(size, this.dom, 'h'));
+                if (side === DOCK_SIDES.TOP) this.add(split, contents);
+                if (side === DOCK_SIDES.BOTTOM) this.add(contents, split);
+                break;
         }
+
+        // Set new 'Contents'
+        this.contents = function() { return contents; }
+
+        // Return new Dock
+        return split;
     }
 
-    getCorner(cornerName = DOCK_LOCATIONS.TOP_LEFT) {
-        return this.#corners[cornerName];
+    addTabbed() {
+        const tabbed = new Tabbed();
+
+        // split.dom.addEventListener('resized', (event) => {
+        //     console.log('Resized', event);
+        // })
+
+        return Tabbed;
     }
 
 }

@@ -154,6 +154,7 @@ export { Titled } from './panels/Titled.js';
 // Enums
 export { CLOSE_SIDES } from './utils/Interaction.js';
 export { DOCK_LOCATIONS } from './docking/Docker.js';
+export { DOCK_SIDES } from './docking/Docker2.js';
 export { LEFT_SPACING } from './data/PropertyList.js';
 export { PANEL_STYLES } from './panels/Panel.js';
 export { TAB_SIDES } from './docking/Tabbed.js';

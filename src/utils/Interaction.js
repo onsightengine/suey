@@ -177,7 +177,7 @@ class Interaction {
             let newTop = roundNearest(rect.top + diffY);
             if (limitToWindow) {
                 // // OPTION: Limit to Title Bar
-                const titleHeight = parseInt(Css.toPx('4em'));
+                const titleHeight = parseInt(Css.toPx('3em'));
                 newLeft = Math.min(window.innerWidth - (rect.width / 2), newLeft);
                 newTop = Math.min(window.innerHeight - titleHeight, newTop);
                 newLeft = Math.max(- (rect.width / 2), newLeft);
@@ -214,7 +214,7 @@ class Interaction {
         resizeElement.addClass('suey-resizeable');
         // Build
         const resizerDivs = {};
-        for (let key in RESIZERS) {
+        for (const key in RESIZERS) {
             const resizerName = RESIZERS[key];
             const className = `suey-resizer-${resizerName}`;
             const resizer = new Div();

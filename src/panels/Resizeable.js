@@ -26,7 +26,7 @@ class Resizeable extends Panel {
         this.addClass('suey-resizeable');
 
         // Private Properties
-        this.#startWidth = startWidth;
+        this.#startWidth = parseFloat(startWidth);
         this.#minWidth = minWidth;
         this.#maxWidth = maxWidth;
         this.#startHeight = startHeight;
@@ -41,12 +41,20 @@ class Resizeable extends Panel {
             self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
         }
         function resizerMove(resizer, diffX, diffY) {
-            if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);
-            if (resizer.hasClassWithString('right')) self.changeWidth(rect.width + diffX);
-            if (resizer.hasClassWithString('top')) self.changeHeight(rect.height - diffY);
-            if (resizer.hasClassWithString('bottom')) self.changeHeight(rect.height + diffY);
+            let newWidth = null;
+            let newHeight = null;
+            if (resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
+            if (resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
+            if (resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
+            if (resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
+            if (newWidth != null) self.changeWidth(newWidth);
+            if (newHeight != null) self.changeHeight(newHeight);
         }
         Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove);
+
+        // Initial Sizes
+        if (startWidth != null) this.changeWidth(startWidth);
+        if (startHeight != null) this.changeHeight(startHeight);
     }
 
     /******************** RESIZE */
@@ -58,7 +66,7 @@ class Resizeable extends Panel {
             return null;
         }
         const scaledMinWidth = this.#minWidth * Css.guiScale(this.dom);
-        const scaledMaxWidth = this.#maxWidth * Css.guiScale(this.dom);
+        const scaledMaxWidth = Number.isFinite(this.#maxWidth) ? this.#maxWidth * Css.guiScale(this.dom) : Infinity;
         width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
         this.setStyle('width', Css.toEm(width, this.dom));
         this.dom.dispatchEvent(new Event('resized'));
@@ -72,7 +80,7 @@ class Resizeable extends Panel {
             return null;
         }
         const scaledMinHeight = this.#minHeight * Css.guiScale(this.dom);
-        const scaledMaxHeight = this.#maxHeight * Css.guiScale(this.dom);
+        const scaledMaxHeight = Number.isFinite(this.#maxHeight) ? this.#maxHeight * Css.guiScale(this.dom) : Infinity;
         height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
         this.setStyle('height', Css.toEm(height, this.dom));
         this.dom.dispatchEvent(new Event('resized'));
