@@ -171,16 +171,21 @@ class Tabbed extends Panel {
     getTabSide() {
         if (this.buttons.hasClass('suey-left-side')) return 'left';
         if (this.buttons.hasClass('suey-right-side')) return 'right';
+        if (this.buttons.hasClass('suey-top-side')) return 'top';
+        if (this.buttons.hasClass('suey-bottom-side')) return 'bottom';
         return 'unknown';
     }
 
-    setTabSide(side) {
+    setTabSide(side, opposite = false) {
         side = String(side).toLowerCase();
-        this.buttons.removeClass('suey-left-side', 'suey-right-side');
-        switch (side) {
-            case TAB_SIDES.RIGHT:   this.buttons.addClass('suey-right-side'); break;
-            case TAB_SIDES.LEFT:    this.buttons.addClass('suey-left-side'); break;
+        this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
+        if (opposite) {
+            if (side === 'left') side = 'right';
+            else if (side === 'right') side = 'left';
+            else if (side === 'top') side = 'bottom';
+            else if (side === 'bottom') side = 'top';
         }
+        this.buttons.addClass(`suey-${side}-side`);
     }
 
 }

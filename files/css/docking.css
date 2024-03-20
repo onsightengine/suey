@@ -47,7 +47,7 @@
 
 .suey-docker2 {
     position: absolute;
-    display: flex;
+    /* display: flex; */
 }
 
 .suey-docker2-vertical {
@@ -98,19 +98,34 @@
 .suey-tab-buttons {
     position: absolute;
     display: flex;
-    flex-direction: column;
-    margin-top: calc(-1 * var(--pad-x-small));
     z-index: 101; /* Tabs */
     min-width: var(--tab-size);
     min-height: var(--tab-size);
+    margin: 0;
+}
+
+.suey-tab-buttons.suey-left-side,
+.suey-tab-buttons.suey-right-side {
+    flex-direction: column;
+}
+
+.suey-tab-buttons.suey-top-side,
+.suey-tab-buttons.suey-bottom-side {
+    flex-direction: row;
+}
+
+.suey-tab-buttons.suey-top-side {
+    top: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
+}
+.suey-tab-buttons.suey-bottom-side {
+    bottom: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
 }
 
 .suey-tab-buttons.suey-left-side {
-    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */
+    left: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
 }
-
 .suey-tab-buttons.suey-right-side {
-    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel x 6 */
+    right: calc((var(--tab-size) / -2.0) + 0.42858em); /* --pixel * 6 */
 }
 
 /***** TabButton *****/
@@ -130,11 +145,20 @@
     border-radius: var(--tab-size);
     outline: none;
     margin: var(--pad-x-small);
-    margin-right: var(--pad-x-small);
-    margin-top: -0.2em;
-    margin-bottom: -0.2em;
     transform: scale(70%);
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
+}
+
+.suey-tab-buttons.suey-top-side .suey-tab-button,
+.suey-tab-buttons.suey-bottom-side .suey-tab-button {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.suey-tab-buttons.suey-left-side .suey-tab-button,
+.suey-tab-buttons.suey-right-side .suey-tab-button {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .suey-tab-button.suey-dragging {

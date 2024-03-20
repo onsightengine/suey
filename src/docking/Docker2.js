@@ -103,12 +103,8 @@ class Docker2 extends Resizeable {
         if (this.#tabbed) return this.#tabbed;
 
         // Create 'Tabbed'
-        let options = {};
-        if (this.dockSide = DOCK_SIDES.LEFT) { options.tabSide = TAB_SIDES.RIGHT; options.resizers = [ RESIZERS.RIGHT ]; }
-        if (this.dockSide = DOCK_SIDES.RIGHT) { options.tabSide = TAB_SIDES.LEFT; options.resizers = [ RESIZERS.LEFT ]; }
-        if (this.dockSide = DOCK_SIDES.TOP) { options.tabSide = TAB_SIDES.BOTTOM; options.resizers = [ RESIZERS.BOTTOM ]; }
-        if (this.dockSide = DOCK_SIDES.BOTTOM) { options.tabSide = TAB_SIDES.TOP; options.resizers = [ RESIZERS.TOP ]; }
-        const tabbed = new Tabbed(options);
+        const tabbed = new Tabbed();
+        tabbed.setTabSide(this.dockSide, true /* opposite? */)
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', '100%');
 
