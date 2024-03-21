@@ -123,19 +123,18 @@ class TabButton extends Div {
             const newLeft = event.pageX - (self.getWidth() / 2);
             const newTop = event.pageY - (self.getHeight() / 2);
             self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
-
-
+            // Dock Locations
             const dockerUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY, self.dom);
-            if (dockerUnder !== lastUnder) {
-                if (lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
-                    lastUnder.hideDockLocations();
+            if (dockerUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
+                lastUnder.hideDockLocations();
+            }
+            if (dockerUnder && dockerUnder.isElement && dockerUnder.hasClass('suey-docker2')) {
+                dockerUnder.showDockLocations(event.pageX, event.pageY);
+                const locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
+                if (locationUnder) {
+                    locationUnder.addClass('suey-dock-drop');
                 }
-                if (dockerUnder && dockerUnder.isElement && dockerUnder.hasClass('suey-docker2')) {
-                    console.log(dockerUnder.initialSide);
-                    dockerUnder.showDockLocations();
-                }
-            };
-
+            }
             lastUnder = dockerUnder;
         }
         function onPointerUp(event) {
@@ -152,10 +151,16 @@ class TabButton extends Div {
                         currentParent.appendChild(self.dom);
                     }
                 }
-                currentParent = null;
+                // Clear Dock Locations
+                if (lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
+                    lastUnder.hideDockLocations();
+                }
                 lastUnder = null;
+                // Reset Drop
+                currentParent = null;
                 tabIndex = -1;
                 self.setStyle('left', '', 'top', '');
+                // Handle Drop
                 self.tabPanel.dock.handleTabDrop(self, event.pageX, event.pageY);
             // Click?
             } else {

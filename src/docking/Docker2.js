@@ -1,5 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Dom } from '../utils/Dom.js';
 import { FlexBox } from '../layout/FlexBox.js';
 import { Iris } from '../utils/Iris.js';
 import { PANEL_STYLES } from '../panels/Panel.js';
@@ -207,26 +208,30 @@ class Docker2 extends Resizeable {
         if (!this.dockLocations) {
             this.dockLocations = new Div().addClass('suey-dock-locations');
             this.dockLocations.addClass('suey-hidden');
-            this.dockLocations.setStyle('position', 'absolute', 'left', '0', 'top', '0', 'width', '100%', 'height', '100%', 'pointer-events', 'none');
-
             if (this.initialSide === 'left' || this.initialSide === 'right') {
                 const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
                 const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
-                this.dockLocations.add(topDock, bottomDock);
+                const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-horizontal');
+                this.dockLocations.add(topDock, bottomDock, middleDock);
             } else if (this.initialSide === 'top' || this.initialSide === 'bottom') {
                 const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
                 const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
-                this.dockLocations.add(leftDock, rightDock);
+                const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-vertical');
+                this.dockLocations.add(leftDock, rightDock, middleDock);
             } else /* if (this.initialSide === 'center') */ {
                 const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
                 const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
                 const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
                 const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
+                const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
                 topDock.setStyle('left', '20%', 'width', '60%');
                 bottomDock.setStyle('left', '20%', 'width', '60%');
-                this.dockLocations.add(leftDock, rightDock, topDock, bottomDock);
+                this.dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
             }
             this.add(this.dockLocations);
+        }
+        for (const child of this.dockLocations.children) {
+            child.removeClass('suey-dock-drop');
         }
         this.dockLocations.removeClass('suey-hidden');
     }
