@@ -80,8 +80,12 @@ class Tabbed extends Panel {
     selectFirst() {
         if (this.panels.children.length > 0) {
             return this.selectTab(this.panels.children[0].getID());
+        } else {
+            const tabChange = new Event('tab-changed');
+            tabChange.value = undefined;
+            this.dom.dispatchEvent(tabChange);
+            return false;
         }
-        return false;
     }
 
     /** Select Tab */
@@ -192,6 +196,10 @@ class Tabbed extends Panel {
             else if (side === 'bottom') side = 'top';
         }
         this.buttons.addClass(`suey-${side}-side`);
+    }
+
+    tabCount() {
+        return this.panels.children.length;
     }
 
 }

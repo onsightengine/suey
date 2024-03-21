@@ -36,11 +36,7 @@
 
         import { DOCK_SIDES, RESIZERS, TAB_SIDES } from 'suey';
 
-        ColorScheme.changeColor(0x00aacc, 0, 0);
-
         const docker = new Docker2(true /* primary */);
-        docker.setStyle('width', '100%');
-        docker.setStyle('height', '100%');
         document.body.appendChild(docker.dom);
 
         docker.onClick(() => {

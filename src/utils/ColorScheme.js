@@ -4,7 +4,7 @@
  * Material Palette     https://material.io/design/color/the-color-system.html
  */
 
-import { BACKGROUNDS, TRAIT } from '../constants.js';
+import { BACKGROUNDS, THEMES, TRAIT } from '../constants.js';
 
 import { Css } from './Css.js';
 import { Iris } from './Iris.js';
@@ -209,5 +209,7 @@ class ColorScheme {
     }
 
 }
+
+ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
 
 export { ColorScheme };

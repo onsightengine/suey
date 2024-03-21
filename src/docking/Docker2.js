@@ -1,5 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { FlexBox } from '../layout/FlexBox.js';
 import { Iris } from '../utils/Iris.js';
 import { PANEL_STYLES } from '../panels/Panel.js';
 import { Resizeable } from '../panels/Resizeable.js';
@@ -28,6 +29,8 @@ class Docker2 extends Resizeable {
 
         this.#primary = primary;
         if (primary) {
+            this.addClass('suey-docker2-primary');
+
             window.addEventListener('resize', () => {
                 self.traverse((child) => {
                     child.dom.dispatchEvent(new Event('resized'));
@@ -36,8 +39,12 @@ class Docker2 extends Resizeable {
         }
     }
 
+    isPrimary() {
+        return this.#primary;
+    }
+
     addDock(side = DOCK_SIDES.LEFT, size = '20%') {
-        const parent = this.contents();
+        // Creaate Docks
         const resizers = [];
         switch (side) {
             case DOCK_SIDES.LEFT: resizers.push(RESIZERS.RIGHT); break;
@@ -47,6 +54,8 @@ class Docker2 extends Resizeable {
         }
         const dock = new Docker2(false, resizers);//.setStyle('background-color', `rgba(${_clr.setRGBF(1, 0, 0).rgbString(0.25)})`);
         const twin = new Docker2();
+
+        /***** INIT */
 
         // Initial Size
         switch (side) {
@@ -65,21 +74,30 @@ class Docker2 extends Resizeable {
                 if (side === DOCK_SIDES.BOTTOM) { dock.setStyle('bottom', 0); twin.setStyle('top', 0); }
                 break;
         }
+
+        // Split Parent, Add Docks
         if (!this.#primary) {
             twin.add(...this.contents().children);
         }
         this.add(twin, dock);
 
+        // Dock Data
         dock.isVertical = dock.hasClass('suey-docker2-vertical');
         dock.isHorizontal = dock.hasClass('suey-docker2-horizontal');
         dock.dockSide = side;
 
+        // Set new 'Contents'
+        this.contents = function() { return twin; }
+
+        /***** EVENTS */
+
         // Twin Sizing
         function sizeTwin() {
-            if (dock.isVertical) twin.setStyle('width', `${parent.getWidth() - dock.getWidth()}px`);
-            if (dock.isHorizontal) twin.setStyle('height', `${parent.getHeight() - dock.getHeight()}px`);
-            for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
+            const twin = dock.getTwin();
+            if (dock.isVertical) twin.setStyle('width', `${dock.parent.getWidth() - dock.getWidth()}px`);
+            if (dock.isHorizontal) twin.setStyle('height', `${dock.parent.getHeight() - dock.getHeight()}px`);
             for (const child of dock.children) child.dom.dispatchEvent(new Event('resized'));
+            for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
         }
         sizeTwin();
 
@@ -91,6 +109,7 @@ class Docker2 extends Resizeable {
         });
         dock.dom.addEventListener('resized', () => {
             if (!dock.parent || !dock.parent.isElement) return;
+            const twin = dock.getTwin();
             if (dock.isVertical) {
                 let dockWidth = Math.max(100, Math.min(dock.getWidth(), parentSize));
                 if (twin.dom && twin.dom.children.length > 0) {
@@ -110,22 +129,22 @@ class Docker2 extends Resizeable {
             sizeTwin();
         });
 
-        // Set new 'Contents'
-        this.contents = function() { return twin; }
-
         // Return new Dock
         return dock;
     }
 
     enableTabs() {
         if (this.#tabbed) return this.#tabbed;
-        const self = this;
+        if (this.#primary) {
+            console.warn('Docker2.enableTabs: Cannot enable tabs on the primary dock');
+            return undefined;
+        }
 
         // Create 'Tabbed'
         const tabbed = new Tabbed();
         tabbed.setTabSide(this.dockSide, true /* opposite? */)
         tabbed.setStyle('width', '100%');
-        tabbed.setStyle('height', (this.isHorizontal) ? '100%' : 'fit-content');
+        tabbed.setStyle('height', (this.isHorizontal) ? '100%' : 'auto');
 
         // Resize Resizers
         function resizeResizers() {
@@ -144,13 +163,60 @@ class Docker2 extends Resizeable {
                 Css.setVariable('--height', height, resizer);
             }
         }
-        tabbed.dom.addEventListener('tab-changed', resizeResizers);
         tabbed.dom.addEventListener('resized', resizeResizers);
+        tabbed.dom.addEventListener('tab-changed', () => {
+            if (tabbed.tabCount() === 0) {
+                if (tabbed.parent.hasClass('suey-docker2')) tabbed.parent.removeDock();
+            } else {
+                resizeResizers();
+            }
+        });
 
         // Save, Add, Return
         this.#tabbed = tabbed;
         this.add(tabbed);
         return tabbed;
+    }
+
+    getTwin() {
+        const parent = this.parent;
+        if (!parent || !parent.isElement || !parent.hasClass('suey-docker2')) return undefined;
+        const twin = parent.children.find(child => child !== this && child.hasClass('suey-docker2'));
+        return twin;
+    }
+
+    removeDock() {
+        if (this.#primary) {
+            console.warn('Docker2.removeDock: Cannot remove the primary dock');
+            return;
+        }
+
+        const parent = this.parent;
+        if (!parent || !parent.isElement || !parent.hasClass('suey-docker2')) {
+            console.warn('Docker2.removeDock: Dock does not have a valid parent.');
+            return;
+        }
+
+        const twin = this.getTwin();
+        if (!twin) {
+            console.warn('Docker2.removeDock: Could not find the twin Docker2.');
+            return;
+        }
+
+        // Move the contents of the twin to the parent, remove docks
+        parent.addToSelf(...twin.children);
+        parent.remove(this, twin);
+        parent.contents = function() { return parent; }
+
+        // Set Tabbed Sizes
+        for (const child of parent.children) {
+            if (child.hasClass('suey-tabbed')) {
+                child.setStyle('height', (parent.isHorizontal) ? '100%' : 'auto');
+            }
+        }
+
+        // Resize the parent
+        parent.traverse((child) => { child.dom.dispatchEvent(new Event('resized')); })
     }
 
 }
