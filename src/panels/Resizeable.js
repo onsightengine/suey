@@ -23,7 +23,6 @@ class Resizeable extends Panel {
         maxHeight = Infinity,
     } = {}) {
         super({ style });
-        const self = this;
         this.addClass('suey-resizeable');
 
         // Private Properties
@@ -34,7 +33,18 @@ class Resizeable extends Panel {
         this.#minHeight = minHeight;
         this.#maxHeight = maxHeight;
 
-        // Resizers
+        // Add Resizers
+        this.addResizers(resizers);
+
+        // Initial Sizes
+        if (startWidth != null) this.changeWidth(startWidth);
+        if (startHeight != null) this.changeHeight(startHeight);
+    }
+
+    /******************** SIZERS */
+
+    addResizers(resizers) {
+        const self = this;
         for (const resizerName of resizers) {
             const className = `suey-resizer-${resizerName}`;
             const resizer = new Div().addClass('suey-resizer', className);
@@ -84,10 +94,6 @@ class Resizeable extends Panel {
             resizer.dom.addEventListener('pointerdown', resizePointerDown);
             self.addToSelf(resizer);
         }
-
-        // Initial Sizes
-        if (startWidth != null) this.changeWidth(startWidth);
-        if (startHeight != null) this.changeHeight(startHeight);
     }
 
     /******************** RESIZE */

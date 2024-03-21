@@ -15,8 +15,6 @@ export const DOCK_SIDES = {
     BOTTOM:     'bottom',
 };
 
-const _clr = new Iris();
-
 class Docker2 extends Resizeable {
 
     #primary = false;
@@ -43,8 +41,7 @@ class Docker2 extends Resizeable {
         return this.#primary;
     }
 
-    addDock(side = DOCK_SIDES.LEFT, size = '20%') {
-        // Creaate Docks
+    wantsResizer(side) {
         const resizers = [];
         switch (side) {
             case DOCK_SIDES.LEFT: resizers.push(RESIZERS.RIGHT); break;
@@ -52,7 +49,12 @@ class Docker2 extends Resizeable {
             case DOCK_SIDES.TOP: resizers.push(RESIZERS.BOTTOM); break;
             case DOCK_SIDES.BOTTOM: resizers.push(RESIZERS.TOP); break;
         }
-        const dock = new Docker2(false, resizers);//.setStyle('background-color', `rgba(${_clr.setRGBF(1, 0, 0).rgbString(0.25)})`);
+        return resizers
+    }
+
+    addDock(side = DOCK_SIDES.LEFT, size = '20%') {
+        // Create Docks
+        const dock = new Docker2(false, this.wantsResizer(side));
         const twin = new Docker2();
 
         /***** INIT */
@@ -204,9 +206,18 @@ class Docker2 extends Resizeable {
         }
 
         // Move the contents of the twin to the parent, remove docks
-        parent.addToSelf(...twin.children);
+        const children = [];
+        for (const child of twin.children) {
+            if (!child.hasClass('suey-resizer')) {
+                children.push(child);
+            }
+        }
+        parent.addToSelf(...children);
         parent.remove(this, twin);
         parent.contents = function() { return parent; }
+
+        // Add back new Resizer
+        parent.addResizers(parent.wantsResizer(parent.dockSide));
 
         // Set Tabbed Sizes
         for (const child of parent.children) {

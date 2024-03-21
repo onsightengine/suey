@@ -766,7 +766,7 @@ const COLOR_KEYWORDS = {
     'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
 };
 
-const _clr$3 = new Iris();
+const _clr$2 = new Iris();
 const _icon = new Iris();
 const _icon_light = new Iris();
 const _icon_dark = new Iris();
@@ -788,7 +788,7 @@ class ColorScheme {
     }
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
-        _color$3 = _clr$3.set(color).hex();
+        _color$3 = _clr$2.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
         _icon.set(color);
@@ -802,35 +802,35 @@ class ColorScheme {
         ColorScheme.updateCSS();
     }
     static updateCSS() {
-        Css.setVariable('--shadow',             _clr$3.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
-        Css.setVariable('--darkness',           _clr$3.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
-        Css.setVariable('--background-dark',    _clr$3.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
-        Css.setVariable('--background-light',   _clr$3.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
-        Css.setVariable('--button-dark',        _clr$3.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
-        Css.setVariable('--button-light',       _clr$3.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
-        Css.setVariable('--text-dark',          _clr$3.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
-        Css.setVariable('--text',               _clr$3.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
-        Css.setVariable('--text-light',         _clr$3.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
-        Css.setVariable('--blacklight',         _clr$3.set(ColorScheme.color(TRAIT.BLACKLIGHT)).rgbString());
-        Css.setVariable('--darklight',          _clr$3.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
-        Css.setVariable('--midlight',           _clr$3.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
-        Css.setVariable('--highlight',          _clr$3.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
-        Css.setVariable('--icon-dark',          _clr$3.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
-        Css.setVariable('--icon',               _clr$3.set(ColorScheme.color(TRAIT.ICON)).rgbString());
-        Css.setVariable('--icon-light',         _clr$3.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
-        Css.setVariable('--complement',         _clr$3.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
-        Css.setVariable('--triadic1',           _clr$3.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
-        Css.setVariable('--triadic2',           _clr$3.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
-        Css.setVariable('--triadic3',           _clr$3.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
-        Css.setVariable('--triadic4',           _clr$3.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
+        Css.setVariable('--shadow',             _clr$2.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
+        Css.setVariable('--darkness',           _clr$2.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
+        Css.setVariable('--background-dark',    _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
+        Css.setVariable('--background-light',   _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
+        Css.setVariable('--button-dark',        _clr$2.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
+        Css.setVariable('--button-light',       _clr$2.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
+        Css.setVariable('--text-dark',          _clr$2.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
+        Css.setVariable('--text',               _clr$2.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
+        Css.setVariable('--text-light',         _clr$2.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
+        Css.setVariable('--blacklight',         _clr$2.set(ColorScheme.color(TRAIT.BLACKLIGHT)).rgbString());
+        Css.setVariable('--darklight',          _clr$2.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
+        Css.setVariable('--midlight',           _clr$2.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
+        Css.setVariable('--highlight',          _clr$2.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
+        Css.setVariable('--icon-dark',          _clr$2.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
+        Css.setVariable('--icon',               _clr$2.set(ColorScheme.color(TRAIT.ICON)).rgbString());
+        Css.setVariable('--icon-light',         _clr$2.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
+        Css.setVariable('--complement',         _clr$2.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
+        Css.setVariable('--triadic1',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
+        Css.setVariable('--triadic2',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
+        Css.setVariable('--triadic3',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
+        Css.setVariable('--triadic4',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
         Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$3.set(DEFAULT_CLR).hue();
-        const newHue = _clr$3.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const startHue = _clr$2.set(DEFAULT_CLR).hue();
+        const newHue = _clr$2.set(ColorScheme.color(TRAIT.ICON, true )).hue();
         const diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
     static color(guiColor, ignoreSaturation = false) {
-        _clr$3.set(0);
+        _clr$2.set(0);
         let tint = _tint;
         let saturation = _saturation;
         let darkness = 0;
@@ -843,55 +843,55 @@ class ColorScheme {
         }
         if (_background == BACKGROUNDS.LIGHT) {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$3.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$3.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$3.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$3.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$3.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$3.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$3.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$3.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$3.set(255, 255, 255, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$3.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$3.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$3.set(  0,   0,   0, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$2.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$2.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$2.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$2.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$2.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$2.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$2.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$2.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$2.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$2.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$2.set(  0,   0,   0, 'rgb'); break;
             }
         } else {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$3.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$3.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$3.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$3.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$3.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$3.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$3.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$3.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$3.set(  0,   0,   0, 'rgb'); lightness = 0; break;
-                case TRAIT.DARKLIGHT:           _clr$3.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$3.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$3.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$2.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$2.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$2.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$2.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$2.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$2.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$2.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$2.set(  0,   0,   0, 'rgb'); lightness = 0; break;
+                case TRAIT.DARKLIGHT:           _clr$2.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr$2.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$2.set(255, 255, 255, 'rgb'); break;
             }
             if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$3.set( 64,  64,  64, 'rgb');
+                _clr$2.set( 64,  64,  64, 'rgb');
             }
         }
         if (guiColor === TRAIT.DARKNESS) {
             switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$3.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$3.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$3.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$3.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.DARK:      _clr$2.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr$2.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr$2.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr$2.set(  0,   0,   0, 'rgb');     break;
             }
         }
         switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$3.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$3.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$3.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$3.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$3.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$3.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$3.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$3.copy(_triadic4);   break;
+            case TRAIT.ICON_DARK:   _clr$2.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$2.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$2.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$2.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$2.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$2.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$2.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$2.copy(_triadic4);   break;
         }
         switch (guiColor) {
             case TRAIT.COMPLEMENT:
@@ -907,11 +907,11 @@ class ColorScheme {
                 lightness = 0;
                 break;
         }
-        if (tint !== 0) _clr$3.mix(_icon, tint);
-        if (lightness !== 0) _clr$3.brighten(lightness);
-        if (darkness !== 0) _clr$3.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$3.hslOffset(0, saturation, 0);
-        return _clr$3.hex();
+        if (tint !== 0) _clr$2.mix(_icon, tint);
+        if (lightness !== 0) _clr$2.brighten(lightness);
+        if (darkness !== 0) _clr$2.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr$2.hslOffset(0, saturation, 0);
+        return _clr$2.hex();
     }
 }
 ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
@@ -2131,7 +2131,6 @@ class Resizeable extends Panel {
         maxHeight = Infinity,
     } = {}) {
         super({ style });
-        const self = this;
         this.addClass('suey-resizeable');
         this.#startWidth = parseFloat(startWidth);
         this.#minWidth = minWidth;
@@ -2139,6 +2138,12 @@ class Resizeable extends Panel {
         this.#startHeight = startHeight;
         this.#minHeight = minHeight;
         this.#maxHeight = maxHeight;
+        this.addResizers(resizers);
+        if (startWidth != null) this.changeWidth(startWidth);
+        if (startHeight != null) this.changeHeight(startHeight);
+    }
+    addResizers(resizers) {
+        const self = this;
         for (const resizerName of resizers) {
             const className = `suey-resizer-${resizerName}`;
             const resizer = new Div().addClass('suey-resizer', className);
@@ -2188,8 +2193,6 @@ class Resizeable extends Panel {
             resizer.dom.addEventListener('pointerdown', resizePointerDown);
             self.addToSelf(resizer);
         }
-        if (startWidth != null) this.changeWidth(startWidth);
-        if (startHeight != null) this.changeHeight(startHeight);
     }
     changeWidth(width) {
         if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
@@ -2410,7 +2413,7 @@ class MenuSeparator extends Div {
 }
 
 const TRIANGLE_SIZE = 3.0;
-const _clr$2 = new Iris();
+const _clr$1 = new Iris();
 class Menu extends Div {
     #addedTo = false;
     constructor() {
@@ -2421,7 +2424,7 @@ class Menu extends Div {
         this.mouseSvg.setAttribute('pointer-events', 'none');
         this.mouseSvg.setAttribute('version', '1.1');
         this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        this.mouseArea.setAttribute('fill', _clr$2.setRandom().hexString());
+        this.mouseArea.setAttribute('fill', _clr$1.setRandom().hexString());
         this.mouseArea.setAttribute('opacity', '0.0');
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
@@ -3216,7 +3219,7 @@ class TextBox extends Element {
     }
 }
 
-const _clr$1 = new Iris();
+const _clr = new Iris();
 class Gooey extends Resizeable {
     constructor(title, opacity) {
         super({
@@ -3322,12 +3325,12 @@ class Folder extends Shrinkable {
         const prop = new Property();
         const colorButton = new Color();
         function setVariable(newValue) {
-            _clr$1.set(newValue);
+            _clr.set(newValue);
             switch (type) {
-                case 'string': params[variable] = _clr$1.hexString(); break;
-                case 'array': _clr$1.toArray(params[variable]); break;
-                case 'object': _clr$1.getRGB(params[variable]); break;
-                case 'number': params[variable] = _clr$1.hex(); break;
+                case 'string': params[variable] = _clr.hexString(); break;
+                case 'array': _clr.toArray(params[variable]); break;
+                case 'object': _clr.getRGB(params[variable]); break;
+                case 'number': params[variable] = _clr.hex(); break;
                 default:
             }
         }
@@ -3342,7 +3345,7 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setValue(_clr$1.set(params[variable]).hex()); return prop; };
+        prop.updateDisplay = function() { colorButton.setValue(_clr.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
         return prop;
     }
@@ -4226,7 +4229,6 @@ const DOCK_SIDES = {
     TOP:        'top',
     BOTTOM:     'bottom',
 };
-const _clr = new Iris();
 class Docker2 extends Resizeable {
     #primary = false;
     #tabbed = null;
@@ -4247,7 +4249,7 @@ class Docker2 extends Resizeable {
     isPrimary() {
         return this.#primary;
     }
-    addDock(side = DOCK_SIDES.LEFT, size = '20%') {
+    wantsResizer(side) {
         const resizers = [];
         switch (side) {
             case DOCK_SIDES.LEFT: resizers.push(RESIZERS.RIGHT); break;
@@ -4255,7 +4257,10 @@ class Docker2 extends Resizeable {
             case DOCK_SIDES.TOP: resizers.push(RESIZERS.BOTTOM); break;
             case DOCK_SIDES.BOTTOM: resizers.push(RESIZERS.TOP); break;
         }
-        const dock = new Docker2(false, resizers);
+        return resizers
+    }
+    addDock(side = DOCK_SIDES.LEFT, size = '20%') {
+        const dock = new Docker2(false, this.wantsResizer(side));
         const twin = new Docker2();
         switch (side) {
             case DOCK_SIDES.LEFT:
@@ -4374,9 +4379,16 @@ class Docker2 extends Resizeable {
             console.warn('Docker2.removeDock: Could not find the twin Docker2.');
             return;
         }
-        parent.addToSelf(...twin.children);
+        const children = [];
+        for (const child of twin.children) {
+            if (!child.hasClass('suey-resizer')) {
+                children.push(child);
+            }
+        }
+        parent.addToSelf(...children);
         parent.remove(this, twin);
         parent.contents = function() { return parent; };
+        parent.addResizers(parent.wantsResizer(parent.dockSide));
         for (const child of parent.children) {
             if (child.hasClass('suey-tabbed')) {
                 child.setStyle('height', (parent.isHorizontal) ? '100%' : 'auto');
@@ -5804,8 +5816,8 @@ var css_248z$3 = "/***** GRAPH *****/\n\n.suey-graph-input, .suey-graph-grid, .s
 var stylesheet$3="/***** GRAPH *****/\n\n.suey-graph-input, .suey-graph-grid, .suey-graph-nodes, .suey-graph-lines {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n}\n\n/* Div used for processing user input */\n.suey-graph-input {\n    background: transparent;\n    z-index: -1; /* Graph Input */\n}\n\n/* Background div that holds tiled grid */\n.suey-graph-grid {\n    pointer-events: none;\n    background-color: rgb(var(--darkness));\n    background-repeat: repeat;\n    transition: none;\n}\n\n/* Scalable div to hold nodes */\n.suey-graph-nodes {\n    pointer-events: none;\n    background-color: transparent;\n    transition: none;\n}\n\n/* Canvas where lines are drawn */\n.suey-graph-lines {\n    pointer-events: none;\n}\n\n/* Shows rubberband box */\n.suey-graph-band-box {\n    position: absolute;\n    display: none;\n    background-color: rgba(var(--icon), 0.2);\n    border: solid var(--border-small) rgba(var(--icon), 0.75);\n}\n\n/***** MINIMAP *****/\n\n.suey-mini-map {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgba(var(--icon), 0.75);\n    border-radius: var(--radius-large);\n    bottom: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.suey-mini-map-canvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.suey-mini-map-resizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n/***** NODE *****/\n\n.suey-node {\n    --node-color:       255, 0, 0;\n\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border-radius: var(--radius-large);\n    border: none;\n    outline: solid var(--pad-micro) rgb(var(--black), 0.5);\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    z-index: 0; /* Node */\n}\n\n.suey-active-node {\n    z-index: 1; /* Active Node */\n}\n\n.suey-node:hover, .suey-node.suey-node-selected {\n    filter: brightness(120%);\n}\n\n.suey-node.suey-node-selected, .suey-node.suey-node-displayed {\n    outline: solid var(--pad-small) rgb(var(--black), 0.5);\n}\n\n.suey-node.suey-too-small .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-node-panel {\n    pointer-events: none;\n    display: flex;\n    flex-direction: column;\n    align-items: stretch;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n    padding: 0;\n    cursor: inherit;\n    overflow: visible;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n\n.suey-node-border {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--border-small) * -0.5);\n    padding: 0;\n}\n\n.suey-node.suey-node-displayed .suey-node-border {\n    border: var(--border-small) solid rgba(var(--complement), 1);\n}\n\n.suey-node.suey-node-selected .suey-node-border {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.suey-node-resizers {\n    pointer-events: all;\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n}\n\n/***** NODE HEADER *****/\n\n.suey-node-header-title {\n    pointer-events: none;\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border-top-right-radius: var(--radius-large);\n    border-top-left-radius: var(--radius-large);\n    width: 100%;\n    height: 1.82em;\n    margin: 0;\n    padding: var(--pad-x-small) 0.5em; /* vertical | horizontal */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);\n}\n\n.suey-node-header-icon .suey-vector-box {\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    width: 85%;\n    height: 85%;\n    filter: drop-shadow(0 0 var(--pad-micro) rgba(var(--shadow), 0.8));\n}\n\n.suey-node-header-icon .suey-image {\n    filter: brightness(calc(10 * var(--bright))) opacity(0.9);\n}\n\n.suey-node-header-icon {\n    pointer-events: none;\n    position: absolute;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: 0.25em;\n    left: 0.2em;\n    top: 0.2em;\n    width: 1.65em;\n    height: 1.35em;\n    opacity: 1;\n    box-shadow: inset 0 0 var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.suey-node-header-text {\n    pointer-events: none;\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/***** NODE ITEM *****/\n\n.suey-node-interior {\n    pointer-events: none;\n    display: flex;\n    flex-direction: row;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    min-width: 100px;\n    min-height: 25px;\n}\n\n.suey-node-item-list {\n    pointer-events: none;\n    display: block;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    width: 50%;\n    min-height: 25px;\n}\n\n/* Item */\n.suey-node-item {\n    pointer-events: none;\n    position: relative;\n    background-color: transparent;\n    color: var(--text);\n    font-size: 85%;\n    width: 100%;\n    padding: var(--pad-medium);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    vertical-align: middle;\n}\n\n.suey-node-left {\n    text-align: left;\n    padding-left: 1.2em;\n}\n\n.suey-node-right {\n    text-align: right;\n    padding-right: 1.2em;\n}\n\n/* Item point */\n.suey-node-item-point {\n    pointer-events: all;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    background-color: rgba(var(--background-dark), 1);\n    border: var(--border-small) solid rgba(var(--button-light), 1);\n    border-radius: 0.3em;\n    outline: none;\n    top: 50%;\n    overflow: visible;\n    z-index: 100; /* Node Item Point */\n}\n\n.suey-node-left .suey-node-item-point {\n    left: 0;\n    transform: translate(-50%, -50%);\n}\n.suey-node-right .suey-node-item-point {\n    right: 0;\n    transform: translate( 50%, -50%);\n}\n\n/* Increases mouse over hit area */\n.suey-node-item-point::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n/* Inner square */\n.suey-node-item.suey-item-connected .suey-node-item-point::after,\n.suey-node-item .suey-node-item-point.suey-active-item::after {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: var(--pad-x-small);\n    background-color: rgb(var(--node-color));\n    border-radius: 0.08em;\n}\n\n/* Item point highlight border */\n.suey-node.suey-node-displayed .suey-node-item-point {\n    border: var(--border-small) solid rgba(var(--complement), 1);\n}\n.suey-node.suey-node-selected .suey-node-item-point {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.suey-node-item-point.suey-hover-point, .suey-node.suey-node-selected .suey-node-item-point.suey-hover-point,\n.suey-node-item-point.suey-active-item, .suey-node.suey-node-selected .suey-node-item-point.suey-active-item {\n    border: var(--border-small) solid rgba(var(--highlight), 1);\n    width: 1.2em;\n    height: 1.2em;\n}\n\n/* Item detacher (little 'X') */\n.suey-node-item-detach {\n    pointer-events: none;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    top: 10%;\n    background-color: transparent;\n    border: none;\n    outline: none;\n    overflow: visible;\n    filter: brightness(50%);\n    transform: translateY(-50%);\n    opacity: 0;\n}\n\n.suey-node-right .suey-node-item-detach {\n    left: calc(100% + 0.7em);\n}\n.suey-node-left .suey-node-item-detach {\n    left: calc(0em - var(--row-height));\n}\n\n/* Increases mouse over hit area */\n.suey-node-item-detach::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n.suey-node-item.suey-item-connected .suey-node-item-detach {\n    pointer-events: all;\n}\n\n.suey-node-item.suey-item-connected:hover .suey-node-item-detach {\n    opacity: 1;\n}\n\n.suey-node-item-detach .suey-image {\n    filter: var(--drop-shadow);\n}\n\n.suey-node-item.suey-item-connected .suey-node-item-detach:hover {\n    filter: brightness(100%);\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
-var stylesheet$2="/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
+var css_248z$2 = "/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.2;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
+var stylesheet$2="/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.2;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = ".suey-tooltip, .suey-info-box {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.suey-tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.suey-tooltip.suey-updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.suey-info-box {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.suey-info-box.suey-updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
