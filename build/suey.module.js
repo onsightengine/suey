@@ -4308,10 +4308,7 @@ class Docker2 extends Resizeable {
                 if (side === DOCK_SIDES.BOTTOM) { dock.setStyle('bottom', 0); twin.setStyle('top', 0); }
                 break;
         }
-        if (!this.#primary) {
-            twin.add(...this.contents().children);
-            twin.tabbed = twin.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        }
+        if (!this.#primary) twin.add(...this.contents().children);
         this.add(twin, dock);
         dock.isVertical = dock.hasClass('suey-docker2-vertical');
         dock.isHorizontal = dock.hasClass('suey-docker2-horizontal');
@@ -4372,26 +4369,32 @@ class Docker2 extends Resizeable {
         }
         const children = [];
         for (const child of twin.children) {
-            if (child.hasClass('suey-tabbed') || child.hasClass('suey-tab-buttons')) {
+            if (child.hasClass('suey-tabbed') ||
+                child.hasClass('suey-tab-buttons') ||
+                child.hasClass('suey-docker2')) {
                 children.push(child);
             }
         }
         parent.addToSelf(...children);
         parent.remove(this, twin);
         parent.contents = function() { return parent; };
-        const tabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        parent.tabbed = tabbed;
         if (parent.dockLocations) {
             parent.remove(parent.dockLocations);
             parent.dockLocations = undefined;
         }
-        parent.addResizers(parent.wantsResizer(parent.dockSide));
+        const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
+        if (childTabbed) parent.addResizers(parent.wantsResizer(parent.dockSide));
         for (const child of parent.children) {
             if (child.hasClass('suey-tabbed')) {
                 child.setStyle('height', (parent.isHorizontal) ? '100%' : 'auto');
             }
         }
         parent.traverse((child) => { child.dom.dispatchEvent(new Event('resized')); });
+    }
+    hideDockLocations() {
+        if (this.dockLocations) {
+            this.dockLocations.addClass('suey-hidden');
+        }
     }
     showDockLocations() {
         if (!this.dockLocations) {
@@ -4419,19 +4422,15 @@ class Docker2 extends Resizeable {
         }
         this.dockLocations.removeClass('suey-hidden');
     }
-    hideDockLocations() {
-        if (this.dockLocations) {
-            this.dockLocations.addClass('suey-hidden');
-        }
-    }
     enableTabs() {
-        if (this.tabbed) return this.tabbed;
         if (this.#primary) {
             console.warn('Docker2.enableTabs: Cannot enable tabs on the primary dock');
             return undefined;
         }
-        const tabbed = new Tabbed();
-        tabbed.setTabSide(this.dockSide, true );
+        let tabbed = this.children.find(child => child !== this && child.hasClass('suey-tabbed'));
+        if (tabbed) return tabbed;
+        tabbed = new Tabbed();
+        tabbed.setTabSide(this.initialSide, true );
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', (this.isHorizontal) ? '100%' : 'auto');
         function resizeResizers() {
@@ -4456,7 +4455,6 @@ class Docker2 extends Resizeable {
                 resizeResizers();
             }
         });
-        this.tabbed = tabbed;
         this.add(tabbed);
         return tabbed;
     }

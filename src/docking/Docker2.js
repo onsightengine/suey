@@ -86,10 +86,7 @@ class Docker2 extends Resizeable {
         }
 
         // Split Parent, Add Docks
-        if (!this.#primary) {
-            twin.add(...this.contents().children);
-            twin.tabbed = twin.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        }
+        if (!this.#primary) twin.add(...this.contents().children);
         this.add(twin, dock);
 
         // Dock Data
@@ -164,10 +161,12 @@ class Docker2 extends Resizeable {
             return;
         }
 
-        // Move the contents (panels / buttons) of the twin to the parent, remove docks
+        // Move contents of the twin to the parent, remove this level docks
         const children = [];
         for (const child of twin.children) {
-            if (child.hasClass('suey-tabbed') || child.hasClass('suey-tab-buttons')) {
+            if (child.hasClass('suey-tabbed') ||
+                child.hasClass('suey-tab-buttons') ||
+                child.hasClass('suey-docker2')) {
                 children.push(child);
             }
         }
@@ -175,16 +174,15 @@ class Docker2 extends Resizeable {
         parent.remove(this, twin);
         parent.contents = function() { return parent; }
 
-        // Set Tabbed
-        const tabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        parent.tabbed = tabbed;
+        // Set Tabbed, Remove old DockLocations
         if (parent.dockLocations) {
             parent.remove(parent.dockLocations);
             parent.dockLocations = undefined;
         }
 
         // Add back new Resizer
-        parent.addResizers(parent.wantsResizer(parent.dockSide));
+        const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
+        if (childTabbed) parent.addResizers(parent.wantsResizer(parent.dockSide));
 
         // Set Tabbed Sizes
         for (const child of parent.children) {
@@ -195,6 +193,14 @@ class Docker2 extends Resizeable {
 
         // Resize the parent
         parent.traverse((child) => { child.dom.dispatchEvent(new Event('resized')); })
+    }
+
+    /******************** DROP LOCATIONS */
+
+    hideDockLocations() {
+        if (this.dockLocations) {
+            this.dockLocations.addClass('suey-hidden');
+        }
     }
 
     showDockLocations() {
@@ -225,24 +231,19 @@ class Docker2 extends Resizeable {
         this.dockLocations.removeClass('suey-hidden');
     }
 
-    hideDockLocations() {
-        if (this.dockLocations) {
-            this.dockLocations.addClass('suey-hidden');
-        }
-    }
-
     /******************** TABS */
 
     enableTabs() {
-        if (this.tabbed) return this.tabbed;
         if (this.#primary) {
             console.warn('Docker2.enableTabs: Cannot enable tabs on the primary dock');
             return undefined;
         }
 
-        // Create 'Tabbed'
-        const tabbed = new Tabbed();
-        tabbed.setTabSide(this.dockSide, true /* opposite? */)
+        // Check for Tabbed, if not found create new Tabbed
+        let tabbed = this.children.find(child => child !== this && child.hasClass('suey-tabbed'));
+        if (tabbed) return tabbed;
+        tabbed = new Tabbed();
+        tabbed.setTabSide(this.initialSide, true /* opposite? */)
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', (this.isHorizontal) ? '100%' : 'auto');
 
@@ -273,7 +274,6 @@ class Docker2 extends Resizeable {
         });
 
         // Save, Add, Return
-        this.tabbed = tabbed;
         this.add(tabbed);
         return tabbed;
     }
