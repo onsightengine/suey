@@ -102,7 +102,7 @@ class Resizeable extends Panel {
         const scaledMaxWidth = Number.isFinite(this.#maxWidth) ? this.#maxWidth * Css.guiScale(this.dom) : Infinity;
         width = Math.min(scaledMaxWidth, Math.max(scaledMinWidth, parseFloat(width))).toFixed(1);
         this.setStyle('width', Css.toEm(width, this.dom));
-        this.dom.dispatchEvent(new Event('resized', { 'bubbles': true }));
+        this.dom.dispatchEvent(new Event('resized'));//, { 'bubbles': true }));
         return width;
     }
 
@@ -116,7 +116,7 @@ class Resizeable extends Panel {
         const scaledMaxHeight = Number.isFinite(this.#maxHeight) ? this.#maxHeight * Css.guiScale(this.dom) : Infinity;
         height = Math.min(scaledMaxHeight, Math.max(scaledMinHeight, parseFloat(height))).toFixed(1);
         this.setStyle('height', Css.toEm(height, this.dom));
-        this.dom.dispatchEvent(new Event('resized', { 'bubbles': true }));
+        this.dom.dispatchEvent(new Event('resized'));//, { 'bubbles': true }));
         return height;
     }
 

@@ -348,8 +348,8 @@ class Element {
     traverse(callback, applyToSelf = true) {
         if (applyToSelf) callback(this);
         if (this.children) {
-            for (let i = 0; i < this.children.length; i++) {
-                this.children[i].traverse(callback, true);
+            for (const child of this.children) {
+                child.traverse(callback, true);
             }
         }
     }

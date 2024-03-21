@@ -23,16 +23,15 @@ class Docker2 extends Resizeable {
 
     constructor(primary = false, resizers = []) {
         super({ style: PANEL_STYLES.NONE, resizers });
+        const self = this;
         this.addClass('suey-docker2');
 
         this.#primary = primary;
         if (primary) {
             window.addEventListener('resize', () => {
-                for (const child of this.children) child.dom.dispatchEvent(new Event('resized'));
-            });
-        } else {
-            this.dom.addEventListener('resized', () => {
-                for (const child of this.children) child.dom.dispatchEvent(new Event('resized'));
+                self.traverse((child) => {
+                    child.dom.dispatchEvent(new Event('resized'));
+                })
             });
         }
     }
@@ -75,10 +74,12 @@ class Docker2 extends Resizeable {
         dock.isHorizontal = dock.hasClass('suey-docker2-horizontal');
         dock.dockSide = side;
 
+        // Twin Sizing
         function sizeTwin() {
             if (dock.isVertical) twin.setStyle('width', `${parent.getWidth() - dock.getWidth()}px`);
             if (dock.isHorizontal) twin.setStyle('height', `${parent.getHeight() - dock.getHeight()}px`);
             for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
+            for (const child of dock.children) child.dom.dispatchEvent(new Event('resized'));
         }
         sizeTwin();
 
@@ -91,11 +92,19 @@ class Docker2 extends Resizeable {
         dock.dom.addEventListener('resized', () => {
             if (!dock.parent || !dock.parent.isElement) return;
             if (dock.isVertical) {
-                const dockWidth = Math.max(100, Math.min(dock.getWidth(), parentSize));
+                let dockWidth = Math.max(100, Math.min(dock.getWidth(), parentSize));
+                if (twin.dom && twin.dom.children.length > 0) {
+                    const computed = getComputedStyle(twin.dom);
+                    dockWidth = Math.min(dockWidth, parentSize - parseFloat(computed.minWidth));
+                }
                 dock.setStyle('width', `${dockWidth}px`);
             }
             if (dock.isHorizontal) {
-                const dockHeight = Math.max(100, Math.min(dock.getHeight(), parentSize));
+                let dockHeight = Math.max(100, Math.min(dock.getHeight(), parentSize));
+                if (twin.dom && twin.dom.children.length > 0) {
+                    const computed = getComputedStyle(twin.dom);
+                    dockHeight = Math.min(dockHeight, parentSize - parseFloat(computed.minHeight));
+                }
                 dock.setStyle('height', `${dockHeight}px`);
             }
             sizeTwin();

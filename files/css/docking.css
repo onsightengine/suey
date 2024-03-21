@@ -48,6 +48,8 @@
 .suey-docker2 {
     position: absolute;
     display: flex;
+    min-width: 8em;
+    min-height: 8em;
 }
 
 .suey-docker2-vertical {
