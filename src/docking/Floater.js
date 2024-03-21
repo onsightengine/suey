@@ -1,4 +1,6 @@
 import { ColorScheme } from '../utils/ColorScheme.js';
+import { Css } from '../utils/Css.js';
+import { Dom } from '../utils/Dom.js';
 import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
@@ -43,8 +45,10 @@ class TabButton extends Div {
         super();
         const self = this;
         this.setClass('suey-tab-button');
-        this.setStyle('cursor', 'default');
         if (options.shadow) this.addClass('suey-tab-shadow');
+
+        // Draggable!
+        this.dom.draggable = true;
 
         // Parent Reference
         this.tabPanel = tabPanel;
@@ -90,6 +94,7 @@ class TabButton extends Div {
         let minDistance = 0;
         let currentParent = undefined;
         let tabIndex = -1;
+        let lastUnder = undefined;
         function onPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
@@ -110,6 +115,7 @@ class TabButton extends Div {
                 if (minDistance < MOUSE_SLOP_LARGE) return;
                 // Drag Start
                 self.addClass('suey-dragging');
+                Css.setCursor('pointer');
                 currentParent = self.dom.parentElement;
                 if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
                 document.body.appendChild(self.dom);
@@ -117,6 +123,20 @@ class TabButton extends Div {
             const newLeft = event.pageX - (self.getWidth() / 2);
             const newTop = event.pageY - (self.getHeight() / 2);
             self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
+
+
+            const dockerUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY, self.dom);
+            if (dockerUnder !== lastUnder) {
+                if (lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
+                    lastUnder.hideDockLocations();
+                }
+                if (dockerUnder && dockerUnder.isElement && dockerUnder.hasClass('suey-docker2')) {
+                    console.log(dockerUnder.initialSide);
+                    dockerUnder.showDockLocations();
+                }
+            };
+
+            lastUnder = dockerUnder;
         }
         function onPointerUp(event) {
             event.stopPropagation();
@@ -124,6 +144,7 @@ class TabButton extends Div {
             // Drag End
             if (self.hasClass('suey-dragging')) {
                 self.removeClass('suey-dragging');
+                Css.setCursor('');
                 if (currentParent) {
                     if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
                         currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
@@ -132,6 +153,7 @@ class TabButton extends Div {
                     }
                 }
                 currentParent = null;
+                lastUnder = null;
                 tabIndex = -1;
                 self.setStyle('left', '', 'top', '');
                 self.tabPanel.dock.handleTabDrop(self, event.pageX, event.pageY);

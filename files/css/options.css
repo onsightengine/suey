@@ -1,5 +1,10 @@
 /********** Disabled **********/
 
+.suey-hidden {
+    display: none !important;
+    pointer-events: none !important;
+}
+
 /** Grayscale filter for disabled items */
 .suey-disabled {
     filter: contrast(75%) grayscale(100%) !important;
@@ -55,6 +60,16 @@
 
 .suey-keep-open {
     /* keeps menu open on click, handled in Menu */
+}
+
+/********** Mouse Cursor **********/
+
+.suey-cursor-override {
+    /** global cursor override */
+}
+
+.suey-cursor-override * {
+    cursor: inherit !important;
 }
 
 /********** Tree List **********/

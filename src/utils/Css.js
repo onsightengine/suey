@@ -104,6 +104,18 @@ class Css {
         return document.body;
     }
 
+    /******************** MOUSE CURSOR ********************/
+
+    static setCursor(cursor = '') {
+        if (cursor === '') {
+            document.body.style.cursor = '';
+            document.body.classList.remove('suey-cursor-override');
+        } else {
+            document.body.style.cursor = cursor;
+            document.body.classList.add('suey-cursor-override');
+        }
+    }
+
     /******************** SIZE PARSING ********************/
 
     static parseSize(size) {
