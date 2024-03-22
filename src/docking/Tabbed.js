@@ -34,13 +34,6 @@ class Tabbed extends Panel {
 
         // Set TAB_SIDES that Tab Buttons should appear
         this.setTabSide(tabSide);
-
-        // Keep buttons on top
-        this.dom.addEventListener('parentChanged', () => {
-            if (self.parent && self.parent.isElement) {
-                self.parent.add(self.buttons);
-            }
-        });
     }
 
     /******************** ADD */

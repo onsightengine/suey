@@ -178,7 +178,6 @@ class Docker2 extends Panel {
         const children = [];
         for (const child of twin.children) {
             if (child.hasClass('suey-tabbed') ||
-                child.hasClass('suey-tab-buttons') ||
                 child.hasClass('suey-docker2')) {
                 children.push(child);
             }

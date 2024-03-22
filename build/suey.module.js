@@ -956,7 +956,7 @@ class Dom {
         let parent = element.parentElement;
         while (parent) {
             if (parent.classList.contains(className)) {
-                return parent;
+                return parent.suey;
             }
             parent = parent.parentElement;
         }
@@ -3993,7 +3993,6 @@ class Docker2 extends Panel {
         const children = [];
         for (const child of twin.children) {
             if (child.hasClass('suey-tabbed') ||
-                child.hasClass('suey-tab-buttons') ||
                 child.hasClass('suey-docker2')) {
                 children.push(child);
             }
@@ -4195,24 +4194,27 @@ class TabButton extends Div {
                 }
                 if (locationUnder && locationUnder.isElement) {
                     let droppedOnPanel = null;
-                    if (locationUnder.dom.classList.contains('suey-dock-middle-vertical') ||
-                        locationUnder.dom.classList.contains('suey-dock-middle-horizontal')) {
-                        droppedOnPanel = locationUnder.parent.parent.children.find(child => child.hasClass('suey-tabbed'));
-                    } else if (locationUnder.dom.classList.contains('suey-dock-top')) {
-                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.TOP, '20%');
-                        droppedOnPanel = newDock.enableTabs();
-                    } else if (locationUnder.dom.classList.contains('suey-dock-bottom')) {
-                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.BOTTOM, '20%');
-                        droppedOnPanel = newDock.enableTabs();
-                    } else if (locationUnder.dom.classList.contains('suey-dock-left')) {
-                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.LEFT, '20%');
-                        droppedOnPanel = newDock.enableTabs();
-                    } else if (locationUnder.dom.classList.contains('suey-dock-right')) {
-                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.RIGHT, '20%');
-                        droppedOnPanel = newDock.enableTabs();
-                    } else if (locationUnder.dom.classList.contains('suey-dock-center')) {
-                    } else {
-                        console.log(locationUnder);
+                    const locationDock = Dom.parentElementWithClass(locationUnder, 'suey-docker2');
+                    if (locationDock) {
+                        if (locationUnder.dom.classList.contains('suey-dock-middle-vertical') ||
+                            locationUnder.dom.classList.contains('suey-dock-middle-horizontal')) {
+                            droppedOnPanel = locationDock.children.find(child => child.hasClass('suey-tabbed'));
+                        } else if (locationUnder.dom.classList.contains('suey-dock-top')) {
+                            const newDock = locationDock.addDock(DOCK_SIDES.TOP, '20%');
+                            droppedOnPanel = newDock.enableTabs();
+                        } else if (locationUnder.dom.classList.contains('suey-dock-bottom')) {
+                            const newDock = locationDock.addDock(DOCK_SIDES.BOTTOM, '20%');
+                            droppedOnPanel = newDock.enableTabs();
+                        } else if (locationUnder.dom.classList.contains('suey-dock-left')) {
+                            const newDock = locationDock.addDock(DOCK_SIDES.LEFT, '20%');
+                            droppedOnPanel = newDock.enableTabs();
+                        } else if (locationUnder.dom.classList.contains('suey-dock-right')) {
+                            const newDock = locationDock.addDock(DOCK_SIDES.RIGHT, '20%');
+                            droppedOnPanel = newDock.enableTabs();
+                        } else if (locationUnder.dom.classList.contains('suey-dock-center')) {
+                        } else {
+                            console.log(locationUnder);
+                        }
                     }
                     if (droppedOnPanel) {
                         if (self.tabPanel.dock && droppedOnPanel !== self.tabPanel.dock) {
@@ -4274,11 +4276,6 @@ class Tabbed extends Panel {
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.buttons, this.panels);
         this.setTabSide(tabSide);
-        this.dom.addEventListener('parentChanged', () => {
-            if (self.parent && self.parent.isElement) {
-                self.parent.add(self.buttons);
-            }
-        });
     }
     addTab(tabPanel) {
         if (!tabPanel || !tabPanel.hasClass('suey-floater')) {

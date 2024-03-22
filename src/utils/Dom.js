@@ -50,7 +50,7 @@ class Dom {
         let parent = element.parentElement;
         while (parent) {
             if (parent.classList.contains(className)) {
-                return parent;
+                return parent.suey;
             }
             parent = parent.parentElement;
         }
