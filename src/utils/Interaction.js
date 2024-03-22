@@ -255,12 +255,13 @@ class Interaction {
             return resizer;
         }
 
-        addToElement.addResizers = function(resizers = []) {
+        addToElement.addResizers = function(resizers = [], offset = false) {
             for (const resizerName of resizers) {
                 const className = `suey-resizer-${resizerName}`;
                 const existingResizer = addToElement.children.find(child => child.hasClass(className));
                 if (!existingResizer) {
                     const resizer = createResizer(className);
+                    if (offset) Css.setVariable('--offset', 'var(--resize-offset)', resizer);
                     addToElement.addToSelf(resizer);
                 }
             }

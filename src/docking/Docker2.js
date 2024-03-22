@@ -77,7 +77,15 @@ class Docker2 extends Panel {
         }
 
         // Split Parent, Add Docks
-        if (!this.#primary) twin.add(...this.contents().children);
+        if (!this.#primary) {
+            const children = [];
+            for (const child of this.contents().children) {
+                if (!child.hasClass('suey-resizer')) { /* leave resizer along major axis*/
+                    children.push(child);
+                }
+            }
+            twin.add(...children);
+        }
         this.add(twin, dock);
 
         // Dock Data
@@ -110,7 +118,7 @@ class Docker2 extends Panel {
             if (newHeight != null) dock.setStyle('height', `${Math.max(100, newHeight)}px`);
             if (newWidth != null || newHeight != null) dock.dom.dispatchEvent(new Event('resized'));
         }
-        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side));
+        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side), true /* offset */);
 
         // Limit Size, Resize Twin
         function resizeTwin() {
@@ -192,7 +200,7 @@ class Docker2 extends Panel {
 
         // Add back new Resizer
         const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        if (childTabbed) parent.addResizers(parent.wantsResizer(parent.dockSide));
+        if (childTabbed) parent.addResizers(parent.wantsResizer(parent.dockSide), true /* offset */);
 
         // Set Tabbed Sizes
         for (const child of parent.children) {
