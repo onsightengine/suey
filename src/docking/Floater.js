@@ -6,6 +6,7 @@ import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
+import { DOCK_SIDES } from './Docker2.js';
 import { IMAGE_EMPTY } from '../constants.js';
 import { MOUSE_CLICK, MOUSE_SLOP_LARGE } from '../constants.js';
 import { TRAIT } from '../constants.js';
@@ -20,7 +21,7 @@ class Floater extends Panel {
         this.addClass('suey-floater', 'suey-hidden');
         this.add(content);
 
-        // Dock
+        // Parent Dock Holding Floater (Tabbed, Window, etc.)
         this.dock = null;
 
         // Tab Button
@@ -95,6 +96,7 @@ class TabButton extends Div {
         let currentParent = undefined;
         let tabIndex = -1;
         let lastUnder = undefined;
+        let locationUnder = undefined;
         function onPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
@@ -124,16 +126,14 @@ class TabButton extends Div {
             const newTop = event.pageY - (self.getHeight() / 2);
             self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
             // Dock Locations
-            const dockerUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY, self.dom);
+            const dockerUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY);
             if (dockerUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
                 lastUnder.hideDockLocations();
             }
             if (dockerUnder && dockerUnder.isElement && dockerUnder.hasClass('suey-docker2')) {
                 dockerUnder.showDockLocations(event.pageX, event.pageY);
-                const locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
-                if (locationUnder) {
-                    locationUnder.addClass('suey-dock-drop');
-                }
+                locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
+                if (locationUnder) locationUnder.addClass('suey-dock-drop');
             }
             lastUnder = dockerUnder;
         }
@@ -144,6 +144,8 @@ class TabButton extends Div {
             if (self.hasClass('suey-dragging')) {
                 self.removeClass('suey-dragging');
                 Css.setCursor('');
+                // Put Back Into Existing Parent
+                self.setStyle('left', '', 'top', '');
                 if (currentParent) {
                     if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
                         currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
@@ -155,13 +157,57 @@ class TabButton extends Div {
                 if (lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
                     lastUnder.hideDockLocations();
                 }
-                lastUnder = null;
-                // Reset Drop
+
+                // Handle Drop
+                if (locationUnder && locationUnder.isElement) {
+                    let droppedOnPanel = null;
+                    if (locationUnder.dom.classList.contains('suey-dock-middle-vertical') ||
+                        locationUnder.dom.classList.contains('suey-dock-middle-horizontal')) {
+                        droppedOnPanel = locationUnder.parent.parent.children.find(child => child.hasClass('suey-tabbed'));
+
+                    } else if (locationUnder.dom.classList.contains('suey-dock-top')) {
+                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.TOP, '20%');
+                        droppedOnPanel = newDock.enableTabs();
+                    } else if (locationUnder.dom.classList.contains('suey-dock-bottom')) {
+                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.BOTTOM, '20%');
+                        droppedOnPanel = newDock.enableTabs();
+                    } else if (locationUnder.dom.classList.contains('suey-dock-left')) {
+                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.LEFT, '20%');
+                        droppedOnPanel = newDock.enableTabs();
+                    } else if (locationUnder.dom.classList.contains('suey-dock-right')) {
+                        const newDock = locationUnder.parent.parent.addDock(DOCK_SIDES.RIGHT, '20%');
+                        droppedOnPanel = newDock.enableTabs();
+                    } else if (locationUnder.dom.classList.contains('suey-dock-center')) {
+                        //
+                        // TODO: Window Panel
+                        //
+                    } else {
+                        console.log(locationUnder);
+                    }
+                    // Have New Panel
+                    if (droppedOnPanel) {
+                        // Remove from current Tabbed
+                        if (self.tabPanel.dock && droppedOnPanel !== self.tabPanel.dock) {
+                            const existing = self.tabPanel.dock;
+                            const tabIndex = existing.buttons.children.indexOf(self);
+                            existing.removeTab(tabIndex);
+                            if (existing.selectedID === self.tabPanel.getID() && tabIndex > 0) {
+                                existing.selectTab(existing.buttons.children[tabIndex - 1].getID());
+                            } else {
+                                existing.selectFirst();
+                            }
+                        }
+                        // Add to New Tabbed
+                        droppedOnPanel.addTab(self.tabPanel);
+                        droppedOnPanel.selectTab(self.tabPanel.id, false);
+                    }
+                }
+
+                // Reset Drop Variables
                 currentParent = null;
                 tabIndex = -1;
-                self.setStyle('left', '', 'top', '');
-                // Handle Drop
-                self.tabPanel.dock.handleTabDrop(self, event.pageX, event.pageY);
+                lastUnder = null;
+                locationUnder = null;
             // Click?
             } else {
                 if (performance.now() - downTime < MOUSE_CLICK) {

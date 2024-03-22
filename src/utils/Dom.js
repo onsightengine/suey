@@ -14,13 +14,10 @@ class Dom {
 
     /********** PARENT / CHILD **********/
 
-    static findElementAt(className, centerX, centerY, exclude = null) {
+    static findElementAt(className, centerX, centerY) {
         const domElements = document.elementsFromPoint(centerX, centerY);
         for (const dom of domElements) {
-            if (dom.classList.contains(className)) {
-                if (exclude && dom === exclude) continue;
-                return dom.suey;
-            }
+            if (dom.classList.contains(className)) return dom.suey;
         }
         return null;
     }

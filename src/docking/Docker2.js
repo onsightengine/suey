@@ -1,13 +1,9 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { Dom } from '../utils/Dom.js';
-import { FlexBox } from '../layout/FlexBox.js';
-import { Iris } from '../utils/Iris.js';
 import { PANEL_STYLES } from '../panels/Panel.js';
 import { Resizeable } from '../panels/Resizeable.js';
 import { RESIZERS } from '../constants.js';
 import { Tabbed } from './Tabbed.js';
-import { TAB_SIDES } from './Tabbed.js';
 
 export const DOCK_SIDES = {
     LEFT:       'left',
@@ -54,13 +50,6 @@ class Docker2 extends Resizeable {
 
     /******************** DOCK */
 
-    getTwin() {
-        const parent = this.parent;
-        if (!parent || !parent.isElement || !parent.hasClass('suey-docker2')) return undefined;
-        const twin = parent.children.find(child => child !== this && child.hasClass('suey-docker2'));
-        return twin;
-    }
-
     addDock(side = DOCK_SIDES.LEFT, size = '20%') {
         // Create Docks
         const dock = new Docker2(false, this.wantsResizer(side));
@@ -72,15 +61,17 @@ class Docker2 extends Resizeable {
         switch (side) {
             case DOCK_SIDES.LEFT:
             case DOCK_SIDES.RIGHT:
-                dock.addClass('suey-docker2-vertical').setStyle('width', Css.toPx(size, this.dom, 'w'));
+                dock.addClass('suey-docker2-vertical');
                 twin.addClass('suey-docker2-vertical');
+                dock.setStyle('width', Css.toPx(size, this.dom, 'w'));
                 if (side === DOCK_SIDES.LEFT) { dock.setStyle('left', 0); twin.setStyle('right', 0); }
                 if (side === DOCK_SIDES.RIGHT) { dock.setStyle('right', 0); twin.setStyle('left', 0); }
                 break;
             case DOCK_SIDES.TOP:
             case DOCK_SIDES.BOTTOM:
-                dock.addClass('suey-docker2-horizontal').setStyle('height', Css.toPx(size, this.dom, 'h'));
+                dock.addClass('suey-docker2-horizontal');
                 twin.addClass('suey-docker2-horizontal');
+                dock.setStyle('height', Css.toPx(size, this.dom, 'h'));
                 if (side === DOCK_SIDES.TOP) { dock.setStyle('top', 0); twin.setStyle('bottom', 0); }
                 if (side === DOCK_SIDES.BOTTOM) { dock.setStyle('bottom', 0); twin.setStyle('top', 0); }
                 break;
@@ -95,7 +86,7 @@ class Docker2 extends Resizeable {
         dock.isHorizontal = dock.hasClass('suey-docker2-horizontal');
         dock.dockSide = twin.dockSide = side;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
-        twin.initialSide = (this.contents().initialSide === 'center') ? side : this.initialSide;
+        twin.initialSide = (this.contents().initialSide === 'center') ? 'center' : this.initialSide;
 
         // Set new 'Contents'
         this.contents = function() { return twin; }
@@ -144,6 +135,13 @@ class Docker2 extends Resizeable {
         return dock;
     }
 
+    getTwin() {
+        const parent = this.parent;
+        if (!parent || !parent.isElement || !parent.hasClass('suey-docker2')) return undefined;
+        const twin = parent.children.find(child => child !== this && child.hasClass('suey-docker2'));
+        return twin;
+    }
+
     removeDock() {
         if (this.#primary) {
             console.warn('Docker2.removeDock: Cannot remove the primary dock');
@@ -179,6 +177,12 @@ class Docker2 extends Resizeable {
         if (parent.dockLocations) {
             parent.remove(parent.dockLocations);
             parent.dockLocations = undefined;
+        }
+
+        // Reset Empty Dock to 'center'
+        if (parent.children.length === 0) {
+            console.log(parent);
+            parent.initialSide = 'center';
         }
 
         // Add back new Resizer
@@ -249,8 +253,9 @@ class Docker2 extends Resizeable {
         if (tabbed) return tabbed;
         tabbed = new Tabbed();
         tabbed.setTabSide(this.initialSide, true /* opposite? */)
+        const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
         tabbed.setStyle('width', '100%');
-        tabbed.setStyle('height', (this.isHorizontal) ? '100%' : 'auto');
+        tabbed.setStyle('height', (wantsTall) ? '100%' : 'auto');
 
         // Resize Resizers
         function resizeResizers() {

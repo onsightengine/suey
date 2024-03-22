@@ -156,26 +156,6 @@ class Tabbed extends Panel {
         this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
 
-    /******************** DROP */
-
-    handleTabDrop(tabButton, dropX, dropY) {
-        const droppedOnPanel = Dom.findElementAt('suey-tabbed', dropX, dropY, this.dom);
-        if (droppedOnPanel && droppedOnPanel !== this) {
-            const tabIndex = this.buttons.children.indexOf(tabButton);
-            if (tabIndex !== -1) {
-                const panel = this.panels.children[tabIndex];
-                this.removeTab(tabIndex);
-                if (this.selectedID === tabButton.tabPanel.getID() && tabIndex > 0) {
-                    this.selectTab(this.buttons.children[tabIndex - 1].getID());
-                } else {
-                    this.selectFirst();
-                }
-                droppedOnPanel.addTab(panel);
-                droppedOnPanel.selectTab(panel.id, false);
-            }
-        }
-    }
-
     /******************** INFO */
 
     getTabSide() {

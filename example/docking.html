@@ -40,7 +40,7 @@
         document.body.appendChild(docker.dom);
 
         docker.onClick(() => {
-            docker.setStyle('background-color', `rgba(${new Iris().setRandom().rgbString(0.25)})`);
+            // docker.setStyle('background-color', `rgba(${new Iris().setRandom().rgbString(0.25)})`);
         });
 
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
@@ -114,7 +114,7 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
         const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
         const tabby5 = miniDock.enableTabs();
         tabby5.setTabSide(TAB_SIDES.RIGHT);
-        tabby5.addNewTab('hoopy', new Titled({ title: 'howdy' }).add(new Div(`
+        tabby5.addNewTab('huppy', new Titled({ title: 'huppy' }).add(new Div(`
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
@@ -130,7 +130,7 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
         `)));
-        tabby5.addNewTab('doopy', new Titled({ title: 'doopy' }));
+        tabby5.addNewTab('duppy', new Titled({ title: 'duppy' }));
         tabby5.selectFirst();
 
     </script>
