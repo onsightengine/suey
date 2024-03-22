@@ -136,8 +136,8 @@ class Interaction {
             startingRect.top = rect.top = parseFloat(computed.top);
             startingRect.width = rect.width = parseFloat(computed.width);
             startingRect.height = rect.height = parseFloat(computed.height);
-            eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
-            eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
+            document.addEventListener('pointermove', dragPointerMove);
+            document.addEventListener('pointerup', dragPointerUp);
             document.dispatchEvent(new Event('closemenu'));
             moreThanSlop = false;
             /* CUSTOM CALLBACK */
@@ -147,8 +147,8 @@ class Interaction {
             event.stopPropagation();
             event.preventDefault();
             eventElement.releasePointerCapture(event.pointerId);
-            eventElement.ownerDocument.removeEventListener('pointermove', dragPointerMove);
-            eventElement.ownerDocument.removeEventListener('pointerup', dragPointerUp);
+            document.removeEventListener('pointermove', dragPointerMove);
+            document.removeEventListener('pointerup', dragPointerUp);
             eventElement.style.cursor = 'inherit';
             /* CUSTOM CALLBACK */
             onUp();
@@ -208,18 +208,12 @@ class Interaction {
         eventElement.addEventListener('pointerdown', dragPointerDown);
     }
 
-    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}, onUp = () => {}) {
-        if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
+    static makeResizeable(addToElement, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
         if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
-        resizeElement.addClass('suey-resizeable');
-        // Build
-        const resizerDivs = {};
-        for (const key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `suey-resizer-${resizerName}`;
-            const resizer = new Div();
-            resizer.addClass('suey-resizer');
-            resizer.addClass(className);
+
+        // Creates One Resizer
+        function createResizer(className) {
+            const resizer = new Div().addClass('suey-resizer', className);
             let downX, downY, lastX, lastY;
             function resizePointerDown(event) {
                 if (event.button !== 0) return;
@@ -230,8 +224,8 @@ class Interaction {
                 downY = event.pageY;
                 lastX = event.pageX;
                 lastY = event.pageY;
-                resizeElement.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
-                resizeElement.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
+                document.addEventListener('pointermove', resizePointerMove);
+                document.addEventListener('pointerup', resizePointerUp);
                 document.dispatchEvent(new Event('closemenu'));
                 /* CUSTOM CALLBACK */
                 onDown();
@@ -240,8 +234,8 @@ class Interaction {
                 event.stopPropagation();
                 event.preventDefault();
                 resizer.dom.releasePointerCapture(event.pointerId);
-                resizeElement.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
-                resizeElement.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
+                document.removeEventListener('pointermove', resizePointerMove);
+                document.removeEventListener('pointerup', resizePointerUp);
                 /* CUSTOM CALLBACK */
                 onUp();
             }
@@ -258,30 +252,29 @@ class Interaction {
                 onMove(resizer, diffX, diffY);
             }
             resizer.dom.addEventListener('pointerdown', resizePointerDown);
-            resizerDivs[resizerName] = resizer;
-            addToElement.addToSelf(resizer);
+            return resizer;
         }
-        // Toggle
-        const resizerEnabled = {};
-        resizeElement.toggleResize = function(resizerName, enable = true) {
-            if (!resizerName) return;
-            resizerEnabled[resizerName] = enable;
-            function toggleDisplay(element, display) {
-                if (!element) return;
-                element.setStyle('display', display ? '' : 'none');
+
+        addToElement.addResizers = function(resizers = []) {
+            for (const resizerName of resizers) {
+                const className = `suey-resizer-${resizerName}`;
+                const existingResizer = addToElement.children.find(child => child.hasClass(className));
+                if (!existingResizer) {
+                    const resizer = createResizer(className);
+                    addToElement.addToSelf(resizer);
+                }
             }
-            toggleDisplay(resizerDivs[resizerName], enable);
-            toggleDisplay(resizerDivs[RESIZERS.TOP_LEFT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.LEFT]);
-            toggleDisplay(resizerDivs[RESIZERS.TOP_RIGHT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.RIGHT]);
-            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_LEFT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.LEFT]);
-            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
-            return resizeElement;
-        };
-        // Enable
-        for (const key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
         }
+
+        addToElement.clearResizers = function() {
+            const resizers = [];
+            for (const child of addToElement.children) {
+                if (child.hasClass('suey-resizer')) resizers.push(child);
+            }
+            addToElement.remove(...resizers);
+        }
+
+        return addToElement;
     }
 
 }

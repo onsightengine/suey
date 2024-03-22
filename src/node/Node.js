@@ -99,7 +99,7 @@ class Node extends Div {
                 self.setStyle('height', `${newHeight}px`);
             }
         }
-        Interaction.makeResizeable(this, sizers, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(sizers, resizerDown, resizerMove).addResizers(resizers);
 
         // Style Observer
         let styleTimeout = undefined;

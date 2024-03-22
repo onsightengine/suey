@@ -1,9 +1,11 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Interaction } from '../utils/Interaction.js';
+import { Panel } from '../panels/Panel.js';
 import { PANEL_STYLES } from '../panels/Panel.js';
-import { Resizeable } from '../panels/Resizeable.js';
-import { RESIZERS } from '../constants.js';
 import { Tabbed } from './Tabbed.js';
+
+import { RESIZERS } from '../constants.js';
 
 export const DOCK_SIDES = {
     LEFT:       'left',
@@ -12,15 +14,16 @@ export const DOCK_SIDES = {
     BOTTOM:     'bottom',
 };
 
-class Docker2 extends Resizeable {
+class Docker2 extends Panel {
 
     #primary = false;
 
-    constructor(primary = false, resizers = []) {
-        super({ style: PANEL_STYLES.NONE, resizers });
+    constructor(primary = false) {
+        super({ style: PANEL_STYLES.NONE });
         const self = this;
         this.addClass('suey-docker2');
 
+        // Primary Dock
         this.#primary = primary;
         if (primary) {
             this.addClass('suey-docker2-primary');
@@ -33,8 +36,20 @@ class Docker2 extends Resizeable {
         }
     }
 
-    isPrimary() {
-        return this.#primary;
+    /******************** RESIZERS */
+
+    changeWidth(width) {
+        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = null;
+        if (width == null) return this.dom.style.removeProperty('width');
+        this.setStyle('width', Css.toEm(parseFloat(width), this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+    }
+
+    changeHeight(height) {
+        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = null;
+        if (height == null) return this.dom.style.removeProperty('height');
+        this.setStyle('height', Css.toEm(parseFloat(height), this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
     }
 
     wantsResizer(side) {
@@ -45,15 +60,30 @@ class Docker2 extends Resizeable {
             case DOCK_SIDES.TOP: resizers.push(RESIZERS.BOTTOM); break;
             case DOCK_SIDES.BOTTOM: resizers.push(RESIZERS.TOP); break;
         }
-        return resizers
+        return resizers;
     }
 
     /******************** DOCK */
 
     addDock(side = DOCK_SIDES.LEFT, size = '20%') {
         // Create Docks
-        const dock = new Docker2(false, this.wantsResizer(side));
+        const dock = new Docker2(false);
         const twin = new Docker2();
+
+        // Resizers
+        const rect = {};
+        function resizerDown() {
+            rect.width = dock.getWidth();
+            rect.height = dock.getHeight();
+            dock.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('left')) dock.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('right')) dock.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('top')) dock.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('bottom')) dock.changeHeight(rect.height + diffY);
+        }
+        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side));
 
         /***** INIT */
 
@@ -181,7 +211,6 @@ class Docker2 extends Resizeable {
 
         // Reset Empty Dock to 'center'
         if (parent.children.length === 0) {
-            console.log(parent);
             parent.initialSide = 'center';
         }
 
@@ -248,38 +277,21 @@ class Docker2 extends Resizeable {
             return undefined;
         }
 
-        // Check for Tabbed, if not found create new Tabbed
+        // Check for Tabbed
         let tabbed = this.children.find(child => child !== this && child.hasClass('suey-tabbed'));
         if (tabbed) return tabbed;
+
+        // Create New Tabbed
         tabbed = new Tabbed();
         tabbed.setTabSide(this.initialSide, true /* opposite? */)
         const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', (wantsTall) ? '100%' : 'auto');
 
-        // Resize Resizers
-        function resizeResizers() {
-            const tabbedRect = tabbed.dom.getBoundingClientRect();
-            const parentRect = tabbed.parent.dom.getBoundingClientRect();
-            const height = `${tabbedRect.height / parentRect.height * 100}%`;
-            const width = `${tabbedRect.width / parentRect.width * 100}%`;
-            // Find Resizers
-            const resizers = [];
-            for (const child of tabbed.parent.children) {
-                if (child.hasClass('suey-resizer')) resizers.push(child)
-            }
-            // Resize Resizers
-            for (const resizer of resizers) {
-                Css.setVariable('--width', width, resizer);
-                Css.setVariable('--height', height, resizer);
-            }
-        }
-        tabbed.dom.addEventListener('resized', resizeResizers);
+        // Event: 'tab-changed'
         tabbed.dom.addEventListener('tab-changed', () => {
             if (tabbed.tabCount() === 0) {
                 if (tabbed.parent.hasClass('suey-docker2')) tabbed.parent.removeDock();
-            } else {
-                resizeResizers();
             }
         });
 

@@ -60,10 +60,6 @@ class Docker extends Div {
                 if (cornerName.includes('right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
                 if (cornerName.includes('left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
             }
-            // if (dockPanel.hasClass('suey-resizeable')) {
-            //     dockPanel.toggleResize(RESIZERS.LEFT, cornerName.includes('right'));
-            //     dockPanel.toggleResize(RESIZERS.RIGHT, cornerName.includes('left'));
-            // }
         }
     }
 

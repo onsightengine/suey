@@ -216,7 +216,7 @@ class Graph extends Panel {
             self.drawMiniMap();
             self.drawLines();
         }
-        Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.TOP ], resizerDown, resizerMove);
+        Interaction.makeResizeable(mapResizers, resizerDown, resizerMove).addResizers([ RESIZERS.LEFT, RESIZERS.TOP ]);
 
         // Minimap Pointer Events
         let translating = false;

@@ -70,7 +70,7 @@ class Window extends Panel {
         function resizerUp() {
             keepInWindow();
         }
-        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove, resizerUp);
+        Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp).addResizers(resizers);
 
         // Initial Size
         this.setStyle('left', '0', 'top', '0', 'width', '0', 'height', '0');

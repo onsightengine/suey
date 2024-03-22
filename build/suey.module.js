@@ -1774,8 +1774,8 @@ class Interaction {
             startingRect.top = rect.top = parseFloat(computed.top);
             startingRect.width = rect.width = parseFloat(computed.width);
             startingRect.height = rect.height = parseFloat(computed.height);
-            eventElement.ownerDocument.addEventListener('pointermove', dragPointerMove);
-            eventElement.ownerDocument.addEventListener('pointerup', dragPointerUp);
+            document.addEventListener('pointermove', dragPointerMove);
+            document.addEventListener('pointerup', dragPointerUp);
             document.dispatchEvent(new Event('closemenu'));
             moreThanSlop = false;
             onDown();
@@ -1784,8 +1784,8 @@ class Interaction {
             event.stopPropagation();
             event.preventDefault();
             eventElement.releasePointerCapture(event.pointerId);
-            eventElement.ownerDocument.removeEventListener('pointermove', dragPointerMove);
-            eventElement.ownerDocument.removeEventListener('pointerup', dragPointerUp);
+            document.removeEventListener('pointermove', dragPointerMove);
+            document.removeEventListener('pointerup', dragPointerUp);
             eventElement.style.cursor = 'inherit';
             onUp();
         }
@@ -1834,17 +1834,10 @@ class Interaction {
         }
         eventElement.addEventListener('pointerdown', dragPointerDown);
     }
-    static makeResizeable(resizeElement, addToElement = resizeElement, resizers = [], onDown = () => {}, onMove = () => {}, onUp = () => {}) {
-        if (!resizeElement || !resizeElement.isElement) return console.warning('Resizeable.enable: ResizeElement not defined');
+    static makeResizeable(addToElement, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
         if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
-        resizeElement.addClass('suey-resizeable');
-        const resizerDivs = {};
-        for (const key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            const className = `suey-resizer-${resizerName}`;
-            const resizer = new Div();
-            resizer.addClass('suey-resizer');
-            resizer.addClass(className);
+        function createResizer(className) {
+            const resizer = new Div().addClass('suey-resizer', className);
             let downX, downY, lastX, lastY;
             function resizePointerDown(event) {
                 if (event.button !== 0) return;
@@ -1855,8 +1848,8 @@ class Interaction {
                 downY = event.pageY;
                 lastX = event.pageX;
                 lastY = event.pageY;
-                resizeElement.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
-                resizeElement.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
+                document.addEventListener('pointermove', resizePointerMove);
+                document.addEventListener('pointerup', resizePointerUp);
                 document.dispatchEvent(new Event('closemenu'));
                 onDown();
             }
@@ -1864,8 +1857,8 @@ class Interaction {
                 event.stopPropagation();
                 event.preventDefault();
                 resizer.dom.releasePointerCapture(event.pointerId);
-                resizeElement.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
-                resizeElement.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
+                document.removeEventListener('pointermove', resizePointerMove);
+                document.removeEventListener('pointerup', resizePointerUp);
                 onUp();
             }
             function resizePointerMove(event) {
@@ -1880,28 +1873,26 @@ class Interaction {
                 onMove(resizer, diffX, diffY);
             }
             resizer.dom.addEventListener('pointerdown', resizePointerDown);
-            resizerDivs[resizerName] = resizer;
-            addToElement.addToSelf(resizer);
+            return resizer;
         }
-        const resizerEnabled = {};
-        resizeElement.toggleResize = function(resizerName, enable = true) {
-            if (!resizerName) return;
-            resizerEnabled[resizerName] = enable;
-            function toggleDisplay(element, display) {
-                if (!element) return;
-                element.setStyle('display', display ? '' : 'none');
+        addToElement.addResizers = function(resizers = []) {
+            for (const resizerName of resizers) {
+                const className = `suey-resizer-${resizerName}`;
+                const existingResizer = addToElement.children.find(child => child.hasClass(className));
+                if (!existingResizer) {
+                    const resizer = createResizer(className);
+                    addToElement.addToSelf(resizer);
+                }
             }
-            toggleDisplay(resizerDivs[resizerName], enable);
-            toggleDisplay(resizerDivs[RESIZERS.TOP_LEFT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.LEFT]);
-            toggleDisplay(resizerDivs[RESIZERS.TOP_RIGHT], resizerEnabled[RESIZERS.TOP] && resizerEnabled[RESIZERS.RIGHT]);
-            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_LEFT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.LEFT]);
-            toggleDisplay(resizerDivs[RESIZERS.BOTTOM_RIGHT], resizerEnabled[RESIZERS.BOTTOM] && resizerEnabled[RESIZERS.RIGHT]);
-            return resizeElement;
         };
-        for (const key in RESIZERS) {
-            const resizerName = RESIZERS[key];
-            resizeElement.toggleResize(resizerName, resizers.includes(resizerName));
-        }
+        addToElement.clearResizers = function() {
+            const resizers = [];
+            for (const child of addToElement.children) {
+                if (child.hasClass('suey-resizer')) resizers.push(child);
+            }
+            addToElement.remove(...resizers);
+        };
+        return addToElement;
     }
 }
 
@@ -2137,68 +2128,29 @@ class Resizeable extends Panel {
         maxHeight = Infinity,
     } = {}) {
         super({ style });
+        const self = this;
         this.addClass('suey-resizeable');
         this.#startWidth = parseFloat(startWidth);
         this.#minWidth = minWidth;
         this.#maxWidth = maxWidth;
-        this.#startHeight = startHeight;
+        this.#startHeight = parseFloat(startHeight);
         this.#minHeight = minHeight;
         this.#maxHeight = maxHeight;
-        this.addResizers(resizers);
+        const rect = {};
+        function resizerDown() {
+            rect.width = self.getWidth();
+            rect.height = self.getHeight();
+            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('right')) self.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('top')) self.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('bottom')) self.changeHeight(rect.height + diffY);
+        }
+        Interaction.makeResizeable(this, resizerDown, resizerMove).addResizers(resizers);
         if (startWidth != null) this.changeWidth(startWidth);
         if (startHeight != null) this.changeHeight(startHeight);
-    }
-    addResizers(resizers) {
-        const self = this;
-        for (const resizerName of resizers) {
-            const className = `suey-resizer-${resizerName}`;
-            const resizer = new Div().addClass('suey-resizer', className);
-            const rect = {};
-            let downX, downY, lastX, lastY;
-            function resizePointerDown(event) {
-                if (event.button !== 0) return;
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
-                downX = event.pageX;
-                downY = event.pageY;
-                lastX = event.pageX;
-                lastY = event.pageY;
-                self.dom.ownerDocument.addEventListener('pointermove', resizePointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', resizePointerUp);
-                document.dispatchEvent(new Event('closemenu'));
-                rect.width = self.getWidth();
-                rect.height = self.getHeight();
-                self.dom.dispatchEvent(new Event('resizeStart', { 'bubbles': true, 'cancelable': true }));
-            }
-            function resizePointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                self.dom.ownerDocument.removeEventListener('pointermove', resizePointerMove);
-                self.dom.ownerDocument.removeEventListener('pointerup', resizePointerUp);
-            }
-            function resizePointerMove(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                if (event.isTrusted ) {
-                    lastX = event.pageX;
-                    lastY = event.pageY;
-                }
-                const diffX = lastX - downX;
-                const diffY = lastY - downY;
-                let newWidth = null;
-                let newHeight = null;
-                if (resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
-                if (resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
-                if (resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
-                if (resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
-                if (newWidth != null) self.changeWidth(newWidth);
-                if (newHeight != null) self.changeHeight(newHeight);
-            }
-            resizer.dom.addEventListener('pointerdown', resizePointerDown);
-            self.addToSelf(resizer);
-        }
     }
     changeWidth(width) {
         if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
@@ -3914,10 +3866,10 @@ const DOCK_SIDES = {
     TOP:        'top',
     BOTTOM:     'bottom',
 };
-class Docker2 extends Resizeable {
+class Docker2 extends Panel {
     #primary = false;
-    constructor(primary = false, resizers = []) {
-        super({ style: PANEL_STYLES.NONE, resizers });
+    constructor(primary = false) {
+        super({ style: PANEL_STYLES.NONE });
         const self = this;
         this.addClass('suey-docker2');
         this.#primary = primary;
@@ -3931,8 +3883,17 @@ class Docker2 extends Resizeable {
             });
         }
     }
-    isPrimary() {
-        return this.#primary;
+    changeWidth(width) {
+        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = null;
+        if (width == null) return this.dom.style.removeProperty('width');
+        this.setStyle('width', Css.toEm(parseFloat(width), this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
+    }
+    changeHeight(height) {
+        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = null;
+        if (height == null) return this.dom.style.removeProperty('height');
+        this.setStyle('height', Css.toEm(parseFloat(height), this.dom));
+        this.dom.dispatchEvent(new Event('resized'));
     }
     wantsResizer(side) {
         const resizers = [];
@@ -3942,11 +3903,24 @@ class Docker2 extends Resizeable {
             case DOCK_SIDES.TOP: resizers.push(RESIZERS.BOTTOM); break;
             case DOCK_SIDES.BOTTOM: resizers.push(RESIZERS.TOP); break;
         }
-        return resizers
+        return resizers;
     }
     addDock(side = DOCK_SIDES.LEFT, size = '20%') {
-        const dock = new Docker2(false, this.wantsResizer(side));
+        const dock = new Docker2(false);
         const twin = new Docker2();
+        const rect = {};
+        function resizerDown() {
+            rect.width = dock.getWidth();
+            rect.height = dock.getHeight();
+            dock.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('left')) dock.changeWidth(rect.width - diffX);
+            if (resizer.hasClassWithString('right')) dock.changeWidth(rect.width + diffX);
+            if (resizer.hasClassWithString('top')) dock.changeHeight(rect.height - diffY);
+            if (resizer.hasClassWithString('bottom')) dock.changeHeight(rect.height + diffY);
+        }
+        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side));
         switch (side) {
             case DOCK_SIDES.LEFT:
             case DOCK_SIDES.RIGHT:
@@ -4046,7 +4020,6 @@ class Docker2 extends Resizeable {
             parent.dockLocations = undefined;
         }
         if (parent.children.length === 0) {
-            console.log(parent);
             parent.initialSide = 'center';
         }
         const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
@@ -4106,26 +4079,9 @@ class Docker2 extends Resizeable {
         const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', (wantsTall) ? '100%' : 'auto');
-        function resizeResizers() {
-            const tabbedRect = tabbed.dom.getBoundingClientRect();
-            const parentRect = tabbed.parent.dom.getBoundingClientRect();
-            const height = `${tabbedRect.height / parentRect.height * 100}%`;
-            const width = `${tabbedRect.width / parentRect.width * 100}%`;
-            const resizers = [];
-            for (const child of tabbed.parent.children) {
-                if (child.hasClass('suey-resizer')) resizers.push(child);
-            }
-            for (const resizer of resizers) {
-                Css.setVariable('--width', width, resizer);
-                Css.setVariable('--height', height, resizer);
-            }
-        }
-        tabbed.dom.addEventListener('resized', resizeResizers);
         tabbed.dom.addEventListener('tab-changed', () => {
             if (tabbed.tabCount() === 0) {
                 if (tabbed.parent.hasClass('suey-docker2')) tabbed.parent.removeDock();
-            } else {
-                resizeResizers();
             }
         });
         this.add(tabbed);
@@ -4541,7 +4497,7 @@ class Window extends Panel {
         function resizerUp() {
             keepInWindow();
         }
-        Interaction.makeResizeable(this, this, resizers, resizerDown, resizerMove, resizerUp);
+        Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp).addResizers(resizers);
         this.setStyle('left', '0', 'top', '0', 'width', '0', 'height', '0');
         if (document.readyState === 'complete') self.setInitialSize();
         else window.addEventListener('load', () => { self.setInitialSize(); }, { once: true });
@@ -5038,7 +4994,7 @@ class Graph extends Panel {
             self.drawMiniMap();
             self.drawLines();
         }
-        Interaction.makeResizeable(this.minimap, mapResizers, [ RESIZERS.LEFT, RESIZERS.TOP ], resizerDown, resizerMove);
+        Interaction.makeResizeable(mapResizers, resizerDown, resizerMove).addResizers([ RESIZERS.LEFT, RESIZERS.TOP ]);
         let translating = false;
         function calculateOffset(clientX, clientY) {
             const mapRect = self.minimap.dom.getBoundingClientRect();
@@ -5566,7 +5522,7 @@ class Node extends Div {
                 self.setStyle('height', `${newHeight}px`);
             }
         }
-        Interaction.makeResizeable(this, sizers, resizers, resizerDown, resizerMove);
+        Interaction.makeResizeable(sizers, resizerDown, resizerMove).addResizers(resizers);
         let styleTimeout = undefined;
         const observer = new MutationObserver(() => {
             self.needsUpdate = true;
@@ -5909,8 +5865,8 @@ var css_248z$3 = "/***** GRAPH *****/\n\n.suey-graph-input, .suey-graph-grid, .s
 var stylesheet$3="/***** GRAPH *****/\n\n.suey-graph-input, .suey-graph-grid, .suey-graph-nodes, .suey-graph-lines {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n}\n\n/* Div used for processing user input */\n.suey-graph-input {\n    background: transparent;\n    z-index: -1; /* Graph Input */\n}\n\n/* Background div that holds tiled grid */\n.suey-graph-grid {\n    pointer-events: none;\n    background-color: rgb(var(--darkness));\n    background-repeat: repeat;\n    transition: none;\n}\n\n/* Scalable div to hold nodes */\n.suey-graph-nodes {\n    pointer-events: none;\n    background-color: transparent;\n    transition: none;\n}\n\n/* Canvas where lines are drawn */\n.suey-graph-lines {\n    pointer-events: none;\n}\n\n/* Shows rubberband box */\n.suey-graph-band-box {\n    position: absolute;\n    display: none;\n    background-color: rgba(var(--icon), 0.2);\n    border: solid var(--border-small) rgba(var(--icon), 0.75);\n}\n\n/***** MINIMAP *****/\n\n.suey-mini-map {\n    position: absolute;\n    background-color: rgba(var(--background-dark), 0.5);\n    border: var(--border-small) solid rgba(var(--icon), 0.75);\n    border-radius: var(--radius-large);\n    bottom: var(--pad-large);\n    right: var(--pad-large);\n    width: 20%;\n    height: 20%;\n    z-index: 101; /* GraphMap */\n    cursor: grab;\n}\n\n.suey-mini-map-canvas {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    outline: none;\n}\n\n.suey-mini-map-resizers {\n    position: absolute;\n    width: calc(100% + var(--resize-size));\n    height: calc(100% + var(--resize-size));\n    margin: calc(var(--resize-size) / -2);\n    outline: none;\n}\n\n/***** NODE *****/\n\n.suey-node {\n    --node-color:       255, 0, 0;\n\n    pointer-events: all;\n    position: absolute;\n    background-color: transparent;\n    border-radius: var(--radius-large);\n    border: none;\n    outline: solid var(--pad-micro) rgb(var(--black), 0.5);\n    margin: 0;\n    cursor: inherit;\n    overflow: visible;\n    z-index: 0; /* Node */\n}\n\n.suey-active-node {\n    z-index: 1; /* Active Node */\n}\n\n.suey-node:hover, .suey-node.suey-node-selected {\n    filter: brightness(120%);\n}\n\n.suey-node.suey-node-selected, .suey-node.suey-node-displayed {\n    outline: solid var(--pad-small) rgb(var(--black), 0.5);\n}\n\n.suey-node.suey-too-small .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-node-panel {\n    pointer-events: none;\n    display: flex;\n    flex-direction: column;\n    align-items: stretch;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: 0;\n    padding: 0;\n    cursor: inherit;\n    overflow: visible;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n}\n\n.suey-node-border {\n    pointer-events: none;\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    position: absolute;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--border-small) * -0.5);\n    padding: 0;\n}\n\n.suey-node.suey-node-displayed .suey-node-border {\n    border: var(--border-small) solid rgba(var(--complement), 1);\n}\n\n.suey-node.suey-node-selected .suey-node-border {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.suey-node-resizers {\n    pointer-events: all;\n    position: absolute;\n    opacity: 0;\n    left: 0; top: 0; right: 0; bottom: 0;\n    margin: calc(var(--resize-size) / -2);\n    padding: 0;\n}\n\n/***** NODE HEADER *****/\n\n.suey-node-header-title {\n    pointer-events: none;\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border-top-right-radius: var(--radius-large);\n    border-top-left-radius: var(--radius-large);\n    width: 100%;\n    height: 1.82em;\n    margin: 0;\n    padding: var(--pad-x-small) 0.5em; /* vertical | horizontal */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);\n}\n\n.suey-node-header-icon .suey-vector-box {\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    width: 85%;\n    height: 85%;\n    filter: drop-shadow(0 0 var(--pad-micro) rgba(var(--shadow), 0.8));\n}\n\n.suey-node-header-icon .suey-image {\n    filter: brightness(calc(10 * var(--bright))) opacity(0.9);\n}\n\n.suey-node-header-icon {\n    pointer-events: none;\n    position: absolute;\n    background-color: rgba(var(--button-dark), 1);\n    border-radius: 0.25em;\n    left: 0.2em;\n    top: 0.2em;\n    width: 1.65em;\n    height: 1.35em;\n    opacity: 1;\n    box-shadow: inset 0 0 var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n.suey-node-header-text {\n    pointer-events: none;\n    flex-grow: 1;\n    flex-shrink: 2;\n    color: rgba(var(--text-light), 1.0);\n    font-size: 100%;\n    overflow: hidden;\n    text-align: center;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    padding-left: 0.5em;\n}\n\n/***** NODE ITEM *****/\n\n.suey-node-interior {\n    pointer-events: none;\n    display: flex;\n    flex-direction: row;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    min-width: 100px;\n    min-height: 25px;\n}\n\n.suey-node-item-list {\n    pointer-events: none;\n    display: block;\n    flex: 1 1 auto;\n    position: relative;\n    background-color: transparent;\n    width: 50%;\n    min-height: 25px;\n}\n\n/* Item */\n.suey-node-item {\n    pointer-events: none;\n    position: relative;\n    background-color: transparent;\n    color: var(--text);\n    font-size: 85%;\n    width: 100%;\n    padding: var(--pad-medium);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    vertical-align: middle;\n}\n\n.suey-node-left {\n    text-align: left;\n    padding-left: 1.2em;\n}\n\n.suey-node-right {\n    text-align: right;\n    padding-right: 1.2em;\n}\n\n/* Item point */\n.suey-node-item-point {\n    pointer-events: all;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    background-color: rgba(var(--background-dark), 1);\n    border: var(--border-small) solid rgba(var(--button-light), 1);\n    border-radius: 0.3em;\n    outline: none;\n    top: 50%;\n    overflow: visible;\n    z-index: 100; /* Node Item Point */\n}\n\n.suey-node-left .suey-node-item-point {\n    left: 0;\n    transform: translate(-50%, -50%);\n}\n.suey-node-right .suey-node-item-point {\n    right: 0;\n    transform: translate( 50%, -50%);\n}\n\n/* Increases mouse over hit area */\n.suey-node-item-point::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n/* Inner square */\n.suey-node-item.suey-item-connected .suey-node-item-point::after,\n.suey-node-item .suey-node-item-point.suey-active-item::after {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: var(--pad-x-small);\n    background-color: rgb(var(--node-color));\n    border-radius: 0.08em;\n}\n\n/* Item point highlight border */\n.suey-node.suey-node-displayed .suey-node-item-point {\n    border: var(--border-small) solid rgba(var(--complement), 1);\n}\n.suey-node.suey-node-selected .suey-node-item-point {\n    border: var(--border-small) solid rgba(var(--icon), 1);\n}\n\n.suey-node-item-point.suey-hover-point, .suey-node.suey-node-selected .suey-node-item-point.suey-hover-point,\n.suey-node-item-point.suey-active-item, .suey-node.suey-node-selected .suey-node-item-point.suey-active-item {\n    border: var(--border-small) solid rgba(var(--highlight), 1);\n    width: 1.2em;\n    height: 1.2em;\n}\n\n/* Item detacher (little 'X') */\n.suey-node-item-detach {\n    pointer-events: none;\n    position: absolute;\n    width: 1em;\n    height: 1em;\n    top: 10%;\n    background-color: transparent;\n    border: none;\n    outline: none;\n    overflow: visible;\n    filter: brightness(50%);\n    transform: translateY(-50%);\n    opacity: 0;\n}\n\n.suey-node-right .suey-node-item-detach {\n    left: calc(100% + 0.7em);\n}\n.suey-node-left .suey-node-item-detach {\n    left: calc(0em - var(--row-height));\n}\n\n/* Increases mouse over hit area */\n.suey-node-item-detach::before {\n    content: ' ';\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: -0.5em;\n    background-color: transparent;\n}\n\n.suey-node-item.suey-item-connected .suey-node-item-detach {\n    pointer-events: all;\n}\n\n.suey-node-item.suey-item-connected:hover .suey-node-item-detach {\n    opacity: 1;\n}\n\n.suey-node-item-detach .suey-image {\n    filter: var(--drop-shadow);\n}\n\n.suey-node-item.suey-item-connected .suey-node-item-detach:hover {\n    filter: brightness(100%);\n}\n";
 styleInject(css_248z$3);
 
-var css_248z$2 = "/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
-var stylesheet$2="/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.0;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
+var css_248z$2 = "/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.5;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
+var stylesheet$2="/***** Panel Button *****/\n\n.suey-panel-button {\n    pointer-events: all;\n    border: var(--border-small) solid rgb(var(--icon));\n    outline: solid var(--border-small) rgba(var(--shadow), 0.2);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    position: absolute;\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n    filter: none;\n    z-index: 101; /* Panel Button */\n}\n\n.suey-panel-button:hover {\n    opacity: 1.0;\n    filter: brightness(125%);\n    transition: opacity 0.1s;\n}\n\n.suey-panel-button:active {\n    box-shadow: inset 0 var(--pad-micro) var(--pad-x-small) 0 rgba(var(--shadow), 0.75); /* sunk-in-shadow */\n    filter: brightness(100%);\n}\n\n/***** Corner Buttons *****/\n\n.suey-corner-button {\n    cursor: pointer;\n    border-radius: 50%;\n    outline: none;\n    opacity: 0;\n    overflow: visible;\n    transition: background-color 0.1s, opacity 0.25s ease-in-out;\n}\n\n/* Enlarge button click area */\n.suey-corner-button:before {\n    position: absolute;\n    content: '';\n    top: -0.25em;\n    right: -0.25em;\n    left: -0.25em;\n    bottom: -0.25em;\n    outline: none;\n}\n\n.suey-corner-button.suey-item-shown {\n    opacity: 1.0;\n    filter: brightness(100%);\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button.suey-item-hidden {\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-image {\n    outline: none;\n    opacity: 0;\n    transition: opacity 0.1s;\n}\n\n.suey-corner-button:hover .suey-corner-image {\n    opacity: 1.0;\n}\n\n/***** Resizeable *****/\n\n.suey-resizer {\n    --height: 100%;\n    --width: 100%;\n    position: absolute;\n    pointer-events: all;\n    opacity: 0.5;                           /* NOTE: Change to > 0.0 to see 'Resizers' */\n    z-index: 99; /* Resizer */\n}\n\n.suey-no-resize .suey-resizer {\n    pointer-events: none;\n}\n\n.suey-resizer-left {\n    background-color: rgb(255, 0, 0);\n    left: 0;\n    top: 0;\n    width: var(--resize-size);\n    height: var(--height);\n    margin-top: 0;\n    cursor: col-resize;\n}\n\n.suey-resizer-top-left {\n    background-color: rgb(255, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-top {\n    background-color: rgb(0, 255, 0);\n    top: 0;\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    cursor: row-resize;\n}\n\n.suey-resizer-top-right {\n    background-color: rgb(0, 255, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-right {\n    background-color: rgb(0, 0, 255);\n    top: 0;\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--height);\n    cursor: col-resize;\n}\n\n.suey-resizer-bottom-right {\n    background-color: rgb(255, 0, 255);\n    left: calc(var(--width) - (var(--resize-size)));\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nwse-resize;\n    z-index: 100; /* Resizer Corner */\n}\n\n.suey-resizer-bottom {\n    background-color: rgb(255, 255, 255);\n    left: 0;\n    width: var(--width);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: row-resize;\n}\n\n.suey-resizer-bottom-left {\n    background-color: rgb(0, 0, 0);\n    left: 0;\n    width: var(--resize-size);\n    height: var(--resize-size);\n    top: calc(var(--height) - (var(--resize-size)));\n    cursor: nesw-resize;\n    z-index: 100; /* Resizer Corner */\n}\n";
 styleInject(css_248z$2);
 
 var css_248z$1 = ".suey-tooltip, .suey-info-box {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.suey-tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.suey-tooltip.suey-updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.suey-info-box {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.suey-info-box.suey-updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
