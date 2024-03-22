@@ -127,10 +127,10 @@ class Css {
             {
                 return size;
             } else {
-                return parseInt(size) + 'px';
+                return parseFloat(size).toFixed(2) + 'px';
             }
         } else {
-            return parseInt(size) + 'px';
+            return parseFloat(size).toFixed(2) + 'px';
         }
     }
 

@@ -18,7 +18,7 @@ class Docker2 extends Panel {
 
     #primary = false;
 
-    constructor(primary = false) {
+    constructor(primary = true) {
         super({ style: PANEL_STYLES.NONE });
         const self = this;
         this.addClass('suey-docker2');
@@ -29,28 +29,14 @@ class Docker2 extends Panel {
             this.addClass('suey-docker2-primary');
             this.initialSide = 'center';
             window.addEventListener('resize', () => {
-                self.traverse((child) => {
+                for (const child of self.children) {
                     child.dom.dispatchEvent(new Event('resized'));
-                })
+                }
             });
         }
     }
 
     /******************** RESIZERS */
-
-    changeWidth(width) {
-        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = null;
-        if (width == null) return this.dom.style.removeProperty('width');
-        this.setStyle('width', Css.toEm(parseFloat(width), this.dom));
-        this.dom.dispatchEvent(new Event('resized'));
-    }
-
-    changeHeight(height) {
-        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = null;
-        if (height == null) return this.dom.style.removeProperty('height');
-        this.setStyle('height', Css.toEm(parseFloat(height), this.dom));
-        this.dom.dispatchEvent(new Event('resized'));
-    }
 
     wantsResizer(side) {
         const resizers = [];
@@ -67,23 +53,8 @@ class Docker2 extends Panel {
 
     addDock(side = DOCK_SIDES.LEFT, size = '20%') {
         // Create Docks
-        const dock = new Docker2(false);
-        const twin = new Docker2();
-
-        // Resizers
-        const rect = {};
-        function resizerDown() {
-            rect.width = dock.getWidth();
-            rect.height = dock.getHeight();
-            dock.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
-        }
-        function resizerMove(resizer, diffX, diffY) {
-            if (resizer.hasClassWithString('left')) dock.changeWidth(rect.width - diffX);
-            if (resizer.hasClassWithString('right')) dock.changeWidth(rect.width + diffX);
-            if (resizer.hasClassWithString('top')) dock.changeHeight(rect.height - diffY);
-            if (resizer.hasClassWithString('bottom')) dock.changeHeight(rect.height + diffY);
-        }
-        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side));
+        const dock = new Docker2(false /* primary */);
+        const twin = new Docker2(false /* primary */);
 
         /***** INIT */
 
@@ -91,17 +62,15 @@ class Docker2 extends Panel {
         switch (side) {
             case DOCK_SIDES.LEFT:
             case DOCK_SIDES.RIGHT:
-                dock.addClass('suey-docker2-vertical');
+                dock.addClass('suey-docker2-vertical').setStyle('width', Css.toPx(size, this.dom, 'w'));
                 twin.addClass('suey-docker2-vertical');
-                dock.setStyle('width', Css.toPx(size, this.dom, 'w'));
                 if (side === DOCK_SIDES.LEFT) { dock.setStyle('left', 0); twin.setStyle('right', 0); }
                 if (side === DOCK_SIDES.RIGHT) { dock.setStyle('right', 0); twin.setStyle('left', 0); }
                 break;
             case DOCK_SIDES.TOP:
             case DOCK_SIDES.BOTTOM:
-                dock.addClass('suey-docker2-horizontal');
+                dock.addClass('suey-docker2-horizontal').setStyle('height', Css.toPx(size, this.dom, 'h'));
                 twin.addClass('suey-docker2-horizontal');
-                dock.setStyle('height', Css.toPx(size, this.dom, 'h'));
                 if (side === DOCK_SIDES.TOP) { dock.setStyle('top', 0); twin.setStyle('bottom', 0); }
                 if (side === DOCK_SIDES.BOTTOM) { dock.setStyle('bottom', 0); twin.setStyle('top', 0); }
                 break;
@@ -123,43 +92,50 @@ class Docker2 extends Panel {
 
         /***** EVENTS */
 
-        // Twin Sizing
-        function sizeTwin() {
+        // Resizers
+        const rect = {};
+        function resizerDown() {
+            rect.width = dock.getWidth();
+            rect.height = dock.getHeight();
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (!dock.parent || !dock.parent.isElement) return;
+            let newWidth = null;
+            let newHeight = null;
+            if (resizer && resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
+            if (resizer && resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
+            if (resizer && resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
+            if (resizer && resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
+            if (newWidth != null) dock.setStyle('width', `${Math.max(100, newWidth)}px`);
+            if (newHeight != null) dock.setStyle('height', `${Math.max(100, newHeight)}px`);
+            if (newWidth != null || newHeight != null) dock.dom.dispatchEvent(new Event('resized'));
+        }
+        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side));
+
+        // Limit Size, Resize Twin
+        function resizeTwin() {
             const twin = dock.getTwin();
+            if (twin.dom && twin.dom.children.length > 0) {
+                const computed = getComputedStyle(twin.dom);
+                if (dock.isVertical) {
+                    const maxWidth = dock.parent.getWidth() - parseFloat(computed.minWidth);
+                    dock.setStyle('width', `${Math.min(dock.getWidth(), maxWidth)}px`);
+                }
+                if (dock.isHorizontal) {
+                    const maxHeight = dock.parent.getHeight() - parseFloat(computed.minHeight);
+                    dock.setStyle('height', `${Math.min(dock.getHeight(), maxHeight)}px`);
+                }
+            }
             if (dock.isVertical) twin.setStyle('width', `${dock.parent.getWidth() - dock.getWidth()}px`);
             if (dock.isHorizontal) twin.setStyle('height', `${dock.parent.getHeight() - dock.getHeight()}px`);
             for (const child of dock.children) child.dom.dispatchEvent(new Event('resized'));
             for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
-        }
-        sizeTwin();
 
-        // Limit Resize
-        let parentSize;
-        dock.dom.addEventListener('resizeStart', () => {
-            if (dock.isVertical) parentSize = dock.parent.getWidth();
-            if (dock.isHorizontal) parentSize = dock.parent.getHeight();
-        });
-        dock.dom.addEventListener('resized', () => {
-            if (!dock.parent || !dock.parent.isElement) return;
-            const twin = dock.getTwin();
-            if (dock.isVertical) {
-                let dockWidth = Math.max(100, Math.min(dock.getWidth(), parentSize));
-                if (twin.dom && twin.dom.children.length > 0) {
-                    const computed = getComputedStyle(twin.dom);
-                    dockWidth = Math.min(dockWidth, parentSize - parseFloat(computed.minWidth));
-                }
-                dock.setStyle('width', `${dockWidth}px`);
-            }
-            if (dock.isHorizontal) {
-                let dockHeight = Math.max(100, Math.min(dock.getHeight(), parentSize));
-                if (twin.dom && twin.dom.children.length > 0) {
-                    const computed = getComputedStyle(twin.dom);
-                    dockHeight = Math.min(dockHeight, parentSize - parseFloat(computed.minHeight));
-                }
-                dock.setStyle('height', `${dockHeight}px`);
-            }
-            sizeTwin();
-        });
+        }
+        dock.dom.addEventListener('resized', resizeTwin);
+
+        // Initial Size
+        resizeTwin();
 
         // Return new Dock
         return dock;
@@ -226,7 +202,7 @@ class Docker2 extends Panel {
         }
 
         // Resize the parent
-        parent.traverse((child) => { child.dom.dispatchEvent(new Event('resized')); })
+        parent.traverse((child) => child.dom.dispatchEvent(new Event('resized')));
     }
 
     /******************** DROP LOCATIONS */
