@@ -227,24 +227,36 @@ class Docker2 extends Panel {
 
     hideDockLocations() {
         if (this.dockLocations) {
-            this.dockLocations.addClass('suey-hidden');
+            this.remove(this.dockLocations);
+            this.dockLocations = undefined;
         }
     }
 
     showDockLocations() {
         if (!this.dockLocations) {
-            this.dockLocations = new Div().addClass('suey-dock-locations');
-            this.dockLocations.addClass('suey-hidden');
+            const dockLocations = new Div().addClass('suey-dock-locations');
             if (this.initialSide === 'left' || this.initialSide === 'right') {
-                const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
-                const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
-                const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-horizontal');
-                this.dockLocations.add(topDock, bottomDock, middleDock);
+                if (this.getHeight() > 160) {
+                    const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
+                    const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-horizontal');
+                    dockLocations.add(topDock, bottomDock, middleDock);
+                } else {
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-horizontal');
+                    middleDock.setStyle('top', '0%', 'height', '100%');
+                    dockLocations.add(middleDock);
+                }
             } else if (this.initialSide === 'top' || this.initialSide === 'bottom') {
-                const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
-                const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
-                const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-vertical');
-                this.dockLocations.add(leftDock, rightDock, middleDock);
+                if (this.getWidth() > 200) {
+                    const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
+                    const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-vertical');
+                    dockLocations.add(leftDock, rightDock, middleDock);
+                } else {
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-vertical');
+                    middleDock.setStyle('left', '0%', 'width', '100%');
+                    dockLocations.add(middleDock);
+                }
             } else /* if (this.initialSide === 'center') */ {
                 const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
                 const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
@@ -253,14 +265,14 @@ class Docker2 extends Panel {
                 const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
                 topDock.setStyle('left', '20%', 'width', '60%');
                 bottomDock.setStyle('left', '20%', 'width', '60%');
-                this.dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
+                dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
             }
-            this.add(this.dockLocations);
+            this.add(dockLocations);
+            this.dockLocations = dockLocations;
         }
         for (const child of this.dockLocations.children) {
             child.removeClass('suey-dock-drop');
         }
-        this.dockLocations.removeClass('suey-hidden');
     }
 
     /******************** TABS */
