@@ -3,14 +3,9 @@ import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Floater } from './Floater.js';
 import { Panel } from '../panels/Panel.js';
-import { PANEL_STYLES } from '../panels/Panel.js';
 
-export const TAB_SIDES = {
-    LEFT:       'left',
-    RIGHT:      'right',
-    TOP:        'top',
-    BOTTOM:     'bottom',
-}
+import { PANEL_STYLES } from '../constants.js';
+import { TAB_SIDES } from '../constants.js';
 
 const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when there are 2 or more tabs */
 

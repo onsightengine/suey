@@ -3,17 +3,11 @@ import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
-import { PANEL_STYLES } from '../panels/Panel.js';
 import { Tabbed } from './Tabbed.js';
 
+import { DOCK_SIDES } from '../constants.js';
+import { PANEL_STYLES } from '../constants.js';
 import { RESIZERS } from '../constants.js';
-
-export const DOCK_SIDES = {
-    LEFT:       'left',
-    RIGHT:      'right',
-    TOP:        'top',
-    BOTTOM:     'bottom',
-};
 
 class Docker2 extends Panel {
 
@@ -292,7 +286,7 @@ class Docker2 extends Panel {
         tabbed.setTabSide(this.initialSide, true /* opposite? */)
         const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
         tabbed.setStyle('width', '100%');
-        tabbed.setStyle('height', (wantsTall) ? '100%' : 'auto');
+        tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
 
         // Event: 'tab-changed'
         tabbed.dom.addEventListener('tab-changed', () => {

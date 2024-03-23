@@ -1,14 +1,6 @@
-import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { RESIZERS } from '../constants.js';
-import { TAB_SIDES } from './Tabbed.js';
 
-export const DOCK_LOCATIONS = {
-    TOP_LEFT:       'top-left',
-    TOP_RIGHT:      'top-right',
-    BOTTOM_LEFT:    'bottom-left',
-    BOTTOM_RIGHT:   'bottom-right',
-};
+import { TAB_SIDES } from '../constants.js';
 
 class Docker extends Div {
 

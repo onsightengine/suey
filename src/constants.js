@@ -15,6 +15,8 @@ export const MOUSE_SLOP_LARGE = 5;
 
 export const TOOLTIP_Y_OFFSET = '0.3em';
 
+/********** COLOR SCHEME */
+
 export const BACKGROUNDS = {
     DARK:               0,
     MID:                1,
@@ -65,6 +67,36 @@ export const TRAIT = {
     TRIADIC4:           'triadic4',             // Triadic color 4 (complement shifted 90°)
 };
 
+/********** PANELS */
+
+export const PANEL_STYLES = {
+    NONE:           'none',
+    SIMPLE:         'simple',
+    FANCY:          'fancy',
+};
+
+export const LEFT_SPACING = {
+    TABS:           'tabs',
+    NORMAL:         'normal',
+};
+
+/********** DOCKING */
+
+/* For old Docker class !! NEEDS TO BE REMOVED !! */
+export const DOCK_LOCATIONS = {
+    TOP_LEFT:       'top-left',
+    TOP_RIGHT:      'top-right',
+    BOTTOM_LEFT:    'bottom-left',
+    BOTTOM_RIGHT:   'bottom-right',
+};
+
+export const DOCK_SIDES = {
+    LEFT:           'left',
+    RIGHT:          'right',
+    TOP:            'top',
+    BOTTOM:         'bottom',
+};
+
 export const RESIZERS = {
     TOP:            'top',
     BOTTOM:         'bottom',
@@ -76,18 +108,27 @@ export const RESIZERS = {
     BOTTOM_RIGHT:   'bottom-right',
 };
 
+export const TAB_SIDES = {
+    LEFT:           'left',
+    RIGHT:          'right',
+    TOP:            'top',
+    BOTTOM:         'bottom',
+};
+
+/********** NODES */
+
 export const GRAPH_LINE_TYPES = {
-    STRAIGHT:   'straight',
-    CURVE:      'curve',
-    ZIGZAG:     'zigzag',
+    STRAIGHT:       'straight',
+    CURVE:          'curve',
+    ZIGZAG:         'zigzag',
 };
 
 export const GRAPH_GRID_TYPES = {
-    LINES:      'lines',
-    DOTS:       'dots',
+    LINES:          'lines',
+    DOTS:           'dots',
 };
 
 export const NODE_TYPES = {
-    INPUT:      'input',
-    OUTPUT:     'output',
+    INPUT:          'input',
+    OUTPUT:         'output',
 };

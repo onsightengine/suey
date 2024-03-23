@@ -1,11 +1,5 @@
 import { Div } from '../core/Div.js';
-import { Interaction } from '../utils/Interaction.js';
-
-export const PANEL_STYLES = {
-    NONE:       'none',
-    SIMPLE:     'simple',
-    FANCY:      'fancy',
-};
+import { PANEL_STYLES } from '../constants.js';
 
 class Panel extends Div {
 

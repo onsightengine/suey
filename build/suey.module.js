@@ -65,6 +65,27 @@ const TRAIT = {
     TRIADIC3:           'triadic3',
     TRIADIC4:           'triadic4',
 };
+const PANEL_STYLES = {
+    NONE:           'none',
+    SIMPLE:         'simple',
+    FANCY:          'fancy',
+};
+const LEFT_SPACING = {
+    TABS:           'tabs',
+    NORMAL:         'normal',
+};
+const DOCK_LOCATIONS$1 = {
+    TOP_LEFT:       'top-left',
+    TOP_RIGHT:      'top-right',
+    BOTTOM_LEFT:    'bottom-left',
+    BOTTOM_RIGHT:   'bottom-right',
+};
+const DOCK_SIDES = {
+    LEFT:           'left',
+    RIGHT:          'right',
+    TOP:            'top',
+    BOTTOM:         'bottom',
+};
 const RESIZERS = {
     TOP:            'top',
     BOTTOM:         'bottom',
@@ -75,18 +96,24 @@ const RESIZERS = {
     BOTTOM_LEFT:    'bottom-left',
     BOTTOM_RIGHT:   'bottom-right',
 };
+const TAB_SIDES = {
+    LEFT:           'left',
+    RIGHT:          'right',
+    TOP:            'top',
+    BOTTOM:         'bottom',
+};
 const GRAPH_LINE_TYPES = {
-    STRAIGHT:   'straight',
-    CURVE:      'curve',
-    ZIGZAG:     'zigzag',
+    STRAIGHT:       'straight',
+    CURVE:          'curve',
+    ZIGZAG:         'zigzag',
 };
 const GRAPH_GRID_TYPES = {
-    LINES:      'lines',
-    DOTS:       'dots',
+    LINES:          'lines',
+    DOTS:           'dots',
 };
 const NODE_TYPES = {
-    INPUT:      'input',
-    OUTPUT:     'output',
+    INPUT:          'input',
+    OUTPUT:         'output',
 };
 
 class Css {
@@ -268,726 +295,6 @@ class Popper {
         dom.style.left = Css.toPx(desiredLeft);
         dom.style.top = Css.toPx(desiredTop);
         return overUnder;
-    }
-}
-
-class Iris {
-    static get NAMES() { return COLOR_KEYWORDS; }
-    constructor(r = 0xffffff, g, b, format = '') {
-        this.isColor = true;
-        this.isIris = true;
-        this.type = 'Color';
-        this.r = 1;
-        this.g = 1;
-        this.b = 1;
-        this.set(r, g, b, format);
-    }
-    copy(colorObject) {
-        return this.set(colorObject);
-    }
-    clone() {
-        return new this.constructor(this.r, this.g, this.b);
-    }
-    set(r = 0, g, b, format = '') {
-        if (arguments.length === 0) {
-            return this.set(0);
-        } else if (r === undefined || r === null || Number.isNaN(r)) {
-            if (g || b) console.warn(`Iris: Passed some valid arguments, however 'r' was ${r}`);
-        } else if (g === undefined && b === undefined) {
-            let value = r;
-            if (typeof value === 'number' || value === 0) { return this.setHex(value);
-            } else if (value && isRGB(value)) { return this.setRGBF(value.r, value.g, value.b);
-            } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
-            } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
-            } else if (Array.isArray(value) && value.length > 2) {
-                const offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
-                return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
-            } else if (typeof value === 'string') {
-                return this.setStyle(value);
-            }
-        } else {
-            switch (format) {
-                case 'rgb': return this.setRGB(r, g, b);
-                case 'hsl': return this.setHSL(r, g, b);
-                case 'ryb': return this.setRYB(r, g, b);
-                default:    return this.setRGBF(r, g, b);
-            }
-        }
-        return this;
-    }
-    setColorName(style) {
-        const hex = COLOR_KEYWORDS[ style.toLowerCase() ];
-        if (hex) return this.setHex(hex);
-        console.warn(`Iris: Unknown color ${style}`);
-        return this;
-    }
-    setHex(hexColor) {
-        hexColor = Math.floor(hexColor);
-        if (hexColor > 0xffffff || hexColor < 0) {
-            console.warn(`Iris: Given decimal outside of range, value was ${hexColor}`);
-            hexColor = clamp(hexColor, 0, 0xffffff);
-        }
-        const r = (hexColor & 0xff0000) >> 16;
-        const g = (hexColor & 0x00ff00) >>  8;
-        const b = (hexColor & 0x0000ff);
-        return this.setRGB(r, g, b);
-    }
-    setHSL(h, s, l) {
-        h = keepInRange(h, 0, 360);
-        s = clamp(s, 0, 1);
-        l = clamp(l, 0, 1);
-        let c = (1 - Math.abs(2 * l - 1)) * s;
-        let x = c * (1 - Math.abs((h / 60) % 2 - 1));
-        let m = l - (c / 2);
-        let r = 0, g = 0, b = 0;
-        if                  (h <  60) { r = c; g = x; b = 0; }
-        else if ( 60 <= h && h < 120) { r = x; g = c; b = 0; }
-        else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
-        else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
-        else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
-        else if (300 <= h)            { r = c; g = 0; b = x; }
-        this.setRGBF(r + m, g + m, b + m);
-        return this;
-    }
-    setRandom() {
-        return this.setRGBF(Math.random(), Math.random(), Math.random());
-    };
-    setRGB(r, g, b) {
-        return this.setRGBF(r / 255, g / 255, b / 255);
-    }
-    setRGBF(r, g, b) {
-        this.r = clamp(r, 0, 1);
-        this.g = clamp(g, 0, 1);
-        this.b = clamp(b, 0, 1);
-        return this;
-    }
-    setRYB(r, y, b) {
-        const hexColor = cubicInterpolation(clamp(r, 0, 255), clamp(y, 0, 255), clamp(b, 0, 255), 255, CUBE.RYB_TO_RGB);
-        return this.setHex(hexColor);
-    }
-    setScalar(scalar) {
-        return this.setRGB(scalar, scalar, scalar);
-    }
-    setScalarF(scalar) {
-        return this.setRGBF(scalar, scalar, scalar);
-    }
-    setStyle(style) {
-        let m;
-        if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(style)) {
-            let color;
-            const name = m[1];
-            const components = m[2];
-            switch (name) {
-                case 'rgb':
-                case 'rgba':
-                    if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                        const r = Math.min(255, parseInt(color[1], 10));
-                        const g = Math.min(255, parseInt(color[2], 10));
-                        const b = Math.min(255, parseInt(color[3], 10));
-                        return this.setRGB(r, g, b);
-                    }
-                    if (color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                        const r = (Math.min(100, parseInt(color[1], 10)) / 100);
-                        const g = (Math.min(100, parseInt(color[2], 10)) / 100);
-                        const b = (Math.min(100, parseInt(color[3], 10)) / 100);
-                        return this.setRGBF(r, g, b);
-                    }
-                    break;
-                case 'hsl':
-                case 'hsla':
-                    if (color = /^\s*(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
-                        const h = parseFloat(color[1]);
-                        const s = parseInt(color[2], 10) / 100;
-                        const l = parseInt(color[3], 10) / 100;
-                        return this.setHSL(h, s, l);
-                    }
-                    break;
-            }
-        } else if (m = /^\#([A-Fa-f\d]+)$/.exec(style)) {
-            const hex = m[1];
-            const size = hex.length;
-            if (size === 3) {
-                const r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
-                const g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
-                const b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
-                return this.setRGB(r, g, b);
-            } else if (size === 6) {
-                const r = parseInt(hex.charAt(0) + hex.charAt(1), 16);
-                const g = parseInt(hex.charAt(2) + hex.charAt(3), 16);
-                const b = parseInt(hex.charAt(4) + hex.charAt(5), 16);
-                return this.setRGB(r, g, b);
-            }
-        }
-        if (style && style.length > 0) {
-            return this.setColorName(style);
-        }
-        return this;
-    }
-    cssString(alpha ) {
-        return ('rgb(' + this.rgbString(alpha) + ')');
-    }
-    hex() {
-        return ((this.red() << 16) + (this.green() << 8) + this.blue());
-    }
-    hexString(inputColorData ){
-        if (inputColorData) this.set(inputColorData);
-        return Iris.hexString(this.hex());
-    }
-    static hexString(inputColorData = 0x000000){
-        _temp.set(inputColorData);
-        return '#' + ('000000' + ((_temp.hex()) >>> 0).toString(16)).slice(-6);
-    }
-    static randomHex() {
-        return _random.setRandom().hex();
-    }
-    rgbString(alpha) {
-        const rgb = this.red() + ', ' + this.green() + ', ' + this.blue();
-        return ((alpha !== undefined && alpha !== null) ? String(rgb + ', ' + alpha) : rgb);
-    }
-    toJSON() {
-        return this.hex();
-    }
-    getHSL(target) {
-        if (target && isHSL(target)) {
-            target.h = hueF(this.hex());
-            target.s = saturation(this.hex());
-            target.l = lightness(this.hex());
-        } else {
-            return { h: hueF(this.hex()), s: saturation(this.hex()), l: lightness(this.hex()) };
-        }
-    }
-    getRGB(target) {
-        if (target && isHSL(target)) {
-            target.r = this.r;
-            target.g = this.g;
-            target.b = this.b;
-        } else {
-            return { r: this.r, g: this.g, b: this.b };
-        }
-    }
-    getRYB(target) {
-        let rybAsHex = cubicInterpolation(this.r, this.g, this.b, 1.0, CUBE.RGB_TO_RYB);
-        if (target && isRYB(target)) {
-            target.r = redF(rybAsHex);
-            target.y = greenF(rybAsHex);
-            target.b = blueF(rybAsHex);
-            return target;
-        }
-        return {
-            r: redF(rybAsHex),
-            y: greenF(rybAsHex),
-            b: blueF(rybAsHex)
-        };
-    }
-    toArray(array = [], offset = 0) {
-        array[offset] = this.r;
-        array[offset + 1] = this.g;
-        array[offset + 2] = this.b;
-        return array;
-    }
-    red() { return clamp(Math.floor(this.r * 255), 0, 255); }
-    green() { return clamp(Math.floor(this.g * 255), 0, 255); }
-    blue() { return clamp(Math.floor(this.b * 255), 0, 255); }
-    redF() { return this.r; }
-    greenF() { return this.g; }
-    blueF() { return this.b; }
-    hue() { return hue(this.hex()); }
-    saturation() { return saturation(this.hex()); }
-    lightness() { return lightness(this.hex()); }
-    hueF() { return hueF(this.hex()); }
-    hueRYB() {
-        for (let i = 1; i < RYB_OFFSET.length; i++) {
-            if (RYB_OFFSET[i] > this.hue()) return i - 2;
-        }
-    }
-    add(color) {
-        if (! color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
-        return this.setRGBF(this.r + color.r, this.g + color.g, this.b + color.b);
-    }
-    addScalar(scalar) {
-        return this.setRGB(this.red() + scalar, this.green() + scalar, this.blue() + scalar);
-    }
-    addScalarF(scalar) {
-        return this.setRGBF(this.r + scalar, this.g + scalar, this.b + scalar);
-    }
-    brighten(amount = 0.5  ) {
-        let h = hue(this.hex());
-        let s = saturation(this.hex());
-        let l = lightness(this.hex());
-        l = l + ((1.0 - l) * amount);
-        this.setHSL(h, s, l);
-        return this;
-    }
-    darken(amount = 0.5  ) {
-        let h = hue(this.hex());
-        let s = saturation(this.hex());
-        let l = lightness(this.hex()) * amount;
-        return this.setHSL(h, s, l);
-    }
-    greyscale(percent = 1.0, format = 'luminosity') { return this.grayscale(percent, format) }
-    grayscale(percent = 1.0, format = 'luminosity') {
-        let gray = 0;
-        switch (format) {
-            case 'luminosity':
-                gray = (this.r * 0.21) + (this.g * 0.72) + (this.b * 0.07);
-            case 'average':
-            default:
-                gray = (this.r + this.g + this.b) / 3;
-        }
-        percent = clamp(percent, 0, 1);
-        const r = (this.r * (1.0 - percent)) + (percent * gray);
-        const g = (this.g * (1.0 - percent)) + (percent * gray);
-        const b = (this.b * (1.0 - percent)) + (percent * gray);
-        return this.setRGBF(r, g, b);
-    }
-    hslOffset(h, s, l) {
-        return this.setHSL(this.hue() + h, this.saturation() + s, this.lightness() + l);
-    }
-    mix(color, percent = 0.5) {
-        if (! color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
-        percent = clamp(percent, 0, 1);
-        const r = (this.r * (1.0 - percent)) + (percent * color.r);
-        const g = (this.g * (1.0 - percent)) + (percent * color.g);
-        const b = (this.b * (1.0 - percent)) + (percent * color.b);
-        return this.setRGBF(r, g, b);
-    }
-    multiply(color) {
-        if (! color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
-        return this.setRGBF(this.r * color.r, this.g * color.g, this.b * color.b);
-    }
-    multiplyScalar(scalar) {
-        return this.setRGBF(this.r * scalar, this.g * scalar, this.b * scalar);
-    }
-    rgbComplementary() {
-        return this.rgbRotateHue(180);
-    }
-    rgbRotateHue(degrees = 90) {
-        const newHue = keepInRange(this.hue() + degrees);
-        return this.setHSL(newHue, this.saturation(), this.lightness());
-    }
-    rybAdjust() {
-        return this.setHSL(hue(matchSpectrum(this.hue(), SPECTRUM.RYB)), this.saturation(), this.lightness());
-    }
-    rybComplementary() {
-        return this.rybRotateHue(180);
-    }
-    rybRotateHue(degrees = 90) {
-        const newHue = keepInRange(this.hueRYB() + degrees);
-        return this.setHSL(hue(matchSpectrum(newHue, SPECTRUM.RYB)), this.saturation(), this.lightness());
-    }
-    subtract(color) {
-        if (! color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
-        return this.setRGBF(this.r - color.r, this.g - color.g, this.b - color.b);
-    }
-    equals(color) {
-        if (! color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
-        return (fuzzy(this.r, color.r) && fuzzy(this.g, color.g) && fuzzy(this.b, color.b));
-    }
-    isEqual(color) {
-        return this.equals(color);
-    }
-    isDark() {
-        const h = this.hue();
-        const l = this.lightness();
-        return ((l < 0.60 && (h >= 210 || h <= 27)) || (l <= 0.32));
-    }
-    isLight() {
-        return (! this.isDark());
-    }
-}
-function isRGB(object) { return (object.r !== undefined && object.g !== undefined && object.b !== undefined); }
-function isHSL(object) { return (object.h !== undefined && object.s !== undefined && object.l !== undefined); }
-function isRYB(object) { return (object.r !== undefined && object.y !== undefined && object.b !== undefined); }
-function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
-function red(hexColor) { return clamp((hexColor & 0xff0000) >> 16, 0, 255); }
-function green(hexColor) { return clamp((hexColor & 0x00ff00) >> 8, 0, 255); }
-function blue(hexColor) { return clamp((hexColor & 0x0000ff), 0, 255); }
-function redF(hexColor) { return red(hexColor) / 255.0; }
-function greenF(hexColor) { return green(hexColor) / 255.0; }
-function blueF(hexColor) { return blue(hexColor) / 255.0; }
-function hue(hexColor) { return hsl(hexColor, 'h'); }
-function hueF(hexColor) { return hue(hexColor) / 360; }
-function saturation(hexColor) { return hsl(hexColor, 's'); }
-function lightness(hexColor) { return hsl(hexColor, 'l'); }
-function fuzzy(a, b, tolerance = 0.0015) { return ((a < (b + tolerance)) && (a > (b - tolerance))); }
-function keepInRange(value, min = 0, max = 360) {
-    while (value >= max) value -= (max - min);
-    while (value <  min) value += (max - min);
-    return value;
-}
-let _hslHex, _hslH, _hslS, _hslL;
-function hsl(hexColor, channel = 'h') {
-    if (hexColor !== _hslHex) {
-        if (hexColor === undefined || hexColor === null) return 0;
-        const r = redF(hexColor), g = greenF(hexColor), b = blueF(hexColor);
-        const max = Math.max(r, g, b), min = Math.min(r, g, b);
-        const delta = max - min;
-        _hslL = (max + min) / 2;
-        if (delta === 0) {
-            _hslH = _hslS = 0;
-        } else {
-            _hslS = (_hslL <= 0.5) ? (delta / (max + min)) : (delta / (2 - max - min));
-            switch (max) {
-                case r: _hslH = (g - b) / delta + (g < b ? 6 : 0); break;
-                case g: _hslH = (b - r) / delta + 2; break;
-                case b: _hslH = (r - g) / delta + 4; break;
-            }
-            _hslH = Math.round(_hslH * 60);
-            if (_hslH < 0) _hslH += 360;
-        }
-        _hslHex = hexColor;
-    }
-    switch (channel) {
-        case 'h': return _hslH;
-        case 's': return _hslS;
-        case 'l': return _hslL;
-        default: console.warn(`Iris: Unknown channel (${channel}) requested in hsl()`);
-    }
-    return 0;
-}
-const _interpolate = new Iris();
-const _mix1 = new Iris();
-const _mix2 = new Iris();
-const _random = new Iris();
-const _temp = new Iris();
-function matchSpectrum(matchHue, spectrum = SPECTRUM.RYB) {
-    let colorDegrees = 360 / spectrum.length;
-    let degreeCount = colorDegrees;
-    let stopCount = 0;
-    for (let i = 0; i < spectrum.length; i++) {
-        if (matchHue < degreeCount) {
-            let percent = (degreeCount - matchHue) / colorDegrees;
-            _mix1.set(spectrum[stopCount + 1]);
-            return _mix1.mix(_mix2.set(spectrum[stopCount]), percent).hex();
-        } else {
-            degreeCount = degreeCount + colorDegrees;
-            stopCount = stopCount + 1;
-        }
-    }
-}
-function cubicInterpolation(v1, v2, v3, scale = 255, table = CUBE.RYB_TO_RGB) {
-    v1 = clamp(v1 / scale, 0, 1);
-    v2 = clamp(v2 / scale, 0, 1);
-    v3 = clamp(v3 / scale, 0, 1);
-    const f0 = table[0], f1 = table[1], f2 = table[2], f3 = table[3];
-    const f4 = table[4], f5 = table[5], f6 = table[6], f7 = table[7];
-    const i1 = 1.0 - v1;
-    const i2 = 1.0 - v2;
-    const i3 = 1.0 - v3;
-    const c0 = i1 * i2 * i3;
-    const c1 = i1 * i2 * v3;
-    const c2 = i1 * v2 * i3;
-    const c3 = v1 * i2 * i3;
-    const c4 = i1 * v2 * v3;
-    const c5 = v1 * i2 * v3;
-    const c6 = v1 * v2 * i3;
-    const v7 = v1 * v2 * v3;
-    const o1 = c0*f0[0] + c1*f1[0] + c2*f2[0] + c3*f3[0] + c4*f4[0] + c5*f5[0] + c6*f6[0] + v7*f7[0];
-    const o2 = c0*f0[1] + c1*f1[1] + c2*f2[1] + c3*f3[1] + c4*f4[1] + c5*f5[1] + c6*f6[1] + v7*f7[1];
-    const o3 = c0*f0[2] + c1*f1[2] + c2*f2[2] + c3*f3[2] + c4*f4[2] + c5*f5[2] + c6*f6[2] + v7*f7[2];
-    return _interpolate.set(o1, o2, o3, 'gl').hex();
-}
-const CUBE = {
-    RYB_TO_RGB: [
-        [ 1.000, 1.000, 1.000 ],
-        [ 0.163, 0.373, 0.600 ],
-        [ 1.000, 1.000, 0.000 ],
-        [ 1.000, 0.000, 0.000 ],
-        [ 0.000, 0.660, 0.200 ],
-        [ 0.500, 0.000, 0.500 ],
-        [ 1.000, 0.500, 0.000 ],
-        [ 0.000, 0.000, 0.000 ]
-    ],
-    RGB_TO_RYB: [
-        [ 1.000, 1.000, 1.000 ],
-        [ 0.000, 0.000, 1.000 ],
-        [ 0.000, 1.000, 0.483 ],
-        [ 1.000, 0.000, 0.000 ],
-        [ 0.000, 0.053, 0.210 ],
-        [ 0.309, 0.000, 0.469 ],
-        [ 0.000, 1.000, 0.000 ],
-        [ 0.000, 0.000, 0.000 ]
-    ]
-};
-const SPECTRUM = {
-    RYB: [
-        0xFF0000, 0xFF4900, 0xFF7400, 0xFF9200, 0xFFAA00, 0xFFBF00, 0xFFD300, 0xFFE800,
-        0xFFFF00, 0xCCF600, 0x9FEE00, 0x67E300, 0x00CC00, 0x00AF64, 0x009999, 0x0B61A4,
-        0x1240AB, 0x1B1BB3, 0x3914AF, 0x530FAD, 0x7109AA, 0xA600A6, 0xCD0074, 0xE40045,
-        0xFF0000
-    ]
-};
-const RYB_OFFSET = [
-    0,   1,   2,   3,   5,   6,   7,   8,   9,  10,  11,  13,  14,  15,  16,  17,  18,  19,  19,  20,
-    21,  21,  22,  23,  23,  24,  25,  25,  26,  27,  27,  28,  28,  29,  29,  30,  30,  31,  31,  32,
-    32,  32,  33,  33,  34,  34,  35,  35,  35,  36,  36,  37,  37,  37,  38,  38,  38,  39,  39,  40,
-    40,  40,  41,  41,  41,  42,  42,  42,  43,  43,  43,  44,  44,  44,  45,  45,  45,  46,  46,  46,
-    47,  47,  47,  47,  48,  48,  48,  49,  49,  49,  50,  50,  50,  51,  51,  51,  52,  52,  52,  53,
-    53,  53,  54,  54,  54,  55,  55,  55,  56,  56,  56,  57,  57,  57,  58,  58,  59,  59,  59,  60,
-    60,  61,  61,  62,  63,  63,  64,  65,  65,  66,  67,  68,  68,  69,  70,  70,  71,  72,  72,  73,
-    73,  74,  75,  75,  76,  77,  77,  78,  79,  79,  80,  81,  82,  82,  83,  84,  85,  86,  87,  88,
-    88,  89,  90,  91,  92,  93,  95,  96,  98, 100, 102, 104, 105, 107, 109, 111, 113, 115, 116, 118,
-    120, 122, 125, 127, 129, 131, 134, 136, 138, 141, 143, 145, 147, 150, 152, 154, 156, 158, 159, 161,
-    163, 165, 166, 168, 170, 171, 173, 175, 177, 178, 180, 182, 184, 185, 187, 189, 191, 192, 194, 196,
-    198, 199, 201, 203, 205, 206, 207, 208, 209, 210, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221,
-    222, 223, 224, 226, 227, 228, 229, 230, 232, 233, 234, 235, 236, 238, 239, 240, 241, 242, 243, 244,
-    245, 246, 247, 248, 249, 250, 251, 251, 252, 253, 254, 255, 256, 257, 257, 258, 259, 260, 260, 261,
-    262, 263, 264, 264, 265, 266, 267, 268, 268, 269, 270, 271, 272, 273, 274, 274, 275, 276, 277, 278,
-    279, 280, 282, 283, 284, 286, 287, 289, 290, 292, 293, 294, 296, 297, 299, 300, 302, 303, 305, 307,
-    309, 310, 312, 314, 316, 317, 319, 321, 323, 324, 326, 327, 328, 329, 330, 331, 332, 333, 334, 336,
-    337, 338, 339, 340, 341, 342, 343, 344, 345, 347, 348, 349, 350, 352, 353, 354, 355, 356, 358, 359,
-    999
-];
-const COLOR_KEYWORDS = {
-    'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0x00FFFF, 'aquamarine': 0x7FFFD4,
-    'azure': 0xF0FFFF, 'beige': 0xF5F5DC, 'bisque': 0xFFE4C4, 'black': 0x000000, 'blanchedalmond': 0xFFEBCD,
-    'blue': 0x0000FF, 'blueviolet': 0x8A2BE2, 'brown': 0xA52A2A, 'burlywood': 0xDEB887, 'cadetblue': 0x5F9EA0,
-    'chartreuse': 0x7FFF00, 'chocolate': 0xD2691E, 'coral': 0xFF7F50, 'cornflowerblue': 0x6495ED,
-    'cornsilk': 0xFFF8DC, 'crimson': 0xDC143C, 'cyan': 0x00FFFF, 'darkblue': 0x00008B, 'darkcyan': 0x008B8B,
-    'darkgoldenrod': 0xB8860B, 'darkgray': 0xA9A9A9, 'darkgreen': 0x006400, 'darkgrey': 0xA9A9A9,
-    'darkkhaki': 0xBDB76B, 'darkmagenta': 0x8B008B, 'darkolivegreen': 0x556B2F, 'darkorange': 0xFF8C00,
-    'darkorchid': 0x9932CC, 'darkred': 0x8B0000, 'darksalmon': 0xE9967A, 'darkseagreen': 0x8FBC8F,
-    'darkslateblue': 0x483D8B, 'darkslategray': 0x2F4F4F, 'darkslategrey': 0x2F4F4F, 'darkturquoise': 0x00CED1,
-    'darkviolet': 0x9400D3, 'deeppink': 0xFF1493, 'deepskyblue': 0x00BFFF, 'dimgray': 0x696969,
-    'dimgrey': 0x696969, 'dodgerblue': 0x1E90FF, 'firebrick': 0xB22222, 'floralwhite': 0xFFFAF0,
-    'forestgreen': 0x228B22, 'fuchsia': 0xFF00FF, 'gainsboro': 0xDCDCDC, 'ghostwhite': 0xF8F8FF,
-    'gold': 0xFFD700, 'goldenrod': 0xDAA520, 'gray': 0x808080, 'green': 0x008000, 'greenyellow': 0xADFF2F,
-    'grey': 0x808080, 'honeydew': 0xF0FFF0, 'hotpink': 0xFF69B4, 'indianred': 0xCD5C5C, 'indigo': 0x4B0082,
-    'ivory': 0xFFFFF0, 'khaki': 0xF0E68C, 'lavender': 0xE6E6FA, 'lavenderblush': 0xFFF0F5, 'lawngreen': 0x7CFC00,
-    'lemonchiffon': 0xFFFACD, 'lightblue': 0xADD8E6, 'lightcoral': 0xF08080, 'lightcyan': 0xE0FFFF,
-    'lightgoldenrodyellow': 0xFAFAD2, 'lightgray': 0xD3D3D3, 'lightgreen': 0x90EE90, 'lightgrey': 0xD3D3D3,
-    'lightpink': 0xFFB6C1, 'lightsalmon': 0xFFA07A, 'lightseagreen': 0x20B2AA, 'lightskyblue': 0x87CEFA,
-    'lightslategray': 0x778899, 'lightslategrey': 0x778899, 'lightsteelblue': 0xB0C4DE, 'lightyellow': 0xFFFFE0,
-    'lime': 0x00FF00, 'limegreen': 0x32CD32, 'linen': 0xFAF0E6, 'magenta': 0xFF00FF, 'maroon': 0x800000,
-    'mediumaquamarine': 0x66CDAA, 'mediumblue': 0x0000CD, 'mediumorchid': 0xBA55D3, 'mediumpurple': 0x9370DB,
-    'mediumseagreen': 0x3CB371, 'mediumslateblue': 0x7B68EE, 'mediumspringgreen': 0x00FA9A,
-    'mediumturquoise': 0x48D1CC, 'mediumvioletred': 0xC71585, 'midnightblue': 0x191970, 'mintcream': 0xF5FFFA,
-    'mistyrose': 0xFFE4E1, 'moccasin': 0xFFE4B5, 'navajowhite': 0xFFDEAD, 'navy': 0x000080, 'oldlace': 0xFDF5E6,
-    'olive': 0x808000, 'olivedrab': 0x6B8E23, 'orange': 0xFFA500, 'orangered': 0xFF4500, 'orchid': 0xDA70D6,
-    'palegoldenrod': 0xEEE8AA, 'palegreen': 0x98FB98, 'paleturquoise': 0xAFEEEE, 'palevioletred': 0xDB7093,
-    'papayawhip': 0xFFEFD5, 'peachpuff': 0xFFDAB9, 'peru': 0xCD853F, 'pink': 0xFFC0CB, 'plum': 0xDDA0DD,
-    'powderblue': 0xB0E0E6, 'purple': 0x800080, 'rebeccapurple': 0x663399, 'red': 0xFF0000,
-    'rosybrown': 0xBC8F8F, 'royalblue': 0x4169E1, 'saddlebrown': 0x8B4513, 'salmon': 0xFA8072,
-    'sandybrown': 0xF4A460, 'seagreen': 0x2E8B57, 'seashell': 0xFFF5EE, 'sienna': 0xA0522D, 'silver': 0xC0C0C0,
-    'skyblue': 0x87CEEB, 'slateblue': 0x6A5ACD, 'slategray': 0x708090, 'slategrey': 0x708090, 'snow': 0xFFFAFA,
-    'springgreen': 0x00FF7F, 'steelblue': 0x4682B4, 'tan': 0xD2B48C, 'teal': 0x008080, 'thistle': 0xD8BFD8,
-    'tomato': 0xFF6347, 'turquoise': 0x40E0D0, 'transparent': 0x000000, 'violet': 0xEE82EE, 'wheat': 0xF5DEB3,
-    'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
-};
-
-const _clr$2 = new Iris();
-const _icon = new Iris();
-const _icon_light = new Iris();
-const _icon_dark = new Iris();
-const _complement = new Iris();
-const _triadic1 = new Iris();
-const _triadic2 = new Iris();
-const _triadic3 = new Iris();
-const _triadic4 = new Iris();
-const DEFAULT_CLR = 0x00b4af;
-let _background = BACKGROUNDS.DARK;
-let _color$3 = DEFAULT_CLR;
-let _tint = 0.0;
-let _saturation = 0.0;
-class ColorScheme {
-    static changeBackground(background) {
-        if (background === undefined || background === null) return;
-        _background = background;
-        ColorScheme.updateCSS();
-    }
-    static changeColor(color, tint, saturation) {
-        if (color === undefined || color === null) return;
-        _color$3 = _clr$2.set(color).hex();
-        _tint = (tint !== undefined) ? tint : _tint;
-        _saturation = (saturation !== undefined) ? saturation : _saturation;
-        _icon.set(color);
-        _icon_light.copy(_icon).brighten();
-        _icon_dark.copy(_icon).darken();
-        _complement.copy(_icon).rybRotateHue(180).brighten(0.2);
-        _triadic1.copy(_icon).rybRotateHue(120).brighten(0.2);
-        _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
-        _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
-        _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
-        ColorScheme.updateCSS();
-    }
-    static updateCSS() {
-        Css.setVariable('--shadow',             _clr$2.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
-        Css.setVariable('--darkness',           _clr$2.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
-        Css.setVariable('--background-dark',    _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
-        Css.setVariable('--background-light',   _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
-        Css.setVariable('--button-dark',        _clr$2.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
-        Css.setVariable('--button-light',       _clr$2.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
-        Css.setVariable('--text-dark',          _clr$2.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
-        Css.setVariable('--text',               _clr$2.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
-        Css.setVariable('--text-light',         _clr$2.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
-        Css.setVariable('--blacklight',         _clr$2.set(ColorScheme.color(TRAIT.BLACKLIGHT)).rgbString());
-        Css.setVariable('--darklight',          _clr$2.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
-        Css.setVariable('--midlight',           _clr$2.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
-        Css.setVariable('--highlight',          _clr$2.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
-        Css.setVariable('--icon-dark',          _clr$2.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
-        Css.setVariable('--icon',               _clr$2.set(ColorScheme.color(TRAIT.ICON)).rgbString());
-        Css.setVariable('--icon-light',         _clr$2.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
-        Css.setVariable('--complement',         _clr$2.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
-        Css.setVariable('--triadic1',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
-        Css.setVariable('--triadic2',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
-        Css.setVariable('--triadic3',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
-        Css.setVariable('--triadic4',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
-        Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$2.set(DEFAULT_CLR).hue();
-        const newHue = _clr$2.set(ColorScheme.color(TRAIT.ICON, true )).hue();
-        const diffHue = `${newHue - startHue}deg`;
-        Css.setVariable('--rotate-hue', diffHue);
-    }
-    static color(guiColor, ignoreSaturation = false) {
-        _clr$2.set(0);
-        let tint = _tint;
-        let saturation = _saturation;
-        let darkness = 0;
-        let lightness = 0;
-        switch (_background) {
-            case BACKGROUNDS.DARK:      break;
-            case BACKGROUNDS.MID:       tint *= 0.2;    lightness = 0.2;    break;
-            case BACKGROUNDS.LIGHT:     break;
-            case BACKGROUNDS.FADED:     tint *= 0.1;    lightness = 0.4;    break;
-        }
-        if (_background == BACKGROUNDS.LIGHT) {
-            switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$2.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$2.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$2.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$2.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$2.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$2.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$2.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$2.set(255, 255, 255, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$2.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$2.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$2.set(  0,   0,   0, 'rgb'); break;
-            }
-        } else {
-            switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$2.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$2.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$2.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$2.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$2.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$2.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$2.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$2.set(  0,   0,   0, 'rgb'); lightness = 0; break;
-                case TRAIT.DARKLIGHT:           _clr$2.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$2.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$2.set(255, 255, 255, 'rgb'); break;
-            }
-            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$2.set( 64,  64,  64, 'rgb');
-            }
-        }
-        if (guiColor === TRAIT.DARKNESS) {
-            switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$2.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$2.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$2.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$2.set(  0,   0,   0, 'rgb');     break;
-            }
-        }
-        switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$2.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$2.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$2.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$2.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$2.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$2.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$2.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$2.copy(_triadic4);   break;
-        }
-        switch (guiColor) {
-            case TRAIT.COMPLEMENT:
-            case TRAIT.TRIADIC1:
-            case TRAIT.TRIADIC2:
-            case TRAIT.TRIADIC3:
-            case TRAIT.TRIADIC4:
-                saturation = 0.0;
-            case TRAIT.ICON_DARK:
-            case TRAIT.ICON:
-            case TRAIT.ICON_LIGHT:
-                tint = 0;
-                lightness = 0;
-                break;
-        }
-        if (tint !== 0) _clr$2.mix(_icon, tint);
-        if (lightness !== 0) _clr$2.brighten(lightness);
-        if (darkness !== 0) _clr$2.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$2.hslOffset(0, saturation, 0);
-        return _clr$2.hex();
-    }
-}
-ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
-
-class Dom {
-    static findElementAt(className, centerX, centerY) {
-        const domElements = document.elementsFromPoint(centerX, centerY);
-        for (const dom of domElements) {
-            if (dom.classList.contains(className)) return dom.suey;
-        }
-        return null;
-    }
-    static isChildOf(element, possibleParent) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.isSameNode(possibleParent)) return true;
-            parent = parent.parentElement;
-        }
-        return false;
-    }
-    static isChildOfElementWithClass(element, className) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.classList.contains(className)) return true;
-            parent = parent.parentElement;
-        }
-        return false;
-    }
-    static parentElementWithClass(element, className) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.classList.contains(className)) {
-                return parent.suey;
-            }
-            parent = parent.parentElement;
-        }
-        return undefined;
-    }
-    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        if (applyToSelf) applyFunction(element);
-        for (let i = 0; i < element.children.length; i++) {
-            Dom.traverse(element.children[i], applyFunction, true);
-        }
-    }
-    static parentScroller(element) {
-        if (!element) return null;
-        if (element.isElement && element.dom) element = element.dom;
-        if (element.scrollHeight > element.clientHeight) {
-            return element;
-        } else {
-            return Dom.parentScroller(element.parentElement);
-        }
-    }
-    static scrollIntoView(element) {
-        const parent = Dom.parentScroller(element);
-        if (parent) {
-            const onePixel = parseInt(Css.toPx('0.2em'));
-            if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
-                parent.scrollTop = element.offsetTop - parent.offsetTop - onePixel;
-            } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
-                parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
-            }
-        }
     }
 }
 
@@ -1904,6 +1211,726 @@ class Interaction {
     }
 }
 
+class Iris {
+    static get NAMES() { return COLOR_KEYWORDS; }
+    constructor(r = 0xffffff, g, b, format = '') {
+        this.isColor = true;
+        this.isIris = true;
+        this.type = 'Color';
+        this.r = 1;
+        this.g = 1;
+        this.b = 1;
+        this.set(r, g, b, format);
+    }
+    copy(colorObject) {
+        return this.set(colorObject);
+    }
+    clone() {
+        return new this.constructor(this.r, this.g, this.b);
+    }
+    set(r = 0, g, b, format = '') {
+        if (arguments.length === 0) {
+            return this.set(0);
+        } else if (r === undefined || r === null || Number.isNaN(r)) {
+            if (g || b) console.warn(`Iris: Passed some valid arguments, however 'r' was ${r}`);
+        } else if (g === undefined && b === undefined) {
+            let value = r;
+            if (typeof value === 'number' || value === 0) { return this.setHex(value);
+            } else if (value && isRGB(value)) { return this.setRGBF(value.r, value.g, value.b);
+            } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
+            } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
+            } else if (Array.isArray(value) && value.length > 2) {
+                const offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
+                return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
+            } else if (typeof value === 'string') {
+                return this.setStyle(value);
+            }
+        } else {
+            switch (format) {
+                case 'rgb': return this.setRGB(r, g, b);
+                case 'hsl': return this.setHSL(r, g, b);
+                case 'ryb': return this.setRYB(r, g, b);
+                default:    return this.setRGBF(r, g, b);
+            }
+        }
+        return this;
+    }
+    setColorName(style) {
+        const hex = COLOR_KEYWORDS[ style.toLowerCase() ];
+        if (hex) return this.setHex(hex);
+        console.warn(`Iris: Unknown color ${style}`);
+        return this;
+    }
+    setHex(hexColor) {
+        hexColor = Math.floor(hexColor);
+        if (hexColor > 0xffffff || hexColor < 0) {
+            console.warn(`Iris: Given decimal outside of range, value was ${hexColor}`);
+            hexColor = clamp(hexColor, 0, 0xffffff);
+        }
+        const r = (hexColor & 0xff0000) >> 16;
+        const g = (hexColor & 0x00ff00) >>  8;
+        const b = (hexColor & 0x0000ff);
+        return this.setRGB(r, g, b);
+    }
+    setHSL(h, s, l) {
+        h = keepInRange(h, 0, 360);
+        s = clamp(s, 0, 1);
+        l = clamp(l, 0, 1);
+        let c = (1 - Math.abs(2 * l - 1)) * s;
+        let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        let m = l - (c / 2);
+        let r = 0, g = 0, b = 0;
+        if                  (h <  60) { r = c; g = x; b = 0; }
+        else if ( 60 <= h && h < 120) { r = x; g = c; b = 0; }
+        else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+        else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+        else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+        else if (300 <= h)            { r = c; g = 0; b = x; }
+        this.setRGBF(r + m, g + m, b + m);
+        return this;
+    }
+    setRandom() {
+        return this.setRGBF(Math.random(), Math.random(), Math.random());
+    };
+    setRGB(r, g, b) {
+        return this.setRGBF(r / 255, g / 255, b / 255);
+    }
+    setRGBF(r, g, b) {
+        this.r = clamp(r, 0, 1);
+        this.g = clamp(g, 0, 1);
+        this.b = clamp(b, 0, 1);
+        return this;
+    }
+    setRYB(r, y, b) {
+        const hexColor = cubicInterpolation(clamp(r, 0, 255), clamp(y, 0, 255), clamp(b, 0, 255), 255, CUBE.RYB_TO_RGB);
+        return this.setHex(hexColor);
+    }
+    setScalar(scalar) {
+        return this.setRGB(scalar, scalar, scalar);
+    }
+    setScalarF(scalar) {
+        return this.setRGBF(scalar, scalar, scalar);
+    }
+    setStyle(style) {
+        let m;
+        if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(style)) {
+            let color;
+            const name = m[1];
+            const components = m[2];
+            switch (name) {
+                case 'rgb':
+                case 'rgba':
+                    if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+                        const r = Math.min(255, parseInt(color[1], 10));
+                        const g = Math.min(255, parseInt(color[2], 10));
+                        const b = Math.min(255, parseInt(color[3], 10));
+                        return this.setRGB(r, g, b);
+                    }
+                    if (color = /^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+                        const r = (Math.min(100, parseInt(color[1], 10)) / 100);
+                        const g = (Math.min(100, parseInt(color[2], 10)) / 100);
+                        const b = (Math.min(100, parseInt(color[3], 10)) / 100);
+                        return this.setRGBF(r, g, b);
+                    }
+                    break;
+                case 'hsl':
+                case 'hsla':
+                    if (color = /^\s*(\d*\.?\d+)\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
+                        const h = parseFloat(color[1]);
+                        const s = parseInt(color[2], 10) / 100;
+                        const l = parseInt(color[3], 10) / 100;
+                        return this.setHSL(h, s, l);
+                    }
+                    break;
+            }
+        } else if (m = /^\#([A-Fa-f\d]+)$/.exec(style)) {
+            const hex = m[1];
+            const size = hex.length;
+            if (size === 3) {
+                const r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+                const g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+                const b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+                return this.setRGB(r, g, b);
+            } else if (size === 6) {
+                const r = parseInt(hex.charAt(0) + hex.charAt(1), 16);
+                const g = parseInt(hex.charAt(2) + hex.charAt(3), 16);
+                const b = parseInt(hex.charAt(4) + hex.charAt(5), 16);
+                return this.setRGB(r, g, b);
+            }
+        }
+        if (style && style.length > 0) {
+            return this.setColorName(style);
+        }
+        return this;
+    }
+    cssString(alpha ) {
+        return ('rgb(' + this.rgbString(alpha) + ')');
+    }
+    hex() {
+        return ((this.red() << 16) + (this.green() << 8) + this.blue());
+    }
+    hexString(inputColorData ){
+        if (inputColorData) this.set(inputColorData);
+        return Iris.hexString(this.hex());
+    }
+    static hexString(inputColorData = 0x000000){
+        _temp.set(inputColorData);
+        return '#' + ('000000' + ((_temp.hex()) >>> 0).toString(16)).slice(-6);
+    }
+    static randomHex() {
+        return _random.setRandom().hex();
+    }
+    rgbString(alpha) {
+        const rgb = this.red() + ', ' + this.green() + ', ' + this.blue();
+        return ((alpha !== undefined && alpha !== null) ? String(rgb + ', ' + alpha) : rgb);
+    }
+    toJSON() {
+        return this.hex();
+    }
+    getHSL(target) {
+        if (target && isHSL(target)) {
+            target.h = hueF(this.hex());
+            target.s = saturation(this.hex());
+            target.l = lightness(this.hex());
+        } else {
+            return { h: hueF(this.hex()), s: saturation(this.hex()), l: lightness(this.hex()) };
+        }
+    }
+    getRGB(target) {
+        if (target && isHSL(target)) {
+            target.r = this.r;
+            target.g = this.g;
+            target.b = this.b;
+        } else {
+            return { r: this.r, g: this.g, b: this.b };
+        }
+    }
+    getRYB(target) {
+        let rybAsHex = cubicInterpolation(this.r, this.g, this.b, 1.0, CUBE.RGB_TO_RYB);
+        if (target && isRYB(target)) {
+            target.r = redF(rybAsHex);
+            target.y = greenF(rybAsHex);
+            target.b = blueF(rybAsHex);
+            return target;
+        }
+        return {
+            r: redF(rybAsHex),
+            y: greenF(rybAsHex),
+            b: blueF(rybAsHex)
+        };
+    }
+    toArray(array = [], offset = 0) {
+        array[offset] = this.r;
+        array[offset + 1] = this.g;
+        array[offset + 2] = this.b;
+        return array;
+    }
+    red() { return clamp(Math.floor(this.r * 255), 0, 255); }
+    green() { return clamp(Math.floor(this.g * 255), 0, 255); }
+    blue() { return clamp(Math.floor(this.b * 255), 0, 255); }
+    redF() { return this.r; }
+    greenF() { return this.g; }
+    blueF() { return this.b; }
+    hue() { return hue(this.hex()); }
+    saturation() { return saturation(this.hex()); }
+    lightness() { return lightness(this.hex()); }
+    hueF() { return hueF(this.hex()); }
+    hueRYB() {
+        for (let i = 1; i < RYB_OFFSET.length; i++) {
+            if (RYB_OFFSET[i] > this.hue()) return i - 2;
+        }
+    }
+    add(color) {
+        if (! color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
+        return this.setRGBF(this.r + color.r, this.g + color.g, this.b + color.b);
+    }
+    addScalar(scalar) {
+        return this.setRGB(this.red() + scalar, this.green() + scalar, this.blue() + scalar);
+    }
+    addScalarF(scalar) {
+        return this.setRGBF(this.r + scalar, this.g + scalar, this.b + scalar);
+    }
+    brighten(amount = 0.5  ) {
+        let h = hue(this.hex());
+        let s = saturation(this.hex());
+        let l = lightness(this.hex());
+        l = l + ((1.0 - l) * amount);
+        this.setHSL(h, s, l);
+        return this;
+    }
+    darken(amount = 0.5  ) {
+        let h = hue(this.hex());
+        let s = saturation(this.hex());
+        let l = lightness(this.hex()) * amount;
+        return this.setHSL(h, s, l);
+    }
+    greyscale(percent = 1.0, format = 'luminosity') { return this.grayscale(percent, format) }
+    grayscale(percent = 1.0, format = 'luminosity') {
+        let gray = 0;
+        switch (format) {
+            case 'luminosity':
+                gray = (this.r * 0.21) + (this.g * 0.72) + (this.b * 0.07);
+            case 'average':
+            default:
+                gray = (this.r + this.g + this.b) / 3;
+        }
+        percent = clamp(percent, 0, 1);
+        const r = (this.r * (1.0 - percent)) + (percent * gray);
+        const g = (this.g * (1.0 - percent)) + (percent * gray);
+        const b = (this.b * (1.0 - percent)) + (percent * gray);
+        return this.setRGBF(r, g, b);
+    }
+    hslOffset(h, s, l) {
+        return this.setHSL(this.hue() + h, this.saturation() + s, this.lightness() + l);
+    }
+    mix(color, percent = 0.5) {
+        if (! color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
+        percent = clamp(percent, 0, 1);
+        const r = (this.r * (1.0 - percent)) + (percent * color.r);
+        const g = (this.g * (1.0 - percent)) + (percent * color.g);
+        const b = (this.b * (1.0 - percent)) + (percent * color.b);
+        return this.setRGBF(r, g, b);
+    }
+    multiply(color) {
+        if (! color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
+        return this.setRGBF(this.r * color.r, this.g * color.g, this.b * color.b);
+    }
+    multiplyScalar(scalar) {
+        return this.setRGBF(this.r * scalar, this.g * scalar, this.b * scalar);
+    }
+    rgbComplementary() {
+        return this.rgbRotateHue(180);
+    }
+    rgbRotateHue(degrees = 90) {
+        const newHue = keepInRange(this.hue() + degrees);
+        return this.setHSL(newHue, this.saturation(), this.lightness());
+    }
+    rybAdjust() {
+        return this.setHSL(hue(matchSpectrum(this.hue(), SPECTRUM.RYB)), this.saturation(), this.lightness());
+    }
+    rybComplementary() {
+        return this.rybRotateHue(180);
+    }
+    rybRotateHue(degrees = 90) {
+        const newHue = keepInRange(this.hueRYB() + degrees);
+        return this.setHSL(hue(matchSpectrum(newHue, SPECTRUM.RYB)), this.saturation(), this.lightness());
+    }
+    subtract(color) {
+        if (! color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
+        return this.setRGBF(this.r - color.r, this.g - color.g, this.b - color.b);
+    }
+    equals(color) {
+        if (! color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
+        return (fuzzy(this.r, color.r) && fuzzy(this.g, color.g) && fuzzy(this.b, color.b));
+    }
+    isEqual(color) {
+        return this.equals(color);
+    }
+    isDark() {
+        const h = this.hue();
+        const l = this.lightness();
+        return ((l < 0.60 && (h >= 210 || h <= 27)) || (l <= 0.32));
+    }
+    isLight() {
+        return (! this.isDark());
+    }
+}
+function isRGB(object) { return (object.r !== undefined && object.g !== undefined && object.b !== undefined); }
+function isHSL(object) { return (object.h !== undefined && object.s !== undefined && object.l !== undefined); }
+function isRYB(object) { return (object.r !== undefined && object.y !== undefined && object.b !== undefined); }
+function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+function red(hexColor) { return clamp((hexColor & 0xff0000) >> 16, 0, 255); }
+function green(hexColor) { return clamp((hexColor & 0x00ff00) >> 8, 0, 255); }
+function blue(hexColor) { return clamp((hexColor & 0x0000ff), 0, 255); }
+function redF(hexColor) { return red(hexColor) / 255.0; }
+function greenF(hexColor) { return green(hexColor) / 255.0; }
+function blueF(hexColor) { return blue(hexColor) / 255.0; }
+function hue(hexColor) { return hsl(hexColor, 'h'); }
+function hueF(hexColor) { return hue(hexColor) / 360; }
+function saturation(hexColor) { return hsl(hexColor, 's'); }
+function lightness(hexColor) { return hsl(hexColor, 'l'); }
+function fuzzy(a, b, tolerance = 0.0015) { return ((a < (b + tolerance)) && (a > (b - tolerance))); }
+function keepInRange(value, min = 0, max = 360) {
+    while (value >= max) value -= (max - min);
+    while (value <  min) value += (max - min);
+    return value;
+}
+let _hslHex, _hslH, _hslS, _hslL;
+function hsl(hexColor, channel = 'h') {
+    if (hexColor !== _hslHex) {
+        if (hexColor === undefined || hexColor === null) return 0;
+        const r = redF(hexColor), g = greenF(hexColor), b = blueF(hexColor);
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const delta = max - min;
+        _hslL = (max + min) / 2;
+        if (delta === 0) {
+            _hslH = _hslS = 0;
+        } else {
+            _hslS = (_hslL <= 0.5) ? (delta / (max + min)) : (delta / (2 - max - min));
+            switch (max) {
+                case r: _hslH = (g - b) / delta + (g < b ? 6 : 0); break;
+                case g: _hslH = (b - r) / delta + 2; break;
+                case b: _hslH = (r - g) / delta + 4; break;
+            }
+            _hslH = Math.round(_hslH * 60);
+            if (_hslH < 0) _hslH += 360;
+        }
+        _hslHex = hexColor;
+    }
+    switch (channel) {
+        case 'h': return _hslH;
+        case 's': return _hslS;
+        case 'l': return _hslL;
+        default: console.warn(`Iris: Unknown channel (${channel}) requested in hsl()`);
+    }
+    return 0;
+}
+const _interpolate = new Iris();
+const _mix1 = new Iris();
+const _mix2 = new Iris();
+const _random = new Iris();
+const _temp = new Iris();
+function matchSpectrum(matchHue, spectrum = SPECTRUM.RYB) {
+    let colorDegrees = 360 / spectrum.length;
+    let degreeCount = colorDegrees;
+    let stopCount = 0;
+    for (let i = 0; i < spectrum.length; i++) {
+        if (matchHue < degreeCount) {
+            let percent = (degreeCount - matchHue) / colorDegrees;
+            _mix1.set(spectrum[stopCount + 1]);
+            return _mix1.mix(_mix2.set(spectrum[stopCount]), percent).hex();
+        } else {
+            degreeCount = degreeCount + colorDegrees;
+            stopCount = stopCount + 1;
+        }
+    }
+}
+function cubicInterpolation(v1, v2, v3, scale = 255, table = CUBE.RYB_TO_RGB) {
+    v1 = clamp(v1 / scale, 0, 1);
+    v2 = clamp(v2 / scale, 0, 1);
+    v3 = clamp(v3 / scale, 0, 1);
+    const f0 = table[0], f1 = table[1], f2 = table[2], f3 = table[3];
+    const f4 = table[4], f5 = table[5], f6 = table[6], f7 = table[7];
+    const i1 = 1.0 - v1;
+    const i2 = 1.0 - v2;
+    const i3 = 1.0 - v3;
+    const c0 = i1 * i2 * i3;
+    const c1 = i1 * i2 * v3;
+    const c2 = i1 * v2 * i3;
+    const c3 = v1 * i2 * i3;
+    const c4 = i1 * v2 * v3;
+    const c5 = v1 * i2 * v3;
+    const c6 = v1 * v2 * i3;
+    const v7 = v1 * v2 * v3;
+    const o1 = c0*f0[0] + c1*f1[0] + c2*f2[0] + c3*f3[0] + c4*f4[0] + c5*f5[0] + c6*f6[0] + v7*f7[0];
+    const o2 = c0*f0[1] + c1*f1[1] + c2*f2[1] + c3*f3[1] + c4*f4[1] + c5*f5[1] + c6*f6[1] + v7*f7[1];
+    const o3 = c0*f0[2] + c1*f1[2] + c2*f2[2] + c3*f3[2] + c4*f4[2] + c5*f5[2] + c6*f6[2] + v7*f7[2];
+    return _interpolate.set(o1, o2, o3, 'gl').hex();
+}
+const CUBE = {
+    RYB_TO_RGB: [
+        [ 1.000, 1.000, 1.000 ],
+        [ 0.163, 0.373, 0.600 ],
+        [ 1.000, 1.000, 0.000 ],
+        [ 1.000, 0.000, 0.000 ],
+        [ 0.000, 0.660, 0.200 ],
+        [ 0.500, 0.000, 0.500 ],
+        [ 1.000, 0.500, 0.000 ],
+        [ 0.000, 0.000, 0.000 ]
+    ],
+    RGB_TO_RYB: [
+        [ 1.000, 1.000, 1.000 ],
+        [ 0.000, 0.000, 1.000 ],
+        [ 0.000, 1.000, 0.483 ],
+        [ 1.000, 0.000, 0.000 ],
+        [ 0.000, 0.053, 0.210 ],
+        [ 0.309, 0.000, 0.469 ],
+        [ 0.000, 1.000, 0.000 ],
+        [ 0.000, 0.000, 0.000 ]
+    ]
+};
+const SPECTRUM = {
+    RYB: [
+        0xFF0000, 0xFF4900, 0xFF7400, 0xFF9200, 0xFFAA00, 0xFFBF00, 0xFFD300, 0xFFE800,
+        0xFFFF00, 0xCCF600, 0x9FEE00, 0x67E300, 0x00CC00, 0x00AF64, 0x009999, 0x0B61A4,
+        0x1240AB, 0x1B1BB3, 0x3914AF, 0x530FAD, 0x7109AA, 0xA600A6, 0xCD0074, 0xE40045,
+        0xFF0000
+    ]
+};
+const RYB_OFFSET = [
+    0,   1,   2,   3,   5,   6,   7,   8,   9,  10,  11,  13,  14,  15,  16,  17,  18,  19,  19,  20,
+    21,  21,  22,  23,  23,  24,  25,  25,  26,  27,  27,  28,  28,  29,  29,  30,  30,  31,  31,  32,
+    32,  32,  33,  33,  34,  34,  35,  35,  35,  36,  36,  37,  37,  37,  38,  38,  38,  39,  39,  40,
+    40,  40,  41,  41,  41,  42,  42,  42,  43,  43,  43,  44,  44,  44,  45,  45,  45,  46,  46,  46,
+    47,  47,  47,  47,  48,  48,  48,  49,  49,  49,  50,  50,  50,  51,  51,  51,  52,  52,  52,  53,
+    53,  53,  54,  54,  54,  55,  55,  55,  56,  56,  56,  57,  57,  57,  58,  58,  59,  59,  59,  60,
+    60,  61,  61,  62,  63,  63,  64,  65,  65,  66,  67,  68,  68,  69,  70,  70,  71,  72,  72,  73,
+    73,  74,  75,  75,  76,  77,  77,  78,  79,  79,  80,  81,  82,  82,  83,  84,  85,  86,  87,  88,
+    88,  89,  90,  91,  92,  93,  95,  96,  98, 100, 102, 104, 105, 107, 109, 111, 113, 115, 116, 118,
+    120, 122, 125, 127, 129, 131, 134, 136, 138, 141, 143, 145, 147, 150, 152, 154, 156, 158, 159, 161,
+    163, 165, 166, 168, 170, 171, 173, 175, 177, 178, 180, 182, 184, 185, 187, 189, 191, 192, 194, 196,
+    198, 199, 201, 203, 205, 206, 207, 208, 209, 210, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221,
+    222, 223, 224, 226, 227, 228, 229, 230, 232, 233, 234, 235, 236, 238, 239, 240, 241, 242, 243, 244,
+    245, 246, 247, 248, 249, 250, 251, 251, 252, 253, 254, 255, 256, 257, 257, 258, 259, 260, 260, 261,
+    262, 263, 264, 264, 265, 266, 267, 268, 268, 269, 270, 271, 272, 273, 274, 274, 275, 276, 277, 278,
+    279, 280, 282, 283, 284, 286, 287, 289, 290, 292, 293, 294, 296, 297, 299, 300, 302, 303, 305, 307,
+    309, 310, 312, 314, 316, 317, 319, 321, 323, 324, 326, 327, 328, 329, 330, 331, 332, 333, 334, 336,
+    337, 338, 339, 340, 341, 342, 343, 344, 345, 347, 348, 349, 350, 352, 353, 354, 355, 356, 358, 359,
+    999
+];
+const COLOR_KEYWORDS = {
+    'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0x00FFFF, 'aquamarine': 0x7FFFD4,
+    'azure': 0xF0FFFF, 'beige': 0xF5F5DC, 'bisque': 0xFFE4C4, 'black': 0x000000, 'blanchedalmond': 0xFFEBCD,
+    'blue': 0x0000FF, 'blueviolet': 0x8A2BE2, 'brown': 0xA52A2A, 'burlywood': 0xDEB887, 'cadetblue': 0x5F9EA0,
+    'chartreuse': 0x7FFF00, 'chocolate': 0xD2691E, 'coral': 0xFF7F50, 'cornflowerblue': 0x6495ED,
+    'cornsilk': 0xFFF8DC, 'crimson': 0xDC143C, 'cyan': 0x00FFFF, 'darkblue': 0x00008B, 'darkcyan': 0x008B8B,
+    'darkgoldenrod': 0xB8860B, 'darkgray': 0xA9A9A9, 'darkgreen': 0x006400, 'darkgrey': 0xA9A9A9,
+    'darkkhaki': 0xBDB76B, 'darkmagenta': 0x8B008B, 'darkolivegreen': 0x556B2F, 'darkorange': 0xFF8C00,
+    'darkorchid': 0x9932CC, 'darkred': 0x8B0000, 'darksalmon': 0xE9967A, 'darkseagreen': 0x8FBC8F,
+    'darkslateblue': 0x483D8B, 'darkslategray': 0x2F4F4F, 'darkslategrey': 0x2F4F4F, 'darkturquoise': 0x00CED1,
+    'darkviolet': 0x9400D3, 'deeppink': 0xFF1493, 'deepskyblue': 0x00BFFF, 'dimgray': 0x696969,
+    'dimgrey': 0x696969, 'dodgerblue': 0x1E90FF, 'firebrick': 0xB22222, 'floralwhite': 0xFFFAF0,
+    'forestgreen': 0x228B22, 'fuchsia': 0xFF00FF, 'gainsboro': 0xDCDCDC, 'ghostwhite': 0xF8F8FF,
+    'gold': 0xFFD700, 'goldenrod': 0xDAA520, 'gray': 0x808080, 'green': 0x008000, 'greenyellow': 0xADFF2F,
+    'grey': 0x808080, 'honeydew': 0xF0FFF0, 'hotpink': 0xFF69B4, 'indianred': 0xCD5C5C, 'indigo': 0x4B0082,
+    'ivory': 0xFFFFF0, 'khaki': 0xF0E68C, 'lavender': 0xE6E6FA, 'lavenderblush': 0xFFF0F5, 'lawngreen': 0x7CFC00,
+    'lemonchiffon': 0xFFFACD, 'lightblue': 0xADD8E6, 'lightcoral': 0xF08080, 'lightcyan': 0xE0FFFF,
+    'lightgoldenrodyellow': 0xFAFAD2, 'lightgray': 0xD3D3D3, 'lightgreen': 0x90EE90, 'lightgrey': 0xD3D3D3,
+    'lightpink': 0xFFB6C1, 'lightsalmon': 0xFFA07A, 'lightseagreen': 0x20B2AA, 'lightskyblue': 0x87CEFA,
+    'lightslategray': 0x778899, 'lightslategrey': 0x778899, 'lightsteelblue': 0xB0C4DE, 'lightyellow': 0xFFFFE0,
+    'lime': 0x00FF00, 'limegreen': 0x32CD32, 'linen': 0xFAF0E6, 'magenta': 0xFF00FF, 'maroon': 0x800000,
+    'mediumaquamarine': 0x66CDAA, 'mediumblue': 0x0000CD, 'mediumorchid': 0xBA55D3, 'mediumpurple': 0x9370DB,
+    'mediumseagreen': 0x3CB371, 'mediumslateblue': 0x7B68EE, 'mediumspringgreen': 0x00FA9A,
+    'mediumturquoise': 0x48D1CC, 'mediumvioletred': 0xC71585, 'midnightblue': 0x191970, 'mintcream': 0xF5FFFA,
+    'mistyrose': 0xFFE4E1, 'moccasin': 0xFFE4B5, 'navajowhite': 0xFFDEAD, 'navy': 0x000080, 'oldlace': 0xFDF5E6,
+    'olive': 0x808000, 'olivedrab': 0x6B8E23, 'orange': 0xFFA500, 'orangered': 0xFF4500, 'orchid': 0xDA70D6,
+    'palegoldenrod': 0xEEE8AA, 'palegreen': 0x98FB98, 'paleturquoise': 0xAFEEEE, 'palevioletred': 0xDB7093,
+    'papayawhip': 0xFFEFD5, 'peachpuff': 0xFFDAB9, 'peru': 0xCD853F, 'pink': 0xFFC0CB, 'plum': 0xDDA0DD,
+    'powderblue': 0xB0E0E6, 'purple': 0x800080, 'rebeccapurple': 0x663399, 'red': 0xFF0000,
+    'rosybrown': 0xBC8F8F, 'royalblue': 0x4169E1, 'saddlebrown': 0x8B4513, 'salmon': 0xFA8072,
+    'sandybrown': 0xF4A460, 'seagreen': 0x2E8B57, 'seashell': 0xFFF5EE, 'sienna': 0xA0522D, 'silver': 0xC0C0C0,
+    'skyblue': 0x87CEEB, 'slateblue': 0x6A5ACD, 'slategray': 0x708090, 'slategrey': 0x708090, 'snow': 0xFFFAFA,
+    'springgreen': 0x00FF7F, 'steelblue': 0x4682B4, 'tan': 0xD2B48C, 'teal': 0x008080, 'thistle': 0xD8BFD8,
+    'tomato': 0xFF6347, 'turquoise': 0x40E0D0, 'transparent': 0x000000, 'violet': 0xEE82EE, 'wheat': 0xF5DEB3,
+    'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
+};
+
+const _clr$2 = new Iris();
+const _icon = new Iris();
+const _icon_light = new Iris();
+const _icon_dark = new Iris();
+const _complement = new Iris();
+const _triadic1 = new Iris();
+const _triadic2 = new Iris();
+const _triadic3 = new Iris();
+const _triadic4 = new Iris();
+const DEFAULT_CLR = 0x00b4af;
+let _background = BACKGROUNDS.DARK;
+let _color$3 = DEFAULT_CLR;
+let _tint = 0.0;
+let _saturation = 0.0;
+class ColorScheme {
+    static changeBackground(background) {
+        if (background === undefined || background === null) return;
+        _background = background;
+        ColorScheme.updateCSS();
+    }
+    static changeColor(color, tint, saturation) {
+        if (color === undefined || color === null) return;
+        _color$3 = _clr$2.set(color).hex();
+        _tint = (tint !== undefined) ? tint : _tint;
+        _saturation = (saturation !== undefined) ? saturation : _saturation;
+        _icon.set(color);
+        _icon_light.copy(_icon).brighten();
+        _icon_dark.copy(_icon).darken();
+        _complement.copy(_icon).rybRotateHue(180).brighten(0.2);
+        _triadic1.copy(_icon).rybRotateHue(120).brighten(0.2);
+        _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
+        _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
+        _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
+        ColorScheme.updateCSS();
+    }
+    static updateCSS() {
+        Css.setVariable('--shadow',             _clr$2.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
+        Css.setVariable('--darkness',           _clr$2.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
+        Css.setVariable('--background-dark',    _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
+        Css.setVariable('--background-light',   _clr$2.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
+        Css.setVariable('--button-dark',        _clr$2.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
+        Css.setVariable('--button-light',       _clr$2.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
+        Css.setVariable('--text-dark',          _clr$2.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
+        Css.setVariable('--text',               _clr$2.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
+        Css.setVariable('--text-light',         _clr$2.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
+        Css.setVariable('--blacklight',         _clr$2.set(ColorScheme.color(TRAIT.BLACKLIGHT)).rgbString());
+        Css.setVariable('--darklight',          _clr$2.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
+        Css.setVariable('--midlight',           _clr$2.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
+        Css.setVariable('--highlight',          _clr$2.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
+        Css.setVariable('--icon-dark',          _clr$2.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
+        Css.setVariable('--icon',               _clr$2.set(ColorScheme.color(TRAIT.ICON)).rgbString());
+        Css.setVariable('--icon-light',         _clr$2.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
+        Css.setVariable('--complement',         _clr$2.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
+        Css.setVariable('--triadic1',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
+        Css.setVariable('--triadic2',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
+        Css.setVariable('--triadic3',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
+        Css.setVariable('--triadic4',           _clr$2.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
+        Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
+        const startHue = _clr$2.set(DEFAULT_CLR).hue();
+        const newHue = _clr$2.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const diffHue = `${newHue - startHue}deg`;
+        Css.setVariable('--rotate-hue', diffHue);
+    }
+    static color(guiColor, ignoreSaturation = false) {
+        _clr$2.set(0);
+        let tint = _tint;
+        let saturation = _saturation;
+        let darkness = 0;
+        let lightness = 0;
+        switch (_background) {
+            case BACKGROUNDS.DARK:      break;
+            case BACKGROUNDS.MID:       tint *= 0.2;    lightness = 0.2;    break;
+            case BACKGROUNDS.LIGHT:     break;
+            case BACKGROUNDS.FADED:     tint *= 0.1;    lightness = 0.4;    break;
+        }
+        if (_background == BACKGROUNDS.LIGHT) {
+            switch (guiColor) {
+                case TRAIT.SHADOW:              _clr$2.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$2.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$2.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$2.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$2.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$2.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$2.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$2.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$2.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$2.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$2.set(  0,   0,   0, 'rgb'); break;
+            }
+        } else {
+            switch (guiColor) {
+                case TRAIT.SHADOW:              _clr$2.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$2.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$2.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$2.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$2.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$2.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$2.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$2.set(  0,   0,   0, 'rgb'); lightness = 0; break;
+                case TRAIT.DARKLIGHT:           _clr$2.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr$2.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$2.set(255, 255, 255, 'rgb'); break;
+            }
+            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
+                _clr$2.set( 64,  64,  64, 'rgb');
+            }
+        }
+        if (guiColor === TRAIT.DARKNESS) {
+            switch (_background) {
+                case BACKGROUNDS.DARK:      _clr$2.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr$2.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr$2.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr$2.set(  0,   0,   0, 'rgb');     break;
+            }
+        }
+        switch (guiColor) {
+            case TRAIT.ICON_DARK:   _clr$2.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$2.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$2.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$2.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$2.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$2.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$2.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$2.copy(_triadic4);   break;
+        }
+        switch (guiColor) {
+            case TRAIT.COMPLEMENT:
+            case TRAIT.TRIADIC1:
+            case TRAIT.TRIADIC2:
+            case TRAIT.TRIADIC3:
+            case TRAIT.TRIADIC4:
+                saturation = 0.0;
+            case TRAIT.ICON_DARK:
+            case TRAIT.ICON:
+            case TRAIT.ICON_LIGHT:
+                tint = 0;
+                lightness = 0;
+                break;
+        }
+        if (tint !== 0) _clr$2.mix(_icon, tint);
+        if (lightness !== 0) _clr$2.brighten(lightness);
+        if (darkness !== 0) _clr$2.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr$2.hslOffset(0, saturation, 0);
+        return _clr$2.hex();
+    }
+}
+ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
+
+class Dom {
+    static findElementAt(className, centerX, centerY) {
+        const domElements = document.elementsFromPoint(centerX, centerY);
+        for (const dom of domElements) {
+            if (dom.classList.contains(className)) return dom.suey;
+        }
+        return null;
+    }
+    static isChildOf(element, possibleParent) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.isSameNode(possibleParent)) return true;
+            parent = parent.parentElement;
+        }
+        return false;
+    }
+    static isChildOfElementWithClass(element, className) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.classList.contains(className)) return true;
+            parent = parent.parentElement;
+        }
+        return false;
+    }
+    static parentElementWithClass(element, className) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.classList.contains(className)) {
+                return parent.suey;
+            }
+            parent = parent.parentElement;
+        }
+        return undefined;
+    }
+    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        if (applyToSelf) applyFunction(element);
+        for (let i = 0; i < element.children.length; i++) {
+            Dom.traverse(element.children[i], applyFunction, true);
+        }
+    }
+    static parentScroller(element) {
+        if (!element) return null;
+        if (element.isElement && element.dom) element = element.dom;
+        if (element.scrollHeight > element.clientHeight) {
+            return element;
+        } else {
+            return Dom.parentScroller(element.parentElement);
+        }
+    }
+    static scrollIntoView(element) {
+        const parent = Dom.parentScroller(element);
+        if (parent) {
+            const onePixel = parseInt(Css.toPx('0.2em'));
+            if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
+                parent.scrollTop = element.offsetTop - parent.offsetTop - onePixel;
+            } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
+                parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
+            }
+        }
+    }
+}
+
 const DEVICE_TYPE = {
     POINTER: 1,
     TOUCH: 2,
@@ -1966,35 +1993,6 @@ class FlexSpacer extends Span {
     }
 }
 
-const PANEL_STYLES = {
-    NONE:       'none',
-    SIMPLE:     'simple',
-    FANCY:      'fancy',
-};
-class Panel extends Div {
-    constructor({
-        style = PANEL_STYLES.NONE,
-    } = {}) {
-        super();
-        this.setClass('suey-panel');
-        this.contents = function() { return this; };
-        if (style === PANEL_STYLES.SIMPLE) {
-            this.addClass('suey-panel-simple');
-        } else if (style === PANEL_STYLES.FANCY) {
-            this.addClass('suey-panel-fancy');
-            const outerBox =  new Panel().setClass('suey-panel-fancy-outer');
-            const borderBox = new Panel().setClass('suey-panel-fancy-border');
-            const insideBox = new Panel().setClass('suey-panel-fancy-inside');
-            borderBox.add(insideBox);
-            outerBox.add(borderBox);
-            this.add(outerBox);
-            this.contents = function() { return insideBox; };
-        }
-        function onContextMenu(event) { event.preventDefault(); }
-        this.onContextMenu(onContextMenu);
-    }
-}
-
 class Row extends Div {
     constructor() {
         super();
@@ -2010,10 +2008,6 @@ class Text extends Span {
     }
 }
 
-const LEFT_SPACING = {
-    TABS:   'tabs',
-    NORMAL: 'normal',
-};
 class PropertyList extends Div {
     constructor(leftPropertyWidth = '50%', leftPropertySpacing = LEFT_SPACING.TABS) {
         super();
@@ -2115,6 +2109,30 @@ class PropertyList extends Div {
                 }
             }
         }
+    }
+}
+
+class Panel extends Div {
+    constructor({
+        style = PANEL_STYLES.NONE,
+    } = {}) {
+        super();
+        this.setClass('suey-panel');
+        this.contents = function() { return this; };
+        if (style === PANEL_STYLES.SIMPLE) {
+            this.addClass('suey-panel-simple');
+        } else if (style === PANEL_STYLES.FANCY) {
+            this.addClass('suey-panel-fancy');
+            const outerBox =  new Panel().setClass('suey-panel-fancy-outer');
+            const borderBox = new Panel().setClass('suey-panel-fancy-border');
+            const insideBox = new Panel().setClass('suey-panel-fancy-inside');
+            borderBox.add(insideBox);
+            outerBox.add(borderBox);
+            this.add(outerBox);
+            this.contents = function() { return insideBox; };
+        }
+        function onContextMenu(event) { event.preventDefault(); }
+        this.onContextMenu(onContextMenu);
     }
 }
 
@@ -3868,12 +3886,370 @@ class TreeList extends Div {
     }
 }
 
-const DOCK_SIDES = {
-    LEFT:       'left',
-    RIGHT:      'right',
-    TOP:        'top',
-    BOTTOM:     'bottom',
-};
+class Docker extends Div {
+    #corners = {};
+    constructor() {
+        super();
+        const self = this;
+        let zIndex = 1;
+        for (let key in DOCK_LOCATIONS) {
+            const cornerName = DOCK_LOCATIONS[key];
+            const className = `suey-docker-${cornerName}`;
+            const corner = new Div().addClass('suey-docker-corner').addClass(className);
+            corner.setStyle('zIndex', `${zIndex}`);
+            zIndex++;
+            function bringCornerToTop() {
+                for (let cornerDiv in self.#corners) {
+                    const style = getComputedStyle(self.#corners[cornerDiv].dom);
+                    let computedZ = style.getPropertyValue('z-index');
+                    if (computedZ > 1) computedZ--;
+                    self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
+                };
+                corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
+            }
+            corner.dom.addEventListener('pointerdown', bringCornerToTop);
+            corner.dom.addEventListener('resizeStart', bringCornerToTop);
+            this.#corners[cornerName] = corner;
+            this.add(corner);
+        }
+    }
+    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS.TOP_LEFT) {
+        if (!dockPanel) return;
+        const corner = this.getCorner(cornerName);
+        corner.add(dockPanel);
+        dockPanel.dom.addEventListener('resized', () => {
+            corner.dom.dispatchEvent(new Event('resized'));
+        });
+        if (dockPanel.isElement) {
+            if (dockPanel.hasClass('suey-tabbed')) {
+                if (cornerName.includes('right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
+                if (cornerName.includes('left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
+            }
+        }
+    }
+    getCorner(cornerName = DOCK_LOCATIONS.TOP_LEFT) {
+        return this.#corners[cornerName];
+    }
+}
+
+const _color$1 = new Iris();
+class Floater extends Panel {
+    constructor(id = 'unknown', content, options = {}) {
+        super();
+        this.setID(id);
+        this.addClass('suey-floater', 'suey-hidden');
+        this.add(content);
+        this.dock = null;
+        if (typeof options !== 'object') options = {};
+        if (!('color' in options) || options.color == null) options.color = ColorScheme.color(TRAIT.ICON);
+        if (!('alpha' in options)) options.alpha = 1.0;
+        if (!('icon' in options))options.icon = IMAGE_EMPTY;
+        if (!('shadow' in options)) options.shadow = 0x000000;
+        if (!('shrink' in options)) options.shrink = 1;
+        if (options.shrink === true) options.shrink = 0.7;
+        if (typeof options.shrink === 'string') {
+            options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
+        }
+        this.button = new TabButton(this, capitalize(id), options);
+    }
+}
+class TabButton extends Div {
+    constructor(tabPanel, label, options = {}) {
+        super();
+        const self = this;
+        this.setClass('suey-tab-button');
+        if (options.shadow) this.addClass('suey-tab-shadow');
+        this.dom.draggable = true;
+        this.tabPanel = tabPanel;
+        this.iconVector = new VectorBox(options.icon);
+        this.iconBorder = new Div().setClass('suey-tab-icon-border');
+        this.add(this.iconVector, this.iconBorder);
+        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); };
+        this.setLabel(label);
+        if (typeof options.color === 'string' && options.color.includes('var(--')) {
+            this.iconVector.setStyle('background-color', `rgba(${options.color}, ${options.alpha})`);
+        } else {
+            _color$1.set(options.color);
+            const light = `rgba(${_color$1.rgbString(options.alpha)})`;
+            const dark = `rgba(${_color$1.darken(0.75).rgbString(options.alpha)})`;
+            const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
+            this.iconVector.setStyle('background-image', background);
+        }
+        const shadow = options.shadow;
+        if (this.iconVector.img && shadow !== false) {
+            _color$1.set(shadow);
+            const dropShadow = `drop-shadow(0 0 var(--pad-micro) rgba(${_color$1.rgbString()}, 0.8))`;
+            this.iconVector.img.setStyle('filter', dropShadow);
+        }
+        const shrink = options.shrink;
+        if (this.iconVector.img && !isNaN(shrink)) {
+            this.iconVector.img.setStyle('position', 'absolute');
+            this.iconVector.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
+            this.iconVector.img.setStyle('margin', 'auto');
+            this.iconVector.img.setStyle('width', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('height', `${shrink * 100}%`);
+        }
+        let downX = 0, downY = 0, downTime = 0;
+        let minDistance = 0;
+        let currentParent = undefined;
+        let tabIndex = -1;
+        let lastUnder = undefined;
+        let locationUnder = undefined;
+        function onPointerDown(event) {
+            if (event.button !== 0) return;
+            event.stopPropagation();
+            event.preventDefault();
+            downTime = performance.now();
+            minDistance = 0;
+            downX = event.pageX;
+            downY = event.pageY;
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+        }
+        function onPointerMove(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
+            minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
+            if (!self.hasClass('suey-dragging')) {
+                if (minDistance < MOUSE_SLOP_LARGE) return;
+                self.addClass('suey-dragging');
+                Css.setCursor('pointer');
+                currentParent = self.dom.parentElement;
+                if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
+                document.body.appendChild(self.dom);
+            }
+            const newLeft = event.pageX - (self.getWidth() / 2);
+            const newTop = event.pageY - (self.getHeight() / 2);
+            self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
+            let elementUnder = null;
+            const domElements = document.elementsFromPoint(event.pageX, event.pageY);
+            if (domElements.includes(self.parent.dom)) {
+                elementUnder = self.parent;
+            } else {
+                for (const dom of domElements) {
+                    if (dom.classList.contains('suey-docker2')) {
+                        elementUnder = dom.suey;
+                        break;
+                    }
+                }
+            }
+            if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
+                lastUnder.hideDockLocations();
+            }
+            if (elementUnder && elementUnder.isElement && elementUnder.hasClass('suey-docker2')) {
+                elementUnder.showDockLocations(event.pageX, event.pageY);
+                locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
+                if (locationUnder) locationUnder.addClass('suey-dock-drop');
+            }
+            lastUnder = elementUnder;
+        }
+        function onPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (self.hasClass('suey-dragging')) {
+                self.removeClass('suey-dragging');
+                Css.setCursor('');
+                self.setStyle('left', '', 'top', '');
+                if (currentParent) {
+                    if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
+                        currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
+                    } else {
+                        currentParent.appendChild(self.dom);
+                    }
+                }
+                if (lastUnder && lastUnder.hasClass('suey-tab-buttons')) {
+                    const buttonRect = lastUnder.dom.getBoundingClientRect();
+                    let percentage = 0;
+                    if (lastUnder.hasClass('suey-left-side') || lastUnder.hasClass('suey-right-side')) {
+                        percentage = (event.pageY - buttonRect.top) / (buttonRect.height - self.getHeight());
+                    } else  {
+                        percentage = (event.pageX - buttonRect.left) / (buttonRect.width - self.getWidth());
+                    }
+                    const newIndex = Math.round(percentage * (self.tabPanel.dock.buttons.children.length - 1));
+                    currentParent.appendChild(self.dom);
+                    currentParent.insertBefore(self.dom, currentParent.children[newIndex]);
+                } else if (lastUnder && lastUnder.hasClass('suey-docker2')) {
+                    if (locationUnder) {
+                        let droppedOnDock = null;
+                        if (locationUnder.hasClass('suey-dock-middle-vertical') ||
+                            locationUnder.hasClass('suey-dock-middle-horizontal')) {
+                            droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
+                        } else if (locationUnder.hasClass('suey-dock-top')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-bottom')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-left')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-right')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-center')) {
+                        } else {
+                            console.log(locationUnder);
+                        }
+                        if (droppedOnDock) {
+                            if (self.tabPanel.dock && droppedOnDock !== self.tabPanel.dock) {
+                                const existing = self.tabPanel.dock;
+                                const tabIndex = existing.buttons.children.indexOf(self);
+                                existing.removeTab(tabIndex);
+                                if (existing.selectedID === self.tabPanel.getID() && tabIndex > 0) {
+                                    existing.selectTab(existing.buttons.children[tabIndex - 1].getID());
+                                } else {
+                                    existing.selectFirst();
+                                }
+                            }
+                            droppedOnDock.addTab(self.tabPanel);
+                            droppedOnDock.selectTab(self.tabPanel.id, false);
+                        }
+                    }
+                    lastUnder.hideDockLocations();
+                }
+                currentParent = null;
+                tabIndex = -1;
+                lastUnder = null;
+                locationUnder = null;
+            } else {
+                if (performance.now() - downTime < MOUSE_CLICK) {
+                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
+                    self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
+                }
+            }
+            document.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('pointerup', onPointerUp);
+        }
+        function onPointerEnter() {
+            document.body.classList.add('suey-no-resize');
+        }
+        function onPointerLeave() {
+            document.body.classList.remove('suey-no-resize');
+        }
+        this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.dom.addEventListener('pointerleave', onPointerLeave);
+        this.dom.addEventListener('pointerdown', onPointerDown);
+    }
+    getID() {
+        return this.tabPanel?.getID();
+    }
+}
+function capitalize(string) {
+    const words = String(string).split(' ');
+    for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+    return words.join(' ');
+}
+
+const MINIMUM_TABS_TO_SHOW = 1;
+class Tabbed extends Panel {
+    constructor({
+        tabSide = TAB_SIDES.RIGHT,
+        style = PANEL_STYLES.FANCY,
+    } = {}) {
+        super({ style });
+        self = this;
+        this.addClass('suey-tabbed');
+        this.selectedID = '';
+        this.buttons = new Div().setClass('suey-tab-buttons').setDisplay('none');
+        this.panels = new Div().setClass('suey-tab-panels');
+        this.add(this.buttons, this.panels);
+        this.setTabSide(tabSide);
+        function onPointerEnter() {
+            document.body.classList.remove('suey-no-resize');
+        }
+        this.dom.addEventListener('pointerenter', onPointerEnter);
+    }
+    addTab(tabPanel) {
+        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
+            console.error(`Tabbed.addTab: Expected Tab as first argument`, tabPanel);
+            return null;
+        }
+        tabPanel.dock = this;
+        this.buttons.add(tabPanel.button);
+        this.panels.add(tabPanel);
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        this.setContentsStyle('minHeight', '');
+        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
+        }
+        return tabPanel;
+    }
+    addNewTab(tabID, content, options = {}) {
+        return this.addTab(new Floater(tabID, content, options));
+    }
+    selectFirst() {
+        if (this.panels.children.length > 0) {
+            return this.selectTab(this.panels.children[0].getID());
+        } else {
+            const tabChange = new Event('tab-changed');
+            tabChange.value = undefined;
+            this.dom.dispatchEvent(tabChange);
+            return false;
+        }
+    }
+    selectTab(newID, wasClicked = false) {
+        const selectedID = this.selectedID;
+        const panel = this.panels.children.find((item) => (item.getID() === newID));
+        if (panel && panel.button) {
+            const button = panel.button;
+            if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
+            const currentPanel = this.panels.children.find((item) => (item.getID() === selectedID));
+            if (currentPanel) {
+                currentPanel.addClass('suey-hidden');
+                if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
+            }
+            panel.removeClass('suey-hidden');
+            button.addClass('suey-selected');
+            this.selectedID = newID;
+            const tabChange = new Event('tab-changed');
+            tabChange.value = newID;
+            this.dom.dispatchEvent(tabChange);
+            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
+            return true;
+        }
+        return false;
+    }
+    clearTabs() {
+        if (this.buttons) this.buttons.clearContents();
+        if (this.panels) this.panels.clearContents();
+        this.setStyle('minHeight', '');
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+    }
+    destroy() {
+        this.clearTabs();
+        super.destroy();
+    }
+    removeTab(index) {
+        if (index >= 0 && index < this.panels.children.length) {
+            const button = this.buttons.children[index];
+            const panel = this.panels.children[index];
+            if (button) button.removeClass('suey-selected');
+            if (panel) panel.addClass('suey-hidden');
+            this.buttons.detach(button);
+            this.panels.detach(panel);
+        }
+        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+    }
+    getTabSide() {
+        if (this.buttons.hasClass('suey-left-side')) return 'left';
+        if (this.buttons.hasClass('suey-right-side')) return 'right';
+        if (this.buttons.hasClass('suey-top-side')) return 'top';
+        if (this.buttons.hasClass('suey-bottom-side')) return 'bottom';
+        return 'unknown';
+    }
+    setTabSide(side, opposite = false) {
+        side = String(side).toLowerCase();
+        this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
+        if (opposite) {
+            if (side === 'left') side = 'right';
+            else if (side === 'right') side = 'left';
+            else if (side === 'top') side = 'bottom';
+            else if (side === 'bottom') side = 'top';
+        }
+        this.buttons.addClass(`suey-${side}-side`);
+    }
+    tabCount() {
+        return this.panels.children.length;
+    }
+}
+
 class Docker2 extends Panel {
     #primary = false;
     constructor(primary = true) {
@@ -4092,7 +4468,7 @@ class Docker2 extends Panel {
         tabbed.setTabSide(this.initialSide, true );
         const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
         tabbed.setStyle('width', '100%');
-        tabbed.setStyle('height', (wantsTall) ? '100%' : 'auto');
+        tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
         tabbed.dom.addEventListener('tab-changed', () => {
             if (tabbed.tabCount() === 0) {
                 if (tabbed.parent.hasClass('suey-docker2')) tabbed.parent.removeDock();
@@ -4100,382 +4476,6 @@ class Docker2 extends Panel {
         });
         this.add(tabbed);
         return tabbed;
-    }
-}
-
-const _color$1 = new Iris();
-class Floater extends Panel {
-    constructor(id = 'unknown', content, options = {}) {
-        super();
-        this.setID(id);
-        this.addClass('suey-floater', 'suey-hidden');
-        this.add(content);
-        this.dock = null;
-        if (typeof options !== 'object') options = {};
-        if (!('color' in options) || options.color == null) options.color = ColorScheme.color(TRAIT.ICON);
-        if (!('alpha' in options)) options.alpha = 1.0;
-        if (!('icon' in options))options.icon = IMAGE_EMPTY;
-        if (!('shadow' in options)) options.shadow = 0x000000;
-        if (!('shrink' in options)) options.shrink = 1;
-        if (options.shrink === true) options.shrink = 0.7;
-        if (typeof options.shrink === 'string') {
-            options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
-        }
-        this.button = new TabButton(this, capitalize(id), options);
-    }
-}
-class TabButton extends Div {
-    constructor(tabPanel, label, options = {}) {
-        super();
-        const self = this;
-        this.setClass('suey-tab-button');
-        if (options.shadow) this.addClass('suey-tab-shadow');
-        this.dom.draggable = true;
-        this.tabPanel = tabPanel;
-        this.iconVector = new VectorBox(options.icon);
-        this.iconBorder = new Div().setClass('suey-tab-icon-border');
-        this.add(this.iconVector, this.iconBorder);
-        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); };
-        this.setLabel(label);
-        if (typeof options.color === 'string' && options.color.includes('var(--')) {
-            this.iconVector.setStyle('background-color', `rgba(${options.color}, ${options.alpha})`);
-        } else {
-            _color$1.set(options.color);
-            const light = `rgba(${_color$1.rgbString(options.alpha)})`;
-            const dark = `rgba(${_color$1.darken(0.75).rgbString(options.alpha)})`;
-            const background = `linear-gradient(to bottom left, ${light}, ${dark})`;
-            this.iconVector.setStyle('background-image', background);
-        }
-        const shadow = options.shadow;
-        if (this.iconVector.img && shadow !== false) {
-            _color$1.set(shadow);
-            const dropShadow = `drop-shadow(0 0 var(--pad-micro) rgba(${_color$1.rgbString()}, 0.8))`;
-            this.iconVector.img.setStyle('filter', dropShadow);
-        }
-        const shrink = options.shrink;
-        if (this.iconVector.img && !isNaN(shrink)) {
-            this.iconVector.img.setStyle('position', 'absolute');
-            this.iconVector.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
-            this.iconVector.img.setStyle('margin', 'auto');
-            this.iconVector.img.setStyle('width', `${shrink * 100}%`);
-            this.iconVector.img.setStyle('height', `${shrink * 100}%`);
-        }
-        let downX = 0, downY = 0, downTime = 0;
-        let minDistance = 0;
-        let currentParent = undefined;
-        let tabIndex = -1;
-        let lastUnder = undefined;
-        let locationUnder = undefined;
-        function onPointerDown(event) {
-            if (event.button !== 0) return;
-            event.stopPropagation();
-            event.preventDefault();
-            downTime = performance.now();
-            minDistance = 0;
-            downX = event.pageX;
-            downY = event.pageY;
-            document.addEventListener('pointermove', onPointerMove);
-            document.addEventListener('pointerup', onPointerUp);
-        }
-        function onPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
-            minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
-            if (!self.hasClass('suey-dragging')) {
-                if (minDistance < MOUSE_SLOP_LARGE) return;
-                self.addClass('suey-dragging');
-                Css.setCursor('pointer');
-                currentParent = self.dom.parentElement;
-                if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
-                document.body.appendChild(self.dom);
-            }
-            const newLeft = event.pageX - (self.getWidth() / 2);
-            const newTop = event.pageY - (self.getHeight() / 2);
-            self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
-            let elementUnder = null;
-            const domElements = document.elementsFromPoint(event.pageX, event.pageY);
-            if (domElements.includes(self.parent.dom)) {
-                elementUnder = self.parent;
-            } else {
-                for (const dom of domElements) {
-                    if (dom.classList.contains('suey-docker2')) {
-                        elementUnder = dom.suey;
-                        break;
-                    }
-                }
-            }
-            if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
-                lastUnder.hideDockLocations();
-            }
-            if (elementUnder && elementUnder.isElement && elementUnder.hasClass('suey-docker2')) {
-                elementUnder.showDockLocations(event.pageX, event.pageY);
-                locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
-                if (locationUnder) locationUnder.addClass('suey-dock-drop');
-            }
-            lastUnder = elementUnder;
-        }
-        function onPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (self.hasClass('suey-dragging')) {
-                self.removeClass('suey-dragging');
-                Css.setCursor('');
-                self.setStyle('left', '', 'top', '');
-                if (currentParent) {
-                    if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
-                        currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
-                    } else {
-                        currentParent.appendChild(self.dom);
-                    }
-                }
-                if (lastUnder && lastUnder.hasClass('suey-tab-buttons')) {
-                    const buttonRect = lastUnder.dom.getBoundingClientRect();
-                    let percentage = 0;
-                    if (lastUnder.hasClass('suey-left-side') || lastUnder.hasClass('suey-right-side')) {
-                        percentage = (event.pageY - buttonRect.top) / (buttonRect.height - self.getHeight());
-                    } else  {
-                        percentage = (event.pageX - buttonRect.left) / (buttonRect.width - self.getWidth());
-                    }
-                    const newIndex = Math.round(percentage * (self.tabPanel.dock.buttons.children.length - 1));
-                    currentParent.appendChild(self.dom);
-                    currentParent.insertBefore(self.dom, currentParent.children[newIndex]);
-                } else if (lastUnder && lastUnder.hasClass('suey-docker2')) {
-                    if (locationUnder) {
-                        let droppedOnDock = null;
-                        if (locationUnder.hasClass('suey-dock-middle-vertical') ||
-                            locationUnder.hasClass('suey-dock-middle-horizontal')) {
-                            droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
-                        } else if (locationUnder.hasClass('suey-dock-top')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%').enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-bottom')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%').enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-left')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%').enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-right')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%').enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-center')) {
-                        } else {
-                            console.log(locationUnder);
-                        }
-                        if (droppedOnDock) {
-                            if (self.tabPanel.dock && droppedOnDock !== self.tabPanel.dock) {
-                                const existing = self.tabPanel.dock;
-                                const tabIndex = existing.buttons.children.indexOf(self);
-                                existing.removeTab(tabIndex);
-                                if (existing.selectedID === self.tabPanel.getID() && tabIndex > 0) {
-                                    existing.selectTab(existing.buttons.children[tabIndex - 1].getID());
-                                } else {
-                                    existing.selectFirst();
-                                }
-                            }
-                            droppedOnDock.addTab(self.tabPanel);
-                            droppedOnDock.selectTab(self.tabPanel.id, false);
-                        }
-                    }
-                    lastUnder.hideDockLocations();
-                }
-                currentParent = null;
-                tabIndex = -1;
-                lastUnder = null;
-                locationUnder = null;
-            } else {
-                if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
-                    self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
-                }
-            }
-            document.removeEventListener('pointermove', onPointerMove);
-            document.removeEventListener('pointerup', onPointerUp);
-        }
-        function onPointerEnter() {
-            document.body.classList.add('suey-no-resize');
-        }
-        function onPointerLeave() {
-            document.body.classList.remove('suey-no-resize');
-        }
-        this.dom.addEventListener('pointerenter', onPointerEnter);
-        this.dom.addEventListener('pointerleave', onPointerLeave);
-        this.dom.addEventListener('pointerdown', onPointerDown);
-    }
-    getID() {
-        return this.tabPanel?.getID();
-    }
-}
-function capitalize(string) {
-    const words = String(string).split(' ');
-    for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    return words.join(' ');
-}
-
-const TAB_SIDES = {
-    LEFT:       'left',
-    RIGHT:      'right',
-    TOP:        'top',
-    BOTTOM:     'bottom',
-};
-const MINIMUM_TABS_TO_SHOW = 1;
-class Tabbed extends Panel {
-    constructor({
-        tabSide = TAB_SIDES.RIGHT,
-        style = PANEL_STYLES.FANCY,
-    } = {}) {
-        super({ style });
-        self = this;
-        this.addClass('suey-tabbed');
-        this.selectedID = '';
-        this.buttons = new Div().setClass('suey-tab-buttons').setDisplay('none');
-        this.panels = new Div().setClass('suey-tab-panels');
-        this.add(this.buttons, this.panels);
-        this.setTabSide(tabSide);
-        function onPointerEnter() {
-            document.body.classList.remove('suey-no-resize');
-        }
-        this.dom.addEventListener('pointerenter', onPointerEnter);
-    }
-    addTab(tabPanel) {
-        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
-            console.error(`Tabbed.addTab: Expected Tab as first argument`, tabPanel);
-            return null;
-        }
-        tabPanel.dock = this;
-        this.buttons.add(tabPanel.button);
-        this.panels.add(tabPanel);
-        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-        this.setContentsStyle('minHeight', '');
-        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
-            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
-        }
-        return tabPanel;
-    }
-    addNewTab(tabID, content, options = {}) {
-        return this.addTab(new Floater(tabID, content, options));
-    }
-    selectFirst() {
-        if (this.panels.children.length > 0) {
-            return this.selectTab(this.panels.children[0].getID());
-        } else {
-            const tabChange = new Event('tab-changed');
-            tabChange.value = undefined;
-            this.dom.dispatchEvent(tabChange);
-            return false;
-        }
-    }
-    selectTab(newID, wasClicked = false) {
-        const selectedID = this.selectedID;
-        const panel = this.panels.children.find((item) => (item.getID() === newID));
-        if (panel && panel.button) {
-            const button = panel.button;
-            if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
-            const currentPanel = this.panels.children.find((item) => (item.getID() === selectedID));
-            if (currentPanel) {
-                currentPanel.addClass('suey-hidden');
-                if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
-            }
-            panel.removeClass('suey-hidden');
-            button.addClass('suey-selected');
-            this.selectedID = newID;
-            const tabChange = new Event('tab-changed');
-            tabChange.value = newID;
-            this.dom.dispatchEvent(tabChange);
-            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
-            return true;
-        }
-        return false;
-    }
-    clearTabs() {
-        if (this.buttons) this.buttons.clearContents();
-        if (this.panels) this.panels.clearContents();
-        this.setStyle('minHeight', '');
-        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-    }
-    destroy() {
-        this.clearTabs();
-        super.destroy();
-    }
-    removeTab(index) {
-        if (index >= 0 && index < this.panels.children.length) {
-            const button = this.buttons.children[index];
-            const panel = this.panels.children[index];
-            if (button) button.removeClass('suey-selected');
-            if (panel) panel.addClass('suey-hidden');
-            this.buttons.detach(button);
-            this.panels.detach(panel);
-        }
-        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-    }
-    getTabSide() {
-        if (this.buttons.hasClass('suey-left-side')) return 'left';
-        if (this.buttons.hasClass('suey-right-side')) return 'right';
-        if (this.buttons.hasClass('suey-top-side')) return 'top';
-        if (this.buttons.hasClass('suey-bottom-side')) return 'bottom';
-        return 'unknown';
-    }
-    setTabSide(side, opposite = false) {
-        side = String(side).toLowerCase();
-        this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
-        if (opposite) {
-            if (side === 'left') side = 'right';
-            else if (side === 'right') side = 'left';
-            else if (side === 'top') side = 'bottom';
-            else if (side === 'bottom') side = 'top';
-        }
-        this.buttons.addClass(`suey-${side}-side`);
-    }
-    tabCount() {
-        return this.panels.children.length;
-    }
-}
-
-const DOCK_LOCATIONS = {
-    TOP_LEFT:       'top-left',
-    TOP_RIGHT:      'top-right',
-    BOTTOM_LEFT:    'bottom-left',
-    BOTTOM_RIGHT:   'bottom-right',
-};
-class Docker extends Div {
-    #corners = {};
-    constructor() {
-        super();
-        const self = this;
-        let zIndex = 1;
-        for (let key in DOCK_LOCATIONS) {
-            const cornerName = DOCK_LOCATIONS[key];
-            const className = `suey-docker-${cornerName}`;
-            const corner = new Div().addClass('suey-docker-corner').addClass(className);
-            corner.setStyle('zIndex', `${zIndex}`);
-            zIndex++;
-            function bringCornerToTop() {
-                for (let cornerDiv in self.#corners) {
-                    const style = getComputedStyle(self.#corners[cornerDiv].dom);
-                    let computedZ = style.getPropertyValue('z-index');
-                    if (computedZ > 1) computedZ--;
-                    self.#corners[cornerDiv].setStyle('zIndex', `${computedZ}`);
-                };
-                corner.setStyle('zIndex', `${Object.keys(self.#corners).length}`);
-            }
-            corner.dom.addEventListener('pointerdown', bringCornerToTop);
-            corner.dom.addEventListener('resizeStart', bringCornerToTop);
-            this.#corners[cornerName] = corner;
-            this.add(corner);
-        }
-    }
-    addDockPanel(dockPanel, cornerName = DOCK_LOCATIONS.TOP_LEFT) {
-        if (!dockPanel) return;
-        const corner = this.getCorner(cornerName);
-        corner.add(dockPanel);
-        dockPanel.dom.addEventListener('resized', () => {
-            corner.dom.dispatchEvent(new Event('resized'));
-        });
-        if (dockPanel.isElement) {
-            if (dockPanel.hasClass('suey-tabbed')) {
-                if (cornerName.includes('right')) dockPanel.setTabSide(TAB_SIDES.LEFT);
-                if (cornerName.includes('left')) dockPanel.setTabSide(TAB_SIDES.RIGHT);
-            }
-        }
-    }
-    getCorner(cornerName = DOCK_LOCATIONS.TOP_LEFT) {
-        return this.#corners[cornerName];
     }
 }
 
@@ -5916,4 +5916,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-rotate-colorize /* purple */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));\n}\n\n.suey-triadic-colorize /* red */ {\n    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_LOCATIONS, DOCK_SIDES, Div, Docker, Docker2, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_LOCATIONS$1 as DOCK_LOCATIONS, DOCK_SIDES, Div, Docker, Docker2, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

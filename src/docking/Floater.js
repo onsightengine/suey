@@ -6,7 +6,7 @@ import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
-import { DOCK_SIDES } from './Docker2.js';
+import { DOCK_SIDES } from '../constants.js';
 import { IMAGE_EMPTY } from '../constants.js';
 import { MOUSE_CLICK, MOUSE_SLOP_LARGE } from '../constants.js';
 import { TRAIT } from '../constants.js';

@@ -6,10 +6,7 @@ import { Span } from '../core/Span.js';
 import { Text } from '../core/Text.js';
 import { VectorBox } from '../layout/VectorBox.js';
 
-export const LEFT_SPACING = {
-    TABS:   'tabs',
-    NORMAL: 'normal',
-}
+import { LEFT_SPACING } from '../constants.js';
 
 class PropertyList extends Div {
 

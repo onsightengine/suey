@@ -5,7 +5,9 @@ import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
-import { GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, NODE_TYPES, RESIZERS, TRAIT } from '../constants.js';
+
+import { GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, NODE_TYPES } from '../constants.js';
+import { RESIZERS, TRAIT } from '../constants.js';
 
 const MIN_W = 100;
 const MIN_H = 100;

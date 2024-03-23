@@ -47,11 +47,8 @@ import { Iris } from './utils/Iris.js';
 
 import { Div } from './core/Div.js';
 import { FlexSpacer } from './layout/FlexSpacer.js';
-import { OVERFLOW } from './utils/Popper.js';
-import { PANEL_STYLES } from './panels/Panel.js';
-import { PropertyList, LEFT_SPACING } from './data/PropertyList.js';
+import { PropertyList } from './data/PropertyList.js';
 import { Resizeable } from './panels/Resizeable.js';
-import { RESIZERS } from './constants.js';
 import { Shrinkable } from './panels/Shrinkable.js';
 import { Titled } from './panels/Titled.js';
 
@@ -62,6 +59,11 @@ import { Dropdown } from './input/Dropdown.js';
 import { NumberBox } from './input/Number.js';
 import { Slider } from './input/Slider.js';
 import { TextBox } from './input/TextBox.js';
+
+import { LEFT_SPACING } from './constants.js';
+import { OVERFLOW } from './utils/Popper.js';
+import { PANEL_STYLES } from './constants.js';
+import { RESIZERS } from './constants.js';
 
 const _clr = new Iris();
 
