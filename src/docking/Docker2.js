@@ -1,5 +1,6 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Dom } from '../utils/Dom.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { PANEL_STYLES } from '../panels/Panel.js';
@@ -102,6 +103,13 @@ class Docker2 extends Panel {
 
         // Resizers
         const rect = {};
+        function checkCancel(event) {
+            if (event && event.isTrusted /* not generated programmatically */) {
+                const tabbed = Dom.findElementAt('suey-tabbed', event.pageX, event.pageY);
+                const button = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
+                if (button || !tabbed) document.body.classList.add('suey-no-resize');
+            }
+        }
         function resizerDown() {
             rect.width = dock.getWidth();
             rect.height = dock.getHeight();
@@ -118,7 +126,8 @@ class Docker2 extends Panel {
             if (newHeight != null) dock.setStyle('height', `${Math.max(100, newHeight)}px`);
             if (newWidth != null || newHeight != null) dock.dom.dispatchEvent(new Event('resized'));
         }
-        Interaction.makeResizeable(dock, resizerDown, resizerMove).addResizers(this.wantsResizer(side), true /* offset */);
+        Interaction.makeResizeable(dock, resizerDown, resizerMove, null, checkCancel);
+        dock.addResizers(this.wantsResizer(side), true /* offset */);
 
         // Limit Size, Resize Twin
         function resizeTwin() {
@@ -199,7 +208,9 @@ class Docker2 extends Panel {
 
         // Add back new Resizer
         const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        if (childTabbed) parent.addResizers(parent.wantsResizer(parent.dockSide), true /* offset */);
+        if (childTabbed && parent.addResizers) {
+            parent.addResizers(parent.wantsResizer(parent.dockSide), true /* offset */);
+        }
 
         // Set Tabbed Sizes
         for (const child of parent.children) {

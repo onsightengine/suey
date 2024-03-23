@@ -109,7 +109,7 @@ class Interaction {
         element.addToSelf(button);
     }
 
-    static makeDraggable(element, parent = element, limitToWindow = false, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
+    static makeDraggable(element, parent = element, limitToWindow = false, onDown, onMove, onUp) {
         const eventElement = (element && element.isElement) ? element.dom : element;
         const dragElement = (parent && parent.isElement) ? parent.dom : parent;
         let downX, downY, rect = {}, startingRect = {};
@@ -141,17 +141,7 @@ class Interaction {
             document.dispatchEvent(new Event('closemenu'));
             moreThanSlop = false;
             /* CUSTOM CALLBACK */
-            onDown();
-        }
-        function dragPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            eventElement.releasePointerCapture(event.pointerId);
-            document.removeEventListener('pointermove', dragPointerMove);
-            document.removeEventListener('pointerup', dragPointerUp);
-            eventElement.style.cursor = 'inherit';
-            /* CUSTOM CALLBACK */
-            onUp();
+            if (typeof onDown === 'function') onDown();
         }
         function dragPointerMove(event) {
             event.stopPropagation();
@@ -203,43 +193,49 @@ class Interaction {
                 }
             }
             /* CUSTOM CALLBACK */
-            onMove(diffX, diffY);
+            if (typeof onMove === 'function') onMove(diffX, diffY);
+        }
+        function dragPointerUp(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            eventElement.releasePointerCapture(event.pointerId);
+            document.removeEventListener('pointermove', dragPointerMove);
+            document.removeEventListener('pointerup', dragPointerUp);
+            eventElement.style.cursor = 'inherit';
+            /* CUSTOM CALLBACK */
+            if (typeof onUp === 'function') onUp();
         }
         eventElement.addEventListener('pointerdown', dragPointerDown);
     }
 
-    static makeResizeable(addToElement, onDown = () => {}, onMove = () => {}, onUp = () => {}) {
+    static makeResizeable(addToElement, onDown, onMove, onUp, beforeMove) {
         if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
 
         // Creates One Resizer
         function createResizer(className) {
             const resizer = new Div().addClass('suey-resizer', className);
             let downX, downY, lastX, lastY;
+            let isDown = false;
             function resizePointerDown(event) {
                 if (event.button !== 0) return;
                 event.stopPropagation();
                 event.preventDefault();
                 resizer.dom.setPointerCapture(event.pointerId);
+                isDown = true;
                 downX = event.pageX;
                 downY = event.pageY;
                 lastX = event.pageX;
                 lastY = event.pageY;
-                document.addEventListener('pointermove', resizePointerMove);
                 document.addEventListener('pointerup', resizePointerUp);
                 document.dispatchEvent(new Event('closemenu'));
                 /* CUSTOM CALLBACK */
-                onDown();
-            }
-            function resizePointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                document.removeEventListener('pointermove', resizePointerMove);
-                document.removeEventListener('pointerup', resizePointerUp);
-                /* CUSTOM CALLBACK */
-                onUp();
+                if (typeof onDown === 'function') onDown();
             }
             function resizePointerMove(event) {
+                if (!isDown) {
+                    if (typeof beforeMove === 'function') beforeMove(event);
+                    return;
+                }
                 event.stopPropagation();
                 event.preventDefault();
                 if (event.isTrusted /* not generated programmatically */) {
@@ -249,9 +245,19 @@ class Interaction {
                 const diffX = lastX - downX;
                 const diffY = lastY - downY;
                 /* CUSTOM CALLBACK */
-                onMove(resizer, diffX, diffY);
+                if (typeof onMove === 'function') onMove(resizer, diffX, diffY);
+            }
+            function resizePointerUp(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                resizer.dom.releasePointerCapture(event.pointerId);
+                isDown = false;
+                document.removeEventListener('pointerup', resizePointerUp);
+                /* CUSTOM CALLBACK */
+                if (typeof onUp === 'function') onUp();
             }
             resizer.dom.addEventListener('pointerdown', resizePointerDown);
+            resizer.dom.addEventListener('pointermove', resizePointerMove);
             return resizer;
         }
 
@@ -261,6 +267,7 @@ class Interaction {
                 const existingResizer = addToElement.children.find(child => child.hasClass(className));
                 if (!existingResizer) {
                     const resizer = createResizer(className);
+                    if (offset) Css.setVariable('--resize-size', 'var(--resize-size-offset)', resizer);
                     if (offset) Css.setVariable('--offset', 'var(--resize-offset)', resizer);
                     addToElement.addToSelf(resizer);
                 }

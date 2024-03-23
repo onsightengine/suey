@@ -34,6 +34,12 @@ class Tabbed extends Panel {
 
         // Set TAB_SIDES that Tab Buttons should appear
         this.setTabSide(tabSide);
+
+        // Events
+        function onPointerEnter() {
+            document.body.classList.remove('suey-no-resize');
+        }
+        this.dom.addEventListener('pointerenter', onPointerEnter);
     }
 
     /******************** ADD */

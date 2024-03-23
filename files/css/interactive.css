@@ -77,12 +77,12 @@
     --offset: 0;
     position: absolute;
     pointer-events: all;
-    opacity: 0.5;                           /* NOTE: Change to > 0.0 to see 'Resizers' */
+    opacity: 0.0;                           /* NOTE: Change to > 0.0 to see 'Resizers' */
     z-index: 99; /* Resizer */
 }
 
 .suey-no-resize .suey-resizer {
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
 .suey-resizer-left {
