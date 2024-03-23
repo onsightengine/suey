@@ -4193,16 +4193,27 @@ class TabButton extends Div {
             const newLeft = event.pageX - (self.getWidth() / 2);
             const newTop = event.pageY - (self.getHeight() / 2);
             self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
-            const dockerUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY);
-            if (dockerUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
+            let elementUnder = null;
+            const domElements = document.elementsFromPoint(event.pageX, event.pageY);
+            if (domElements.includes(self.parent.dom)) {
+                elementUnder = self.parent;
+            } else {
+                for (const dom of domElements) {
+                    if (dom.classList.contains('suey-docker2')) {
+                        elementUnder = dom.suey;
+                        break;
+                    }
+                }
+            }
+            if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
                 lastUnder.hideDockLocations();
             }
-            if (dockerUnder && dockerUnder.isElement && dockerUnder.hasClass('suey-docker2')) {
-                dockerUnder.showDockLocations(event.pageX, event.pageY);
+            if (elementUnder && elementUnder.isElement && elementUnder.hasClass('suey-docker2')) {
+                elementUnder.showDockLocations(event.pageX, event.pageY);
                 locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
                 if (locationUnder) locationUnder.addClass('suey-dock-drop');
             }
-            lastUnder = dockerUnder;
+            lastUnder = elementUnder;
         }
         function onPointerUp(event) {
             event.stopPropagation();
@@ -4218,45 +4229,50 @@ class TabButton extends Div {
                         currentParent.appendChild(self.dom);
                     }
                 }
-                if (locationUnder && locationUnder.isElement) {
-                    let droppedOnPanel = null;
-                    if (lastUnder) {
-                        if (locationUnder.dom.classList.contains('suey-dock-middle-vertical') ||
-                            locationUnder.dom.classList.contains('suey-dock-middle-horizontal')) {
-                            droppedOnPanel = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
-                        } else if (locationUnder.dom.classList.contains('suey-dock-top')) {
-                            const newDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%');
-                            droppedOnPanel = newDock.enableTabs();
-                        } else if (locationUnder.dom.classList.contains('suey-dock-bottom')) {
-                            const newDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%');
-                            droppedOnPanel = newDock.enableTabs();
-                        } else if (locationUnder.dom.classList.contains('suey-dock-left')) {
-                            const newDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%');
-                            droppedOnPanel = newDock.enableTabs();
-                        } else if (locationUnder.dom.classList.contains('suey-dock-right')) {
-                            const newDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%');
-                            droppedOnPanel = newDock.enableTabs();
-                        } else if (locationUnder.dom.classList.contains('suey-dock-center')) {
+                if (lastUnder && lastUnder.hasClass('suey-tab-buttons')) {
+                    const buttonRect = lastUnder.dom.getBoundingClientRect();
+                    let percentage = 0;
+                    if (lastUnder.hasClass('suey-left-side') || lastUnder.hasClass('suey-right-side')) {
+                        percentage = (event.pageY - buttonRect.top) / (buttonRect.height - self.getHeight());
+                    } else  {
+                        percentage = (event.pageX - buttonRect.left) / (buttonRect.width - self.getWidth());
+                    }
+                    const newIndex = Math.round(percentage * (self.tabPanel.dock.buttons.children.length - 1));
+                    currentParent.appendChild(self.dom);
+                    currentParent.insertBefore(self.dom, currentParent.children[newIndex]);
+                } else if (lastUnder && lastUnder.hasClass('suey-docker2')) {
+                    if (locationUnder) {
+                        let droppedOnDock = null;
+                        if (locationUnder.hasClass('suey-dock-middle-vertical') ||
+                            locationUnder.hasClass('suey-dock-middle-horizontal')) {
+                            droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
+                        } else if (locationUnder.hasClass('suey-dock-top')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-bottom')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-left')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-right')) {
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%').enableTabs();
+                        } else if (locationUnder.hasClass('suey-dock-center')) {
                         } else {
                             console.log(locationUnder);
                         }
-                    }
-                    if (droppedOnPanel) {
-                        if (self.tabPanel.dock && droppedOnPanel !== self.tabPanel.dock) {
-                            const existing = self.tabPanel.dock;
-                            const tabIndex = existing.buttons.children.indexOf(self);
-                            existing.removeTab(tabIndex);
-                            if (existing.selectedID === self.tabPanel.getID() && tabIndex > 0) {
-                                existing.selectTab(existing.buttons.children[tabIndex - 1].getID());
-                            } else {
-                                existing.selectFirst();
+                        if (droppedOnDock) {
+                            if (self.tabPanel.dock && droppedOnDock !== self.tabPanel.dock) {
+                                const existing = self.tabPanel.dock;
+                                const tabIndex = existing.buttons.children.indexOf(self);
+                                existing.removeTab(tabIndex);
+                                if (existing.selectedID === self.tabPanel.getID() && tabIndex > 0) {
+                                    existing.selectTab(existing.buttons.children[tabIndex - 1].getID());
+                                } else {
+                                    existing.selectFirst();
+                                }
                             }
+                            droppedOnDock.addTab(self.tabPanel);
+                            droppedOnDock.selectTab(self.tabPanel.id, false);
                         }
-                        droppedOnPanel.addTab(self.tabPanel);
-                        droppedOnPanel.selectTab(self.tabPanel.id, false);
                     }
-                }
-                if (lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
                     lastUnder.hideDockLocations();
                 }
                 currentParent = null;
