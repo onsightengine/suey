@@ -60,7 +60,7 @@
     --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */
 
     /* Transparency */
-    --panel-transparency:   1.0;
+    --panel-transparency:   0.85;
 
     /* Font */
     font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px)

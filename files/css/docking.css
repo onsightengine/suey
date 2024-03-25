@@ -130,7 +130,7 @@
     padding: var(--pad-small);
 }
 
-/* Collection of Panels */
+/* Child of Tabbed that holds multiple 'TanelPanel' */
 .suey-tab-panels {
     height: 100%;
     width: 100%;
@@ -151,7 +151,7 @@
     overflow: hidden;
 }
 
-/* Collection of 'TabButton's */
+/* Child of Tabbed that holds multiple 'TabButton' */
 .suey-tab-buttons {
     position: absolute;
     display: flex;
@@ -212,7 +212,7 @@
     margin-bottom: calc(-1 * var(--pad-x-small));
 }
 
-.suey-tab-button.suey-dragging {
+.suey-drag-tab-button {
     position: absolute;
     z-index: 10000;
     pointer-events: none;
@@ -266,7 +266,7 @@
     justify-content: center;
 }
 
-.suey-tab-button.suey-dragging .suey-tab-icon-border {
+.suey-tab-button.suey-drop-target .suey-tab-icon-border {
     border: 0.21em solid rgba(var(--complement)) !important;
 }
 

@@ -93,10 +93,10 @@ class TabButton extends Div {
         // Dragging Tabs
         let downX = 0, downY = 0, downTime = 0;
         let minDistance = 0;
-        let currentParent = undefined;
-        let tabIndex = -1;
+        let buttonClone = undefined;
         let lastUnder = undefined;
         let locationUnder = undefined;
+
         function onPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
@@ -113,23 +113,30 @@ class TabButton extends Div {
             event.preventDefault();
             minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
             minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
-            if (!self.hasClass('suey-dragging')) {
+
+            if (!buttonClone) {
                 if (minDistance < MOUSE_SLOP_LARGE) return;
+
                 // Drag Start
-                self.addClass('suey-dragging');
                 Css.setCursor('pointer');
-                currentParent = self.dom.parentElement;
-                if (currentParent) tabIndex = Array.from(currentParent.children).indexOf(self.dom);
-                document.body.appendChild(self.dom);
+
+                // Clone
+                buttonClone = self.dom.cloneNode(true);
+                buttonClone.classList.add('suey-drag-tab-button');
+                document.body.appendChild(buttonClone);
             }
+
+            // Button Follows Mouse
             const newLeft = event.pageX - (self.getWidth() / 2);
             const newTop = event.pageY - (self.getHeight() / 2);
-            self.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
+            buttonClone.style.left = `${newLeft}px`;
+            buttonClone.style.top = `${newTop}px`;
+
             // Find Element Under Pointer
             let elementUnder = null;
             const domElements = document.elementsFromPoint(event.pageX, event.pageY);
             if (domElements.includes(self.parent.dom)) {
-                elementUnder = self.parent; // i.e., 'suey-tab-buttons'
+                elementUnder = self.parent; // i.e., parent 'suey-tab-buttons'
             } else {
                 for (const dom of domElements) {
                     if (dom.classList.contains('suey-docker2')) {
@@ -138,48 +145,54 @@ class TabButton extends Div {
                     }
                 }
             }
-            // Hide Last Dock Locations
-            if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement && lastUnder.hasClass('suey-docker2')) {
-                lastUnder.hideDockLocations();
+
+            // Drag Over
+            if (elementUnder && elementUnder.isElement) {
+                // Drag Over TabButtons (reorganize TabButtons)
+                if (elementUnder.hasClass('suey-tab-buttons')) {
+                    if (elementUnder === self.tabPanel.dock.buttons) {
+                        const buttonUnder = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
+                        if (buttonUnder) {
+                            buttonUnder.addClass('suey-drop-target');
+                            const newIndex = Array.from(elementUnder.dom.children).indexOf(buttonUnder.dom);
+                            if (newIndex !== Array.from(elementUnder.dom.children).indexOf(self.dom)) {
+                                elementUnder.dom.appendChild(self.dom); // send to back
+                                elementUnder.dom.insertBefore(self.dom, elementUnder.dom.children[newIndex]); // insert in new position
+                            }
+                            elementUnder = buttonUnder;
+                        }
+                    }
+
+                // Drag Over Docker2 (show new Dock Locations)
+                } else if (elementUnder.hasClass('suey-docker2')) {
+                    elementUnder.showDockLocations(event.pageX, event.pageY);
+                    locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
+                    if (locationUnder) locationUnder.addClass('suey-dock-drop');
+                }
             }
-            // Show New Dock Locations
-            if (elementUnder && elementUnder.isElement && elementUnder.hasClass('suey-docker2')) {
-                elementUnder.showDockLocations(event.pageX, event.pageY);
-                locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
-                if (locationUnder) locationUnder.addClass('suey-dock-drop');
+
+            // Hide Previous Element Under
+            if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement) {
+                if (lastUnder.hasClass('suey-docker2')) lastUnder.hideDockLocations();
+                if (lastUnder.hasClass('suey-tab-button')) lastUnder.removeClass('suey-drop-target');
             }
+
             lastUnder = elementUnder;
         }
         function onPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
-            // Drag End
-            if (self.hasClass('suey-dragging')) {
-                self.removeClass('suey-dragging');
-                Css.setCursor('');
-                // Put Back Into Existing Parent
-                self.setStyle('left', '', 'top', '');
-                if (currentParent) {
-                    if (tabIndex >= 0 && tabIndex < currentParent.children.length) {
-                        currentParent.insertBefore(self.dom, currentParent.children[tabIndex]);
-                    } else {
-                        currentParent.appendChild(self.dom);
-                    }
-                }
-                // Handle Drop onto TabButtons
-                if (lastUnder && lastUnder.hasClass('suey-tab-buttons')) {
-                    const buttonRect = lastUnder.dom.getBoundingClientRect();
-                    let percentage = 0;
-                    if (lastUnder.hasClass('suey-left-side') || lastUnder.hasClass('suey-right-side')) {
-                        percentage = (event.pageY - buttonRect.top) / (buttonRect.height - self.getHeight());
-                    } else /* suey-top-side, suey-bottom-side */ {
-                        percentage = (event.pageX - buttonRect.left) / (buttonRect.width - self.getWidth());
-                    }
-                    const newIndex = Math.round(percentage * (self.tabPanel.dock.buttons.children.length - 1));
-                    currentParent.appendChild(self.dom); // send to back
-                    currentParent.insertBefore(self.dom, currentParent.children[newIndex]); // insert in new position
 
-                // Handle Drop onto Docker2
+            // Drag End
+            if (buttonClone) {
+                Css.setCursor('');
+                document.body.removeChild(buttonClone);
+
+                // Last Under Element was TabButton
+                if (lastUnder && lastUnder.hasClass('suey-tab-button')) {
+                    lastUnder.removeClass('suey-drop-target');
+
+                // Last Under Element was Docker2
                 } else if (lastUnder && lastUnder.hasClass('suey-docker2')) {
                     if (locationUnder) {
                         let droppedOnDock = null;
@@ -223,8 +236,7 @@ class TabButton extends Div {
                     lastUnder.hideDockLocations();
                 }
                 // Reset Drop Variables
-                currentParent = null;
-                tabIndex = -1;
+                buttonClone = undefined;
                 lastUnder = null;
                 locationUnder = null;
             // Click?
