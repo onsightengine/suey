@@ -44,7 +44,7 @@ class Docker2 extends Panel {
     /******************** RESIZERS */
 
     isPrimary() {
-        return this.#primary;
+        return this.#primary; // return this.hasClass('suey-docker2-primary');
     }
 
     wantsResizer(side) {
@@ -60,7 +60,7 @@ class Docker2 extends Panel {
 
     /******************** DOCK */
 
-    addDock(side = DOCK_SIDES.LEFT, size = '20%') {
+    addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
         // Create Docks
         const dock = new Docker2(false /* primary */);
         const twin = new Docker2(false /* primary */);
@@ -91,16 +91,17 @@ class Docker2 extends Panel {
         }
 
         // Split Parent, Add Docks
-        if (!this.isPrimary()) {
-            const children = [];
-            for (const child of this.contents().children) {
-                if (!child.hasClass('suey-resizer')) { /* leave resizer along major axis*/
-                    children.push(child);
-                }
+        const childrenOf = primaryContents ? this.contents() : this;
+        const children = [];
+        for (const child of childrenOf.children) {
+            if (!child.hasClass('suey-resizer') &&              // Leave Resizer (stays on major axis)
+                !child.hasClass('suey-dock-locations')) {       // Leave DockLocations
+                children.push(child);
             }
-            twin.add(...children);
         }
-        this.add(twin, dock);
+        twin.add(...children);
+        if (primaryContents) this.add(twin, dock);
+        else this.addToSelf(twin, dock);
 
         // Dock Data
         dock.isVertical = dock.hasClass('suey-docker2-vertical');
@@ -119,7 +120,7 @@ class Docker2 extends Panel {
         }
 
         // Set new 'Contents'
-        this.contents = function() { return twin; }
+        if (primaryContents) this.contents = function() { return twin; }
 
         /***** EVENTS */
 
@@ -222,11 +223,8 @@ class Docker2 extends Panel {
         parent.remove(this, twin);
         parent.contents = function() { return parent; }
 
-        // Set Tabbed, Remove old DockLocations
-        if (parent.dockLocations) {
-            parent.remove(parent.dockLocations);
-            parent.dockLocations = undefined;
-        }
+        // Remove old DockLocations
+        parent.hideDockLocations();
 
         // Reset Empty Dock to 'center'
         if (parent.children.length === 0) {
@@ -292,12 +290,20 @@ class Docker2 extends Panel {
                 const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
                 const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
                 const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
-                const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
-                topDock.setStyle('left', '20%', 'width', '60%');
-                bottomDock.setStyle('left', '20%', 'width', '60%');
-                dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
+                if (this.isPrimary()) {
+                    leftDock.setStyle('width', '50px');
+                    rightDock.setStyle('width', '50px');
+                    topDock.setStyle('height', '50px');
+                    bottomDock.setStyle('height', '50px');
+                    dockLocations.add(leftDock, rightDock, topDock, bottomDock);
+                } else {
+                    const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
+                    topDock.setStyle('left', '20%', 'width', '60%');
+                    bottomDock.setStyle('left', '20%', 'width', '60%');
+                    dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
+                }
             }
-            this.add(dockLocations);
+            this.addToSelf(dockLocations);
             this.dockLocations = dockLocations;
         }
         for (const child of this.dockLocations.children) {
@@ -383,14 +389,14 @@ class Docker2 extends Panel {
 
         // Expand Dock
         function removeCollapsed(dock) {
-            if (dock && dock.hasClass('suey-docker2') && !dock.isPrimary()) {
+            if (dock && dock.hasClass('suey-docker2')) {
                 dock.removeClass('suey-collapsed');
-                if (dock.expandSide !== '') {
-                    dock.minimumSize = MINIMUM_NORMAL;
+                dock.minimumSize = MINIMUM_NORMAL;
+                if (dock.expandSide !== '' && !dock.isPrimary()) {
                     dock.setStyle(dock.expandSide, dock.expandSize);
-                    dock.expandSize = null;
-                    dock.expandSide = '';
                 }
+                dock.expandSize = null;
+                dock.expandSide = '';
             }
         }
         if (this.isPrimary()) {

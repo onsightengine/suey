@@ -94,6 +94,7 @@ class Element {
 
     /** Removes any number of 'Element' / 'HTMLElement' from self.contents() or self.children */
     remove(/* any number of comma separated elements to remove */) {
+        const elements = [];
         for (let i = 0; i < arguments.length; i++) {
             const element = arguments[i];
 
@@ -104,8 +105,11 @@ class Element {
                 // // DEBUG: Could not remove element(s)
                 // console.log(`Element.removeFromParent: Could not remove child!`);
             }
+            elements.push(removed);
         }
-        return this;
+        if (elements.length === 0) return undefined;
+        if (elements.length === 1) return elements[0];
+        return elements;
     }
 
     /********** CLASS / ID / NAME **********/

@@ -96,6 +96,7 @@ class TabButton extends Div {
         let buttonClone = undefined;
         let lastUnder = undefined;
         let locationUnder = undefined;
+        let wasSelected = false;
 
         function onPointerDown(event) {
             if (event.button !== 0) return;
@@ -119,6 +120,7 @@ class TabButton extends Div {
 
                 // Drag Start
                 Css.setCursor('pointer');
+                wasSelected = self.hasClass('suey-selected');
 
                 // Clone
                 buttonClone = self.dom.cloneNode(true);
@@ -134,33 +136,37 @@ class TabButton extends Div {
 
             // Find Element Under Pointer
             let elementUnder = null;
-            const domElements = document.elementsFromPoint(event.pageX, event.pageY);
-            if (domElements.includes(self.parent.dom)) {
-                elementUnder = self.parent; // i.e., parent 'suey-tab-buttons'
-            } else {
-                for (const dom of domElements) {
-                    if (dom.classList.contains('suey-docker2')) {
-                        elementUnder = dom.suey;
-                        break;
-                    }
-                }
+            const documentRect = document.body.getBoundingClientRect();
+            if (event.pageX < 50 || event.pageY < 50 || event.pageX > documentRect.width - 50 || event.pageY > documentRect.height - 50) {
+                elementUnder = Dom.findElementAt('suey-docker2-primary', event.pageX, event.pageY);
             }
+            if (!elementUnder) elementUnder = Dom.findElementAt('suey-tab-buttons', event.pageX, event.pageY);
+            if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY);
 
             // Drag Over
             if (elementUnder && elementUnder.isElement) {
                 // Drag Over TabButtons (reorganize TabButtons)
                 if (elementUnder.hasClass('suey-tab-buttons')) {
-                    if (elementUnder === self.tabPanel.dock.buttons) {
-                        const buttonUnder = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
-                        if (buttonUnder) {
-                            buttonUnder.addClass('suey-drop-target');
-                            const newIndex = Array.from(elementUnder.dom.children).indexOf(buttonUnder.dom);
-                            if (newIndex !== Array.from(elementUnder.dom.children).indexOf(self.dom)) {
-                                elementUnder.dom.appendChild(self.dom); // send to back
-                                elementUnder.dom.insertBefore(self.dom, elementUnder.dom.children[newIndex]); // insert in new position
+                    const buttonUnder = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
+                    if (buttonUnder) {
+                        if (elementUnder.children.indexOf(self) === -1) {
+                            // Remove from current Tabbed
+                            if (self.tabPanel.dock) {
+                                const tabIndex = self.tabPanel.dock.buttons.children.indexOf(self);
+                                self.tabPanel.dock.removeTab(tabIndex);
                             }
-                            elementUnder = buttonUnder;
+                            // Add to New Tabbed
+                            buttonUnder.tabPanel.dock.addTab(self.tabPanel);
+                            if (wasSelected) buttonUnder.tabPanel.dock.selectTab(self.tabPanel.id);
                         }
+
+                        buttonUnder.addClass('suey-drop-target');
+                        const newIndex = Array.from(elementUnder.dom.children).indexOf(buttonUnder.dom);
+                        if (newIndex !== Array.from(elementUnder.dom.children).indexOf(self.dom)) {
+                            elementUnder.dom.appendChild(self.dom); // send to back
+                            elementUnder.dom.insertBefore(self.dom, elementUnder.dom.children[newIndex]); // insert in new position
+                        }
+                        elementUnder = buttonUnder;
                     }
 
                 // Drag Over Docker2 (show new Dock Locations)
@@ -200,13 +206,13 @@ class TabButton extends Div {
                             locationUnder.hasClass('suey-dock-middle-horizontal')) {
                             droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
                         } else if (locationUnder.hasClass('suey-dock-top')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%').enableTabs();
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-bottom')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%').enableTabs();
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-left')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%').enableTabs();
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-right')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%').enableTabs();
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-center')) {
                             //
                             // TODO: Window Panel

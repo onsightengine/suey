@@ -88,8 +88,6 @@ class Tabbed extends Panel {
                 this.parent.collapseTabs();
                 return false;
             }
-        } else {
-            if (this.parent.hasClass('suey-collapsed')) return false;
         }
 
         // Find button / panel with New ID
