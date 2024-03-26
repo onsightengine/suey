@@ -1,51 +1,6 @@
-/********** Docker Left / Docker Right **********/
+/********** Docker **********/
 
-.suey-docker-corner {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    pointer-events: none;
-    margin: auto;
-    z-index: 1; /* Docker Corner */
-    background: transparent;
-}
-
-.suey-docker-top-left {
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    left: 0;
-}
-
-.suey-docker-top-right {
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    right: 0;
-}
-
-.suey-docker-bottom-left {
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    left: 0;
-    justify-content: end;
-}
-
-.suey-docker-bottom-right {
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    right: 0;
-    justify-content: end;
-}
-
-.suey-docker-bottom-middle {
-    top: calc(var(--button-size) + (var(--pad-small) * 2));
-    bottom: 0;
-    left: 0;
-    justify-content: end;
-}
-
-/********** Docker2 **********/
-
-.suey-docker2 {
+.suey-docker {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -55,24 +10,24 @@
     max-height: 100%;
 }
 
-.suey-docker2.suey-docker2-primary {
+.suey-docker.suey-docker-primary {
     position: relative;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
 }
 
-.suey-docker2-vertical {
+.suey-docker-vertical {
     height: 100%;
 }
 
-.suey-docker2-horizontal {
+.suey-docker-horizontal {
     width: 100%;
 }
 
 /***** Collapsed Docks */
 
-.suey-docker2.suey-collapsed {
+.suey-docker.suey-collapsed {
     min-width: calc(var(--tab-size) * 1) !important;
     min-height: calc(var(--tab-size) * 1) !important;
 }

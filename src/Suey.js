@@ -22,7 +22,7 @@
 //      TreeList                div                     .suey-tree-list
 //
 //  DOCKING
-//      Docker                  div                     .suey-docker-corner, .suey-docker-top-left, .suey-bottom-left, etc.
+//      Docker                  div                     .suey-docker
 //      Floater                 div                     .suey-floater, .suey-tab-button
 //      Tabbed                  div                     .suey-tabbed
 //      Window                  div                     .suey-window
@@ -107,7 +107,6 @@ export { TreeList } from './data/TreeList.js';
 
 // Docking
 export { Docker } from './docking/Docker.js';
-export { Docker2 } from './docking/Docker2.js';
 export { Floater } from './docking/Floater.js';
 export { Tabbed } from './docking/Tabbed.js';
 export { Window } from './docking/Window.js';

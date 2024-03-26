@@ -138,10 +138,10 @@ class TabButton extends Div {
             let elementUnder = null;
             const documentRect = document.body.getBoundingClientRect();
             if (event.pageX < 50 || event.pageY < 50 || event.pageX > documentRect.width - 50 || event.pageY > documentRect.height - 50) {
-                elementUnder = Dom.findElementAt('suey-docker2-primary', event.pageX, event.pageY);
+                elementUnder = Dom.findElementAt('suey-docker-primary', event.pageX, event.pageY);
             }
             if (!elementUnder) elementUnder = Dom.findElementAt('suey-tab-buttons', event.pageX, event.pageY);
-            if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker2', event.pageX, event.pageY);
+            if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker', event.pageX, event.pageY);
 
             // Drag Over
             if (elementUnder && elementUnder.isElement) {
@@ -169,8 +169,8 @@ class TabButton extends Div {
                         elementUnder = buttonUnder;
                     }
 
-                // Drag Over Docker2 (show new Dock Locations)
-                } else if (elementUnder.hasClass('suey-docker2')) {
+                // Drag Over Docker (show new Dock Locations)
+                } else if (elementUnder.hasClass('suey-docker')) {
                     elementUnder.showDockLocations(event.pageX, event.pageY);
                     locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
                     if (locationUnder) locationUnder.addClass('suey-dock-drop');
@@ -179,7 +179,7 @@ class TabButton extends Div {
 
             // Hide Previous Element Under
             if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement) {
-                if (lastUnder.hasClass('suey-docker2')) lastUnder.hideDockLocations();
+                if (lastUnder.hasClass('suey-docker')) lastUnder.hideDockLocations();
                 if (lastUnder.hasClass('suey-tab-button')) lastUnder.removeClass('suey-drop-target');
             }
 
@@ -198,8 +198,8 @@ class TabButton extends Div {
                 if (lastUnder && lastUnder.hasClass('suey-tab-button')) {
                     lastUnder.removeClass('suey-drop-target');
 
-                // Last Under Element was Docker2
-                } else if (lastUnder && lastUnder.hasClass('suey-docker2')) {
+                // Last Under Element was Docker
+                } else if (lastUnder && lastUnder.hasClass('suey-docker')) {
                     if (locationUnder) {
                         let droppedOnDock = null;
                         if (locationUnder.hasClass('suey-dock-middle-vertical') ||
