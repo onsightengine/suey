@@ -115,6 +115,12 @@ class Tabbed extends Panel {
 
             // Re-enable animationss
             if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
+
+            // Show Panel
+            if (wasClicked) {
+                const dockParent = Dom.parentElementWithClass(this, 'suey-docker2');
+                if (dockParent && dockParent.hasClass('suey-collapsed')) dockParent.expandTabs();
+            }
             return true;
         }
         return false;

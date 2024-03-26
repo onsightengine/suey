@@ -9,6 +9,8 @@ import { DOCK_SIDES } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { RESIZERS } from '../constants.js';
 
+const MINIMUM_NORMAL = 0;
+
 class Docker2 extends Panel {
 
     #primary = false;
@@ -17,6 +19,14 @@ class Docker2 extends Panel {
         super({ style: PANEL_STYLES.NONE });
         const self = this;
         this.addClass('suey-docker2');
+
+        // Properties
+        this.initialSide = 'center';
+        this.isHorizontal = false;
+        this.isVertical = false;
+        this.minimumSize = MINIMUM_NORMAL;
+        this.expandSize = '100%';
+        this.expandSide = 'width';
 
         // Primary Dock
         this.#primary = primary;
@@ -32,6 +42,10 @@ class Docker2 extends Panel {
     }
 
     /******************** RESIZERS */
+
+    isPrimary() {
+        return this.#primary;
+    }
 
     wantsResizer(side) {
         const resizers = [];
@@ -116,8 +130,8 @@ class Docker2 extends Panel {
             if (resizer && resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
             if (resizer && resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
             if (resizer && resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
-            if (newWidth != null) dock.setStyle('width', `${Math.max(100, newWidth)}px`);
-            if (newHeight != null) dock.setStyle('height', `${Math.max(100, newHeight)}px`);
+            if (newWidth != null) dock.setStyle('width', `${newWidth}px`);
+            if (newHeight != null) dock.setStyle('height', `${newHeight}px`);
             if (newWidth != null || newHeight != null) dock.dom.dispatchEvent(new Event('resized'));
         }
         Interaction.makeResizeable(dock, resizerDown, resizerMove, null, checkCancel);
@@ -126,22 +140,26 @@ class Docker2 extends Panel {
         // Limit Size, Resize Twin
         function resizeTwin() {
             const twin = dock.getTwin();
-            if (twin.dom && twin.dom.children.length > 0) {
+            let maxSize = Infinity;
+            if (twin.dom.children.length > 0) {
                 const computed = getComputedStyle(twin.dom);
-                if (dock.isVertical) {
-                    const maxWidth = dock.parent.getWidth() - parseFloat(computed.minWidth);
-                    dock.setStyle('width', `${Math.min(dock.getWidth(), maxWidth)}px`);
-                }
-                if (dock.isHorizontal) {
-                    const maxHeight = dock.parent.getHeight() - parseFloat(computed.minHeight);
-                    dock.setStyle('height', `${Math.min(dock.getHeight(), maxHeight)}px`);
-                }
+                if (dock.isVertical) maxSize = dock.parent.getWidth() - parseFloat(computed.minWidth);
+                if (dock.isHorizontal) maxSize = dock.parent.getHeight() - parseFloat(computed.minHeight);
+            }
+            if (dock.isVertical) {
+                let newSize = Math.max(dock.getWidth(), dock.minimumSize);
+                if (Number.isFinite(maxSize)) newSize = Math.min(newSize, maxSize);
+                dock.setStyle('width', `${newSize}px`);
+            }
+            if (dock.isHorizontal) {
+                let newSize = Math.max(dock.getHeight(), dock.minimumSize);
+                if (Number.isFinite(maxSize)) newSize = Math.min(newSize, maxSize);
+                dock.setStyle('height', `${newSize}px`);
             }
             if (dock.isVertical) twin.setStyle('width', `${dock.parent.getWidth() - dock.getWidth()}px`);
             if (dock.isHorizontal) twin.setStyle('height', `${dock.parent.getHeight() - dock.getHeight()}px`);
             for (const child of dock.children) child.dom.dispatchEvent(new Event('resized'));
             for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
-
         }
         dock.dom.addEventListener('resized', resizeTwin);
 
@@ -270,6 +288,46 @@ class Docker2 extends Panel {
     }
 
     /******************** TABS */
+
+    collapseTabs() {
+        this.traverse((child) => {
+            if (child.hasClass('suey-docker2') && child.children.length > 0) {
+                child.addClass('suey-collapsed');
+                child.expandSide = '';
+                if (child.initialSide === 'left' || child.initialSide === 'right') {
+                    child.expandSize = child.dom.style.width;
+                    child.expandSide = 'width';
+                } else if (child.initialSide === 'top' || child.initialSide === 'bottom') {
+                    child.expandSize = child.dom.style.height;
+                    child.expandSide = 'height';
+                }
+                if (child.expandSide !== '') child.setStyle(child.expandSide, '0');
+                child.dom.dispatchEvent(new Event('resized'));
+            }
+
+            // if (child.hasClass('suey-tab-button')) child.removeClass('suey-selected');
+
+        }, false /* applyToSelf */);
+    }
+
+    expandTabs() {
+        // Collect ncestors
+        let dockTree = [];
+        this.traverseAncestors((child) => {
+            if (child.hasClass('suey-docker2') && !child.isPrimary()) {
+                dockTree.push(child);
+            }
+        }, true /* applyToSelf */);
+        // Reset styles from the Top Down
+        dockTree = dockTree.reverse();
+        for (const dock of dockTree) {
+            if (!dock) continue;
+            dock.removeClass('suey-collapsed');
+            if (dock.expandSide !== '') dock.setStyle(dock.expandSide, dock.expandSize);
+        }
+        // Force all Docks to update sizes
+        window.dispatchEvent(new Event('resize'));
+    }
 
     enableTabs() {
         if (this.#primary) {

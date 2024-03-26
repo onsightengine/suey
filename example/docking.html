@@ -43,6 +43,12 @@
             // docker.setStyle('background-color', `rgba(${new Iris().setRandom().rgbString(0.25)})`);
         });
 
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'c') {
+                docker.collapseTabs();
+            }
+        });
+
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
         const dockRight = docker.addDock(DOCK_SIDES.RIGHT, '20%');
         const dockBottom = docker.addDock(DOCK_SIDES.BOTTOM, '35%');

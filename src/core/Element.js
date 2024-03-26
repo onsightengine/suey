@@ -354,6 +354,12 @@ class Element {
         }
     }
 
+    /** Applies a callback function to all Element parents, recursively */
+    traverseAncestors(callback, applyToSelf = true) {
+        if (applyToSelf) callback(this);
+        if (this.parent) this.parent.traverseAncestors(callback, true);
+    }
+
 }
 
 export { Element };

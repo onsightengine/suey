@@ -70,6 +70,29 @@
     width: 100%;
 }
 
+/***** Collapsed */
+
+.suey-docker2.suey-collapsed {
+    min-width: var(--tab-size) !important;
+    min-height: var(--tab-size) !important;
+}
+
+.suey-collapsed > .suey-tabbed .suey-panel-simple,
+.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,
+.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,
+.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.suey-collapsed > .suey-tabbed .suey-tab-panels * {
+    opacity: 0.25 !important;
+    user-select: none !important;
+    pointer-events: none !important;
+}
+
 /***** Dock Locations */
 
 .suey-dock-locations {
@@ -122,7 +145,18 @@
     background-color: rgba(var(--complement), 0.1);
 }
 
-/********** Tabbed / Floater **********/
+/********** Floater **********/
+
+.suey-floater {
+    display: flex; /* needed for scroll bars to appear on proper layer */
+    flex-direction: column;
+    pointer-events: auto;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+/********** Tabbed **********/
 
 .suey-tabbed {
     position: relative;
@@ -130,7 +164,9 @@
     padding: var(--pad-small);
 }
 
-/* Child of Tabbed that holds multiple 'TanelPanel' */
+/***** TabPanels */
+
+/* Child of Tabbed that holds multiple 'Floater' */
 .suey-tab-panels {
     height: 100%;
     width: 100%;
@@ -141,15 +177,7 @@
     flex-direction: column;
 }
 
-/* Interior panel of a Tabbed Panel */
-.suey-tab-panels .suey-floater {
-    display: flex; /* needed for scroll bars to appear on proper layer */
-    flex-direction: column;
-    pointer-events: auto;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-}
+/***** TabButtons */
 
 /* Child of Tabbed that holds multiple 'TabButton' */
 .suey-tab-buttons {
@@ -286,7 +314,7 @@
     border: 0.15em solid rgb(var(--icon));
 }
 
-/***** Window *****/
+/********** Window **********/
 
 .suey-window {
     --window-z-index: 200;

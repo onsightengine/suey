@@ -1,4 +1,4 @@
-/***** Panel Button *****/
+/********** Panel Button **********/
 
 .suey-panel-button {
     pointer-events: all;
@@ -26,7 +26,7 @@
     filter: brightness(100%);
 }
 
-/***** Corner Buttons *****/
+/********** Corner Buttons **********/
 
 .suey-corner-button {
     cursor: pointer;
@@ -69,7 +69,7 @@
     opacity: 1.0;
 }
 
-/***** Resizeable *****/
+/********** Resizeable **********/
 
 .suey-resizer {
     --height: 100%;
