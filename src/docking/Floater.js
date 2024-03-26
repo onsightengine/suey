@@ -218,14 +218,8 @@ class TabButton extends Div {
                         if (droppedOnDock) {
                             // Remove from current Tabbed
                             if (self.tabPanel.dock && droppedOnDock !== self.tabPanel.dock) {
-                                const existing = self.tabPanel.dock;
-                                const tabIndex = existing.buttons.children.indexOf(self);
-                                existing.removeTab(tabIndex);
-                                if (existing.selectedID === self.tabPanel.getID() && tabIndex > 0) {
-                                    existing.selectTab(existing.buttons.children[tabIndex - 1].getID());
-                                } else {
-                                    existing.selectFirst();
-                                }
+                                const tabIndex = self.tabPanel.dock.buttons.children.indexOf(self);
+                                self.tabPanel.dock.removeTab(tabIndex);
                             }
                             // Add to New Tabbed
                             droppedOnDock.addTab(self.tabPanel);

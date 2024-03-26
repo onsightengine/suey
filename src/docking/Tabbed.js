@@ -70,16 +70,10 @@ class Tabbed extends Panel {
 
     /******************** SELECT */
 
-    /** Select first tab */
+    /** Select first Tab */
     selectFirst() {
-        if (this.panels.children.length > 0) {
-            return this.selectTab(this.panels.children[0].getID());
-        } else {
-            const tabChange = new Event('tab-changed');
-            tabChange.value = undefined;
-            this.dom.dispatchEvent(tabChange);
-            return false;
-        }
+        if (this.panels.children.length === 0) return false;
+        return this.selectTab(this.panels.children[0].getID());
     }
 
     /** Select Tab (returns true if new Tab was selected) */
@@ -101,39 +95,31 @@ class Tabbed extends Panel {
         // Find button / panel with New ID
         const panel = this.panels.children.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
-            // Disable animations while rebuilding
-            if (wasClicked) Css.setVariable('--tab-timing', '0', this.dom);
+            // Disable Animations
+            if (!wasClicked) Css.setVariable('--tab-timing', '0', this.dom);
 
-            // Deselect current selection
-            this.unselectTab();
+            // Deselect current Panel / Button
+            const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+            if (selectedPanel) selectedPanel.addClass('suey-hidden');
+            if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
 
-            // Select new panel / button
+            // Select new Panel / Button
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             this.selectedID = newID;
 
-            // Emit event
+            // Event
             const tabChange = new Event('tab-changed');
             tabChange.value = newID;
             this.dom.dispatchEvent(tabChange);
 
-            // Re-enable animations
+            // Enable animations
             setTimeout(() => Css.setVariable('--tab-timing', '200ms', this.dom), 50);
 
             // Selection Successful
             return true;
         }
         return false;
-    }
-
-    /** Unselecteds Tab with 'id' */
-    unselectTab() {
-        const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
-        if (selectedPanel) {
-            selectedPanel.addClass('suey-hidden');
-            if (selectedPanel.button) selectedPanel.button.removeClass('suey-selected');
-        }
-        this.selectedID = '';
     }
 
     /******************** REMOVE */
@@ -153,13 +139,27 @@ class Tabbed extends Panel {
     }
 
     removeTab(index) {
-        if (index >= 0 && index < this.panels.children.length) {
-            const button = this.buttons.children[index];
-            const panel = this.panels.children[index];
-            if (button) button.removeClass('suey-selected');
-            if (panel) panel.addClass('suey-hidden');
-            this.buttons.detach(button);
-            this.panels.detach(panel);
+        if (index < 0 || index >= this.panels.children.length) return;
+
+        // Remove Tab
+        const button = this.buttons.children[index];
+        const panel = this.panels.children[index];
+        if (button) button.removeClass('suey-selected');
+        if (panel) panel.addClass('suey-hidden');
+        this.buttons.detach(button);
+        this.panels.detach(panel);
+
+        // Was Selected? (select new Tab)
+        if (panel.getID() === this.selectedID) {
+            if (index > 0) {
+                this.selectTab(this.panels.children[index - 1].getID());
+            } else if (this.panels.children.length > 0) {
+                this.selectFirst();
+            } else {
+                const tabChange = new Event('tab-changed');
+                tabChange.value = undefined;
+                this.dom.dispatchEvent(tabChange);
+            }
         }
 
         // Minimum Tabs to Show

@@ -73,8 +73,8 @@
 /***** Collapsed Docks */
 
 .suey-docker2.suey-collapsed {
-    min-width: calc(var(--tab-size) * 0.9) !important;
-    min-height: calc(var(--tab-size) * 0.9) !important;
+    min-width: calc(var(--tab-size) * 1) !important;
+    min-height: calc(var(--tab-size) * 1) !important;
 }
 
 .suey-collapsed > .suey-tabbed .suey-panel-simple,
@@ -93,13 +93,12 @@
     pointer-events: none !important;
 }
 
-.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side,
-.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side {
-    top: calc(var(--tab-size) * 0.2);
-}
-.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side,
-.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side {
-    left: calc(var(--tab-size) * 0.2);
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }
+.suey-collapsed > .suey-tabbed .suey-tab-button {
+    margin: 0 !important;
 }
 
 .suey-collapsed > .suey-resizer {
@@ -237,7 +236,7 @@
     border-radius: var(--tab-size);
     outline: none;
     margin: var(--pad-x-small);
-    transform: scale(70%);
+    transform: scale(75%);
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
 }
 
@@ -261,7 +260,7 @@
     transform: scale(100%);
 }
 
-.suey-tab-button.suey-selected {
+:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected {
     color: rgba(var(--highlight), 1.0);
     margin-top: var(--pad-x-small);
     margin-bottom: var(--pad-x-small);
@@ -280,7 +279,7 @@
     filter: contrast(75%) grayscale(100%) brightness(75%);
 }
 
-.suey-tab-button.suey-selected .suey-vector-box {
+:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-vector-box {
     filter: none;
 }
 
@@ -300,7 +299,7 @@
     width: 100%;
     height: 100%;
     border: 0.21em solid rgba(var(--icon));
-    border-radius: calc(var(--tab-size) * 0.7);
+    border-radius: calc(var(--tab-size) * 0.75);
     outline: none;
     display: flex;
     align-items: center;
@@ -323,7 +322,7 @@
         inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);
 }
 
-.suey-tab-button.suey-selected .suey-tab-icon-border {
+:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {
     border: 0.15em solid rgb(var(--icon));
 }
 

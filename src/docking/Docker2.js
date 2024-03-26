@@ -91,7 +91,7 @@ class Docker2 extends Panel {
         }
 
         // Split Parent, Add Docks
-        if (!this.#primary) {
+        if (!this.isPrimary()) {
             const children = [];
             for (const child of this.contents().children) {
                 if (!child.hasClass('suey-resizer')) { /* leave resizer along major axis*/
@@ -192,7 +192,7 @@ class Docker2 extends Panel {
     }
 
     removeDock() {
-        if (this.#primary) {
+        if (this.isPrimary()) {
             console.warn('Docker2.removeDock: Cannot remove the primary dock');
             return;
         }
@@ -307,77 +307,8 @@ class Docker2 extends Panel {
 
     /******************** TABS */
 
-    collapseTabs() {
-        this.addClass('suey-collapsed');
-
-        // Find top most dock that wants collapsing (all child docks are collapsed)
-        let collpaseDock = this;
-        this.traverseAncestors((parent) => {
-            if (!parent.hasClass('suey-docker2')) return;
-            let childrenCollapsed = true;
-            for (const child of parent.children) {
-                if (child.hasClass('suey-docker2')) {
-                    childrenCollapsed = childrenCollapsed && child.hasClass('suey-collapsed');
-                }
-            }
-            if (childrenCollapsed) collpaseDock = parent;
-        });
-
-        // Collapse Docks
-        collpaseDock.traverse((child) => {
-            // Collapse
-            if (child.hasClass('suey-docker2') && child.children.length > 0) {
-                child.addClass('suey-collapsed');
-                child.expandSide = '';
-                if (child.initialSide === 'left' || child.initialSide === 'right') {
-                    if (child.expandSize == null) child.expandSize = child.dom.style.width;
-                    child.expandSide = 'width';
-                } else if (child.initialSide === 'top' || child.initialSide === 'bottom') {
-                    if (child.expandSize == null) child.expandSize = child.dom.style.height;
-                    child.expandSide = 'height';
-                }
-                if (child.expandSide !== '') {
-                    child.setStyle(child.expandSide, '0');
-                    child.minimumSize = 0;
-                }
-                child.dom.dispatchEvent(new Event('resized'));
-            }
-            // Shrink Buttons
-            if (child.hasClass('suey-tabbed')) child.unselectTab();
-        }, !this.isPrimary() /* applyToSelf */);
-    }
-
-    expandTabs() {
-        // Collect Ancestors
-        const dockTree = [];
-        this.traverseAncestors((parent) => {
-            if (parent.hasClass('suey-docker2') && !parent.isPrimary()) {
-                dockTree.push(parent);
-            }
-        }, true /* applyToSelf */);
-        // Reset styles from the Top Down
-        for (const dock of dockTree.reverse()) {
-            if (!dock) continue;
-            dock.removeClass('suey-collapsed');
-            if (dock.expandSide !== '') {
-                dock.minimumSize = MINIMUM_NORMAL;
-                dock.setStyle(dock.expandSide, dock.expandSize);
-                dock.expandSize = null;
-                dock.expandSide = '';
-            }
-            // Restore Selected Tab
-            for (const child of dock.children) {
-                if (child.hasClass('suey-tabbed') && child.selectedID === '') {
-                    child.selectFirst();
-                }
-            }
-        }
-        // Force all Docks to update sizes
-        window.dispatchEvent(new Event('resize'));
-    }
-
     enableTabs() {
-        if (this.#primary) {
+        if (this.isPrimary()) {
             console.warn('Docker2.enableTabs: Cannot enable tabs on the primary dock');
             return undefined;
         }
@@ -403,6 +334,63 @@ class Docker2 extends Panel {
         // Save, Add, Return
         this.add(tabbed);
         return tabbed;
+    }
+
+    collapseTabs() {
+        this.addClass('suey-collapsed');
+
+        // Find top most dock that wants collapsing (all child docks are collapsed)
+        let collpaseDock = this;
+        this.traverseAncestors((parent) => {
+            if (!parent.hasClass('suey-docker2')) return;
+            let childrenCollapsed = true;
+            for (const child of parent.children) {
+                if (child.hasClass('suey-docker2')) {
+                    childrenCollapsed = childrenCollapsed && child.hasClass('suey-collapsed');
+                }
+            }
+            if (childrenCollapsed) collpaseDock = parent;
+        });
+
+        // Collapse Docks
+        collpaseDock.traverse((child) => {
+            if (child.hasClass('suey-docker2') && child.children.length > 0) {
+                child.addClass('suey-collapsed');
+                if (child.expandSize == null) {
+                    if (child.initialSide === 'left' || child.initialSide === 'right') {
+                        child.expandSize = child.dom.style.width;
+                        child.expandSide = 'width';
+                    } else if (child.initialSide === 'top' || child.initialSide === 'bottom') {
+                        child.expandSize = child.dom.style.height;
+                        child.expandSide = 'height';
+                    }
+                    child.setStyle(child.expandSide, '0');
+                    child.minimumSize = 0;
+                    child.dom.dispatchEvent(new Event('resized'));
+                }
+            }
+        }, !this.isPrimary() /* applyToSelf */);
+    }
+
+    expandTabs() {
+        function removeCollapsed(dock) {
+            if (dock && dock.hasClass('suey-docker2') && !dock.isPrimary()) {
+                dock.removeClass('suey-collapsed');
+                if (dock.expandSide !== '') {
+                    dock.minimumSize = MINIMUM_NORMAL;
+                    dock.setStyle(dock.expandSide, dock.expandSize);
+                    dock.expandSize = null;
+                    dock.expandSide = '';
+                }
+            }
+        }
+        if (this.isPrimary()) {
+            this.traverse((child) => removeCollapsed(child), false /* applyToSelf */);
+        } else {
+            this.traverseAncestors((parent) => removeCollapsed(parent), true /* applyToSelf */);
+        }
+        // Force all Docks to update sizes
+        window.dispatchEvent(new Event('resize'));
     }
 
 }

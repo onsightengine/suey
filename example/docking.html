@@ -44,9 +44,8 @@
         });
 
         document.addEventListener('keyup', (event) => {
-            if (event.key === 'c') {
-                docker.collapseTabs();
-            }
+            if (event.key === 'c') docker.collapseTabs();
+            if (event.key === 'e') docker.expandTabs();
         });
 
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
