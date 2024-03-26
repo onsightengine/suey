@@ -94,6 +94,7 @@
     --resize-offset:       -0.8em;              /* resizer offset */
     --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */
     --tab-size:             2.25em;             /* Tab button diameter */
+    --tab-timing:           200ms;              /* Tab animation time */
 
     /* Timing */
     --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */

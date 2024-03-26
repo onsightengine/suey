@@ -337,6 +337,9 @@ class Docker2 extends Panel {
     }
 
     collapseTabs() {
+        // Disable Animations
+        Css.setVariable('--tab-timing', '0');
+        // Collapse Class
         this.addClass('suey-collapsed');
 
         // Find top most dock that wants collapsing (all child docks are collapsed)
@@ -370,9 +373,15 @@ class Docker2 extends Panel {
                 }
             }
         }, !this.isPrimary() /* applyToSelf */);
+        // Enable animations
+        setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
     }
 
     expandTabs() {
+        // Disable Animations
+        Css.setVariable('--tab-timing', '0');
+
+        // Expand Dock
         function removeCollapsed(dock) {
             if (dock && dock.hasClass('suey-docker2') && !dock.isPrimary()) {
                 dock.removeClass('suey-collapsed');
@@ -389,8 +398,11 @@ class Docker2 extends Panel {
         } else {
             this.traverseAncestors((parent) => removeCollapsed(parent), true /* applyToSelf */);
         }
+
         // Force all Docks to update sizes
         window.dispatchEvent(new Event('resize'));
+        // Enable animations
+        setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
     }
 
 }

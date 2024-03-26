@@ -96,7 +96,7 @@ class Tabbed extends Panel {
         const panel = this.panels.children.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
             // Disable Animations
-            if (!wasClicked) Css.setVariable('--tab-timing', '0', this.dom);
+            if (!wasClicked) Css.setVariable('--tab-timing', '0');
 
             // Deselect current Panel / Button
             const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
@@ -114,7 +114,7 @@ class Tabbed extends Panel {
             this.dom.dispatchEvent(tabChange);
 
             // Enable animations
-            setTimeout(() => Css.setVariable('--tab-timing', '200ms', this.dom), 50);
+            setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
 
             // Selection Successful
             return true;
