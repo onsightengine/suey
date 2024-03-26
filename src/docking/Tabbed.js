@@ -82,30 +82,34 @@ class Tabbed extends Panel {
         }
     }
 
-    /** Select Tab */
+    /** Select Tab (returns true if new Tab was selected) */
     selectTab(newID, wasClicked = false) {
-        const selectedID = this.selectedID;
+        // Clicked?
+        if (wasClicked) {
+            // Is Currently Collapsed?
+            if (this.parent.hasClass('suey-collapsed')) {
+                this.parent.expandTabs();
+            // Wants Collapse?
+            } else if (newID === this.selectedID) {
+                this.parent.collapseTabs();
+                return false;
+            }
+        } else {
+            if (this.parent.hasClass('suey-collapsed')) return false;
+        }
 
         // Find button / panel with New ID
         const panel = this.panels.children.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
-            const button = panel.button;
-
             // Disable animations while rebuilding
-            if (!wasClicked) Css.setVariable('--tab-timing', '0', button.dom);
+            if (wasClicked) Css.setVariable('--tab-timing', '0', this.dom);
 
             // Deselect current selection
-            const currentPanel = this.panels.children.find((item) => (item.getID() === selectedID));
-            if (currentPanel) {
-                currentPanel.addClass('suey-hidden');
-                if (currentPanel.button) currentPanel.button.removeClass('suey-selected');
-            }
+            this.unselectTab();
 
             // Select new panel / button
             panel.removeClass('suey-hidden');
-            button.addClass('suey-selected');
-
-            // Set New ID
+            panel.button.addClass('suey-selected');
             this.selectedID = newID;
 
             // Emit event
@@ -113,17 +117,23 @@ class Tabbed extends Panel {
             tabChange.value = newID;
             this.dom.dispatchEvent(tabChange);
 
-            // Re-enable animationss
-            if (!wasClicked) setTimeout(() => Css.setVariable('--tab-timing', '200ms', button.dom), 50);
+            // Re-enable animations
+            setTimeout(() => Css.setVariable('--tab-timing', '200ms', this.dom), 50);
 
-            // Show Panel
-            if (wasClicked) {
-                const dockParent = Dom.parentElementWithClass(this, 'suey-docker2');
-                if (dockParent && dockParent.hasClass('suey-collapsed')) dockParent.expandTabs();
-            }
+            // Selection Successful
             return true;
         }
         return false;
+    }
+
+    /** Unselecteds Tab with 'id' */
+    unselectTab() {
+        const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+        if (selectedPanel) {
+            selectedPanel.addClass('suey-hidden');
+            if (selectedPanel.button) selectedPanel.button.removeClass('suey-selected');
+        }
+        this.selectedID = '';
     }
 
     /******************** REMOVE */

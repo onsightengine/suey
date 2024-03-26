@@ -229,7 +229,8 @@ class TabButton extends Div {
                             }
                             // Add to New Tabbed
                             droppedOnDock.addTab(self.tabPanel);
-                            droppedOnDock.selectTab(self.tabPanel.id, true /* wasClicked */);
+                            droppedOnDock.parent.expandTabs();
+                            droppedOnDock.selectTab(self.tabPanel.id);
                         }
                     }
                     // Clear Dock Locations

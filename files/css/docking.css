@@ -70,11 +70,11 @@
     width: 100%;
 }
 
-/***** Collapsed */
+/***** Collapsed Docks */
 
 .suey-docker2.suey-collapsed {
-    min-width: var(--tab-size) !important;
-    min-height: var(--tab-size) !important;
+    min-width: calc(var(--tab-size) * 0.9) !important;
+    min-height: calc(var(--tab-size) * 0.9) !important;
 }
 
 .suey-collapsed > .suey-tabbed .suey-panel-simple,
@@ -88,8 +88,21 @@
 }
 
 .suey-collapsed > .suey-tabbed .suey-tab-panels * {
-    opacity: 0.25 !important;
+    opacity: 0 !important;
     user-select: none !important;
+    pointer-events: none !important;
+}
+
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side,
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side {
+    top: calc(var(--tab-size) * 0.2);
+}
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side,
+.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side {
+    left: calc(var(--tab-size) * 0.2);
+}
+
+.suey-collapsed > .suey-resizer {
     pointer-events: none !important;
 }
 
@@ -159,6 +172,8 @@
 /********** Tabbed **********/
 
 .suey-tabbed {
+    --tab-timing: 200ms;
+
     position: relative;
     max-height: 100%;
     padding: var(--pad-small);
@@ -210,8 +225,6 @@
 /***** TabButton *****/
 
 .suey-tab-button {
-    --tab-timing: 200ms;
-
     width: var(--tab-size);
     height: var(--tab-size);
     display: flex;

@@ -9,7 +9,7 @@ import { DOCK_SIDES } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { RESIZERS } from '../constants.js';
 
-const MINIMUM_NORMAL = 0;
+const MINIMUM_NORMAL = 100;
 
 class Docker2 extends Panel {
 
@@ -25,8 +25,8 @@ class Docker2 extends Panel {
         this.isHorizontal = false;
         this.isVertical = false;
         this.minimumSize = MINIMUM_NORMAL;
-        this.expandSize = '100%';
-        this.expandSide = 'width';
+        this.expandSize = null;
+        this.expandSide = '';
 
         // Primary Dock
         this.#primary = primary;
@@ -67,6 +67,11 @@ class Docker2 extends Panel {
 
         /***** INIT */
 
+        if (this.hasClass('suey-collapsed')) {
+            dock.addClass('suey-collapsed');
+            twin.addClass('suey-collapsed');
+        }
+
         // Initial Size
         switch (side) {
             case DOCK_SIDES.LEFT:
@@ -103,6 +108,15 @@ class Docker2 extends Panel {
         dock.dockSide = twin.dockSide = side;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
         twin.initialSide = (this.contents().initialSide === 'center') ? 'center' : this.initialSide;
+
+        // Collapsed Positioning
+        if (dock.isHorizontal) {
+            if (dock.initialSide === DOCK_SIDES.LEFT) { dock.setStyle('left', 0); twin.setStyle('left', 0); }
+            if (dock.initialSide === DOCK_SIDES.RIGHT) { dock.setStyle('right', 0); twin.setStyle('right', 0); }
+        } else if (dock.isVertical) {
+            if (dock.initialSide === DOCK_SIDES.TOP) { dock.setStyle('top', 0); twin.setStyle('top', 0); }
+            if (dock.initialSide === DOCK_SIDES.BOTTOM) { dock.setStyle('bottom', 0); twin.setStyle('bottom', 0); }
+        }
 
         // Set new 'Contents'
         this.contents = function() { return twin; }
@@ -203,6 +217,7 @@ class Docker2 extends Panel {
                 children.push(child);
             }
         }
+        const wasCollapsed = twin.hasClass('suey-collapsed');
         parent.addToSelf(...children);
         parent.remove(this, twin);
         parent.contents = function() { return parent; }
@@ -233,6 +248,9 @@ class Docker2 extends Panel {
 
         // Resize the parent
         parent.traverse((child) => child.dom.dispatchEvent(new Event('resized')));
+
+        // Collapsed?
+        if (wasCollapsed) parent.collapseTabs();
     }
 
     /******************** DROP LOCATIONS */
@@ -290,40 +308,69 @@ class Docker2 extends Panel {
     /******************** TABS */
 
     collapseTabs() {
-        this.traverse((child) => {
+        this.addClass('suey-collapsed');
+
+        // Find top most dock that wants collapsing (all child docks are collapsed)
+        let collpaseDock = this;
+        this.traverseAncestors((parent) => {
+            if (!parent.hasClass('suey-docker2')) return;
+            let childrenCollapsed = true;
+            for (const child of parent.children) {
+                if (child.hasClass('suey-docker2')) {
+                    childrenCollapsed = childrenCollapsed && child.hasClass('suey-collapsed');
+                }
+            }
+            if (childrenCollapsed) collpaseDock = parent;
+        });
+
+        // Collapse Docks
+        collpaseDock.traverse((child) => {
+            // Collapse
             if (child.hasClass('suey-docker2') && child.children.length > 0) {
                 child.addClass('suey-collapsed');
                 child.expandSide = '';
                 if (child.initialSide === 'left' || child.initialSide === 'right') {
-                    child.expandSize = child.dom.style.width;
+                    if (child.expandSize == null) child.expandSize = child.dom.style.width;
                     child.expandSide = 'width';
                 } else if (child.initialSide === 'top' || child.initialSide === 'bottom') {
-                    child.expandSize = child.dom.style.height;
+                    if (child.expandSize == null) child.expandSize = child.dom.style.height;
                     child.expandSide = 'height';
                 }
-                if (child.expandSide !== '') child.setStyle(child.expandSide, '0');
+                if (child.expandSide !== '') {
+                    child.setStyle(child.expandSide, '0');
+                    child.minimumSize = 0;
+                }
                 child.dom.dispatchEvent(new Event('resized'));
             }
-
-            // if (child.hasClass('suey-tab-button')) child.removeClass('suey-selected');
-
-        }, false /* applyToSelf */);
+            // Shrink Buttons
+            if (child.hasClass('suey-tabbed')) child.unselectTab();
+        }, !this.isPrimary() /* applyToSelf */);
     }
 
     expandTabs() {
-        // Collect ncestors
-        let dockTree = [];
-        this.traverseAncestors((child) => {
-            if (child.hasClass('suey-docker2') && !child.isPrimary()) {
-                dockTree.push(child);
+        // Collect Ancestors
+        const dockTree = [];
+        this.traverseAncestors((parent) => {
+            if (parent.hasClass('suey-docker2') && !parent.isPrimary()) {
+                dockTree.push(parent);
             }
         }, true /* applyToSelf */);
         // Reset styles from the Top Down
-        dockTree = dockTree.reverse();
-        for (const dock of dockTree) {
+        for (const dock of dockTree.reverse()) {
             if (!dock) continue;
             dock.removeClass('suey-collapsed');
-            if (dock.expandSide !== '') dock.setStyle(dock.expandSide, dock.expandSize);
+            if (dock.expandSide !== '') {
+                dock.minimumSize = MINIMUM_NORMAL;
+                dock.setStyle(dock.expandSide, dock.expandSize);
+                dock.expandSize = null;
+                dock.expandSide = '';
+            }
+            // Restore Selected Tab
+            for (const child of dock.children) {
+                if (child.hasClass('suey-tabbed') && child.selectedID === '') {
+                    child.selectFirst();
+                }
+            }
         }
         // Force all Docks to update sizes
         window.dispatchEvent(new Event('resize'));
