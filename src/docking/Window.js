@@ -201,7 +201,8 @@ class Window extends Panel {
     }
 
     toggleMinMax() {
-        this.undock();
+        this.removeClass('suey-docked-left');
+        this.removeClass('suey-docked-right');
         if (!this.maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
@@ -226,17 +227,25 @@ class Window extends Panel {
     dockLeft() {
         if (!this.hasClass('suey-docked-left')) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.addClass('suey-docked-left');
             this.removeClass('suey-docked-right');
+            this.addClass('suey-docked-left');
         }
+        this.setStyle('left', `0`);
+        this.setStyle('top', `0`);
+        this.setStyle('width', `50%`);
+        this.setStyle('height', `100%`);
     }
 
     dockRight() {
         if (!this.hasClass('suey-docked-right')) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.addClass('suey-docked-right');
             this.removeClass('suey-docked-left');
+            this.addClass('suey-docked-right');
         }
+        this.setStyle('left', `50%`);
+        this.setStyle('top', `0`);
+        this.setStyle('width', `50%`);
+        this.setStyle('height', `100%`);
     }
 
     undock() {

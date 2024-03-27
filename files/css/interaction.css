@@ -88,10 +88,6 @@
 .suey-no-resize .suey-window .suey-resizer {
     pointer-events: auto !important;
 }
-.suey-window.suey-docked-left .suey-resizer,
-.suey-window.suey-docked-right .suey-resizer {
-    pointer-events: none !important;
-}
 
 .suey-resizer-left {
     background-color: rgb(255, 0, 0);
