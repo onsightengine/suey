@@ -290,6 +290,11 @@
     z-index: var(--window-z-index); /* Window */
 }
 
+.suey-window.suey-drop-target .suey-panel-simple,
+.suey-window.suey-drop-target .suey-panel-fancy-border {
+    border: var(--border-small) solid rgb(var(--complement)) !important;
+}
+
 .suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {
     background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));
     border-radius: calc(var(--scroll-size) / 2.0);

@@ -138,12 +138,21 @@ class TabButton extends Div {
 
             // Find Element Under Pointer
             let elementUnder = null;
-            const documentRect = document.body.getBoundingClientRect();
-            if (event.pageX < 50 || event.pageY < 50 || event.pageX > documentRect.width - 50 || event.pageY > documentRect.height - 50) {
-                elementUnder = Dom.findElementAt('suey-docker-primary', event.pageX, event.pageY);
+            if (!elementUnder) elementUnder = Dom.findElementAt('suey-window', event.pageX, event.pageY);
+            if (elementUnder) {
+                if (elementUnder === self.tabPanel.dock) {
+                    self.tabPanel.dock.addClass('suey-drop-target');
+                } else {
+                    elementUnder = null;
+                }
+            } else {
+                const documentRect = document.body.getBoundingClientRect();
+                if (event.pageX < 50 || event.pageY < 50 || event.pageX > documentRect.width - 50 || event.pageY > documentRect.height - 50) {
+                    elementUnder = Dom.findElementAt('suey-docker-primary', event.pageX, event.pageY);
+                }
+                if (!elementUnder) elementUnder = Dom.findElementAt('suey-tab-buttons', event.pageX, event.pageY);
+                if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker', event.pageX, event.pageY);
             }
-            if (!elementUnder) elementUnder = Dom.findElementAt('suey-tab-buttons', event.pageX, event.pageY);
-            if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker', event.pageX, event.pageY);
 
             // Drag Over
             if (elementUnder && elementUnder.isElement) {
@@ -183,6 +192,7 @@ class TabButton extends Div {
             if (elementUnder !== lastUnder && lastUnder && lastUnder.isElement) {
                 if (lastUnder.hasClass('suey-docker')) lastUnder.hideDockLocations();
                 if (lastUnder.hasClass('suey-tab-button')) lastUnder.removeClass('suey-drop-target');
+                if (lastUnder.hasClass('suey-window')) lastUnder.removeClass('suey-drop-target');
             }
 
             lastUnder = elementUnder;
@@ -199,11 +209,11 @@ class TabButton extends Div {
                 // Last Under Element was TabButton
                 if (lastUnder && lastUnder.hasClass('suey-tab-button')) {
                     lastUnder.removeClass('suey-drop-target');
-
                 // Last Under Element was Docker
                 } else if (lastUnder && lastUnder.hasClass('suey-docker')) {
                     if (locationUnder) {
                         let droppedOnDock = null;
+                        // New Dock (Tabbed)
                         if (locationUnder.hasClass('suey-dock-middle-vertical') ||
                             locationUnder.hasClass('suey-dock-middle-horizontal')) {
                             droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
@@ -215,14 +225,13 @@ class TabButton extends Div {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-right')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
+                        // New Window
                         } else if (locationUnder.hasClass('suey-dock-center')) {
-
                             droppedOnDock = new Window({ title: self.tabPanel.id });
                             lastUnder.getPrimary().addToSelf(droppedOnDock);
                             droppedOnDock.display();
-
+                        // Unknown Dock Location
                         } else {
-                            // Unknown Dock Location
                             console.log(locationUnder);
                         }
                         // Have New Dock Panel
@@ -234,12 +243,14 @@ class TabButton extends Div {
                             }
                             // Add to New Tabbed
                             droppedOnDock.addTab(self.tabPanel);
-                            droppedOnDock.parent.expandTabs();
                             droppedOnDock.selectTab(self.tabPanel.id);
                         }
                     }
                     // Clear Dock Locations
                     lastUnder.hideDockLocations();
+                // Last Under Element was Window
+                } else if (lastUnder && lastUnder.hasClass('suey-window')) {
+                    lastUnder.removeClass('suey-drop-target');
                 }
                 // Reset Drop Variables
                 buttonClone = undefined;
