@@ -198,7 +198,7 @@ class TabButton extends Div {
                 } else if (elementUnder.hasClass('suey-docker')) {
                     elementUnder.showDockLocations(event.pageX, event.pageY);
                     if (pastEdge !== '') { /* primary edge */
-                        locationUnder = Dom.childWithClass(elementUnder.dockLocations, `suey-dock-${pastEdge}`);
+                        locationUnder = Dom.childWithClass(elementUnder, `suey-dock-${pastEdge}`);
                     } else {
                         locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
                     }
@@ -250,7 +250,7 @@ class TabButton extends Div {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         // New Window
                         } else if (locationUnder.hasClass('suey-dock-center')) {
-                            droppedOnDock = new Window({ title: self.tabPanel.id });
+                            droppedOnDock = new Window({ title: self.tabPanel.id, width: '50%', height: '70%' });
                             lastUnder.getPrimary().addToSelf(droppedOnDock);
                             droppedOnDock.display();
                         // Unknown Dock Location

@@ -4,7 +4,7 @@
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2024 Stephens Nunnally
  * @source      https://github.com/salinityengine/suey
- * @version     v0.1.21
+ * @version     v0.1.22
  */
 var img$4 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M184.001%2c292.65l-119.111%2c-0c-13.193%2c-0 -23.889%2c-10.695 -23.889%2c-23.889l-0%2c-26.85c-0%2c-13.194 10.696%2c-23.889 23.889%2c-23.889l46.704%2c-0.001l31.681%2c0l74.967%2c0l0%2c-78.878l-0%2c-71.489c-0%2c-7.129 2.832%2c-13.965 7.872%2c-19.004c5.038%2c-5.041 11.875%2c-7.873 19.002%2c-7.873l21.767%2c0c7.127%2c0 13.964%2c2.832 19.003%2c7.873c5.04%2c5.039 7.873%2c11.875 7.873%2c19.004l0%2c150.364l150.365%2c0c7.127%2c0 13.964%2c2.833 19.004%2c7.873c5.04%2c5.041 7.872%2c11.876 7.872%2c19.002l-0%2c20.88c-0%2c7.127 -2.832%2c13.963 -7.872%2c19.003c-5.041%2c5.04 -11.877%2c7.87 -19.004%2c7.87l-72.38%2c0l0.003%2c0.003l-77.988%2c0l0%2c154.707c0%2c6.33 -2.514%2c12.4 -6.99%2c16.876c-4.476%2c4.476 -10.546%2c6.99 -16.877%2c6.99l-27.761%2c0c-6.336%2c0 -12.411%2c-2.516 -16.892%2c-6.996c-4.48%2c-4.48 -6.996%2c-10.556 -6.996%2c-16.892l-0%2c-118.1l-0%2c-36.247l-0.001%2c-0.338l-0.339%2c0.001l-33.902%2c-0Z' style='fill:%23e6e6e6%3b'/%3e%3c/svg%3e";
 
@@ -967,26 +967,41 @@ class ColorScheme {
 ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
 
 class Dom {
-    static childWithClass(element, className) {
-        if (!element || !element.isElement) return null;
-        let target = undefined;
-        for (const child of element.children) {
-            if (child.hasClass(className)) {
-                target = child;
-                break;
-            }
-        }
-        return target;
-    }
     static findElementAt(className, centerX, centerY) {
         const domElements = document.elementsFromPoint(centerX, centerY);
         for (const dom of domElements) {
-            if (dom.classList.contains(className)) return dom.suey;
+            if (dom.classList.contains(className)) return dom.suey ?? dom;
         }
         return null;
     }
+    static childWithClass(element, className, recursive = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        const queue = [ element ];
+        while (queue.length > 0) {
+            const currentElement = queue.shift();
+            for (const child of currentElement.children) {
+                if (child.classList.contains(className)) return child.suey ?? child;
+                if (recursive) queue.push(child);
+            }
+        }
+        return null;
+    }
+    static childrenWithClass(element, className, recursive = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        const children = [];
+        const queue = [ element ];
+        while (queue.length > 0) {
+            const currentElement = queue.shift();
+            for (const child of currentElement.children) {
+                if (child.classList.contains(className)) children.push(child.suey ?? child);
+                if (recursive) queue.push(child);
+            }
+        }
+        return children;
+    }
     static isChildOf(element, possibleParent) {
         if (element.isElement && element.dom) element = element.dom;
+        if (possibleParent.isElement && possibleParent.dom) possibleParent = possibleParent.dom;
         let parent = element.parentElement;
         while (parent) {
             if (parent.isSameNode(possibleParent)) return true;
@@ -1007,12 +1022,10 @@ class Dom {
         if (element.isElement && element.dom) element = element.dom;
         let parent = element.parentElement;
         while (parent) {
-            if (parent.classList.contains(className)) {
-                return parent.suey;
-            }
+            if (parent.classList.contains(className)) return parent.suey ?? parent;
             parent = parent.parentElement;
         }
-        return undefined;
+        return null;
     }
     static traverse(element, applyFunction = () => {}, applyToSelf = true) {
         if (element.isElement && element.dom) element = element.dom;
@@ -4201,7 +4214,7 @@ class TitleBar extends Div {
             if (self.parent && self.parent.isElement) {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
                 if (typeof self.parent.center === 'function') self.parent.center();
-                self.parent.undock();
+                self.parent.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
                 self.parent.maximized = false;
                 window.dispatchEvent(new Event('resize'));
             }
@@ -4362,7 +4375,7 @@ class TabButton extends Div {
                 } else if (elementUnder.hasClass('suey-docker')) {
                     elementUnder.showDockLocations(event.pageX, event.pageY);
                     if (pastEdge !== '') {
-                        locationUnder = Dom.childWithClass(elementUnder.dockLocations, `suey-dock-${pastEdge}`);
+                        locationUnder = Dom.childWithClass(elementUnder, `suey-dock-${pastEdge}`);
                     } else {
                         locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
                     }
@@ -4404,7 +4417,7 @@ class TabButton extends Div {
                         } else if (locationUnder.hasClass('suey-dock-right') || locationUnder.hasClass('suey-dock-split-right')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-center')) {
-                            droppedOnDock = new Window({ title: self.tabPanel.id });
+                            droppedOnDock = new Window({ title: self.tabPanel.id, width: '50%', height: '70%' });
                             lastUnder.getPrimary().addToSelf(droppedOnDock);
                             droppedOnDock.display();
                         } else {
@@ -4907,6 +4920,17 @@ class Docker extends Panel {
         }
         window.dispatchEvent(new Event('resize'));
         setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
+    }
+    floaters() {
+        return Dom.childrenWithClass(this, 'suey-floater');
+    }
+    getPanelByID(id) {
+        if (id == undefined || id === '') return null;
+        const panels = this.floaters();
+        for (const panel of panels) {
+            if (panel.getID() === id || panel.getName() === id) return panel;
+        }
+        return undefined;
     }
 }
 

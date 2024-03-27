@@ -429,6 +429,21 @@ class Docker extends Panel {
         setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
     }
 
+    /******************** PANELS */
+
+    floaters() {
+        return Dom.childrenWithClass(this, 'suey-floater');
+    }
+
+    getPanelByID(id) {
+        if (id == undefined || id === '') return null;
+        const panels = this.floaters();
+        for (const panel of panels) {
+            if (panel.getID() === id || panel.getName() === id) return panel;
+        }
+        return undefined;
+    }
+
 }
 
 export { Docker };

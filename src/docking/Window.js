@@ -377,7 +377,7 @@ class TitleBar extends Div {
             if (self.parent && self.parent.isElement) {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
                 if (typeof self.parent.center === 'function') self.parent.center();
-                self.parent.undock();
+                self.parent.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
                 self.parent.maximized = false;
                 window.dispatchEvent(new Event('resize'));
             }
