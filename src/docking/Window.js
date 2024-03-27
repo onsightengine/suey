@@ -201,8 +201,7 @@ class Window extends Panel {
     }
 
     toggleMinMax() {
-        this.removeClass('suey-docked-left');
-        this.removeClass('suey-docked-right');
+        this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
         if (!this.maximized) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
@@ -227,7 +226,7 @@ class Window extends Panel {
     dockLeft() {
         if (!this.hasClass('suey-docked-left')) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-right');
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
             this.addClass('suey-docked-left');
         }
         this.setStyle('left', `0`);
@@ -239,7 +238,7 @@ class Window extends Panel {
     dockRight() {
         if (!this.hasClass('suey-docked-right')) {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left');
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
             this.addClass('suey-docked-right');
         }
         this.setStyle('left', `50%`);
@@ -248,11 +247,37 @@ class Window extends Panel {
         this.setStyle('height', `100%`);
     }
 
+    dockTop() {
+        if (!this.hasClass('suey-docked-top')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            this.addClass('suey-docked-top');
+        }
+        this.setStyle('left', `0`);
+        this.setStyle('top', `0`);
+        this.setStyle('width', `100%`);
+        this.setStyle('height', `50%`);
+    }
+
+    dockBottom() {
+        if (!this.hasClass('suey-docked-bottom')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            this.addClass('suey-docked-bottom');
+        }
+        this.setStyle('left', `0`);
+        this.setStyle('top', `50%`);
+        this.setStyle('width', `100%`);
+        this.setStyle('height', `50%`);
+    }
+
     undock() {
-        if (this.hasClass('suey-docked-right') || this.hasClass('suey-docked-left')) {
+        if (this.hasClass('suey-docked-right') ||
+            this.hasClass('suey-docked-left') ||
+            this.hasClass('suey-docked-top') ||
+            this.hasClass('suey-docked-bottom')) {
             const currentRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left');
-            this.removeClass('suey-docked-right');
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
             if (this.#lastKnownRect) {
                 const newLeft = currentRect.left + ((currentRect.width - this.#lastKnownRect.width) / 2);
                 this.setStyle('left', `${newLeft}px`);

@@ -97,7 +97,7 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
-`)));
+`)), { color: new Iris().setRandom().hexString() });
         tabby1.addNewTab('doody', new Titled({ title: 'doody' }).add(new Div(`
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
@@ -106,7 +106,7 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
-`)));
+`)), { color: new Iris().setRandom().hexString() });
         tabby1.selectFirst();
 
         const tabby2 = dockRight.enableTabs();
@@ -126,7 +126,7 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
-`)));
+`)), { color: new Iris().setRandom().hexString() });
         tabby2.selectFirst();
 
         const tabby3 = dockBottom.enableTabs();
@@ -145,12 +145,12 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
-`)));
-        tabby3.addNewTab('dippy', new Titled({ title: 'dippy' }));
+`)), { color: new Iris().setRandom().hexString() });
+        tabby3.addNewTab('dippy', new Titled({ title: 'dippy' }), { color: new Iris().setRandom().hexString() });
         tabby3.selectFirst();
 
         const tabby4 = dockTop.enableTabs();
-        tabby4.addNewTab('hoopy', new Titled({ title: 'hoopy' }));
+        tabby4.addNewTab('hoopy', new Titled({ title: 'hoopy' }), { color: new Iris().setRandom().hexString() });
         tabby4.addNewTab('doopy', new Titled({ title: 'doopy' }).add(new Div(`
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
@@ -166,7 +166,7 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
-`)));
+`)), { color: new Iris().setRandom().hexString() });
         tabby4.selectFirst();
 
         const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
@@ -187,8 +187,8 @@ sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
 sdfasdfasdfasdfsdfasdfasdfasdfsd
-`)));
-        tabby5.addNewTab('duppy', new Titled({ title: 'duppy' }));
+`)), { color: new Iris().setRandom().hexString() });
+        tabby5.addNewTab('duppy', new Titled({ title: 'duppy' }), { color: new Iris().setRandom().hexString() });
         tabby5.selectFirst();
 
     </script>

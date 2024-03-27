@@ -181,13 +181,11 @@ class Interaction {
             dragElement.style.top = `${newTop}px`;
             if (parent.isWindow) {
                 const parentRect = parent.dom.parentElement.getBoundingClientRect();
-                if (event.clientX < parentRect.left + 50) {
-                    parent.dockLeft();
-                } else if (event.clientX > parentRect.right - 50) {
-                    parent.dockRight();
-                } else {
-                    parent.undock();
-                }
+                if (event.clientX < parentRect.left + 50) parent.dockLeft();
+                else if (event.clientX > parentRect.right - 50) parent.dockRight();
+                else if (event.clientY < parentRect.top) parent.dockTop();
+                else if (event.clientY > parentRect.bottom - 50) parent.dockBottom();
+                else parent.undock();
             }
             /* CUSTOM CALLBACK */
             if (typeof onMove === 'function') onMove(diffX, diffY);
