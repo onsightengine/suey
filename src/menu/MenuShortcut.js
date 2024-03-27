@@ -29,7 +29,7 @@ class MenuShortcut extends Div {
 
             // Keep single characters monospaced, allow words to have nice spacing
             if (subString.length === 1) {
-                letter.setWidth('1em');
+                letter.setStyle('width', '1em');
             } else {
                 letter.setStyle('paddingLeft', '0.15em');
                 letter.setStyle('paddingRight', '0.15em');

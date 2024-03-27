@@ -23,7 +23,7 @@ class Tabbed extends Panel {
         this.selectedID = '';       // 'id' (name) of selected tab
 
         // Children Elements
-        this.buttons = new Div().setClass('suey-tab-buttons').setDisplay('none');
+        this.buttons = new Div().setClass('suey-tab-buttons').setStyle('display', 'none');
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.buttons, this.panels);
 
@@ -58,7 +58,7 @@ class Tabbed extends Panel {
         });
 
         // Minimum Tabs to Show
-        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
 
         // Minimum height (so Tab Buttons dont float over nothing)
         this.setContentsStyle('minHeight', '');
@@ -133,7 +133,7 @@ class Tabbed extends Panel {
         this.setStyle('minHeight', '');
 
         // Minimum Tabs to Show
-        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
 
     destroy() {
@@ -166,7 +166,7 @@ class Tabbed extends Panel {
         }
 
         // Minimum Tabs to Show
-        this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
     }
 
     /******************** INFO */

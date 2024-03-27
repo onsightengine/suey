@@ -311,6 +311,7 @@ class Window extends Panel {
 
     /** Select Tab (returns true if new Tab was selected) */
     selectTab(newID) {
+        if (newID.isElement) newID = newID.getID();
         const panel = this.panels.children.find((item) => (item.getID() === newID));
         if (panel && panel.button) {
             // Deselect current Panel / Button
@@ -327,6 +328,9 @@ class Window extends Panel {
             const tabChange = new Event('tab-changed');
             tabChange.value = newID;
             this.dom.dispatchEvent(tabChange);
+
+            // Set as Active Window
+            this.activeWindow()
 
             // Selection Successful
             return true;

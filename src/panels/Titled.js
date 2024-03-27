@@ -38,10 +38,10 @@ class Titled extends Panel {
         this.isExpanded = expand;
         if (expand) {
             this.addClass('suey-expanded');
-            this.scroller.setDisplay('');
+            this.scroller.setStyle('display', '');
         } else {
             this.removeClass('suey-expanded');
-            this.scroller.setDisplay('none');
+            this.scroller.setStyle('display', 'none');
         }
     }
 

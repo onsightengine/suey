@@ -119,7 +119,7 @@ class Gooey extends Resizeable {
         if (width == null) return;
         if (width < this.minWidth * Css.guiScale(this.dom)) width = this.minWidth * Css.guiScale(this.dom);
         if (width > this.maxWidth * Css.guiScale(this.dom)) width = this.maxWidth * Css.guiScale(this.dom);
-        this.setWidth(Css.toEm(width, this.dom));
+        this.setStyle('width', Css.toEm(width, this.dom));
         return this;
     }
 
@@ -302,10 +302,10 @@ class Folder extends Shrinkable {
         function checkForMinMax() {
             if (Number.isFinite(Number(slider.slider.dom.min)) && Number.isFinite(Number(slider.slider.dom.max))) {
                 slideBox.addClass('suey-property-tiny-row');
-                slider.setDisplay('');
+                slider.setStyle('display', '');
             } else {
                 slideBox.removeClass('suey-property-tiny-row');
-                slider.setDisplay('none');
+                slider.setStyle('display', 'none');
             }
         }
         checkForMinMax();

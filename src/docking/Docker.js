@@ -5,6 +5,7 @@ import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Tabbed } from './Tabbed.js';
+import { Window } from './Window.js';
 
 import { DOCK_SIDES } from '../constants.js';
 import { IMAGE_ADD } from '../constants.js';
@@ -338,7 +339,7 @@ class Docker extends Panel {
         }
 
         // Check for Tabbed
-        let tabbed = this.children.find(child => child !== this && child.hasClass('suey-tabbed'));
+        let tabbed = Dom.childWithClass(this, 'suey-tabbed', false /* recursive? */);
         if (tabbed) return tabbed;
 
         // Create New Tabbed
@@ -431,6 +432,19 @@ class Docker extends Panel {
 
     /******************** PANELS */
 
+    addPanel(floater, location = 'center') {
+        let dock = undefined;
+        if (location === 'center' || this.isPrimary()) {
+            dock = new Window({ title: floater.id, width: '50%', height: '70%' });
+            this.getPrimary().addToSelf(window);
+            window.display();
+        } else {
+            dock = this.enableTabs();
+        }
+        dock.addTab(floater);
+        dock.selectTab(floater.id);
+    }
+
     floaters() {
         return Dom.childrenWithClass(this, 'suey-floater');
     }
@@ -439,7 +453,7 @@ class Docker extends Panel {
         if (id == undefined || id === '') return null;
         const panels = this.floaters();
         for (const panel of panels) {
-            if (panel.getID() === id || panel.getName() === id) return panel;
+            if (panel.id === id || panel.name === id) return panel;
         }
         return undefined;
     }

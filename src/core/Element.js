@@ -32,6 +32,14 @@ class Element {
         });
         this.dom.suey = self;
 
+        // ID Access
+        Object.defineProperties(this, {
+            id: {
+                get: function() { return self.getID(); },
+                set: function(value) { self.setID(value); }
+            },
+        });
+
         // Clean Slots
         this.dom.addEventListener('destroy', function() {
             for (const slot of self.slots) {
@@ -270,6 +278,7 @@ class Element {
 
     /********** CSS **********/
 
+    /** CSS Properties, see: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties */
     setStyle(/* style, value, style, value, etc. */) {
         /***** ALL AT ONCE */
         // const styles = {};
@@ -498,37 +507,6 @@ function removeFromParent(parent, element, destroy = true) {
         return undefined; /* REMOVE FAILED */
     }
 }
-
-/******************** PROPERTIES ********************/
-
-// Hyphenated style properties can be referenced via camelCase in JavaScript
-// See: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties
-const properties = [
-    'display', 'color', 'opacity',
-    'left', 'top', 'right', 'bottom', 'width', 'height',
-];
-
-properties.forEach(function(property) {
-    const method = 'set' + property.substring(0, 1).toUpperCase() + property.substring(1, property.length);
-
-    Element.prototype[method] = function(value) {
-        this.setStyle(property, value);
-        return this;
-    };
-});
-
-Object.defineProperties(Element.prototype, {
-
-    id: {
-        get: function() {
-            return this.getID();
-        },
-        set: function(value) {
-            this.setID(value);
-        }
-    },
-
-});
 
 /******************** EVENTS ********************/
 

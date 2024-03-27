@@ -14,7 +14,6 @@ html *, html *::before, html *::after {
 }
 
 body {
-    position: fixed;
     margin: 0;
     padding: 0;
 

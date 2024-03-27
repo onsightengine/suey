@@ -98,14 +98,6 @@ export const CORNER_BUTTONS = {
 
 /********** DOCKING */
 
-/* For old Docker class !! NEEDS TO BE REMOVED !! */
-export const DOCK_LOCATIONS = {
-    TOP_LEFT:       'top-left',
-    TOP_RIGHT:      'top-right',
-    BOTTOM_LEFT:    'bottom-left',
-    BOTTOM_RIGHT:   'bottom-right',
-};
-
 export const DOCK_SIDES = {
     LEFT:           'left',
     RIGHT:          'right',
