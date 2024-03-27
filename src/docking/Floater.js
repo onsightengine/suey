@@ -5,7 +5,9 @@ import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { VectorBox } from '../layout/VectorBox.js';
+import { Window } from './Window.js';
 
+import { CLOSE_SIDES } from '../constants.js';
 import { DOCK_SIDES } from '../constants.js';
 import { IMAGE_EMPTY } from '../constants.js';
 import { MOUSE_CLICK, MOUSE_SLOP_LARGE } from '../constants.js';
@@ -214,10 +216,13 @@ class TabButton extends Div {
                         } else if (locationUnder.hasClass('suey-dock-right')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         } else if (locationUnder.hasClass('suey-dock-center')) {
-                            //
-                            // TODO: Window Panel
-                            //
+
+                            droppedOnDock = new Window({ title: self.tabPanel.id });
+                            lastUnder.getPrimary().addToSelf(droppedOnDock);
+                            droppedOnDock.display();
+
                         } else {
+                            // Unknown Dock Location
                             console.log(locationUnder);
                         }
                         // Have New Dock Panel

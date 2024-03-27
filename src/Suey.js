@@ -73,7 +73,6 @@
 export * from './constants.js';
 
 export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
-export { CLOSE_SIDES, CORNER_BUTTONS } from './utils/Interaction.js';
 
 /***** UTILS *****/
 
@@ -162,6 +161,6 @@ import '../files/css/docking.css';
 import '../files/css/gooey.css';
 import '../files/css/data.css';
 import '../files/css/node.css';
-import '../files/css/interactive.css';
+import '../files/css/interaction.css';
 import '../files/css/tooltip.css';
 import '../files/css/options.css';

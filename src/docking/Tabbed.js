@@ -52,6 +52,11 @@ class Tabbed extends Panel {
         this.buttons.add(tabPanel.button);
         this.panels.add(tabPanel);
 
+        // Hide Title
+        tabPanel.traverse((child) => {
+            if (child.hasClass('suey-tab-title')) child.removeClass('suey-hidden');
+        });
+
         // Minimum Tabs to Show
         this.buttons.setDisplay((this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
 

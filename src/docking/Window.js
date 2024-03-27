@@ -2,7 +2,9 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
+import { Span } from '../core/Span.js';
 
+import { CLOSE_SIDES } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { RESIZERS } from '../constants.js';
 
@@ -14,30 +16,50 @@ class Window extends Panel {
     #initialWidth;
     #initialHeight;
     #lastKnownRect;
-    #titleBar = undefined;
 
     constructor({
         style = PANEL_STYLES.FANCY,
         width = 600,
         height = 600,
-        resizers = [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
+        resizers = 'all', // [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
+        title = '',
+        draggable = true,
+        maxButton = true,
+        closeButton = true,
+        buttonSides = CLOSE_SIDES.LEFT,
     } = {}) {
         super({ style });
         const self = this;
         this.addClass('suey-window');
         this.allowFocus();
 
-        // Properties
-        this.isWindow = true;
+        // Properties, Private
         this.#initialWidth = width;
         this.#initialHeight = height;
+
+        // Properties, Public
+        this.isWindow = true;
         this.maximized = false;
 
+        // Title Bar
+        const titleBar = new TitleBar(this, title, draggable, 1.3 /* scale*/);
+        this.addToSelf(titleBar);
+
+        // Window Buttons
+        if (closeButton) Interaction.addCloseButton(this, buttonSides, 1.7 /* offset */);
+        if (maxButton) Interaction.addMaxButton(this, buttonSides, 1.7 /* offset */);
+
+        // Tab Elements
+        this.buttons = new Div().setClass('suey-tab-buttons').addClass('suey-window-side');
+        this.panels = new Div().setClass('suey-tab-panels');
+        this.add(this.panels);
+        titleBar.add(this.buttons);
+
         // Stacks
-        this.dom.addEventListener('focusout', () => { self.removeClass('suey-active-window'); });
-        this.dom.addEventListener('focusin', () => { self.activeWindow(); });
-        this.dom.addEventListener('displayed', () => { self.activeWindow(); } );
-        this.dom.addEventListener('pointerdown', () => { self.activeWindow(); } );
+        this.dom.addEventListener('focusout', () => self.removeClass('suey-active-window'));
+        this.dom.addEventListener('focusin', () => self.activeWindow());
+        this.dom.addEventListener('displayed', () => self.activeWindow());
+        this.dom.addEventListener('pointerdown', () => self.activeWindow());
 
         // Resizers
         let rect = {};
@@ -72,14 +94,15 @@ class Window extends Panel {
         function resizerUp() {
             keepInWindow();
         }
-        Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp).addResizers(resizers);
+        Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp);
+        this.addResizers(resizers);
 
         // Initial Size
         this.setStyle('left', '0', 'top', '0', 'width', '0', 'height', '0');
 
         // Wait for document to load
         if (document.readyState === 'complete') self.setInitialSize();
-        else window.addEventListener('load', () => { self.setInitialSize(); }, { once: true });
+        else window.addEventListener('load', () => self.setInitialSize(), { once: true });
 
         // Keep In Window
         function keepInWindow() {
@@ -108,33 +131,25 @@ class Window extends Panel {
             // if (rect.width > window.innerWidth) self.setStyle('width', `${window.innerWidth}px`);
             // if (rect.height > window.innerHeight) self.setStyle('height', `${window.innerHeight}px`);
         }
-        window.addEventListener('resize', () => { keepInWindow(); });
+        window.addEventListener('resize', () => keepInWindow());
 
         let firstTime = true;
         this.dom.addEventListener('displayed', () => {
             // Center first time shown
             if (firstTime) {
+                titleBar.setTitle(title);
                 self.center();
                 firstTime = false;
             }
             // Resize if necessary
             keepInWindow();
         });
-    }
 
-    /******************** WIDGETS */
-
-    addTitleBar(title = '', draggable = false, scale = 1.3) {
-        if (!this.#titleBar) {
-            this.#titleBar = new TitleBar(this, title, draggable, scale);
-            this.addToSelf(this.#titleBar);
-        } else {
-            this.#titleBar.setTitle(title);
-        }
-    }
-
-    setTitle(title = '') {
-        if (this.#titleBar) this.#titleBar.setTitle(title);
+        // Set Title Function
+        this.setTitle = function(newTitle = '') {
+            title = newTitle;
+            titleBar.setTitle(title);
+        };
     }
 
     /******************** POSITION */
@@ -238,6 +253,65 @@ class Window extends Panel {
         }
     }
 
+    /******************** TABS */
+
+    addTab(tabPanel) {
+        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
+            console.error(`Window.addTab: Expected Tab as first argument`, tabPanel);
+            return null;
+        }
+
+        // Update parent Dock
+        tabPanel.dock = this;
+
+        // Push onto containers
+        this.buttons.add(tabPanel.button);
+        this.panels.add(tabPanel);
+
+        // Hide Title
+        tabPanel.traverse((child) => {
+            if (child.hasClass('suey-tab-title')) child.addClass('suey-hidden');
+        });
+
+        return tabPanel;
+    }
+
+    /** Select Tab (returns true if new Tab was selected) */
+    selectTab(newID) {
+        const panel = this.panels.children.find((item) => (item.getID() === newID));
+        if (panel && panel.button) {
+            // Deselect current Panel / Button
+            const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+            if (selectedPanel) selectedPanel.addClass('suey-hidden');
+            if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
+
+            // Select new Panel / Button
+            panel.removeClass('suey-hidden');
+            panel.button.addClass('suey-selected');
+            this.selectedID = newID;
+
+            // Event
+            const tabChange = new Event('tab-changed');
+            tabChange.value = newID;
+            this.dom.dispatchEvent(tabChange);
+
+            // Selection Successful
+            return true;
+        }
+        return false;
+    }
+
+    removeTab() {
+        const self = this;
+        setTimeout(() => {
+            if (self.parent && self.parent.isElement) {
+                self.parent.remove(this);
+            } else {
+                self.hide();
+            }
+        }, 0);
+    }
+
 }
 
 export { Window };
@@ -278,9 +352,16 @@ class TitleBar extends Div {
     }
 
     setTitle(title = '') {
-        this.setInnerHtml(title);
+        const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
+        if (titleTextElement) {
+            titleTextElement.textContent = title;
+        } else {
+            const titleText = new Span(title).addClass('suey-tab-title-text');
+            this.add(titleText);
+        }
         let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));
         width += parseFloat(Css.toPx('4em'));
+        Css.setVariable('--title-width', `${width}px`, this);
         this.setStyle('width', Css.toEm(`${width}px`));
     }
 

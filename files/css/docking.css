@@ -189,7 +189,7 @@
     border-radius: var(--tab-size);
     outline: none;
     margin: var(--pad-x-small);
-    transform: scale(75%);
+    transform: scale(70%);
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
 }
 
@@ -252,7 +252,7 @@
     width: 100%;
     height: 100%;
     border: 0.21em solid rgba(var(--icon));
-    border-radius: calc(var(--tab-size) * 0.75);
+    border-radius: calc(var(--tab-size) * 0.7);
     outline: none;
     display: flex;
     align-items: center;
@@ -300,6 +300,7 @@
 }
 
 .suey-panel-button.suey-title-bar {
+    --title-width: 0;
     color: rgba(var(--highlight), 0.5);
     border: var(--border-small) solid rgb(var(--button-light));
     border-radius: 9999px;
@@ -314,6 +315,7 @@
     min-height: 1.6em;
     margin-left: auto;
     margin-right: auto;
+    overflow: visible;
 }
 
 .suey-active-window .suey-panel-button.suey-title-bar {
@@ -335,4 +337,17 @@
     top: 0 !important;
     width: 50% !important;
     height: 100% !important;
+}
+
+.suey-window .suey-tab-panels {
+    margin: 1em var(--pad-medium); /* vertical horizontal */
+}
+
+.suey-tab-buttons.suey-window-side {
+    flex-direction: row;
+    top: calc((var(--tab-size) / -2.0) + 0.42857em);
+}
+
+.suey-panel-button.suey-title-bar .suey-tab-buttons {
+    left: var(--title-width);
 }

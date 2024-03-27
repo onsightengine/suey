@@ -241,6 +241,15 @@ class Element {
         return this.contents().dom.textContent;
     }
 
+    setInnerText(value) {
+        if (value != undefined) this.contents().dom.innerText = value;
+        return this;
+    }
+
+    getInnerText() {
+        return this.contents().dom.innerText;
+    }
+
     /** The innerHTML returns all text, including html tags, that is contained by an element */
     setInnerHtml(value) {
         if (value === undefined || value === null) value = '';

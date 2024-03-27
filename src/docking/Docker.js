@@ -43,6 +43,14 @@ class Docker extends Panel {
 
     /******************** RESIZERS */
 
+    getPrimary() {
+        let primary = undefined;
+        this.traverseAncestors((parent) => {
+            if (!primary && parent.hasClass('suey-docker-primary')) primary = parent;
+        }, true /* applyToSelf */);
+        return primary;
+    }
+
     isPrimary() {
         return this.#primary; // return this.hasClass('suey-docker-primary');
     }
@@ -94,8 +102,8 @@ class Docker extends Panel {
         const childrenOf = primaryContents ? this.contents() : this;
         const children = [];
         for (const child of childrenOf.children) {
-            if (!child.hasClass('suey-resizer') &&              // Leave Resizer (stays on major axis)
-                !child.hasClass('suey-dock-locations')) {       // Leave DockLocations
+            // Only move dividable content (not Window, Resizers, DockLocations, etc.)
+            if (child.hasClass('suey-docker') || child.hasClass('suey-tabbed')) {
                 children.push(child);
             }
         }

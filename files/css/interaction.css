@@ -74,96 +74,113 @@
 .suey-resizer {
     --height: 100%;
     --width: 100%;
-    --offset: 0;
+    --offset: 0.2em;
     position: absolute;
     pointer-events: all;
-    opacity: 0.0;                           /* NOTE: Change to > 0.0 to see 'Resizers' */
+    margin: 0;
+    opacity: 0;                             /* NOTE: Change to > 0.0 to see 'Resizers' */
     z-index: 99; /* Resizer */
 }
 
 .suey-no-resize .suey-resizer {
     pointer-events: none !important;
 }
+.suey-no-resize .suey-window .suey-resizer {
+    pointer-events: auto !important;
+}
+.suey-window.suey-docked-left .suey-resizer,
+.suey-window.suey-docked-right .suey-resizer {
+    pointer-events: none !important;
+}
 
 .suey-resizer-left {
     background-color: rgb(255, 0, 0);
+    width: var(--resize-size);
+    height: calc(var(--height) - (var(--offset) * 2));
     left: 0;
     top: 0;
-    width: var(--resize-size);
-    height: var(--height);
-    margin-top: 0;
     margin-left: var(--offset);
+    margin-top: var(--offset);
     cursor: col-resize;
+}
+
+.suey-resizer-right {
+    background-color: rgb(0, 0, 255);
+    width: var(--resize-size);
+    height: calc(var(--height) - (var(--offset) * 2));
+    right: 0;
+    top: 0;
+    margin-right: var(--offset);
+    margin-top: var(--offset);
+    cursor: col-resize;
+}
+
+.suey-resizer-top {
+    background-color: rgb(0, 255, 0);
+    width: calc(var(--width) - (var(--offset) * 2));
+    height: var(--resize-size);
+    left: 0;
+    top: 0;
+    margin-left: var(--offset);
+    margin-top: var(--offset);
+    cursor: row-resize;
+}
+
+.suey-resizer-bottom {
+    background-color: rgb(255, 255, 255);
+    width: calc(var(--width) - (var(--offset) * 2));
+    height: var(--resize-size);
+    left: 0;
+    bottom: 0;
+    margin-left: var(--offset);
+    margin-bottom: var(--offset);
+    cursor: row-resize;
 }
 
 .suey-resizer-top-left {
     background-color: rgb(255, 255, 0);
-    top: 0;
-    left: 0;
     width: var(--resize-size);
     height: var(--resize-size);
+    left: 0;
+    top: 0;
     margin-left: var(--offset);
     margin-top: var(--offset);
     cursor: nwse-resize;
     z-index: 100; /* Resizer Corner */
 }
 
-.suey-resizer-top {
-    background-color: rgb(0, 255, 0);
-    top: 0;
-    left: 0;
-    width: var(--width);
-    height: var(--resize-size);
-    margin-top: var(--offset);
-    cursor: row-resize;
-}
-
 .suey-resizer-top-right {
     background-color: rgb(0, 255, 255);
-    top: 0;
-    left: calc(var(--width) - var(--resize-size) - var(--offset));
     width: var(--resize-size);
     height: var(--resize-size);
+    right: 0;
+    top: 0;
+    margin-right: var(--offset);
     margin-top: var(--offset);
     cursor: nesw-resize;
     z-index: 100; /* Resizer Corner */
 }
 
-.suey-resizer-right {
-    background-color: rgb(0, 0, 255);
-    top: 0;
-    left: calc(var(--width) - var(--resize-size) - var(--offset));
-    width: var(--resize-size);
-    height: var(--height);
-    cursor: col-resize;
-}
-
 .suey-resizer-bottom-right {
     background-color: rgb(255, 0, 255);
-    left: calc(var(--width) - var(--resize-size) - var(--offset));
     width: var(--resize-size);
     height: var(--resize-size);
-    top: calc(var(--height) - var(--resize-size) - var(--offset));
+    right: 0;
+    bottom: 0;
+    margin-right: var(--offset);
+    margin-bottom: var(--offset);
     cursor: nwse-resize;
     z-index: 100; /* Resizer Corner */
 }
 
-.suey-resizer-bottom {
-    background-color: rgb(255, 255, 255);
-    left: 0;
-    width: var(--width);
-    height: var(--resize-size);
-    top: calc(var(--height) - var(--resize-size) - var(--offset));
-    cursor: row-resize;
-}
-
 .suey-resizer-bottom-left {
     background-color: rgb(0, 0, 0);
-    left: 0;
     width: var(--resize-size);
     height: var(--resize-size);
-    top: calc(var(--height) - var(--resize-size) - var(--offset));
+    left: 0;
+    bottom: 0;
     margin-left: var(--offset);
+    margin-bottom: var(--offset);
     cursor: nesw-resize;
     z-index: 100; /* Resizer Corner */
 }

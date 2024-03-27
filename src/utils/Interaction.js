@@ -9,21 +9,12 @@ import { Css } from './Css.js';
 import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 
-import { GRID_SIZE, RESIZERS } from '../constants.js';
+import { CLOSE_SIDES } from '../constants.js';
+import { CORNER_BUTTONS } from '../constants.js';
+import { GRID_SIZE } from '../constants.js';
 import { IMAGE_CLOSE, IMAGE_EXPAND } from '../constants.js';
 import { MOUSE_SLOP_SMALL } from '../constants.js';
-
-export const CLOSE_SIDES = {
-    LEFT:       'left',
-    RIGHT:      'right',
-    BOTH:       'both',
-    NONE:       'none',
-}
-
-export const CORNER_BUTTONS = {
-    CLOSE:      'close',
-    MAX:        'max',
-}
+import { RESIZERS } from '../constants.js';
 
 class Interaction {
 
@@ -93,7 +84,13 @@ class Interaction {
 
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
-                button.dom.addEventListener('click', () => { element.hide(); });
+                button.dom.addEventListener('click', () => {
+                    if (element.parent && element.parent.isElement) {
+                        element.parent.remove(element);
+                    } else {
+                        element.hide();
+                    }
+                });
                 break;
             case CORNER_BUTTONS.MAX:
                 button.dom.addEventListener('click', () => {
@@ -262,14 +259,17 @@ class Interaction {
         }
 
         addToElement.addResizers = function(resizers = [], offset = false) {
-            for (const resizerName of resizers) {
-                const className = `suey-resizer-${resizerName}`;
-                const existingResizer = addToElement.children.find(child => child.hasClass(className));
-                if (!existingResizer) {
-                    const resizer = createResizer(className);
-                    if (offset) Css.setVariable('--resize-size', 'var(--resize-size-offset)', resizer);
-                    if (offset) Css.setVariable('--offset', 'var(--resize-offset)', resizer);
-                    addToElement.addToSelf(resizer);
+            for (const key in RESIZERS) {
+                const resizerName = RESIZERS[key];
+                if (resizers === 'all' || (Array.isArray(resizers) && resizers.includes(resizerName))) {
+                    const className = `suey-resizer-${resizerName}`;
+                    const existingResizer = addToElement.children.find(child => child.hasClass(className));
+                    if (!existingResizer) {
+                        const resizer = createResizer(className);
+                        if (offset) Css.setVariable('--resize-size', 'var(--resize-size-offset)', resizer);
+                        if (offset) Css.setVariable('--offset', 'var(--resize-offset)', resizer);
+                        addToElement.addToSelf(resizer);
+                    }
                 }
             }
         }

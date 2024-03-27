@@ -80,6 +80,20 @@ export const LEFT_SPACING = {
     NORMAL:         'normal',
 };
 
+/********** INTERACTION */
+
+export const CLOSE_SIDES = {
+    LEFT:           'left',
+    RIGHT:          'right',
+    BOTH:           'both',
+    NONE:           'none',
+};
+
+export const CORNER_BUTTONS = {
+    CLOSE:          'close',
+    MAX:            'max',
+};
+
 /********** DOCKING */
 
 /* For old Docker class !! NEEDS TO BE REMOVED !! */
@@ -98,6 +112,7 @@ export const DOCK_SIDES = {
 };
 
 export const RESIZERS = {
+    // ALL:         'all',
     TOP:            'top',
     BOTTOM:         'bottom',
     LEFT:           'left',
