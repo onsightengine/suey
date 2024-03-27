@@ -76,7 +76,7 @@ class Button extends Element {
 
         // Add menu to document, add event handler
         document.body.appendChild(menuElement.dom);
-        this.dom.addEventListener('pointerdown', buttonPointerDown);
+        this.on('pointerdown', buttonPointerDown);
 
         // Observer: Calls popMenu when button is initially added to the DOM. This is done to decide initial
         //           (over / under) popper placement, then the observer is removed.

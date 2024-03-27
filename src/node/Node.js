@@ -170,7 +170,7 @@ class Node extends Div {
             } else if (selected.length > 1) {
                 watchForSingleClick = true;
             }
-            self.dom.ownerDocument.addEventListener('pointerup', nodePointerUp);
+            document.addEventListener('pointerup', nodePointerUp);
         }
         function nodePointerUp() {
             clearTimeout(singleClickTimer);
@@ -184,7 +184,7 @@ class Node extends Div {
                 clickCount = 0;
                 watchForSingleClick = false;
             }, 250);
-            self.dom.ownerDocument.removeEventListener('pointerup', nodePointerUp);
+            document.removeEventListener('pointerup', nodePointerUp);
         }
         this.on('pointerdown', nodePointerDown);
 

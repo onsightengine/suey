@@ -393,7 +393,9 @@ class TitleBar extends Div {
         if (titleTextElement) {
             titleTextElement.textContent = title;
         } else {
-            const titleText = new Span(title).addClass('suey-tab-title-text');
+            const titleText = new Span(title);
+            titleText.addClass('suey-tab-title-text');
+            titleText.setStyle('user-select', 'none');
             this.add(titleText);
         }
         let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));

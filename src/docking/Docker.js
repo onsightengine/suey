@@ -187,7 +187,7 @@ class Docker extends Panel {
             for (const child of dock.children) child.dom.dispatchEvent(new Event('resized'));
             for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
         }
-        dock.dom.addEventListener('resized', resizeTwin);
+        dock.on('resized', resizeTwin);
 
         // Initial Size
         resizeTwin();
@@ -350,7 +350,7 @@ class Docker extends Panel {
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
 
         // Event: 'tab-changed'
-        tabbed.dom.addEventListener('tab-changed', () => {
+        tabbed.on('tab-changed', () => {
             if (tabbed.tabCount() === 0) {
                 if (tabbed.parent.hasClass('suey-docker')) tabbed.parent.removeDock();
             }

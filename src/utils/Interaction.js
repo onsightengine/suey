@@ -62,7 +62,7 @@ class Interaction {
 
         if (closeSide === CLOSE_SIDES.BOTH) {
             let lastSide = CLOSE_SIDES.RIGHT;
-            element.dom.addEventListener('pointermove', function(event) {
+            element.on('pointermove', function(event) {
                 const rect = element.dom.getBoundingClientRect();
                 const middle = rect.left + (rect.width / 2);
                 const x = event.pageX;
@@ -84,7 +84,7 @@ class Interaction {
 
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
-                button.dom.addEventListener('click', () => {
+                button.on('click', () => {
                     if (element.parent && element.parent.isElement) {
                         element.parent.remove(element);
                     } else {
@@ -93,7 +93,7 @@ class Interaction {
                 });
                 break;
             case CORNER_BUTTONS.MAX:
-                button.dom.addEventListener('click', () => {
+                button.on('click', () => {
                     if (typeof element.toggleMinMax === 'function') {
                         element.toggleMinMax();
                     }
@@ -101,8 +101,8 @@ class Interaction {
                 break;
         }
 
-        element.dom.addEventListener('pointerenter', () => button.addClass('suey-item-shown'));
-        element.dom.addEventListener('pointerleave', () => button.removeClass('suey-item-shown'));
+        element.on('pointerenter', () => button.addClass('suey-item-shown'));
+        element.on('pointerleave', () => button.removeClass('suey-item-shown'));
         element.addToSelf(button);
     }
 
@@ -201,6 +201,7 @@ class Interaction {
             if (typeof onUp === 'function') onUp();
         }
         eventElement.addEventListener('pointerdown', dragPointerDown);
+        eventElement.addEventListener('destroy', () => { eventElement.removeEventListener('pointerdown', dragPointerDown); }, { once: true });
     }
 
     static makeResizeable(addToElement, onDown, onMove, onUp, beforeMove) {
@@ -251,8 +252,8 @@ class Interaction {
                 /* CUSTOM CALLBACK */
                 if (typeof onUp === 'function') onUp();
             }
-            resizer.dom.addEventListener('pointerdown', resizePointerDown);
-            resizer.dom.addEventListener('pointermove', resizePointerMove);
+            resizer.on('pointerdown', resizePointerDown);
+            resizer.on('pointermove', resizePointerMove);
             return resizer;
         }
 
