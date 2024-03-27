@@ -3,9 +3,11 @@ import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
+import { ShadowBox } from '../layout/ShadowBox.js';
 import { Tabbed } from './Tabbed.js';
 
 import { DOCK_SIDES } from '../constants.js';
+import { IMAGE_ADD } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { RESIZERS } from '../constants.js';
 
@@ -305,9 +307,13 @@ class Docker extends Panel {
                     bottomDock.setStyle('height', '50px');
                     dockLocations.add(leftDock, rightDock, topDock, bottomDock);
                 } else {
-                    const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
                     topDock.setStyle('left', '20%', 'width', '60%');
                     bottomDock.setStyle('left', '20%', 'width', '60%');
+                    const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
+                    const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
+                    imageBox.addClass('suey-complement-colorize');
+                    imageBox.setStyle('width', '20%', 'height', '20%');
+                    centerDock.add(imageBox);
                     dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
                 }
             }

@@ -1,7 +1,9 @@
+import imageAdd from '../files/images/add.svg';
 import imageCheck from '../files/images/check.svg';
 import imageClose from '../files/images/close.svg';
 import imageEmpty from '../files/images/empty.svg';
 import imageExpand from '../files/images/expand.svg';
+export const IMAGE_ADD = imageAdd;
 export const IMAGE_CHECK = imageCheck;
 export const IMAGE_CLOSE = imageClose;
 export const IMAGE_EMPTY = imageEmpty;
