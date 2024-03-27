@@ -41,16 +41,16 @@ class Element {
         });
 
         // Clean Slots
-        this.dom.addEventListener('destroy', function() {
+        this.on('destroy', function() {
             for (const slot of self.slots) {
                 if (typeof slot.detach === 'function') slot.detach();
                 if (typeof slot.destroy === 'function') slot.destroy();
             }
             self.slots.length = 0;
-        }, { once: true });
+        });
     }
 
-    /********** DESTROY **********/
+    /******************** DESTROY */
 
     /** Removes all children DOM elements from this element */
     destroy() {
@@ -58,7 +58,7 @@ class Element {
         return this;
     }
 
-    /********** SIGNALS **********/
+    /******************** SIGNALS */
 
     addSlot(slot) {
         if (slot instanceof SignalBinding) {
@@ -68,7 +68,7 @@ class Element {
         }
     }
 
-    /********** CHILDREN **********/
+    /******************** CHILDREN */
 
     /** Adds to contents() any number of 'Element' / 'HTMLElement' passed as arguments */
     add(/* any number of comma separated elements to add */) {
@@ -120,7 +120,7 @@ class Element {
         return elements;
     }
 
-    /********** CLASS / ID / NAME **********/
+    /******************** CLASS / ID / NAME */
 
     setClass(className) {
         this.dom.className = className;
@@ -176,7 +176,7 @@ class Element {
         return (this.name === undefined) ? 'No name' : this.name;
     }
 
-    /********** HTML **********/
+    /******************** HTML */
 
     setAttribute(attrib, value) {
         this.dom.setAttribute(attrib, value);
@@ -276,11 +276,11 @@ class Element {
         return this.contents().dom.innerHTML;
     }
 
-    /********** CSS **********/
+    /******************** CSS */
 
     /** CSS Properties, see: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties */
     setStyle(/* style, value, style, value, etc. */) {
-        /***** ALL AT ONCE */
+        // // OPTION: All at once
         // const styles = {};
         // let changed = false;
 
@@ -305,7 +305,7 @@ class Element {
         // styleText = Object.entries(styles).map(([k, v]) => `${k}: ${v}`).join('; ');
         // this.dom.setAttribute('style', styleText);
 
-        /***** ORIGINAL */
+        // // OPTION: One at a time
         for (let i = 0, l = arguments.length; i < l; i += 2) {
             const style = arguments[i];
             const value = arguments[i + 1];
@@ -323,7 +323,7 @@ class Element {
         return this;
     }
 
-    /********** DOM **********/
+    /******************** DOM */
 
     getLeft() {
         // return this.dom.left;
@@ -364,7 +364,7 @@ class Element {
         return { left: relativeLeft, top: relativeTop };
     }
 
-    /********** TRAVERSE **********/
+    /******************** TRAVERSE */
 
     /** Applies a callback function to all Element children, recursively */
     traverse(callback, applyToSelf = true) {
@@ -382,11 +382,77 @@ class Element {
         if (this.parent) this.parent.traverseAncestors(callback, true);
     }
 
-}
+    /******************** EVENTS */
+
+    // 'keyup', 'keydown'
+    // 'pointerdown', 'pointermove', 'pointerup'
+    // 'pointerenter', 'pointerleave', 'pointerout', 'pointerover', 'pointercancel'
+    //
+    // 'dragstart', 'dragend'
+    // 'dragenter', 'dragover', 'dragleave'
+    // 'drop'
+    //
+    // 'select'         Use special 'onSelect()' function that can be overridden
+    // 'click'          Use special 'onClick()' function that can be overridden
+    // 'dblclick'
+    //
+    // 'blur'           Fires when element has lost focus (does not bubble, 'focusout' follows and does bubble)
+    // 'focus'          Fires when element has received focus (does not bubble, 'focusin' follows and does bubble)
+    //
+    // 'input'          Fires constantly as <input> <select> <textarea> value's are being changed.
+    // 'change'         Fires when <input> <select> <textarea> value's are done being modified.
+    // 'wheel'
+    //
+    // 'contextmenu'    Fires when user attempts to open context menu (typically right clicking mouse)
+    //
+    // 'displayed'      Element style 'display' is restored
+    // 'hidden'         Element style 'display' set to 'none'
+    //
+    // 'destroy'        Element is being destroyed and prepped for garbage collection
+
+    on(event, callback, once = false) {
+        if (typeof callback !== 'function') {
+            console.warn(`${method} in ${this.name}: No callback function provided!`);
+        } else {
+            const eventName = event.toLowerCase();
+            const eventHandler = callback.bind(this);
+            const dom = this.dom;
+            if (once || eventName === 'destroy') {
+                dom.addEventListener(eventName, eventHandler, { once: true });
+            } else {
+                dom.addEventListener(eventName, eventHandler);
+                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+            }
+        }
+        return this;
+    }
+
+} // end Element
+
+const events = [
+    'Click', 'Select',
+];
+
+events.forEach(function(event) {
+    const method = 'on' + event;
+
+    Element.prototype[method] = function(callback) {
+        const eventName = event.toLowerCase();
+        if (typeof callback !== 'function') {
+            console.warn(`${method} in ${this.name}: No callback function provided!`);
+            return this;
+        }
+        const eventHandler = callback.bind(this);
+        const dom = this.dom;
+        dom.addEventListener(eventName, eventHandler);
+        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+        return this;
+    };
+});
 
 export { Element };
 
-/******************** ADD / REMOVE / CLEAR ********************/
+/******************** INTERNAL ********************/
 
 function addToParent(parent, element) {
     if (!element) return;
@@ -507,45 +573,3 @@ function removeFromParent(parent, element, destroy = true) {
         return undefined; /* REMOVE FAILED */
     }
 }
-
-/******************** EVENTS ********************/
-
-const events = [
-    'Focus', 'Blur',
-    'Change', 'Input', 'Wheel',
-    'KeyUp', 'KeyDown',
-    'Click', 'DblClick', 'ContextMenu',
-    'PointerDown', 'PointerMove', 'PointerUp',
-    'PointerEnter', 'PointerLeave', 'PointerOut', 'PointerOver', 'PointerCancel',
-];
-
-events.forEach(function(event) {
-    const method = 'on' + event;
-
-    Element.prototype[method] = function(callback) {
-        const eventName = event.toLowerCase();
-        if (typeof callback !== 'function') {
-            console.warn(`${method} in ${this.name}: No callback function provided!`);
-            return this;
-        }
-        const eventHandler = callback.bind(this);
-        const dom = this.dom;
-        dom.addEventListener(eventName, eventHandler);
-        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return this;
-    };
-});
-
-/******************** REFERENCE ********************/
-
-// 'blur'           Fires when element has lost focus (does not bubble, 'focusout' follows and does bubble)
-// 'focus'          Fires when element has received focus (does not bubble, 'focusin' follows and does bubble)
-
-// 'input'          Fires constantly as <input> <select> <textarea> value's are being changed.
-// 'change'         Fires when <input> <select> <textarea> value's are done being modified.
-
-// 'contextmenu'    Fires when user attempts to open context menu (typically right clicking mouse)
-
-// 'dragstart', 'dragend'
-// 'dragenter', 'dragover', 'dragleave'
-// 'drop'

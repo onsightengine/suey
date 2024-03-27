@@ -25,8 +25,7 @@ class Panel extends Div {
         }
 
         // Disable context menu
-        function onContextMenu(event) { event.preventDefault(); }
-        this.onContextMenu(onContextMenu);
+        this.on('contextmenu', (event) => { event.preventDefault(); });
     }
 
 }

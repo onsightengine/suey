@@ -5,25 +5,25 @@ class TextArea extends Element {
 
     constructor() {
         super(document.createElement('textarea'));
+        const self = this;
         this.setClass('suey-text-area');
 
         this.dom.spellcheck = false;
         this.dom.setAttribute('autocomplete', 'off');
 
         // Events
-        function onKeyDown(event) {
+        function textKeyDown(event) {
             event.stopPropagation();
             if (event.key === 'Tab') {
                 event.preventDefault();
-                const cursor = this.selectionStart;
-                this.value = this.value.substring(0, cursor) + '\t' + this.value.substring(cursor);
-                this.selectionStart = cursor + 1;
-                this.selectionEnd = this.selectionStart;
+                const cursor = self.dom.selectionStart;
+                self.dom.value = self.dom.value.substring(0, cursor) + '\t' + self.dom.value.substring(cursor);
+                self.dom.selectionStart = cursor + 1;
+                self.dom.selectionEnd = self.dom.selectionStart;
             }
         }
 
-        this.onKeyDown(onKeyDown);
-
+        this.on('keydown', textKeyDown);
     }
 
     getValue() {

@@ -56,10 +56,10 @@ class Window extends Panel {
         titleBar.add(this.buttons);
 
         // Stacks
-        this.dom.addEventListener('focusout', () => self.removeClass('suey-active-window'));
-        this.dom.addEventListener('focusin', () => self.activeWindow());
-        this.dom.addEventListener('displayed', () => self.activeWindow());
-        this.dom.addEventListener('pointerdown', () => self.activeWindow());
+        this.on('focusout', () => self.removeClass('suey-active-window'));
+        this.on('focusin', () => self.activeWindow());
+        this.on('displayed', () => self.activeWindow());
+        this.on('pointerdown', () => self.activeWindow());
 
         // Resizers
         let rect = {};
@@ -134,7 +134,7 @@ class Window extends Panel {
         window.addEventListener('resize', () => keepInWindow());
 
         let firstTime = true;
-        this.dom.addEventListener('displayed', () => {
+        this.on('displayed', () => {
             // Center first time shown
             if (firstTime) {
                 self.center();
@@ -373,11 +373,7 @@ class TitleBar extends Div {
             if (parent && typeof parent.focus === 'function') parent.focus();
         }
 
-        if (draggable) {
-            Interaction.makeDraggable(this, parent, true /* limitToWindow */, titleDown);
-        }
-
-        this.onDblClick(() => {
+        function titleDoubleClick() {
             if (self.parent && self.parent.isElement) {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
                 if (typeof self.parent.center === 'function') self.parent.center();
@@ -385,7 +381,11 @@ class TitleBar extends Div {
                 self.parent.maximized = false;
                 window.dispatchEvent(new Event('resize'));
             }
-        });
+        }
+
+        // Add Listeners
+        if (draggable) Interaction.makeDraggable(this, parent, true /* limitToWindow */, titleDown);
+        this.on('dblclick', titleDoubleClick);
     }
 
     setTitle(title = '') {

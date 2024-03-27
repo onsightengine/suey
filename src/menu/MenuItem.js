@@ -29,7 +29,7 @@ class MenuItem extends Div {
         this.subMenu = undefined;
 
         // Disable Context Menu
-        function onContextMenu(event) {
+        function menuContextMenu(event) {
             event.preventDefault();
         }
 
@@ -42,7 +42,7 @@ class MenuItem extends Div {
         }
 
         /** Mouse enter (hide all sub menus, show this sub menu) */
-        function onPointerEnter() {
+        function menuPointerEnter() {
             // // Don't process menu items that don't have sub menus
             // if (!self.subMenu) return;
 
@@ -62,20 +62,20 @@ class MenuItem extends Div {
         }
 
         /** Mouse leave (hide all sub menus) */
-        function onPointerLeave() {
+        function menuPointerLeave() {
             // Have parent menu hide all other children menus
             hideSubMenus();
         }
 
         let pointerDown = false;
-        function onPointerDown(event) {
+        function menuPointerDown(event) {
             event.stopPropagation();
             event.preventDefault();
             self.dom.dispatchEvent(new Event('select'));
             pointerDown = true;
         }
 
-        function onPointerUp(event) {
+        function menuPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
             if (pointerDown !== true) {
@@ -84,19 +84,11 @@ class MenuItem extends Div {
             pointerDown = false;
         }
 
-        this.dom.addEventListener('contextmenu', onContextMenu);
-        this.dom.addEventListener('pointerenter', onPointerEnter);
-        this.dom.addEventListener('pointerleave', onPointerLeave);
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        this.dom.addEventListener('pointerup', onPointerUp);
-
-        this.dom.addEventListener('destroy', () => {
-            self.dom.removeEventListener('contextmenu', onContextMenu);
-            self.dom.removeEventListener('pointerenter', onPointerEnter);
-            self.dom.removeEventListener('pointerleave', onPointerLeave);
-            self.dom.removeEventListener('pointerdown', onPointerDown);
-            self.dom.removeEventListener('pointerup', onPointerUp);
-        }, { once: true });
+        this.on('contextmenu', menuContextMenu);
+        this.on('pointerenter', menuPointerEnter);
+        this.on('pointerleave', menuPointerLeave);
+        this.on('pointerdown', menuPointerDown);
+        this.on('pointerup', menuPointerUp);
 
         // Text, Unselectable
         this.setText(text);
@@ -104,30 +96,6 @@ class MenuItem extends Div {
     }
 
     /******************** EVENT OVERRIDES ********************/
-
-    onPointerDown(callback) {
-        console.trace(`MenuItem.onPointerDown() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
-
-    onPointerUp(callback) {
-        console.trace(`MenuItem.onPointerUp() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
-
-    onClick(callback) {
-        console.trace(`MenuItem.onClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
-
-    onDblClick(callback) {
-        console.trace(`MenuItem.onDblClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
 
     onSelect(callback) {
         if (typeof callback !== 'function') return;

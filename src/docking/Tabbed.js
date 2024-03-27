@@ -31,10 +31,10 @@ class Tabbed extends Panel {
         this.setTabSide(tabSide);
 
         // Events
-        function onPointerEnter() {
+        function tabbedPointerEnter() {
             document.body.classList.remove('suey-no-resize');
         }
-        this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.on('pointerenter', tabbedPointerEnter);
     }
 
     /******************** ADD */

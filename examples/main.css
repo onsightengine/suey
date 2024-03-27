@@ -6,7 +6,7 @@
 #gtx-trans { display: none !important; } /* disable google translate */
 
 :root {
-    --scroll-size:  0.75em;
+    --scroll-size:  0.5em;
 
     overflow-x: hidden;
 }
@@ -74,7 +74,7 @@ a {
 
 .Side {
     position: relative;
-    width: 200px;
+    width: 220px;
     height: 100%;
     overflow: auto;
     padding-bottom: 100px;
@@ -83,12 +83,12 @@ a {
 
 .Iframe {
     position: absolute;
-    left: 200px;
+    left: 220px;
     right: 0;
     top: 0;
     bottom: 0;
     height: 100%;
-    width: calc(100% - 200px);
+    width: calc(100% - 220px);
     border: none;
     margin: 0;
 }

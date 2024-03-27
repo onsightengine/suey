@@ -128,14 +128,14 @@ class Menu extends Div {
             self.closeMenu();
         }
 
-        function onKeyDown(event) {
+        function menuKeyDown(event) {
             if (event.key === 'Escape') {
                 self.closeMenu();
             }
         }
 
         // Document Pointer Down (closes menu on 'document' click)
-        function onPointerDown(event) {
+        function menuPointerDown(event) {
             // MenuItem Click
             if (self.dom.contains(event.target)) {
                 // NOTHING
@@ -145,20 +145,20 @@ class Menu extends Div {
         }
 
         document.addEventListener('closemenu', onCloseMenu);
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('pointerdown', onPointerDown);
+        document.addEventListener('keydown', menuKeyDown);
+        document.addEventListener('pointerdown', menuPointerDown);
 
         /***** DESTROY *****/
 
         this.removeHandlers = function() {
             document.removeEventListener('closemenu', onCloseMenu);
-            document.removeEventListener('keydown', onKeyDown);
-            document.removeEventListener('pointerdown', onPointerDown);
+            document.removeEventListener('keydown', menuKeyDown);
+            document.removeEventListener('pointerdown', menuPointerDown);
         };
 
-        this.dom.addEventListener('destroy', function() {
+        this.on('destroy', function() {
             self.removeHandlers();
-        }, { once: true });
+        });
 
         return this;
     }

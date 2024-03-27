@@ -1217,13 +1217,13 @@ class Element {
                 set: function(value) { self.setID(value); }
             },
         });
-        this.dom.addEventListener('destroy', function() {
+        this.on('destroy', function() {
             for (const slot of self.slots) {
                 if (typeof slot.detach === 'function') slot.detach();
                 if (typeof slot.destroy === 'function') slot.destroy();
             }
             self.slots.length = 0;
-        }, { once: true });
+        });
     }
     destroy() {
         clearChildren(this, true );
@@ -1437,7 +1437,41 @@ class Element {
         if (applyToSelf) callback(this);
         if (this.parent) this.parent.traverseAncestors(callback, true);
     }
+    on(event, callback, once = false) {
+        if (typeof callback !== 'function') {
+            console.warn(`${method} in ${this.name}: No callback function provided!`);
+        } else {
+            const eventName = event.toLowerCase();
+            const eventHandler = callback.bind(this);
+            const dom = this.dom;
+            if (once || eventName === 'destroy') {
+                dom.addEventListener(eventName, eventHandler, { once: true });
+            } else {
+                dom.addEventListener(eventName, eventHandler);
+                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+            }
+        }
+        return this;
+    }
 }
+const events = [
+    'Click', 'Select',
+];
+events.forEach(function(event) {
+    const method = 'on' + event;
+    Element.prototype[method] = function(callback) {
+        const eventName = event.toLowerCase();
+        if (typeof callback !== 'function') {
+            console.warn(`${method} in ${this.name}: No callback function provided!`);
+            return this;
+        }
+        const eventHandler = callback.bind(this);
+        const dom = this.dom;
+        dom.addEventListener(eventName, eventHandler);
+        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+        return this;
+    };
+});
 function addToParent(parent, element) {
     if (!element) return;
     if (!parent) return;
@@ -1520,29 +1554,6 @@ function removeFromParent(parent, element, destroy = true) {
         return undefined;
     }
 }
-const events = [
-    'Focus', 'Blur',
-    'Change', 'Input', 'Wheel',
-    'KeyUp', 'KeyDown',
-    'Click', 'DblClick', 'ContextMenu',
-    'PointerDown', 'PointerMove', 'PointerUp',
-    'PointerEnter', 'PointerLeave', 'PointerOut', 'PointerOver', 'PointerCancel',
-];
-events.forEach(function(event) {
-    const method = 'on' + event;
-    Element.prototype[method] = function(callback) {
-        const eventName = event.toLowerCase();
-        if (typeof callback !== 'function') {
-            console.warn(`${method} in ${this.name}: No callback function provided!`);
-            return this;
-        }
-        const eventHandler = callback.bind(this);
-        const dom = this.dom;
-        dom.addEventListener(eventName, eventHandler);
-        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return this;
-    };
-});
 
 class Button extends Element {
     constructor(buttonText) {
@@ -1559,15 +1570,14 @@ class Button extends Element {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
             set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
         });
-        function onPointerDown(event) {
+        function hideTooltip(event) {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
         }
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('pointerdown', onPointerDown);
+        this.on('pointerdown', hideTooltip);
+        this.on('destroy', () => {
             if (self.attachedMenu) self.detachMenu();
-        }, { once: true });
+        });
     }
     attachMenu(menuElement, popupStyle = false) {
         const self = this;
@@ -2160,8 +2170,7 @@ class Panel extends Div {
             this.add(outerBox);
             this.contents = function() { return insideBox; };
         }
-        function onContextMenu(event) { event.preventDefault(); }
-        this.onContextMenu(onContextMenu);
+        this.on('contextmenu', (event) => { event.preventDefault(); });
     }
 }
 
@@ -2394,9 +2403,9 @@ class Color extends Button {
             selected = false;
         }
         colorBox.onClick(colorBoxClick);
-        colorBox.onInput(colorBoxInput);
-        colorBox.dom.addEventListener('blur', colorBoxBlur);
-        colorBox.dom.addEventListener('focusout', colorBoxBlur);
+        colorBox.on('input', colorBoxInput);
+        colorBox.on('blur', colorBoxBlur);
+        colorBox.on('focusout', colorBoxBlur);
         this.getValue = function() {
             if (!colorBox.dom) return 0;
             return colorBox.dom.value;
@@ -2505,28 +2514,28 @@ class Menu extends Div {
         function onCloseMenu() {
             self.closeMenu();
         }
-        function onKeyDown(event) {
+        function menuKeyDown(event) {
             if (event.key === 'Escape') {
                 self.closeMenu();
             }
         }
-        function onPointerDown(event) {
+        function menuPointerDown(event) {
             if (self.dom.contains(event.target)) {
             } else {
                 self.closeMenu();
             }
         }
         document.addEventListener('closemenu', onCloseMenu);
-        document.addEventListener('keydown', onKeyDown);
-        document.addEventListener('pointerdown', onPointerDown);
+        document.addEventListener('keydown', menuKeyDown);
+        document.addEventListener('pointerdown', menuPointerDown);
         this.removeHandlers = function() {
             document.removeEventListener('closemenu', onCloseMenu);
-            document.removeEventListener('keydown', onKeyDown);
-            document.removeEventListener('pointerdown', onPointerDown);
+            document.removeEventListener('keydown', menuKeyDown);
+            document.removeEventListener('pointerdown', menuPointerDown);
         };
-        this.dom.addEventListener('destroy', function() {
+        this.on('destroy', function() {
             self.removeHandlers();
-        }, { once: true });
+        });
         return this;
     }
     updateMouseArea() {
@@ -2618,7 +2627,7 @@ class MenuItem extends Div {
         this.checked = false;
         this.disabled = false;
         this.subMenu = undefined;
-        function onContextMenu(event) {
+        function menuContextMenu(event) {
             event.preventDefault();
         }
         function hideSubMenus(dontCloseChildrenOf = undefined) {
@@ -2628,7 +2637,7 @@ class MenuItem extends Div {
                 parentMenu.closeMenu(false, dontCloseChildrenOf);
             }
         }
-        function onPointerEnter() {
+        function menuPointerEnter() {
             let parentMenu = self.parent;
             while (parentMenu && (parentMenu.hasClass('suey-menu') === false)) parentMenu = parentMenu.parent;
             if (!parentMenu.hasClass('suey-invisible-menu')) {
@@ -2638,17 +2647,17 @@ class MenuItem extends Div {
             hideSubMenus(self.dom);
             if (self.subMenu) self.subMenu.showMenu(self.dom);
         }
-        function onPointerLeave() {
+        function menuPointerLeave() {
             hideSubMenus();
         }
         let pointerDown = false;
-        function onPointerDown(event) {
+        function menuPointerDown(event) {
             event.stopPropagation();
             event.preventDefault();
             self.dom.dispatchEvent(new Event('select'));
             pointerDown = true;
         }
-        function onPointerUp(event) {
+        function menuPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
             if (pointerDown !== true) {
@@ -2656,40 +2665,13 @@ class MenuItem extends Div {
             }
             pointerDown = false;
         }
-        this.dom.addEventListener('contextmenu', onContextMenu);
-        this.dom.addEventListener('pointerenter', onPointerEnter);
-        this.dom.addEventListener('pointerleave', onPointerLeave);
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        this.dom.addEventListener('pointerup', onPointerUp);
-        this.dom.addEventListener('destroy', () => {
-            self.dom.removeEventListener('contextmenu', onContextMenu);
-            self.dom.removeEventListener('pointerenter', onPointerEnter);
-            self.dom.removeEventListener('pointerleave', onPointerLeave);
-            self.dom.removeEventListener('pointerdown', onPointerDown);
-            self.dom.removeEventListener('pointerup', onPointerUp);
-        }, { once: true });
+        this.on('contextmenu', menuContextMenu);
+        this.on('pointerenter', menuPointerEnter);
+        this.on('pointerleave', menuPointerLeave);
+        this.on('pointerdown', menuPointerDown);
+        this.on('pointerup', menuPointerUp);
         this.setText(text);
         this.selectable(false);
-    }
-    onPointerDown(callback) {
-        console.trace(`MenuItem.onPointerDown() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
-    onPointerUp(callback) {
-        console.trace(`MenuItem.onPointerUp() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
-    onClick(callback) {
-        console.trace(`MenuItem.onClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
-    }
-    onDblClick(callback) {
-        console.trace(`MenuItem.onDblClick() deprecated, use onSelect() instead, from: ${this.getName()}`);
-        this.onSelect(callback);
-        return this;
     }
     onSelect(callback) {
         if (typeof callback !== 'function') return;
@@ -2777,7 +2759,7 @@ class Dropdown extends Button {
         this.menuOffsetY = 5;
         this.addClass('suey-dropdown');
         this.addClass('suey-drop-arrow');
-        function onWheel(event) {
+        function dropWheel(event) {
             event.stopPropagation();
             event.preventDefault();
             if (event.deltaY < 0) {
@@ -2792,7 +2774,7 @@ class Dropdown extends Button {
                 }
             }
         }
-        this.onWheel(onWheel);
+        this.on('wheel', dropWheel);
     }
     getItemByKey(key) {
         for (let i = 0; i < this.items.length; i++) {
@@ -2874,10 +2856,10 @@ class NumberBox extends Element {
         this.unit = '';
         this.nudge = 1.0;
         this.setValue(number);
-        function onChange(event) {
+        function boxChange(event) {
             if (self.dom) self.setValue(self.dom.value);
         }
-        function onKeyDown(event) {
+        function boxKeyDown(event) {
             event.stopPropagation();
             if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
@@ -2902,26 +2884,20 @@ class NumberBox extends Element {
                     break;
             }
         }
-        function onKeyUp(event) {
+        function boxKeyUp(event) {
             event.stopPropagation();
         }
-        function onWheel(event) {
+        function boxWheel(event) {
             event.preventDefault();
             const upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
             const newValue = self.getValue() - (upOrDown * self.step);
             self.setValue(newValue);
             if (self.dom) self.dom.dispatchEvent(_changeEvent$1);
         }
-        this.dom.addEventListener('keydown', onKeyDown);
-        this.dom.addEventListener('keyup', onKeyUp);
-        this.dom.addEventListener('wheel', onWheel);
-        this.dom.addEventListener('change', onChange);
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('keydown', onKeyDown);
-            self.dom.removeEventListener('keyup', onKeyUp);
-            self.dom.removeEventListener('wheel', onWheel);
-            self.dom.removeEventListener('change', onChange);
-        }, { once: true });
+        this.on('keydown', boxKeyDown);
+        this.on('keyup', boxKeyUp);
+        this.on('wheel', boxWheel);
+        this.on('change', boxChange);
     }
     getValue() {
         return parseFloat(this.value);
@@ -2984,23 +2960,23 @@ class NumberScroll extends NumberBox {
         this.addClass('suey-number-scroll');
         this.dom.style.cursor = 'ns-resize';
         let distance = 0;
-        let onMouseDownValue = 0;
+        let mouseDownValue = 0;
         const pointer = { x: 0, y: 0 };
         const prevPointer = { x: 0, y: 0 };
-        function onMouseDown(event) {
+        function numberMouseDown(event) {
             event.preventDefault();
             distance = 0;
-            onMouseDownValue = self.getValue();
+            mouseDownValue = self.getValue();
             prevPointer.x = event.clientX;
             prevPointer.y = event.clientY;
         }
-        function onMouseMove(event) {
+        function numberMouseMove(event) {
             const currentValue = self.getValue();
             pointer.x = event.clientX;
             pointer.y = event.clientY;
             distance += (pointer.x - prevPointer.x) - (pointer.y - prevPointer.y);
             let value;
-            value = onMouseDownValue + (distance / (event.shiftKey ? 0.1 : 1)) * self.step;
+            value = mouseDownValue + (distance / (event.shiftKey ? 0.1 : 1)) * self.step;
             value = Math.min(self.max, Math.max(self.min, value));
             if (currentValue !== value) {
                 self.setValue(value);
@@ -3009,26 +2985,26 @@ class NumberScroll extends NumberBox {
             prevPointer.x = event.clientX;
             prevPointer.y = event.clientY;
         }
-        function onMouseUp() {
+        function numberMouseUp() {
             if (Math.abs(distance) < 2) {
                 if (self.dom) self.dom.focus();
             }
         }
-        function onTouchStart(event) {
+        function numberTouchStart(event) {
             if (event.touches.length === 1) {
                 distance = 0;
-                onMouseDownValue = self.getValue();
+                mouseDownValue = self.getValue();
                 prevPointer.x = event.touches[0].pageX;
                 prevPointer.y = event.touches[0].pageY;
             }
         }
-        function onTouchMove(event) {
+        function numberTouchMove(event) {
             const currentValue = self.getValue();
             pointer.x = event.touches[0].pageX;
             pointer.y = event.touches[0].pageY;
             distance += (pointer.x - prevPointer.x) - (pointer.y - prevPointer.y);
             let value;
-            value = onMouseDownValue + (distance / (event.shiftKey ? 5 : 50)) * self.step;
+            value = mouseDownValue + (distance / (event.shiftKey ? 5 : 50)) * self.step;
             value = Math.min(self.max, Math.max(self.min, value));
             if (currentValue !== value) {
                 self.setValue(value);
@@ -3037,37 +3013,27 @@ class NumberScroll extends NumberBox {
             prevPointer.x = event.touches[0].pageX;
             prevPointer.y = event.touches[0].pageY;
         }
-        function onTouchEnd(event) {
+        function numberTouchEnd(event) {
             if (event.touches.length === 0) {
                 if (Math.abs(distance) < 2) {
                     if (self.dom) self.dom.focus();
                 }
             }
         }
-        function onFocus() {
+        function numberFocus() {
             if (self.dom) self.dom.style.cursor = '';
         }
-        function onBlur() {
+        function numberBlur() {
             if (self.dom) self.dom.style.cursor = 'ns-resize';
         }
-        this.dom.addEventListener('mousedown', onMouseDown);
-        this.dom.addEventListener('mousemove', onMouseMove);
-        this.dom.addEventListener('mouseup', onMouseUp);
-        this.dom.addEventListener('touchstart', onTouchStart);
-        this.dom.addEventListener('touchmove', onTouchMove);
-        this.dom.addEventListener('touchend', onTouchEnd);
-        this.dom.addEventListener('focus', onFocus);
-        this.dom.addEventListener('blur', onBlur);
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('mousedown', onMouseDown);
-            self.dom.removeEventListener('mousemove', onMouseMove);
-            self.dom.removeEventListener('mouseup', onMouseUp);
-            self.dom.removeEventListener('touchstart', onTouchStart);
-            self.dom.removeEventListener('touchmove', onTouchMove);
-            self.dom.removeEventListener('touchend', onTouchEnd);
-            self.dom.removeEventListener('focus', onFocus);
-            self.dom.removeEventListener('blur', onBlur);
-        }, { once: true });
+        this.on('mousedown', numberMouseDown);
+        this.on('mousemove', numberMouseMove);
+        this.on('mouseup', numberMouseUp);
+        this.on('touchstart', numberTouchStart);
+        this.on('touchmove', numberTouchMove);
+        this.on('touchend', numberTouchEnd);
+        this.on('focus', numberFocus);
+        this.on('blur', numberBlur);
     }
 }
 
@@ -3113,8 +3079,8 @@ class Slider extends Div {
             self.setValue(newValue);
             slider.dom.dispatchEvent(_changeEvent);
         }
-        slider.onInput(sliderInput);
-        slider.onWheel(sliderWheel);
+        slider.on('input', sliderInput);
+        slider.on('wheel', sliderWheel);
     }
     getValue() {
         if (!this.slider.dom) return null;
@@ -3201,10 +3167,10 @@ class TextBox extends Element {
         this.setClass('suey-input');
         this.addClass('suey-text-box');
         this.dom.type = 'text';
-        this.dom.setAttribute('autocomplete', 'off');
-        this.dom.setAttribute('spellcheck', 'false');
+        this.setAttribute('autocomplete', 'off');
+        this.setAttribute('spellcheck', 'false');
         this.setValue(text ?? '');
-        function onKeyDown(event) {
+        function boxKeyDown(event) {
             event.stopPropagation();
             if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
@@ -3215,11 +3181,11 @@ class TextBox extends Element {
                 }
             }
         }
-        function onKeyUp(event) {
+        function boxKeyUp(event) {
             event.stopPropagation();
         }
-        this.onKeyDown(onKeyDown);
-        this.onKeyUp(onKeyUp);
+        this.on('keydown', boxKeyDown);
+        this.on('keyup', boxKeyUp);
     }
     getValue() {
         if (!this.dom) return null;
@@ -3316,7 +3282,7 @@ class Folder extends Shrinkable {
     addBoolean(params, variable) {
         const prop = new Property();
         const boolBox = new Checkbox();
-        boolBox.onChange(() => {
+        boolBox.on('change', () => {
             params[variable] = boolBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -3347,11 +3313,11 @@ class Folder extends Shrinkable {
                 default:
             }
         }
-        colorButton.onInput(() => {
+        colorButton.on('input', () => {
             setVariable(colorButton.getHexValue());
             if (typeof prop.change === 'function') prop.change();
         });
-        colorButton.onChange(() => {
+        colorButton.on('change', () => {
             setVariable(colorButton.getHexValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -3382,7 +3348,7 @@ class Folder extends Shrinkable {
         const selectDropDown = new Dropdown();
         selectDropDown.overflowMenu = OVERFLOW.LEFT;
         selectDropDown.setOptions(selectOptions);
-        selectDropDown.onChange(() => {
+        selectDropDown.on('change', () => {
             params[variable] = (type === 'string') ? selectDropDown.getValue() : selectDropDown.getIndex();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -3401,26 +3367,26 @@ class Folder extends Shrinkable {
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
-        slider.onInput(() => {
+        slider.on('input', () => {
             params[variable] = slider.getValue();
             slideBox.setValue(slider.getValue());
             if (typeof prop.change === 'function') prop.change();
         });
-        slider.onChange(() => {
+        slider.on('change', () => {
             params[variable] = slider.getValue();
             slideBox.setValue(slider.getValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        slideBox.onChange(() => {
+        slideBox.on('change', () => {
             params[variable] = slideBox.getValue();
             slider.setValue(slideBox.getValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        slider.onPointerDown((event) => event.stopPropagation());
-        slider.onWheel((event) => event.stopPropagation());
-        slideBox.onWheel((event) => event.stopPropagation());
+        slider.on('pointerdown', (event) => event.stopPropagation());
+        slider.on('wheel', (event) => event.stopPropagation());
+        slideBox.on('wheel', (event) => event.stopPropagation());
         slider.setRange(min, max).setPrecision(precision);
         slideBox.setRange(min, max).setPrecision(precision);
         function setStep(newStep) {
@@ -3461,7 +3427,7 @@ class Folder extends Shrinkable {
     addString(params, variable) {
         const prop = new Property();
         const textBox = new TextBox();
-        textBox.onChange(() => {
+        textBox.on('change', () => {
             params[variable] = textBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -3480,12 +3446,12 @@ class Folder extends Shrinkable {
         for (let i = 0; i < vector.length; i++) {
             const box = new NumberBox();
             boxes.push(box);
-            box.onChange(() => {
+            box.on('change', () => {
                 vector[i] = box.getValue();
                 if (typeof prop.change === 'function') prop.change();
                 if (typeof prop.finishChange === 'function') prop.finishChange();
             });
-            box.onWheel((event) => event.stopPropagation());
+            box.on('wheel', (event) => event.stopPropagation());
             box.setRange(min, max).setPrecision(precision);
             row.rightWidget.add(box);
             if (i < vector.length - 1) row.rightWidget.add(new Div().setStyle('min-width', '3px'));
@@ -3592,7 +3558,7 @@ class TreeList extends Div {
         this.options = [];
         this.selectedValue = null;
         this.selectedValues = [];
-        function onKeyDown(event) {
+        function treeKeyDown(event) {
             if (!self.multiSelect) {
                 if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
                     event.preventDefault();
@@ -3654,7 +3620,7 @@ class TreeList extends Div {
                 }
             }
         }
-        function onKeyUp(event) {
+        function treeKeyUp(event) {
             switch (event.key) {
                 case 'ArrowUp':
                 case 'ArrowDown':
@@ -3667,8 +3633,8 @@ class TreeList extends Div {
                     break;
             }
         }
-        this.onKeyDown(onKeyDown);
-        this.onKeyUp(onKeyUp);
+        this.on('keydown', treeKeyDown);
+        this.on('keyup', treeKeyUp);
     }
     getIndex(value) {
         for (let i = 0; i < this.options.length; i++) {
@@ -3734,7 +3700,7 @@ class TreeList extends Div {
     setOptions(options) {
         const self = this;
         this.clearContents();
-        function onPointerDown(event) {
+        function divPointerDown(event) {
             if (!event.shiftKey) {
                 self.#shiftAdd = 0;
                 self.#shiftTrack = [];
@@ -3786,16 +3752,15 @@ class TreeList extends Div {
             } else {
                 self.setValue(this.value);
             }
-            this.addEventListener('pointerup', onPointerUp);
+            this.addEventListener('pointerup', divPointerUp, { once: true });
             self.dom.dispatchEvent(new Event('change'));
         }
-        function onPointerUp(event) {
+        function divPointerUp(event) {
             if (self.multiSelect) {
                 if (! (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
                     self.setValues([ this.value ]);
                 }
             }
-            this.removeEventListener('pointerup', onPointerUp);
         }
         let currentDrag = undefined;
         function onDrag() {
@@ -3892,8 +3857,8 @@ class TreeList extends Div {
             div.classList.add('suey-option');
             self.dom.appendChild(div);
             self.options.push(div);
-            div.addEventListener('pointerdown', onPointerDown);
-            div.addEventListener('destroy', () => div.removeEventListener('pointerdown', onPointerDown), { once: true });
+            div.addEventListener('pointerdown', divPointerDown);
+            div.addEventListener('destroy', () => div.removeEventListener('pointerdown', divPointerDown), { once: true });
             if (div.draggable) {
                 div.addEventListener('drag', onDrag);
                 div.addEventListener('dragstart', onDragStart);
@@ -3948,10 +3913,10 @@ class Window extends Panel {
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.panels);
         titleBar.add(this.buttons);
-        this.dom.addEventListener('focusout', () => self.removeClass('suey-active-window'));
-        this.dom.addEventListener('focusin', () => self.activeWindow());
-        this.dom.addEventListener('displayed', () => self.activeWindow());
-        this.dom.addEventListener('pointerdown', () => self.activeWindow());
+        this.on('focusout', () => self.removeClass('suey-active-window'));
+        this.on('focusin', () => self.activeWindow());
+        this.on('displayed', () => self.activeWindow());
+        this.on('pointerdown', () => self.activeWindow());
         let rect = {};
         function resizerDown() {
             self.focus();
@@ -4007,7 +3972,7 @@ class Window extends Panel {
         }
         window.addEventListener('resize', () => keepInWindow());
         let firstTime = true;
-        this.dom.addEventListener('displayed', () => {
+        this.on('displayed', () => {
             if (firstTime) {
                 self.center();
                 firstTime = false;
@@ -4188,10 +4153,7 @@ class TitleBar extends Div {
         function titleDown() {
             if (parent && typeof parent.focus === 'function') parent.focus();
         }
-        if (draggable) {
-            Interaction.makeDraggable(this, parent, true , titleDown);
-        }
-        this.onDblClick(() => {
+        function titleDoubleClick() {
             if (self.parent && self.parent.isElement) {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
                 if (typeof self.parent.center === 'function') self.parent.center();
@@ -4199,7 +4161,9 @@ class TitleBar extends Div {
                 self.parent.maximized = false;
                 window.dispatchEvent(new Event('resize'));
             }
-        });
+        }
+        if (draggable) Interaction.makeDraggable(this, parent, true , titleDown);
+        this.on('dblclick', titleDoubleClick);
     }
     setTitle(title = '') {
         const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
@@ -4279,7 +4243,7 @@ class TabButton extends Div {
         let lastUnder = undefined;
         let locationUnder = undefined;
         let wasSelected = false;
-        function onPointerDown(event) {
+        function tabPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
@@ -4287,10 +4251,10 @@ class TabButton extends Div {
             minDistance = 0;
             downX = event.pageX;
             downY = event.pageY;
-            document.addEventListener('pointermove', onPointerMove);
-            document.addEventListener('pointerup', onPointerUp);
+            document.addEventListener('pointermove', tabPointerMove);
+            document.addEventListener('pointerup', tabPointerUp);
         }
-        function onPointerMove(event) {
+        function tabPointerMove(event) {
             event.stopPropagation();
             event.preventDefault();
             minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
@@ -4376,7 +4340,7 @@ class TabButton extends Div {
             }
             lastUnder = elementUnder;
         }
-        function onPointerUp(event) {
+        function tabPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
             if (buttonClone) {
@@ -4426,18 +4390,18 @@ class TabButton extends Div {
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
                 }
             }
-            document.removeEventListener('pointermove', onPointerMove);
-            document.removeEventListener('pointerup', onPointerUp);
+            document.removeEventListener('pointermove', tabPointerMove);
+            document.removeEventListener('pointerup', tabPointerUp);
         }
-        function onPointerEnter() {
+        function tabPointerEnter() {
             document.body.classList.add('suey-no-resize');
         }
-        function onPointerLeave() {
+        function tabPointerLeave() {
             document.body.classList.remove('suey-no-resize');
         }
-        this.dom.addEventListener('pointerenter', onPointerEnter);
-        this.dom.addEventListener('pointerleave', onPointerLeave);
-        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.on('pointerenter', tabPointerEnter);
+        this.on('pointerleave', tabPointerLeave);
+        this.on('pointerdown', tabPointerDown);
     }
     getID() {
         return this.tabPanel?.getID();
@@ -4463,10 +4427,10 @@ class Tabbed extends Panel {
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.buttons, this.panels);
         this.setTabSide(tabSide);
-        function onPointerEnter() {
+        function tabbedPointerEnter() {
             document.body.classList.remove('suey-no-resize');
         }
-        this.dom.addEventListener('pointerenter', onPointerEnter);
+        this.on('pointerenter', tabbedPointerEnter);
     }
     addTab(tabPanel) {
         if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
@@ -4930,20 +4894,21 @@ class Docker extends Panel {
 class TextArea extends Element {
     constructor() {
         super(document.createElement('textarea'));
+        const self = this;
         this.setClass('suey-text-area');
         this.dom.spellcheck = false;
         this.dom.setAttribute('autocomplete', 'off');
-        function onKeyDown(event) {
+        function textKeyDown(event) {
             event.stopPropagation();
             if (event.key === 'Tab') {
                 event.preventDefault();
-                const cursor = this.selectionStart;
-                this.value = this.value.substring(0, cursor) + '\t' + this.value.substring(cursor);
-                this.selectionStart = cursor + 1;
-                this.selectionEnd = this.selectionStart;
+                const cursor = self.dom.selectionStart;
+                self.dom.value = self.dom.value.substring(0, cursor) + '\t' + self.dom.value.substring(cursor);
+                self.dom.selectionStart = cursor + 1;
+                self.dom.selectionEnd = self.dom.selectionStart;
             }
         }
-        this.onKeyDown(onKeyDown);
+        this.on('keydown', textKeyDown);
     }
     getValue() {
         if (!this.dom) return null;
@@ -5025,28 +4990,8 @@ class ToolbarButton extends Button {
         const buttonImageHolder = new ShadowBox().setStyle('pointer-events', 'none');
         this.add(buttonImageHolder);
         this.contents = function() { return buttonImageHolder };
-        function onPointerDown(event) {
-            event.stopPropagation();
-        }
-        function onPointerUp(event) {
-            event.stopPropagation();
-        }
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        this.dom.addEventListener('pointerup', onPointerUp);
-        this.dom.addEventListener('destroy', () => {
-            self.dom.removeEventListener('pointerdown', onPointerDown);
-            self.dom.removeEventListener('pointerup', onPointerUp);
-        }, { once: true });
-    }
-    onPointerDown(callback) {
-        console.trace(`ToolbarButton.onPointerDown() deprecated, use onClick() instead, from: ${this.getName()}`);
-        this.onClick(callback);
-        return this;
-    }
-    onPointerUp(callback) {
-        console.trace(`ToolbarButton.onPointerUp() deprecated, use onClick() instead, from: ${this.getName()}`);
-        this.onClick(callback);
-        return this;
+        this.on('pointerdown', (event) => { event.stopPropagation(); });
+        this.on('pointerup', (event) => { event.stopPropagation(); });
     }
     onClick(callback) {
         if (typeof callback !== 'function') return;
@@ -5126,7 +5071,7 @@ class Graph extends Panel {
             self.stopAnimation();
             self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
         };
-        this.onWheel(graphMouseZoom);
+        this.on('wheel', graphMouseZoom);
         function onWindowResize() {
             self.stopAnimation();
             self.zoomTo();
@@ -5172,8 +5117,8 @@ class Graph extends Panel {
             }
             if (grabbing || selecting) {
                 self.dom.setPointerCapture(event.pointerId);
-                self.dom.ownerDocument.addEventListener('pointermove', inputPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', inputPointerUp);
+                document.addEventListener('pointermove', inputPointerMove);
+                document.addEventListener('pointerup', inputPointerUp);
             }
         }
         function inputPointerUp(event) {
@@ -5189,8 +5134,8 @@ class Graph extends Panel {
                 self.bandbox.setStyle('display', 'none');
                 selecting = false;
             }
-            self.dom.ownerDocument.removeEventListener('pointermove', inputPointerMove);
-            self.dom.ownerDocument.removeEventListener('pointerup', inputPointerUp);
+            document.removeEventListener('pointermove', inputPointerMove);
+            document.removeEventListener('pointerup', inputPointerUp);
         }
         function inputPointerMove(event) {
             event.stopPropagation();
@@ -5237,7 +5182,7 @@ class Graph extends Panel {
                 else node.removeClass('suey-node-selected');
             });
         }
-        this.input.onPointerDown(inputPointerDown);
+        this.input.on('pointerdown', inputPointerDown);
         let rect = {};
         function resizerDown() {
             rect = self.minimap.dom.getBoundingClientRect();
@@ -5306,9 +5251,9 @@ class Graph extends Panel {
             if (!translating) return;
             calculateOffset(event.clientX, event.clientY);
         }
-        this.minimap.onPointerDown(mapPointerDown);
-        this.minimap.onPointerUp(mapPointerUp);
-        this.minimap.onPointerMove(mapPointerMove);
+        this.minimap.on('pointerdown', mapPointerDown);
+        this.minimap.on('pointerup', mapPointerUp);
+        this.minimap.on('pointermove', mapPointerMove);
     }
     getScale() {
         return this.#scale;
@@ -5742,7 +5687,7 @@ class Node extends Div {
         super();
         const self = this;
         this.addClass('suey-node');
-        this.dom.setAttribute('tabindex', '-1');
+        this.setAttribute('tabindex', '-1');
         this.isNode = true;
         this.graph = undefined;
         this.#color.set(color);
@@ -5757,12 +5702,11 @@ class Node extends Div {
         this.outputList = new Div().setClass('suey-node-item-list');
         lists.add(this.inputList, this.outputList);
         this.add(this.header, lists);
-        this.dom.addEventListener('focusout', () => self.removeClass('suey-active-node'));
-        this.dom.addEventListener('focusin', () => self.activeNode());
-        this.dom.addEventListener('displayed', () => self.activeNode());
-        this.dom.addEventListener('pointerdown', () => self.activeNode());
-        function onContextMenu(event) { event.preventDefault(); }
-        this.onContextMenu(onContextMenu);
+        this.on('focusout', () => self.removeClass('suey-active-node'));
+        this.on('focusin', () => self.activeNode());
+        this.on('displayed', () => self.activeNode());
+        this.on('pointerdown', () => self.activeNode());
+        this.on('contextmenu', (event) => { event.preventDefault(); });
         let rect = {};
         function resizerDown() {
             rect.left = self.left;
@@ -5869,15 +5813,15 @@ class Node extends Div {
             }, 250);
             self.dom.ownerDocument.removeEventListener('pointerup', nodePointerUp);
         }
-        this.onPointerDown(nodePointerDown);
+        this.on('pointerdown', nodePointerDown);
         function nodeDoubleClick() {
             if (!self.graph) return;
             self.graph.centerView(false , true );
         }
-        this.onDblClick(nodeDoubleClick);
-        this.dom.addEventListener('destroy', function() {
+        this.on('dblclick', nodeDoubleClick);
+        this.on('destroy', () => {
             if (observer) observer.disconnect();
-        }, { once: true });
+        });
     }
     get needsUpdate() { return this.#needsUpdate; }
     set needsUpdate(update) { this.#needsUpdate = update; }
@@ -5978,8 +5922,8 @@ class NodeItem extends Div {
             if (!self.graph()) return;
             event.stopPropagation();
             event.preventDefault();
-            self.point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
-            self.point.dom.ownerDocument.addEventListener('pointerup', pointPointerUp);
+            document.addEventListener('pointermove', pointPointerMove);
+            document.addEventListener('pointerup', pointPointerUp);
             self.point.addClass('suey-active-item');
             self.graph().activeItem = self;
             self.graph().activePoint.x = event.clientX;
@@ -5991,8 +5935,8 @@ class NodeItem extends Div {
             event.preventDefault();
             self.point.removeClass('suey-active-item');
             self.graph().connect();
-            self.point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
-            self.point.dom.ownerDocument.removeEventListener('pointerup', pointPointerUp);
+            document.removeEventListener('pointermove', pointPointerMove);
+            document.removeEventListener('pointerup', pointPointerUp);
         }
         function pointPointerMove(event) {
             event.stopPropagation();
@@ -6019,9 +5963,9 @@ class NodeItem extends Div {
             }
             self.point.removeClass('suey-hover-point');
         }
-        this.point.onPointerDown(pointPointerDown);
-        this.point.onPointerEnter(pointPointerEnter);
-        this.point.onPointerLeave(pointPointerLeave);
+        this.point.on('pointerdown', pointPointerDown);
+        this.point.on('pointerenter', pointPointerEnter);
+        this.point.on('pointerleave', pointPointerLeave);
         function breakPointerDown(event) {
             if (!self.hasClass('suey-item-connected')) return;
             if (event.button !== 0) return;
@@ -6029,7 +5973,7 @@ class NodeItem extends Div {
             event.preventDefault();
             self.disconnect();
         }
-        this.detach.onPointerDown(breakPointerDown);
+        this.detach.on('pointerdown', breakPointerDown);
     }
     connect(item) {
         if (item === this) return;

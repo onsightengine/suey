@@ -19,9 +19,8 @@ class Dropdown extends Button {
         this.addClass('suey-drop-arrow');
 
         // EVENTS
-
-        function onWheel(event) {
-            event.stopPropagation()
+        function dropWheel(event) {
+            event.stopPropagation();
             event.preventDefault();
 
             // Scroll Up
@@ -30,7 +29,6 @@ class Dropdown extends Button {
                     self.setIndex(self.currentIndex - 1);
                     if (self.dom) self.dom.dispatchEvent(new Event('change'));
                 }
-
             // Scroll Down
             } else {
                 if (self.currentIndex < (self.items.length - 1)) {
@@ -40,7 +38,8 @@ class Dropdown extends Button {
             }
         }
 
-        this.onWheel(onWheel);
+        // Add Listeners
+        this.on('wheel', dropWheel);
     }
 
     /** Get sub menu item by key value */

@@ -100,7 +100,7 @@ class TabButton extends Div {
         let locationUnder = undefined;
         let wasSelected = false;
 
-        function onPointerDown(event) {
+        function tabPointerDown(event) {
             if (event.button !== 0) return;
             event.stopPropagation();
             event.preventDefault();
@@ -108,10 +108,10 @@ class TabButton extends Div {
             minDistance = 0;
             downX = event.pageX;
             downY = event.pageY;
-            document.addEventListener('pointermove', onPointerMove);
-            document.addEventListener('pointerup', onPointerUp);
+            document.addEventListener('pointermove', tabPointerMove);
+            document.addEventListener('pointerup', tabPointerUp);
         }
-        function onPointerMove(event) {
+        function tabPointerMove(event) {
             event.stopPropagation();
             event.preventDefault();
             minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
@@ -221,7 +221,7 @@ class TabButton extends Div {
 
             lastUnder = elementUnder;
         }
-        function onPointerUp(event) {
+        function tabPointerUp(event) {
             event.stopPropagation();
             event.preventDefault();
 
@@ -286,18 +286,19 @@ class TabButton extends Div {
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
                 }
             }
-            document.removeEventListener('pointermove', onPointerMove);
-            document.removeEventListener('pointerup', onPointerUp);
+            document.removeEventListener('pointermove', tabPointerMove);
+            document.removeEventListener('pointerup', tabPointerUp);
         }
-        function onPointerEnter() {
+        function tabPointerEnter() {
             document.body.classList.add('suey-no-resize');
         }
-        function onPointerLeave() {
+        function tabPointerLeave() {
             document.body.classList.remove('suey-no-resize');
         }
-        this.dom.addEventListener('pointerenter', onPointerEnter);
-        this.dom.addEventListener('pointerleave', onPointerLeave);
-        this.dom.addEventListener('pointerdown', onPointerDown);
+
+        this.on('pointerenter', tabPointerEnter);
+        this.on('pointerleave', tabPointerLeave);
+        this.on('pointerdown', tabPointerDown);
     }
 
     getID() {

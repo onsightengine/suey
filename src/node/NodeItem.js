@@ -42,8 +42,8 @@ class NodeItem extends Div {
             if (!self.graph()) return;
             event.stopPropagation();
             event.preventDefault();
-            self.point.dom.ownerDocument.addEventListener('pointermove', pointPointerMove);
-            self.point.dom.ownerDocument.addEventListener('pointerup', pointPointerUp);
+            document.addEventListener('pointermove', pointPointerMove);
+            document.addEventListener('pointerup', pointPointerUp);
             self.point.addClass('suey-active-item');
             self.graph().activeItem = self;
             self.graph().activePoint.x = event.clientX;
@@ -55,8 +55,8 @@ class NodeItem extends Div {
             event.preventDefault();
             self.point.removeClass('suey-active-item');
             self.graph().connect();
-            self.point.dom.ownerDocument.removeEventListener('pointermove', pointPointerMove);
-            self.point.dom.ownerDocument.removeEventListener('pointerup', pointPointerUp);
+            document.removeEventListener('pointermove', pointPointerMove);
+            document.removeEventListener('pointerup', pointPointerUp);
         }
         function pointPointerMove(event) {
             event.stopPropagation();
@@ -83,9 +83,9 @@ class NodeItem extends Div {
             }
             self.point.removeClass('suey-hover-point');
         }
-        this.point.onPointerDown(pointPointerDown);
-        this.point.onPointerEnter(pointPointerEnter);
-        this.point.onPointerLeave(pointPointerLeave);
+        this.point.on('pointerdown', pointPointerDown);
+        this.point.on('pointerenter', pointPointerEnter);
+        this.point.on('pointerleave', pointPointerLeave);
 
         // Detach Pointer Events
         function breakPointerDown(event) {
@@ -95,7 +95,7 @@ class NodeItem extends Div {
             event.preventDefault();
             self.disconnect();
         }
-        this.detach.onPointerDown(breakPointerDown);
+        this.detach.on('pointerdown', breakPointerDown);
     }
 
     /******************** CONNECTION */

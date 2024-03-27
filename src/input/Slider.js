@@ -58,8 +58,8 @@ class Slider extends Div {
             slider.dom.dispatchEvent(_changeEvent);
         }
 
-        slider.onInput(sliderInput);
-        slider.onWheel(sliderWheel);
+        slider.on('input', sliderInput);
+        slider.on('wheel', sliderWheel);
     }
 
     getValue() {

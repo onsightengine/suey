@@ -12,13 +12,13 @@ class TextBox extends Element {
         // // NOTE: For chrome, this doesn't always turn off autocomplete.
         // Try inserting a zero-width non-joiner into the input name to trick chrome.
         // So 'Name' -> 'N&zwnj;ame', 'Street' -> 'S&zwnj;treet'
-        this.dom.setAttribute('autocomplete', 'off');
-        this.dom.setAttribute('spellcheck', 'false');
+        this.setAttribute('autocomplete', 'off');
+        this.setAttribute('spellcheck', 'false');
 
         this.setValue(text ?? '');
 
         // Key Events
-        function onKeyDown(event) {
+        function boxKeyDown(event) {
             event.stopPropagation();
             if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
@@ -30,12 +30,12 @@ class TextBox extends Element {
             }
         }
 
-        function onKeyUp(event) {
+        function boxKeyUp(event) {
             event.stopPropagation();
         }
 
-        this.onKeyDown(onKeyDown);
-        this.onKeyUp(onKeyUp);
+        this.on('keydown', boxKeyDown);
+        this.on('keyup', boxKeyUp);
     }
 
     getValue() {

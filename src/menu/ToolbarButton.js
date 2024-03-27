@@ -26,40 +26,12 @@ class ToolbarButton extends Button {
 
         this.contents = function() { return buttonImageHolder };
 
-        /***** EVENTS *****/
-
-        function onPointerDown(event) {
-            event.stopPropagation();
-
-        }
-
-        function onPointerUp(event) {
-            event.stopPropagation();
-
-        }
-
-        this.dom.addEventListener('pointerdown', onPointerDown);
-        this.dom.addEventListener('pointerup', onPointerUp);
-
-        this.dom.addEventListener('destroy', () => {
-            self.dom.removeEventListener('pointerdown', onPointerDown);
-            self.dom.removeEventListener('pointerup', onPointerUp);
-        }, { once: true });
+        // Events
+        this.on('pointerdown', (event) => { event.stopPropagation(); });
+        this.on('pointerup', (event) => { event.stopPropagation(); });
     }
 
     /******************** EVENT OVERRIDES ********************/
-
-    onPointerDown(callback) {
-        console.trace(`ToolbarButton.onPointerDown() deprecated, use onClick() instead, from: ${this.getName()}`);
-        this.onClick(callback);
-        return this;
-    }
-
-    onPointerUp(callback) {
-        console.trace(`ToolbarButton.onPointerUp() deprecated, use onClick() instead, from: ${this.getName()}`);
-        this.onClick(callback);
-        return this;
-    }
 
     onClick(callback) {
         if (typeof callback !== 'function') return;

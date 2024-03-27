@@ -35,7 +35,7 @@ class Node extends Div {
 
         // Enable mouse focus, needs >= 0 for keyboard focus
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
-        this.dom.setAttribute('tabindex', '-1');
+        this.setAttribute('tabindex', '-1');
 
         // Prototype
         this.isNode = true;
@@ -60,14 +60,13 @@ class Node extends Div {
         this.add(this.header, lists);
 
         // Stacking
-        this.dom.addEventListener('focusout', () => self.removeClass('suey-active-node'));
-        this.dom.addEventListener('focusin', () => self.activeNode());
-        this.dom.addEventListener('displayed', () => self.activeNode());
-        this.dom.addEventListener('pointerdown', () => self.activeNode());
+        this.on('focusout', () => self.removeClass('suey-active-node'));
+        this.on('focusin', () => self.activeNode());
+        this.on('displayed', () => self.activeNode());
+        this.on('pointerdown', () => self.activeNode());
 
         // Disable context menu
-        function onContextMenu(event) { event.preventDefault(); }
-        this.onContextMenu(onContextMenu);
+        this.on('contextmenu', (event) => { event.preventDefault(); });
 
         // Resizers
         let rect = {};
@@ -187,20 +186,19 @@ class Node extends Div {
             }, 250);
             self.dom.ownerDocument.removeEventListener('pointerup', nodePointerUp);
         }
-        this.onPointerDown(nodePointerDown);
+        this.on('pointerdown', nodePointerDown);
 
         // Double Click (Focus)
         function nodeDoubleClick() {
             if (!self.graph) return;
             self.graph.centerView(false /* resetZoom */, true /* animate */);
         }
-        this.onDblClick(nodeDoubleClick);
+        this.on('dblclick', nodeDoubleClick);
 
         // Destroy
-        this.dom.addEventListener('destroy', function() {
+        this.on('destroy', () => {
             if (observer) observer.disconnect();
-        }, { once: true });
-
+        });
     } // end ctor
 
     /******************** RECT */

@@ -20,7 +20,7 @@ class TreeList extends Div {
         this.selectedValues = [];           // for multi select mode
 
         // Key Events - arrow navigation, prevents native scroll behavior
-        function onKeyDown(event) {
+        function treeKeyDown(event) {
             // Single Select Keypress
             if (!self.multiSelect) {
                 if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
@@ -92,7 +92,7 @@ class TreeList extends Div {
                 }
             }
         }
-        function onKeyUp(event) {
+        function treeKeyUp(event) {
             switch (event.key) {
                 case 'ArrowUp':
                 case 'ArrowDown':
@@ -105,8 +105,8 @@ class TreeList extends Div {
                     break;
             }
         }
-        this.onKeyDown(onKeyDown);
-        this.onKeyUp(onKeyUp);
+        this.on('keydown', treeKeyDown);
+        this.on('keyup', treeKeyUp);
     }
 
     /******************** LOOKUP ********************/
@@ -209,7 +209,7 @@ class TreeList extends Div {
         this.clearContents();
 
         // Click
-        function onPointerDown(event) {
+        function divPointerDown(event) {
             // Reset shift tracking values when no shift key
             if (!event.shiftKey) {
                 self.#shiftAdd = 0;
@@ -271,18 +271,17 @@ class TreeList extends Div {
                 self.setValue(this.value);
             }
             // Pointer Up Event
-            this.addEventListener('pointerup', onPointerUp);
+            this.addEventListener('pointerup', divPointerUp, { once: true });
             // Dispatch 'change' Event
             self.dom.dispatchEvent(new Event('change'));
         }
-        function onPointerUp(event) {
+        function divPointerUp(event) {
             // Multi-Select
             if (self.multiSelect) {
                 if (! (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)) {
                     self.setValues([ this.value ]);
                 }
             }
-            this.removeEventListener('pointerup', onPointerUp);
         }
 
         // Drag & Drop
@@ -398,8 +397,8 @@ class TreeList extends Div {
             div.classList.add('suey-option');
             self.dom.appendChild(div);
             self.options.push(div);
-            div.addEventListener('pointerdown', onPointerDown);
-            div.addEventListener('destroy', () => div.removeEventListener('pointerdown', onPointerDown), { once: true });
+            div.addEventListener('pointerdown', divPointerDown);
+            div.addEventListener('destroy', () => div.removeEventListener('pointerdown', divPointerDown), { once: true });
             if (div.draggable) {
                 div.addEventListener('drag', onDrag);
                 div.addEventListener('dragstart', onDragStart);

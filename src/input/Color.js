@@ -53,9 +53,9 @@ class Color extends Button {
         }
 
         colorBox.onClick(colorBoxClick);
-        colorBox.onInput(colorBoxInput);
-        colorBox.dom.addEventListener('blur', colorBoxBlur);
-        colorBox.dom.addEventListener('focusout', colorBoxBlur);
+        colorBox.on('input', colorBoxInput);
+        colorBox.on('blur', colorBoxBlur);
+        colorBox.on('focusout', colorBoxBlur);
 
         // Member Functions
 
@@ -82,9 +82,7 @@ class Color extends Button {
         };
 
         // Init
-
         this.setValue(0xffffff);
-
     }
 
 }

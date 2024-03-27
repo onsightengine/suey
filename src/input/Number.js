@@ -27,11 +27,11 @@ class NumberBox extends Element {
         this.setValue(number);
 
         // Events
-        function onChange(event) {
+        function boxChange(event) {
             if (self.dom) self.setValue(self.dom.value);
         }
 
-        function onKeyDown(event) {
+        function boxKeyDown(event) {
             event.stopPropagation();
 
             if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
@@ -59,11 +59,11 @@ class NumberBox extends Element {
             }
         }
 
-        function onKeyUp(event) {
+        function boxKeyUp(event) {
             event.stopPropagation();
         }
 
-        function onWheel(event) {
+        function boxWheel(event) {
             event.preventDefault();
             const upOrDown = (event.deltaY < 0) ? -1.0 : 1.0;
             const newValue = self.getValue() - (upOrDown * self.step);
@@ -72,18 +72,10 @@ class NumberBox extends Element {
         }
 
         // Add Listeners
-        this.dom.addEventListener('keydown', onKeyDown);
-        this.dom.addEventListener('keyup', onKeyUp);
-        this.dom.addEventListener('wheel', onWheel);
-        this.dom.addEventListener('change', onChange);
-
-        // Remove Event Listeners
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('keydown', onKeyDown);
-            self.dom.removeEventListener('keyup', onKeyUp);
-            self.dom.removeEventListener('wheel', onWheel);
-            self.dom.removeEventListener('change', onChange);
-        }, { once: true });
+        this.on('keydown', boxKeyDown);
+        this.on('keyup', boxKeyUp);
+        this.on('wheel', boxWheel);
+        this.on('change', boxChange);
 
     } // end ctor
 
@@ -167,22 +159,22 @@ class NumberScroll extends NumberBox {
         this.dom.style.cursor = 'ns-resize';
 
         let distance = 0;
-        let onMouseDownValue = 0;
+        let mouseDownValue = 0;
 
         const pointer = { x: 0, y: 0 };
         const prevPointer = { x: 0, y: 0 };
 
-        function onMouseDown(event) {
+        function numberMouseDown(event) {
             event.preventDefault();
             distance = 0;
 
-            onMouseDownValue = self.getValue();
+            mouseDownValue = self.getValue();
 
             prevPointer.x = event.clientX;
             prevPointer.y = event.clientY;
         }
 
-        function onMouseMove(event) {
+        function numberMouseMove(event) {
             const currentValue = self.getValue();
 
             pointer.x = event.clientX;
@@ -191,7 +183,7 @@ class NumberScroll extends NumberBox {
             distance += (pointer.x - prevPointer.x) - (pointer.y - prevPointer.y);
 
             let value;
-            value = onMouseDownValue + (distance / (event.shiftKey ? 0.1 : 1)) * self.step;
+            value = mouseDownValue + (distance / (event.shiftKey ? 0.1 : 1)) * self.step;
             value = Math.min(self.max, Math.max(self.min, value));
 
             if (currentValue !== value) {
@@ -203,24 +195,24 @@ class NumberScroll extends NumberBox {
             prevPointer.y = event.clientY;
         }
 
-        function onMouseUp() {
+        function numberMouseUp() {
             if (Math.abs(distance) < 2) {
                 if (self.dom) self.dom.focus();
                 // if (self.dom) self.dom.select();
             }
         }
 
-        function onTouchStart(event) {
+        function numberTouchStart(event) {
             if (event.touches.length === 1) {
                 distance = 0;
-                onMouseDownValue = self.getValue();
+                mouseDownValue = self.getValue();
 
                 prevPointer.x = event.touches[0].pageX;
                 prevPointer.y = event.touches[0].pageY;
             }
         }
 
-        function onTouchMove(event) {
+        function numberTouchMove(event) {
             const currentValue = self.getValue();
 
             pointer.x = event.touches[0].pageX;
@@ -228,7 +220,7 @@ class NumberScroll extends NumberBox {
             distance += (pointer.x - prevPointer.x) - (pointer.y - prevPointer.y);
 
             let value;
-            value = onMouseDownValue + (distance / (event.shiftKey ? 5 : 50)) * self.step;
+            value = mouseDownValue + (distance / (event.shiftKey ? 5 : 50)) * self.step;
             value = Math.min(self.max, Math.max(self.min, value));
 
             if (currentValue !== value) {
@@ -240,7 +232,7 @@ class NumberScroll extends NumberBox {
             prevPointer.y = event.touches[0].pageY;
         }
 
-        function onTouchEnd(event) {
+        function numberTouchEnd(event) {
             if (event.touches.length === 0) {
                 if (Math.abs(distance) < 2) {
                     if (self.dom) self.dom.focus();
@@ -249,38 +241,25 @@ class NumberScroll extends NumberBox {
             }
         }
 
-        function onFocus() {
+        function numberFocus() {
             // if (self.dom) self.dom.style.backgroundColor = '';
             if (self.dom) self.dom.style.cursor = '';
         }
 
-        function onBlur() {
+        function numberBlur() {
             // if (self.dom) self.dom.style.backgroundColor = 'transparent';
             if (self.dom) self.dom.style.cursor = 'ns-resize';
         }
 
         // Add Event Listeners
-        this.dom.addEventListener('mousedown', onMouseDown);
-        this.dom.addEventListener('mousemove', onMouseMove);
-        this.dom.addEventListener('mouseup', onMouseUp);
-        this.dom.addEventListener('touchstart', onTouchStart);
-        this.dom.addEventListener('touchmove', onTouchMove);
-        this.dom.addEventListener('touchend', onTouchEnd);
-        this.dom.addEventListener('focus', onFocus);
-        this.dom.addEventListener('blur', onBlur);
-
-        // Remove Event Listeners
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('mousedown', onMouseDown);
-            self.dom.removeEventListener('mousemove', onMouseMove);
-            self.dom.removeEventListener('mouseup', onMouseUp);
-            self.dom.removeEventListener('touchstart', onTouchStart);
-            self.dom.removeEventListener('touchmove', onTouchMove);
-            self.dom.removeEventListener('touchend', onTouchEnd);
-            self.dom.removeEventListener('focus', onFocus);
-            self.dom.removeEventListener('blur', onBlur);
-        }, { once: true });
-
+        this.on('mousedown', numberMouseDown);
+        this.on('mousemove', numberMouseMove);
+        this.on('mouseup', numberMouseUp);
+        this.on('touchstart', numberTouchStart);
+        this.on('touchmove', numberTouchMove);
+        this.on('touchend', numberTouchEnd);
+        this.on('focus', numberFocus);
+        this.on('blur', numberBlur);
     }
 
 }

@@ -171,7 +171,7 @@ class Folder extends Shrinkable {
     addBoolean(params, variable) {
         const prop = new Property();
         const boolBox = new Checkbox();
-        boolBox.onChange(() => {
+        boolBox.on('change', () => {
             params[variable] = boolBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -203,11 +203,11 @@ class Folder extends Shrinkable {
                 default:
             }
         }
-        colorButton.onInput(() => {
+        colorButton.on('input', () => {
             setVariable(colorButton.getHexValue());
             if (typeof prop.change === 'function') prop.change();
         });
-        colorButton.onChange(() => {
+        colorButton.on('change', () => {
             setVariable(colorButton.getHexValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -243,7 +243,7 @@ class Folder extends Shrinkable {
         const selectDropDown = new Dropdown();
         selectDropDown.overflowMenu = OVERFLOW.LEFT;
         selectDropDown.setOptions(selectOptions);
-        selectDropDown.onChange(() => {
+        selectDropDown.on('change', () => {
             params[variable] = (type === 'string') ? selectDropDown.getValue() : selectDropDown.getIndex();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -264,26 +264,26 @@ class Folder extends Shrinkable {
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
-        slider.onInput(() => {
+        slider.on('input', () => {
             params[variable] = slider.getValue();
             slideBox.setValue(slider.getValue());
             if (typeof prop.change === 'function') prop.change();
         });
-        slider.onChange(() => {
+        slider.on('change', () => {
             params[variable] = slider.getValue();
             slideBox.setValue(slider.getValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        slideBox.onChange(() => {
+        slideBox.on('change', () => {
             params[variable] = slideBox.getValue();
             slider.setValue(slideBox.getValue());
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        slider.onPointerDown((event) => event.stopPropagation());
-        slider.onWheel((event) => event.stopPropagation());
-        slideBox.onWheel((event) => event.stopPropagation());
+        slider.on('pointerdown', (event) => event.stopPropagation());
+        slider.on('wheel', (event) => event.stopPropagation());
+        slideBox.on('wheel', (event) => event.stopPropagation());
 
         slider.setRange(min, max).setPrecision(precision);
         slideBox.setRange(min, max).setPrecision(precision);
@@ -329,7 +329,7 @@ class Folder extends Shrinkable {
     addString(params, variable) {
         const prop = new Property();
         const textBox = new TextBox();
-        textBox.onChange(() => {
+        textBox.on('change', () => {
             params[variable] = textBox.getValue();
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
@@ -351,12 +351,12 @@ class Folder extends Shrinkable {
             const box = new NumberBox();
             boxes.push(box);
 
-            box.onChange(() => {
+            box.on('change', () => {
                 vector[i] = box.getValue();
                 if (typeof prop.change === 'function') prop.change();
                 if (typeof prop.finishChange === 'function') prop.finishChange();
             });
-            box.onWheel((event) => event.stopPropagation());
+            box.on('wheel', (event) => event.stopPropagation());
             box.setRange(min, max).setPrecision(precision);
 
             row.rightWidget.add(box);

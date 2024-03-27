@@ -67,7 +67,7 @@ class Graph extends Panel {
             self.stopAnimation();
             self.zoomTo(self.#scale - delta, event.clientX, event.clientY);
         };
-        this.onWheel(graphMouseZoom);
+        this.on('wheel', graphMouseZoom);
 
         // Window Resize
         function onWindowResize() {
@@ -119,8 +119,8 @@ class Graph extends Panel {
             }
             if (grabbing || selecting) {
                 self.dom.setPointerCapture(event.pointerId);
-                self.dom.ownerDocument.addEventListener('pointermove', inputPointerMove);
-                self.dom.ownerDocument.addEventListener('pointerup', inputPointerUp);
+                document.addEventListener('pointermove', inputPointerMove);
+                document.addEventListener('pointerup', inputPointerUp);
             }
         }
         function inputPointerUp(event) {
@@ -136,8 +136,8 @@ class Graph extends Panel {
                 self.bandbox.setStyle('display', 'none');
                 selecting = false;
             }
-            self.dom.ownerDocument.removeEventListener('pointermove', inputPointerMove);
-            self.dom.ownerDocument.removeEventListener('pointerup', inputPointerUp);
+            document.removeEventListener('pointermove', inputPointerMove);
+            document.removeEventListener('pointerup', inputPointerUp);
         }
         function inputPointerMove(event) {
             event.stopPropagation();
@@ -187,7 +187,7 @@ class Graph extends Panel {
                 else node.removeClass('suey-node-selected');
             });
         }
-        this.input.onPointerDown(inputPointerDown);
+        this.input.on('pointerdown', inputPointerDown);
 
         // Minimap Resizers
         let rect = {};
@@ -262,9 +262,9 @@ class Graph extends Panel {
             if (!translating) return;
             calculateOffset(event.clientX, event.clientY);
         }
-        this.minimap.onPointerDown(mapPointerDown);
-        this.minimap.onPointerUp(mapPointerUp);
-        this.minimap.onPointerMove(mapPointerMove);
+        this.minimap.on('pointerdown', mapPointerDown);
+        this.minimap.on('pointerup', mapPointerUp);
+        this.minimap.on('pointermove', mapPointerMove);
 
     } // end ctor
 

@@ -25,18 +25,16 @@ class Button extends Element {
 
         /***** EVENTS *****/
 
-        function onPointerDown(event) {
-            // Hide Tooltip
+        function hideTooltip(event) {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
         }
 
-        this.dom.addEventListener('pointerdown', onPointerDown);
+        this.on('pointerdown', hideTooltip);
 
-        this.dom.addEventListener('destroy', function() {
-            self.dom.removeEventListener('pointerdown', onPointerDown);
+        this.on('destroy', () => {
             if (self.attachedMenu) self.detachMenu();
-        }, { once: true });
+        });
     }
 
     /** Attaches a PopUp menu to Button */
