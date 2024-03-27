@@ -264,6 +264,7 @@ class Docker extends Panel {
     /******************** DROP LOCATIONS */
 
     hideDockLocations() {
+        this.removeClass('suey-dock-self');
         if (this.dockLocations) {
             this.remove(this.dockLocations);
             this.dockLocations = undefined;
@@ -275,23 +276,23 @@ class Docker extends Panel {
             const dockLocations = new Div().addClass('suey-dock-locations');
             if (this.initialSide === 'left' || this.initialSide === 'right') {
                 if (this.getHeight() > 160) {
-                    const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
-                    const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-horizontal');
+                    const topDock = new Div().addClass('suey-dock-location', 'suey-dock-split-top');
+                    const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-split-bottom');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-horizontal');
                     dockLocations.add(topDock, bottomDock, middleDock);
                 } else {
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-horizontal');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-horizontal');
                     middleDock.setStyle('top', '0%', 'height', '100%');
                     dockLocations.add(middleDock);
                 }
             } else if (this.initialSide === 'top' || this.initialSide === 'bottom') {
                 if (this.getWidth() > 200) {
-                    const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
-                    const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-vertical');
+                    const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-split-left');
+                    const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-split-right');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-vertical');
                     dockLocations.add(leftDock, rightDock, middleDock);
                 } else {
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle-vertical');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-vertical');
                     middleDock.setStyle('left', '0%', 'width', '100%');
                     dockLocations.add(middleDock);
                 }
@@ -301,10 +302,11 @@ class Docker extends Panel {
                 const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
                 const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
                 if (this.isPrimary()) {
-                    leftDock.setStyle('width', '50px');
-                    rightDock.setStyle('width', '50px');
-                    topDock.setStyle('height', '50px');
-                    bottomDock.setStyle('height', '50px');
+                    const edgeSize = '2em';
+                    leftDock.setStyle('width', edgeSize);
+                    rightDock.setStyle('width', edgeSize);
+                    topDock.setStyle('height', edgeSize);
+                    bottomDock.setStyle('height', edgeSize);
                     dockLocations.add(leftDock, rightDock, topDock, bottomDock);
                 } else {
                     topDock.setStyle('left', '20%', 'width', '60%');
@@ -320,8 +322,10 @@ class Docker extends Panel {
             this.addToSelf(dockLocations);
             this.dockLocations = dockLocations;
         }
+        this.removeClass('suey-dock-self');
         for (const child of this.dockLocations.children) {
             child.removeClass('suey-dock-drop');
+            child.removeClass('suey-dock-self');
         }
     }
 

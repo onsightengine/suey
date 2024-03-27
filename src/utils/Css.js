@@ -54,6 +54,7 @@ class Css {
     }
 
     static fontSize(element = document.body) {
+        if (element && element.isElement) element = element.dom;
         let size = getComputedStyle(element).fontSize;
         if (size == null || Number.isNaN(size) || !Number.isFinite(size)) size = getComputedStyle(document.body).fontSize;
         return parseFloat(size);
@@ -68,8 +69,8 @@ class Css {
 
     /* Gets the width of a string in pixels, use with getFontCssFromElement() */
     static getTextWidth(text, font) {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
         ctx.font = font;
         return ctx.measureText(text).width;
     }

@@ -138,6 +138,8 @@ class TabButton extends Div {
 
             // Find Element Under Pointer
             let elementUnder = null;
+            let pastEdge = '';
+            // Check for Window
             if (!elementUnder) elementUnder = Dom.findElementAt('suey-window', event.pageX, event.pageY);
             if (elementUnder) {
                 if (elementUnder === self.tabPanel.dock) {
@@ -146,12 +148,24 @@ class TabButton extends Div {
                     elementUnder = null;
                 }
             } else {
+                // Check for Edges
                 const documentRect = document.body.getBoundingClientRect();
-                if (event.pageX < 50 || event.pageY < 50 || event.pageX > documentRect.width - 50 || event.pageY > documentRect.height - 50) {
-                    elementUnder = Dom.findElementAt('suey-docker-primary', event.pageX, event.pageY);
+                const edgeSize = parseFloat(Css.toPx('0.25em'));
+                if (event.pageX < edgeSize) pastEdge = 'left';
+                if (event.pageY < edgeSize) pastEdge = 'top';
+                if (event.pageX > documentRect.width - edgeSize) pastEdge = 'right';
+                if (event.pageY > documentRect.height - edgeSize) pastEdge = 'bottom';
+                if (pastEdge !== '') {
+                    const primaries = document.body.getElementsByClassName('suey-docker-primary');
+                    if (primaries) elementUnder = primaries[0].suey;
                 }
-                if (!elementUnder) elementUnder = Dom.findElementAt('suey-tab-buttons', event.pageX, event.pageY);
-                if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker', event.pageX, event.pageY);
+                if (!elementUnder) {
+                    // Check for Buttons
+                    const tabButtons = document.elementsFromPoint(event.pageX, event.pageY);
+                    if (tabButtons.includes(self.parent.dom)) elementUnder = self.parent;
+                    // Check for Docker
+                    if (!elementUnder) elementUnder = Dom.findElementAt('suey-docker', event.pageX, event.pageY);
+                }
             }
 
             // Drag Over
@@ -183,8 +197,18 @@ class TabButton extends Div {
                 // Drag Over Docker (show new Dock Locations)
                 } else if (elementUnder.hasClass('suey-docker')) {
                     elementUnder.showDockLocations(event.pageX, event.pageY);
-                    locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
-                    if (locationUnder) locationUnder.addClass('suey-dock-drop');
+                    if (pastEdge !== '') { /* primary edge */
+                        locationUnder = Dom.childWithClass(elementUnder.dockLocations, `suey-dock-${pastEdge}`);
+                    } else {
+                        locationUnder = Dom.findElementAt('suey-dock-location', event.pageX, event.pageY);
+                    }
+                    if (locationUnder) {
+                        locationUnder.addClass('suey-dock-drop');
+                        if (locationUnder.hasClass('suey-dock-middle')) {
+                            locationUnder.addClass('suey-dock-self');
+                            locationUnder.parent.parent.addClass('suey-dock-self');
+                        }
+                    }
                 }
             }
 
@@ -214,16 +238,15 @@ class TabButton extends Div {
                     if (locationUnder) {
                         let droppedOnDock = null;
                         // New Dock (Tabbed)
-                        if (locationUnder.hasClass('suey-dock-middle-vertical') ||
-                            locationUnder.hasClass('suey-dock-middle-horizontal')) {
+                        if (locationUnder.hasClass('suey-dock-middle')) {
                             droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
-                        } else if (locationUnder.hasClass('suey-dock-top')) {
+                        } else if (locationUnder.hasClass('suey-dock-top') || locationUnder.hasClass('suey-dock-split-top')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%', false).enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-bottom')) {
+                        } else if (locationUnder.hasClass('suey-dock-bottom') || locationUnder.hasClass('suey-dock-split-bottom')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%', false).enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-left')) {
+                        } else if (locationUnder.hasClass('suey-dock-left') || locationUnder.hasClass('suey-dock-split-left')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%', false).enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-right')) {
+                        } else if (locationUnder.hasClass('suey-dock-right') || locationUnder.hasClass('suey-dock-split-right')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         // New Window
                         } else if (locationUnder.hasClass('suey-dock-center')) {
@@ -232,7 +255,7 @@ class TabButton extends Div {
                             droppedOnDock.display();
                         // Unknown Dock Location
                         } else {
-                            console.log(locationUnder);
+                            console.warn('Unknown dock location!', locationUnder);
                         }
                         // Have New Dock Panel
                         if (droppedOnDock) {

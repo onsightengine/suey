@@ -28,6 +28,7 @@
     <script type="module">
 
         import { ColorScheme } from 'suey';
+        import { Css } from 'suey';
         import { Div } from 'suey';
         import { Docker } from 'suey';
         import { Iris } from 'suey';
@@ -39,6 +40,20 @@
         const docker = new Docker();
         document.body.appendChild(docker.dom);
 
+        function fontSizeChange(fontSize) {
+            if (fontSize === 'up' || fontSize === 'increase') {
+                let addSize = Math.floor((Css.fontSize() + 10.0) / 10.0);
+                fontSize = Math.min(30, Css.fontSize() + addSize);
+            } else if (fontSize === 'down' || fontSize === 'decrease') {
+                let addSize = Math.floor((Css.fontSize() + 10.0) / 10.0);
+                addSize = Math.floor((Css.fontSize() - addSize + 10.0) / 10.0);
+                fontSize = Math.max(10, Css.fontSize() - addSize);
+            } else {
+                fontSize = parseInt(fontSize);
+            }
+            Css.setVariable('--font-size', Css.toPx(fontSize));
+        }
+
         docker.onClick(() => {
             // docker.setStyle('background-color', `rgba(${new Iris().setRandom().rgbString(0.25)})`);
         });
@@ -46,6 +61,8 @@
         document.addEventListener('keyup', (event) => {
             if (event.key === 'c') docker.collapseTabs();
             if (event.key === 'e') docker.expandTabs();
+            if (event.key === '-') fontSizeChange('down');
+            if (event.key === '=') fontSizeChange('up');
         });
 
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');

@@ -71,6 +71,7 @@
 }
 
 .suey-dock-location {
+    --size: 2em;
     position: absolute;
     opacity: 0.0;
 }
@@ -78,15 +79,20 @@
 .suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }
 .suey-dock-top    { left:  0; top:    0; width: 100%; height:  20%; }
 .suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  20%; }
-.suey-dock-middle-vertical { left: 20%; top: 0; width: 60%; height: 100%; }
-.suey-dock-middle-horizontal { left: 0%; top: 20%; width: 100%; height: 60%; }
-.suey-dock-center { left: 20%; top: 20%; width: 60%; height: 60%; }
+.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }
+
+.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }
+.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }
+.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }
+.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }
+.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }
+.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }
 
 .suey-dock-location.suey-dock-drop {
     background-color: transparent;
     opacity: 1.0;
 }
-.suey-dock-location.suey-dock-drop::before {
+.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {
     --shrink: 0.57143em;
     content: '';
     position: absolute;
@@ -99,16 +105,10 @@
     border-radius: var(--radius-large);
     outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));
 }
-.suey-dock-middle-vertical.suey-dock-drop,
-.suey-dock-middle-horizontal.suey-dock-drop {
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
-.suey-dock-middle-vertical.suey-dock-drop::before,
-.suey-dock-middle-horizontal.suey-dock-drop::before {
-    background-color: rgba(var(--complement), 0.1);
+
+.suey-docker.suey-dock-self .suey-panel-simple,
+.suey-docker.suey-dock-self .suey-panel-fancy-border {
+    border: var(--border-small) solid rgb(var(--complement)) !important;
 }
 
 /********** Floater **********/
@@ -337,7 +337,7 @@
 
 .suey-tab-buttons.suey-window-side {
     flex-direction: row;
-    top: calc((var(--tab-size) / -2.0) + 0.42857em);
+    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/
     transform: scale(92%);
 }
 
@@ -346,5 +346,6 @@
 }
 
 .suey-panel-button.suey-title-bar .suey-tab-buttons {
-    left: var(--title-width);
+    left: 100%;
+    margin-left: 0.5em;
 }

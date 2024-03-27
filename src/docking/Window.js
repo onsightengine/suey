@@ -137,7 +137,6 @@ class Window extends Panel {
         this.dom.addEventListener('displayed', () => {
             // Center first time shown
             if (firstTime) {
-                titleBar.setTitle(title);
                 self.center();
                 firstTime = false;
             }
