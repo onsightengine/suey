@@ -4885,7 +4885,7 @@ class Docker extends Panel {
             child.removeClass('suey-dock-self');
         }
     }
-    addPanel(floater, location = 'center') {
+    addFloater(floater, location = 'center') {
         let dock = undefined;
         if (location === 'center' || this.isPrimary()) {
             dock = new Window({ title: floater.id, width: '50%', height: '70%' });
@@ -4900,11 +4900,11 @@ class Docker extends Panel {
     floaters() {
         return Dom.childrenWithClass(this, 'suey-floater');
     }
-    getPanelByID(id) {
-        if (id == undefined || id === '') return null;
-        const panels = this.floaters();
-        for (const panel of panels) {
-            if (panel.id === id) return panel;
+    getFloaterByID(id) {
+        if (id == undefined || id === '') return undefined;
+        const floaters = this.floaters();
+        for (const floater of floaters) {
+            if (floater.id === id) return floater;
         }
         return undefined;
     }

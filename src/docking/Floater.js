@@ -23,7 +23,7 @@ class Floater extends Panel {
         this.addClass('suey-floater', 'suey-hidden');
         this.add(content);
 
-        // Parent Dock Holding Floater (Tabbed, Window, etc.)
+        // Parent AbstractDock holding Floater (Tabbed, Window, etc.)
         this.dock = null;
 
         // Tab Button
