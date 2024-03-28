@@ -1,7 +1,7 @@
+import { AbstractDock } from './AbstractDock.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
-import { Panel } from '../panels/Panel.js';
 import { Span } from '../core/Span.js';
 
 import { CLOSE_SIDES } from '../constants.js';
@@ -11,7 +11,7 @@ import { RESIZERS } from '../constants.js';
 const MIN_W = 300;
 const MIN_H = 150;
 
-class Window extends Panel {
+class Window extends AbstractDock {
 
     #initialWidth;
     #initialHeight;
@@ -288,45 +288,48 @@ class Window extends Panel {
 
     /******************** TABS */
 
-    addTab(tabPanel) {
-        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
-            console.error(`Window.addTab: Expected Tab as first argument`, tabPanel);
-            return null;
+    addTab(...floaters) {
+        if (!floaters || !Array.isArray(floaters)) return this;
+        for (const floater of floaters) {
+            if (!floater || !floater.hasClass('suey-floater')) continue;
+
+            // Update parent Dock
+            floater.dock = this;
+
+            // Push onto containers
+            this.panels.add(floater);
+            this.buttons.add(floater.button);
+
+            // Hide Title
+            floater.traverse((child) => {
+                if (child.hasClass('suey-tab-title')) child.addClass('suey-hidden');
+            });
         }
-
-        // Update parent Dock
-        tabPanel.dock = this;
-
-        // Push onto containers
-        this.buttons.add(tabPanel.button);
-        this.panels.add(tabPanel);
-
-        // Hide Title
-        tabPanel.traverse((child) => {
-            if (child.hasClass('suey-tab-title')) child.addClass('suey-hidden');
-        });
-
-        return tabPanel;
+        return this;
     }
 
-    /** Select Tab (returns true if new Tab was selected) */
-    selectTab(newID) {
-        if (newID.isElement) newID = newID.id;
-        const panel = this.panels.children.find((item) => (item.id === newID));
+    /** Select first Tab (Floater). Return true if new Tab was selected. */
+    selectFirst() {
+        if (this.panels.children.length === 0) return false;
+        return this.selectTab(this.panels.children[0].id);
+    }
+
+    /** Select Tab (Floater). Return true if new Tab was selected. */
+    selectTab(selectID, wasClicked = false) {
+        if (selectID.isElement) selectID = selectID.id;
+        const panel = this.panels.children.find((item) => (item.id === selectID));
         if (panel && panel.button) {
             // Deselect current Panel / Button
-            const selectedPanel = this.panels.children.find((item) => (item.id === this.selectedID));
-            if (selectedPanel) selectedPanel.addClass('suey-hidden');
-            if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
+            this.panels.children.forEach((element) => { element.addClass('suey-hidden'); });
+            this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
 
             // Select new Panel / Button
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
-            this.selectedID = newID;
 
             // Event
             const tabChange = new Event('tab-changed');
-            tabChange.value = newID;
+            tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
 
             // Set as Active Window
@@ -338,15 +341,11 @@ class Window extends Panel {
         return false;
     }
 
-    removeTab() {
-        const self = this;
-        setTimeout(() => {
-            if (self.parent && self.parent.isElement) {
-                self.parent.remove(this);
-            } else {
-                self.hide();
-            }
-        }, 0);
+    /** Remove Tab (Floater) from Window. */
+    removeTab(...floaters) {
+        const parent = this.parent;
+        setTimeout(() => { if (parent && parent.isElement) parent.remove(this); }, 0);
+        return this;
     }
 
 }

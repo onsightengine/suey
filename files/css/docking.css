@@ -1,3 +1,9 @@
+/********** Abstract Dock **********/
+
+.suey-dock {
+    position: relative;
+}
+
 /********** Docker **********/
 
 .suey-docker {
@@ -126,7 +132,6 @@
 /********** Tabbed **********/
 
 .suey-tabbed {
-    position: relative;
     max-height: 100%;
     padding: var(--pad-small);
 }

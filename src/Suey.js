@@ -22,10 +22,11 @@
 //      TreeList                div                     .suey-tree-list
 //
 //  DOCKING
+//      AbstractDock            div                     .suey-dock
 //      Docker                  div                     .suey-docker
 //      Floater                 div                     .suey-floater, .suey-tab-button
-//      Tabbed                  div                     .suey-tabbed
-//      Window                  div                     .suey-window
+//      Tabbed                  div                     .suey-dock.suey-tabbed
+//      Window                  div                     .suey-dock.suey-window
 //
 //  INPUT
 //      Button                  button                  .suey-button
@@ -57,7 +58,7 @@
 //      ToolbarSpacer           div                     .suey-toolbar-spacer
 //
 //  NODE
-//      Graph                   div                     -- many --
+//      Graph                   div                     -- several --
 //      Node                    div                     suey-node
 //      NodeItem                div                     suey-node-item
 //

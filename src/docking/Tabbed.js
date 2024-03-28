@@ -1,15 +1,15 @@
+import { AbstractDock } from './AbstractDock.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Floater } from './Floater.js';
-import { Panel } from '../panels/Panel.js';
 
 import { PANEL_STYLES } from '../constants.js';
 import { TAB_SIDES } from '../constants.js';
 
 const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when there are 2 or more tabs */
 
-class Tabbed extends Panel {
+class Tabbed extends AbstractDock {
 
     constructor({
         tabSide = TAB_SIDES.RIGHT,
@@ -39,38 +39,33 @@ class Tabbed extends Panel {
 
     /******************** ADD */
 
-    addTab(tabPanel) {
-        if (!tabPanel || !tabPanel.hasClass('suey-floater')) {
-            console.error(`Tabbed.addTab: Expected Tab as first argument`, tabPanel);
-            return null;
+    addTab(...floaters) {
+        if (!floaters || !Array.isArray(floaters)) return this;
+        for (const floater of floaters) {
+            if (!floater || !floater.hasClass('suey-floater')) continue;
+
+            // Update Parent Dock
+            floater.dock = this;
+
+            // Push onto containers
+            this.panels.add(floater);
+            this.buttons.add(floater.button);
+
+            // Show Title
+            floater.traverse((child) => {
+                if (child.hasClass('suey-tab-title')) child.removeClass('suey-hidden');
+            });
+
+            // Minimum Tabs to Show
+            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+
+            // Minimum height (so Tab Buttons dont float over nothing)
+            this.setContentsStyle('minHeight', '');
+            if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
+                this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
+            }
         }
-
-        // Update Parent Dock
-        tabPanel.dock = this;
-
-        // Push onto containers
-        this.buttons.add(tabPanel.button);
-        this.panels.add(tabPanel);
-
-        // Hide Title
-        tabPanel.traverse((child) => {
-            if (child.hasClass('suey-tab-title')) child.removeClass('suey-hidden');
-        });
-
-        // Minimum Tabs to Show
-        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-
-        // Minimum height (so Tab Buttons dont float over nothing)
-        this.setContentsStyle('minHeight', '');
-        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
-            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
-        }
-
-        return tabPanel;
-    }
-
-    addNewTab(tabID, content, options = {}) {
-        return this.addTab(new Floater(tabID, content, options));
+        return this;
     }
 
     /******************** SELECT */
@@ -82,41 +77,40 @@ class Tabbed extends Panel {
     }
 
     /** Select Tab (returns true if new Tab was selected) */
-    selectTab(newID, wasClicked = false) {
+    selectTab(selectID, wasClicked = false) {
         // Clicked?
         if (wasClicked) {
             // Is Currently Collapsed?
             if (this.parent.hasClass('suey-collapsed')) {
                 this.parent.expandTabs();
             // Wants Collapse?
-            } else if (newID === this.selectedID) {
+            } else if (selectID === this.selectedID) {
                 this.parent.collapseTabs();
                 return false;
             }
         }
 
         // Find button / panel with New ID
-        const panel = this.panels.children.find((item) => (item.id === newID));
+        const panel = this.panels.children.find((item) => (item.id === selectID));
         if (panel && panel.button) {
             // Disable Animations
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
 
             // Deselect current Panel / Button
-            const selectedPanel = this.panels.children.find((item) => (item.id === this.selectedID));
-            if (selectedPanel) selectedPanel.addClass('suey-hidden');
-            if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
+            this.panels.children.forEach((element) => { element.addClass('suey-hidden'); });
+            this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
 
             // Select new Panel / Button
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
-            this.selectedID = newID;
+            this.selectedID = selectID;
 
             // Event
             const tabChange = new Event('tab-changed');
-            tabChange.value = newID;
+            tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
 
-            // Enable animations
+            // Enable Animations
             setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
 
             // Selection Successful
@@ -141,43 +135,41 @@ class Tabbed extends Panel {
         super.destroy();
     }
 
-    removeTab(index) {
-        if (index < 0 || index >= this.panels.children.length) return;
+    /** Remove Tab (Floater) from Tabbed. */
+    removeTab(...floaters) {
+        if (!floaters || !Array.isArray(floaters)) return this;
+        for (const floater of floaters) {
+            const index = this.panels.children.indexOf(floater);
+            if (!floater || index === -1) continue;
 
-        // Remove Tab
-        const button = this.buttons.children[index];
-        const panel = this.panels.children[index];
-        if (button) button.removeClass('suey-selected');
-        if (panel) panel.addClass('suey-hidden');
-        this.buttons.detach(button);
-        this.panels.detach(panel);
+            // Remove Tab
+            const button = this.buttons.children[index];
+            const panel = this.panels.children[index];
+            if (button) button.removeClass('suey-selected');
+            if (panel) panel.addClass('suey-hidden');
+            this.buttons.detach(button);
+            this.panels.detach(panel);
 
-        // Was Selected? (select new Tab)
-        if (panel.id === this.selectedID) {
-            if (index > 0) {
-                this.selectTab(this.panels.children[index - 1].id);
-            } else if (this.panels.children.length > 0) {
-                this.selectFirst();
-            } else {
-                const tabChange = new Event('tab-changed');
-                tabChange.value = undefined;
-                this.dom.dispatchEvent(tabChange);
+            // Was Selected? (select new Tab)
+            if (panel.id === this.selectedID) {
+                if (index > 0) {
+                    this.selectTab(this.panels.children[index - 1].id);
+                } else if (this.panels.children.length > 0) {
+                    this.selectFirst();
+                } else {
+                    const tabChange = new Event('tab-changed');
+                    tabChange.value = undefined;
+                    this.dom.dispatchEvent(tabChange);
+                }
             }
-        }
 
-        // Minimum Tabs to Show
-        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+            // Minimum Tabs to Show
+            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        }
+        return this;
     }
 
     /******************** INFO */
-
-    getTabSide() {
-        if (this.buttons.hasClass('suey-left-side')) return 'left';
-        if (this.buttons.hasClass('suey-right-side')) return 'right';
-        if (this.buttons.hasClass('suey-top-side')) return 'top';
-        if (this.buttons.hasClass('suey-bottom-side')) return 'bottom';
-        return 'unknown';
-    }
 
     setTabSide(side, opposite = false) {
         side = String(side).toLowerCase();
