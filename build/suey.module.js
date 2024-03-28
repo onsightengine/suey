@@ -1236,16 +1236,14 @@ class Element {
             console.warn(`Element.addSlot: '${this.name}' failed to add slot`, slot);
         }
     }
-    add() {
-        for (let i = 0; i < arguments.length; i++) {
-            const element = arguments[i];
+    add(...elements) {
+        for (const element of elements) {
             addToParent(this.contents(), element);
         }
         return this;
     }
-    addToSelf() {
-        for (let i = 0; i < arguments.length; i++) {
-            const element = arguments[i];
+    addToSelf(...elements) {
+        for (const element of elements) {
             addToParent(this, element);
         }
         return this;
@@ -1259,28 +1257,26 @@ class Element {
         if (!removed) removed = removeFromParent(this, element, false );
         return removed;
     }
-    remove() {
-        const elements = [];
-        for (let i = 0; i < arguments.length; i++) {
-            const element = arguments[i];
+    remove(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
             let removed = removeFromParent(this.contents(), element);
             if (!removed) removed = removeFromParent(this, element);
             if (!removed) {
             }
-            elements.push(removed);
+            removedElements.push(removed);
         }
-        if (elements.length === 0) return undefined;
-        if (elements.length === 1) return elements[0];
-        return elements;
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
     }
     setClass(className) {
         this.dom.className = className;
         return this;
     }
-    addClass() {
-        for (let i = 0; i < arguments.length; i ++) {
-            const argument = arguments[i];
-            this.dom.classList.add(argument);
+    addClass(...classNames) {
+        for (const className of classNames) {
+            this.dom.classList.add(className);
         }
         return this;
     }
@@ -1289,17 +1285,16 @@ class Element {
     }
     hasClassWithString(substring) {
         substring = String(substring).toLowerCase();
-        const classArray = [...this.dom.classList];
+        const classArray = [ ...this.dom.classList ];
         for (let i = 0; i < classArray.length; i++) {
             const className = classArray[i];
             if (className.toLowerCase().includes(substring)) return true;
         }
         return false;
     }
-    removeClass() {
-        for (let i = 0; i < arguments.length; i ++) {
-            const argument = arguments[i];
-            this.dom.classList.remove(argument);
+    removeClass(...classNames) {
+        for (const className of classNames) {
+            this.dom.classList.remove(className);
         }
         return this;
     }
@@ -1332,13 +1327,13 @@ class Element {
         else this.addClass('suey-unselectable');
         return this;
     }
-    hide(event = true) {
+    hide(dispatchEvent = true) {
         this.setStyle('display', 'none');
-        if (event) this.dom.dispatchEvent(new Event('hidden'));
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
     }
-    display(event = true) {
+    display(dispatchEvent = true) {
         this.setStyle('display', '');
-        if (event) this.dom.dispatchEvent(new Event('displayed'));
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
     }
     isDisplayed() {
         return getComputedStyle(this.dom).display != 'none';
@@ -1411,18 +1406,16 @@ class Element {
     }
     getRelativePosition() {
         const rect = this.dom.getBoundingClientRect();
-        let parentRect = null;
-        let offsetX = 0;
-        let offsetY = 0;
-        let parent = this.dom.offsetParent;
-        while (parent) {
-            parentRect = parent.getBoundingClientRect();
-            offsetX += parentRect.left;
-            offsetY += parentRect.top;
-            parent = null;
+        let offsetParent = this.dom.offsetParent;
+        while (offsetParent && getComputedStyle(offsetParent).position === 'static') {
+            offsetParent = offsetParent.offsetParent;
         }
-        const relativeLeft = rect.left - offsetX;
-        const relativeTop = rect.top - offsetY;
+        if (!offsetParent) {
+            return { left: rect.left, top: rect.top };
+        }
+        const parentRect = offsetParent.getBoundingClientRect();
+        const relativeLeft = rect.left - parentRect.left;
+        const relativeTop = rect.top - parentRect.top;
         return { left: relativeLeft, top: relativeTop };
     }
     traverse(callback, applyToSelf = true) {
@@ -1545,11 +1538,9 @@ function removeFromParent(parent, element, destroy = true) {
     }
    if (destroy) clearChildren(element, true );
     try {
-        if (parent.isElement) {
-            return parent.dom.removeChild((element.isElement) ? element.dom : element);
-        } else {
-            return parent.removeChild((element.isElement) ? element.dom : element);
-        }
+        if (parent.isElement) parent = parent.dom;
+        const removed = parent.removeChild((element.isElement) ? element.dom : element);
+        return (removed && removed.suey) ? removed.suey : removed;
     } catch (error) {
         return undefined;
     }

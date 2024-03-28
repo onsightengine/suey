@@ -1,8 +1,17 @@
 import { SignalBinding } from '../utils/Signal.js';
 
-/** Base Class of the Suey (Salinity Gui) Library */
+/**
+ * Base Class of the Suey (Salinity Gui) Library
+ * @class Element
+ */
 class Element {
 
+    /**
+     * Creates an instance of Element.
+     * @param {HTMLElement} dom - The DOM element to wrap.
+     * @memberof Element
+     * @constructor
+     */
     constructor(dom) {
         if (dom == null) {
             console.trace('Element.constructor: No HTMLElement provided!');
@@ -52,7 +61,11 @@ class Element {
 
     /******************** DESTROY */
 
-    /** Removes all children DOM elements from this element */
+    /**
+     * Removes all children DOM elements from this element.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     destroy() {
         clearChildren(this, true /* destroy event */);
         return this;
@@ -60,6 +73,11 @@ class Element {
 
     /******************** SIGNALS */
 
+    /**
+     * Adds a SignalBinding slot to the Element.
+     * @param {SignalBinding} slot - The SignalBinding slot to add.
+     * @memberof Element
+     */
     addSlot(slot) {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
@@ -70,78 +88,122 @@ class Element {
 
     /******************** CHILDREN */
 
-    /** Adds to contents() any number of 'Element' / 'HTMLElement' passed as arguments */
-    add(/* any number of comma separated elements to add */) {
-        for (let i = 0; i < arguments.length; i++) {
-            const element = arguments[i];
+    /**
+     * Adds any number of 'Element' or 'HTMLElement' as children to the contents() of the Element.
+     * @param {...(Element|HTMLElement)} elements - The elements to add.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
+    add(...elements) {
+        for (const element of elements) {
             addToParent(this.contents(), element);
         }
         return this;
     }
 
-    addToSelf(/* any number of comma separated elements to add */) {
-        for (let i = 0; i < arguments.length; i++) {
-            const element = arguments[i];
+    /**
+     * Adds any number of 'Element' or 'HTMLElement' as children directly to the Element.
+     * @param {...(Element|HTMLElement)} elements - The elements to add.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
+    addToSelf(...elements) {
+        for (const element of elements) {
             addToParent(this, element);
         }
         return this;
     }
 
-    /** Removes all children 'Element' / 'HTMLElement' from '.contents()' only */
+    /**
+     * Removes all children 'Element' or 'HTMLElement' from the contents() of the Element.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     clearContents() {
         clearChildren(this.contents(), false /* destroy event */);
         return this;
     }
 
-    /** Removes child but does not destroy it */
+    /**
+     * Removes a child element from the Element without destroying it.
+     * @param {Element|HTMLElement} element - The element to detach.
+     * @returns {Element|HTMLElement} The detached element.
+     * @memberof Element
+     */
     detach(element) {
         let removed = removeFromParent(this.contents(), element, false /* destroy? */);
         if (!removed) removed = removeFromParent(this, element, false /* destroy? */);
         return removed;
     }
 
-    /** Removes any number of 'Element' / 'HTMLElement' from self.contents() or self.children */
-    remove(/* any number of comma separated elements to remove */) {
-        const elements = [];
-        for (let i = 0; i < arguments.length; i++) {
-            const element = arguments[i];
-
-            // Attempt to remove element from contents(), then try to remove from self.dom
+    /**
+     * Removes any number of 'Element' or 'HTMLElement' from the contents() or children of the Element.
+     * @param {...(Element|HTMLElement)} elements - The elements to remove.
+     * @returns {Element|HTMLElement|Array<Element|HTMLElement>} The removed element(s).
+     * @memberof Element
+     */
+    remove(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
+            // Attempt to remove element from contents(), then try to remove from self.children
             let removed = removeFromParent(this.contents(), element);
             if (!removed) removed = removeFromParent(this, element);
             if (!removed) {
                 // // DEBUG: Could not remove element(s)
                 // console.log(`Element.removeFromParent: Could not remove child!`);
             }
-            elements.push(removed);
+            removedElements.push(removed);
         }
-        if (elements.length === 0) return undefined;
-        if (elements.length === 1) return elements[0];
-        return elements;
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
     }
 
     /******************** CLASS / ID / NAME */
 
+    /**
+     * Sets the CSS class of the Element.
+     * @param {string} className - The CSS class name.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setClass(className) {
         this.dom.className = className;
         return this;
     }
 
-    addClass(/* any number of comma separated classes to add */) {
-        for (let i = 0; i < arguments.length; i ++) {
-            const argument = arguments[i];
-            this.dom.classList.add(argument);
+    /**
+     * Adds CSS classes to the Element.
+     * @param {...string} classNames - The CSS class names to add.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
+    addClass(...classNames) {
+        for (const className of classNames) {
+            this.dom.classList.add(className);
         }
         return this;
     }
 
+    /**
+     * Checks if the Element has a specific CSS class.
+     * @param {string} className - The CSS class name to check.
+     * @returns {boolean} True if the Element has the class, false otherwise.
+     * @memberof Element
+     */
     hasClass(className) {
         return this.dom.classList.contains(className);
     }
 
+    /**
+     * Checks if the Element has a CSS class that contains a specific substring.
+     * @param {string} substring - The substring to search for in the CSS classes.
+     * @returns {boolean} True if the Element has a class containing the substring, false otherwise.
+     * @memberof Element
+     */
     hasClassWithString(substring) {
         substring = String(substring).toLowerCase();
-        const classArray = [...this.dom.classList]
+        const classArray = [ ...this.dom.classList ];
         for (let i = 0; i < classArray.length; i++) {
             const className = classArray[i];
             if (className.toLowerCase().includes(substring)) return true;
@@ -149,39 +211,78 @@ class Element {
         return false;
     }
 
-    removeClass(/* any number of comma separated classes to remove */) {
-        for (let i = 0; i < arguments.length; i ++) {
-            const argument = arguments[i];
-            this.dom.classList.remove(argument);
+    /**
+     * Removes CSS classes from the Element.
+     * @param {...string} classNames - The CSS class names to remove.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
+    removeClass(...classNames) {
+        for (const className of classNames) {
+            this.dom.classList.remove(className);
         }
         return this;
     }
 
+    /**
+     * Sets the ID of the Element.
+     * @param {string} id - The ID to set.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setID(id) {
         this.dom.id = id;
         if (this.name === undefined) this.name = id;
         return this;
     }
 
+    /**
+     * Gets the ID of the Element.
+     * @returns {string} The ID of the Element.
+     * @memberof Element
+     */
     getID() {
         return this.dom.id;
     }
 
+    /**
+     * Sets the name of the Element.
+     * @param {string} name - The name to set.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setName(name) {
         this.name = name;
         return this;
     }
 
+    /**
+     * Gets the name of the Element.
+     * @returns {string} The name of the Element.
+     * @memberof Element
+     */
     getName() {
         return (this.name === undefined) ? 'No name' : this.name;
     }
 
     /******************** HTML */
 
+    /**
+     * Sets an attribute on the Element.
+     * @param {string} attribute - The name of the attribute.
+     * @param {string} value - The value of the attribute.
+     * @memberof Element
+     */
     setAttribute(attrib, value) {
         this.dom.setAttribute(attrib, value);
     }
 
+    /**
+     * Sets the disabled state of the Element.
+     * @param {boolean} [value=true] - The disabled state.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setDisabled(value = true) {
         if (value) this.addClass('suey-disabled');
         else this.removeClass('suey-disabled');
@@ -189,32 +290,60 @@ class Element {
         return this;
     }
 
-    /**  Makes this Element Selectable / Unselectable */
+    /**
+     * Makes the Element selectable or unselectable.
+     * @param {boolean} allowSelection - True to make the Element selectable, false to make it unselectable.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     selectable(allowSelection) {
         if (allowSelection) this.removeClass('suey-unselectable');
         else this.addClass('suey-unselectable');
         return this;
     }
 
-    hide(event = true) {
+    /**
+     * Hides the Element.
+     * @param {boolean} [dispatchEvent=true] - Whether to dispatch the 'hidden' event.
+     * @memberof Element
+     */
+    hide(dispatchEvent = true) {
         this.setStyle('display', 'none');
-        if (event) this.dom.dispatchEvent(new Event('hidden'));
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
     }
 
-    display(event = true) {
+    /**
+     * Displays the Element.
+     * @param {boolean} [dispatchEvent=true] - Whether to dispatch the 'displayed' event.
+     * @memberof Element
+     */
+    display(dispatchEvent = true) {
         this.setStyle('display', '');
-        if (event) this.dom.dispatchEvent(new Event('displayed'));
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
     }
 
+    /**
+     * Checks if the Element is displayed.
+     * @returns {boolean} True if the Element is displayed, false otherwise.
+     * @memberof Element
+     */
     isDisplayed() {
         return getComputedStyle(this.dom).display != 'none';
     }
 
+    /**
+     * Checks if the Element is hidden.
+     * @returns {boolean} True if the Element is hidden, false otherwise.
+     * @memberof Element
+     */
     isHidden() {
         return getComputedStyle(this.dom).display == 'none';
     }
 
-    /** Enable user focus */
+    /**
+     * Enables user focus on the Element.
+     * @memberof Element
+     */
     allowFocus() {
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
         // - turns on focusin / focusout events
@@ -224,10 +353,18 @@ class Element {
         // this.dom.setAttribute('tabindex', '0');
     }
 
+    /**
+     * Focuses the Element.
+     * @memberof Element
+     */
     focus() {
         this.dom.focus();
     }
 
+    /**
+     * Blurs the Element.
+     * @memberof Element
+     */
     blur() {
         this.dom.blur();
     }
@@ -239,26 +376,52 @@ class Element {
     //      innerText:      All text contained by an element and all its children, affected by 'style'
     //      innerHtml:      All text (including html tags) that is contained by an element
 
-    /** The textContent property represents the text content of the node and its descendants */
+    /**
+     * Sets the text content of the Element.
+     * @param {string} value - The text content to set.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setTextContent(value) {
         if (value != undefined) this.contents().dom.textContent = value;
         return this;
     }
 
+    /**
+     * Gets the text content of the Element.
+     * @returns {string} The text content of the Element.
+     * @memberof Element
+     */
     getTextContent() {
         return this.contents().dom.textContent;
     }
 
+    /**
+     * Sets the inner text of the Element.
+     * @param {string} value - The inner text to set.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setInnerText(value) {
         if (value != undefined) this.contents().dom.innerText = value;
         return this;
     }
 
+    /**
+     * Gets the inner text of the Element.
+     * @returns {string} The inner text of the Element.
+     * @memberof Element
+     */
     getInnerText() {
         return this.contents().dom.innerText;
     }
 
-    /** The innerHTML returns all text, including html tags, that is contained by an element */
+    /**
+     * Sets the inner HTML of the Element.
+     * @param {string} value - The inner HTML to set.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setInnerHtml(value) {
         if (value === undefined || value === null) value = '';
         // NOTE: Attempt to sanitize html
@@ -272,40 +435,26 @@ class Element {
         return this;
     }
 
+    /**
+     * Gets the inner HTML of the Element.
+     * @returns {string} The inner HTML of the Element.
+     * @memberof Element
+     */
     getInnerHtml() {
         return this.contents().dom.innerHTML;
     }
 
     /******************** CSS */
 
-    /** CSS Properties, see: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties */
+    // CSS Properties, see: http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties
+
+    /**
+     * Sets CSS styles on the Element.
+     * @param {...(string|number)} styles - The CSS styles to set, as key-value pairs.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setStyle(/* style, value, style, value, etc. */) {
-        // // OPTION: All at once
-        // const styles = {};
-        // let changed = false;
-
-        // // Parse existing inline style string to object
-        // let styleText = this.dom.getAttribute('style');
-        // let regex = /\s*([a-z\-]+)\s*:\s*((?:[^;]*url\(.*?\)[^;]*|[^;]*)*)\s*(?:;|$)/gi;
-        // let match;
-        // while (match = regex.exec(styleText)) styles[match[1]] = match[2].trim();
-
-        // // Update new values
-        // for (let i = 0, l = arguments.length; i < l; i += 2) {
-        //     const style = arguments[i + 0].replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
-        //     const value = arguments[i + 1];
-        //     if (styles[style] !== value) {
-        //         styles[style] = value;
-        //         changed = true;
-        //     }
-        // }
-        // if (!changed) return this;
-
-        // // Rebuild style string
-        // styleText = Object.entries(styles).map(([k, v]) => `${k}: ${v}`).join('; ');
-        // this.dom.setAttribute('style', styleText);
-
-        // // OPTION: One at a time
         for (let i = 0, l = arguments.length; i < l; i += 2) {
             const style = arguments[i];
             const value = arguments[i + 1];
@@ -314,6 +463,12 @@ class Element {
         return this;
     }
 
+    /**
+     * Sets CSS styles on the contents() of the Element.
+     * @param {...(string|number)} styles - The CSS styles to set, as key-value pairs.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     setContentsStyle(/* style, value, style, value, etc. */) {
         for (let i = 0, l = arguments.length; i < l; i += 2) {
             const style = arguments[i];
@@ -325,48 +480,75 @@ class Element {
 
     /******************** DOM */
 
+    /**
+     * Gets the left position of the Element.
+     * @returns {number} The left position of the Element.
+     * @memberof Element
+     */
     getLeft() {
-        // return this.dom.left;
         return this.dom.getBoundingClientRect().left;
     }
 
+    /**
+     * Gets the top position of the Element.
+     * @returns {number} The top position of the Element.
+     * @memberof Element
+     */
     getTop() {
         // return this.dom.top;
         return this.dom.getBoundingClientRect().top;
     }
 
+    /**
+     * Gets the width of the Element.
+     * @returns {number} The width of the Element.
+     * @memberof Element
+     */
     getWidth() {
         // return this.dom.clientWidth;         // <-- does not include margin / border
         return this.dom.getBoundingClientRect().width;
     }
 
+    /**
+     * Gets the height of the Element.
+     * @returns {number} The height of the Element.
+     * @memberof Element
+     */
     getHeight() {
         // return this.dom.clientHeight;        // <-- does not include margin / border
         return this.dom.getBoundingClientRect().height;
     }
 
-    /** Position relative to the closest positioned ancestor (i.e. ancestor with position: relative / absolute) */
+    /**
+     * Gets the position of the Element relative to its closest positioned ancestor.
+     * @returns {{left: number, top: number}} The relative position of the Element.
+     * @memberof Element
+     */
     getRelativePosition() {
         const rect = this.dom.getBoundingClientRect();
-        let parentRect = null;
-        let offsetX = 0;
-        let offsetY = 0;
-        let parent = this.dom.offsetParent;
-        while (parent) {
-            parentRect = parent.getBoundingClientRect();
-            offsetX += parentRect.left;
-            offsetY += parentRect.top;
-            // parent = parent.offsetParent;
-            parent = null;
+        let offsetParent = this.dom.offsetParent;
+        while (offsetParent && getComputedStyle(offsetParent).position === 'static') {
+            offsetParent = offsetParent.offsetParent;
         }
-        const relativeLeft = rect.left - offsetX;
-        const relativeTop = rect.top - offsetY;
+
+        if (!offsetParent) {
+            return { left: rect.left, top: rect.top };
+        }
+
+        const parentRect = offsetParent.getBoundingClientRect();
+        const relativeLeft = rect.left - parentRect.left;
+        const relativeTop = rect.top - parentRect.top;
         return { left: relativeLeft, top: relativeTop };
     }
 
     /******************** TRAVERSE */
 
-    /** Applies a callback function to all Element children, recursively */
+    /**
+     * Applies a callback function to all Element children, recursively.
+     * @param {function} callback - The callback function to apply.
+     * @param {boolean} [applyToSelf=true] - Whether to apply the callback to the Element itself.
+     * @memberof Element
+     */
     traverse(callback, applyToSelf = true) {
         if (applyToSelf) callback(this);
         if (this.children) {
@@ -376,7 +558,12 @@ class Element {
         }
     }
 
-    /** Applies a callback function to all Element parents, recursively */
+    /**
+     * Applies a callback function to all Element parents, recursively.
+     * @param {function} callback - The callback function to apply.
+     * @param {boolean} [applyToSelf=true] - Whether to apply the callback to the Element itself.
+     * @memberof Element
+     */
     traverseAncestors(callback, applyToSelf = true) {
         if (applyToSelf) callback(this);
         if (this.parent) this.parent.traverseAncestors(callback, true);
@@ -410,6 +597,14 @@ class Element {
     //
     // 'destroy'        Element is being destroyed and prepped for garbage collection
 
+    /**
+     * Attaches an event listener to the Element.
+     * @param {string} event - The event name.
+     * @param {function} callback - The callback function to execute when the event is triggered.
+     * @param {boolean} [once=false] - Whether the event should be triggered only once.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
     on(event, callback, once = false) {
         if (typeof callback !== 'function') {
             console.warn(`${method} in ${this.name}: No callback function provided!`);
@@ -429,6 +624,7 @@ class Element {
 
 } // end Element
 
+// Add convenience methods for common events
 const events = [
     'Click', 'Select',
 ];
@@ -564,11 +760,9 @@ function removeFromParent(parent, element, destroy = true) {
 
     // Remove from Parent
     try {
-        if (parent.isElement) {
-            return parent.dom.removeChild((element.isElement) ? element.dom : element);
-        } else {
-            return parent.removeChild((element.isElement) ? element.dom : element);
-        }
+        if (parent.isElement) parent = parent.dom;
+        const removed = parent.removeChild((element.isElement) ? element.dom : element);
+        return (removed && removed.suey) ? removed.suey : removed;
     } catch (error) {
         return undefined; /* REMOVE FAILED */
     }
