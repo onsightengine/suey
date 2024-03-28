@@ -62,7 +62,7 @@
     background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));
     border-radius: var(--radius-small);
     margin: 0;
-    padding: var(--pad-x-small) 0;
+    padding: 0;
     overflow: hidden;
 
     /* Need for scroll bars to appear on proper layer */

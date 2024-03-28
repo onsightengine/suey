@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./files/logo/suey256.png" alt="Salinity UI Library"/>
+<img src="./files/logo/suey256.png" alt="Suey"/>
 </div>
 
 # Suey

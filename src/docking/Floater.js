@@ -161,16 +161,20 @@ class TabButton extends Div {
                 }
             } else {
                 // Check for Edges
-                const documentRect = document.body.getBoundingClientRect();
-                const edgeSize = parseFloat(Css.toPx('0.25em'));
-                if (event.pageX < edgeSize) pastEdge = 'left';
-                if (event.pageY < edgeSize) pastEdge = 'top';
-                if (event.pageX > documentRect.width - edgeSize) pastEdge = 'right';
-                if (event.pageY > documentRect.height - edgeSize) pastEdge = 'bottom';
-                if (pastEdge !== '') {
-                    const primaries = document.body.getElementsByClassName('suey-docker-primary');
-                    if (primaries) elementUnder = primaries[0].suey;
+                const primary = self.tabPanel.dock?.parent?.getPrimary();
+                if (primary) {
+                    const primaryRect = primary.dom.getBoundingClientRect();
+                    const edgeSize = parseFloat(Css.toPx('0.25em'));
+                    if (event.pageX < primaryRect.left + edgeSize) pastEdge = 'left';
+                    if (event.pageY < primaryRect.top + edgeSize) pastEdge = 'top';
+                    if (event.pageX > primaryRect.right - edgeSize) pastEdge = 'right';
+                    if (event.pageY > primaryRect.bottom - edgeSize) pastEdge = 'bottom';
+                    if (pastEdge !== '') {
+                        const primaries = document.body.getElementsByClassName('suey-docker-primary');
+                        if (primaries) elementUnder = primaries[0].suey;
+                    }
                 }
+                // Not Outside Primary
                 if (!elementUnder) {
                     // Check for Buttons
                     const tabButtons = document.elementsFromPoint(event.pageX, event.pageY);
@@ -207,7 +211,7 @@ class TabButton extends Div {
 
                 // Drag Over Docker (show new Dock Locations)
                 } else if (elementUnder.hasClass('suey-docker')) {
-                    elementUnder.showDockLocations(event.pageX, event.pageY);
+                    elementUnder.showDockLocations(pastEdge !== '');
                     if (pastEdge !== '') { /* primary edge */
                         locationUnder = Dom.childWithClass(elementUnder, `suey-dock-${pastEdge}`);
                     } else {
@@ -249,18 +253,19 @@ class TabButton extends Div {
                     if (locationUnder) {
                         let droppedOnDock = null;
                         // New Dock (Tabbed)
-                        if (locationUnder.hasClass('suey-dock-middle')) {
+                        if (locationUnder.hasClassWithString('middle')) {
                             droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
-                        } else if (locationUnder.hasClass('suey-dock-top') || locationUnder.hasClass('suey-dock-split-top')) {
+                        } else if (locationUnder.hasClassWithString('top')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%', false).enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-bottom') || locationUnder.hasClass('suey-dock-split-bottom')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%', false).enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-left') || locationUnder.hasClass('suey-dock-split-left')) {
+                        } else if (locationUnder.hasClassWithString('bottom')) {
+                            const flexBefore = (lastUnder.initialSide === 'left') || (lastUnder.initialSide === 'right');
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%', false).enableTabs(flexBefore);
+                        } else if (locationUnder.hasClassWithString('left')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%', false).enableTabs();
-                        } else if (locationUnder.hasClass('suey-dock-right') || locationUnder.hasClass('suey-dock-split-right')) {
+                        } else if (locationUnder.hasClassWithString('right')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         // New Window
-                        } else if (locationUnder.hasClass('suey-dock-center')) {
+                        } else if (locationUnder.hasClassWithString('center')) {
                             droppedOnDock = new Window({ title: self.tabPanel.id, width: '50%', height: '70%' });
                             lastUnder.getPrimary().addToSelf(droppedOnDock);
                             droppedOnDock.display();
@@ -271,7 +276,7 @@ class TabButton extends Div {
                         // Have New Dock Panel
                         if (droppedOnDock) {
                             // Remove from current Tabbed
-                            if (self.tabPanel.dock && droppedOnDock !== self.tabPanel.dock) {
+                            if (droppedOnDock !== self.tabPanel.dock) {
                                 self.tabPanel.dock.removeTab(self.tabPanel);
                             }
                             // Add to New Tabbed

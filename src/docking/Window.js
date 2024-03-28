@@ -98,11 +98,9 @@ class Window extends AbstractDock {
         this.addResizers(resizers);
 
         // Initial Size
-        this.setStyle('left', '0', 'top', '0', 'width', '0', 'height', '0');
-
-        // Wait for document to load
-        if (document.readyState === 'complete') self.setInitialSize();
-        else window.addEventListener('load', () => self.setInitialSize(), { once: true });
+        this.setStyle('left', '0', 'top', '0');
+        this.setStyle('width', this.#initialWidth);
+        this.setStyle('height', this.#initialHeight);
 
         // Keep In Window
         function keepInWindow() {
@@ -186,10 +184,8 @@ class Window extends AbstractDock {
     }
 
     setInitialSize() {
-        const width = Css.toPx(Css.parseSize(this.#initialWidth), this, 'w');
-        const height = Css.toPx(Css.parseSize(this.#initialHeight), this, 'h');
-        this.setStyle('width', width);
-        this.setStyle('height', height);
+        this.setStyle('width', this.#initialWidth);
+        this.setStyle('height', this.#initialHeight);
         this.dom.dispatchEvent(new Event('resizer'));
     }
 

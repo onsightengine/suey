@@ -5,6 +5,7 @@ class FlexSpacer extends Span {
 
     constructor() {
         super();
+        this.addClass('suey-flex-spacer');
         this.setStyle('flex', '1 1 auto');
         this.setStyle('minHeight', '0.01em');
     }

@@ -338,7 +338,7 @@
 /***** Window Tabs */
 
 .suey-window .suey-tab-panels {
-    margin: 1em var(--pad-medium); /* vertical horizontal */
+    margin-top: 1em;
 }
 
 .suey-tab-buttons.suey-window-side {

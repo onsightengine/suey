@@ -1,6 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
+import { FlexSpacer } from '../layout/FlexSpacer.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
@@ -106,7 +107,9 @@ class Docker extends Panel {
         const children = [];
         for (const child of childrenOf.children) {
             // Only move dividable content (not Window, Resizers, DockLocations, etc.)
-            if (child.hasClass('suey-docker') || child.hasClass('suey-tabbed')) {
+            if (child.hasClass('suey-docker') ||
+                child.hasClass('suey-tabbed') ||
+                child.hasClass('suey-flex-spacer')) {
                 children.push(child);
             }
         }
@@ -225,7 +228,8 @@ class Docker extends Panel {
         const children = [];
         for (const child of twin.children) {
             if (child.hasClass('suey-tabbed') ||
-                child.hasClass('suey-docker')) {
+                child.hasClass('suey-docker') ||
+                child.hasClass('suey-flex-spacer')) {
                 children.push(child);
             }
         }
@@ -236,11 +240,6 @@ class Docker extends Panel {
 
         // Remove old DockLocations
         parent.hideDockLocations();
-
-        // Reset Empty Dock to 'center'
-        if (parent.children.length === 0) {
-            parent.initialSide = 'center';
-        }
 
         // Add back new Resizer
         const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
@@ -262,77 +261,9 @@ class Docker extends Panel {
         if (wasCollapsed) parent.collapseTabs();
     }
 
-    /******************** DROP LOCATIONS */
-
-    hideDockLocations() {
-        this.removeClass('suey-dock-self');
-        if (this.dockLocations) {
-            this.remove(this.dockLocations);
-            this.dockLocations = undefined;
-        }
-    }
-
-    showDockLocations() {
-        if (!this.dockLocations) {
-            const dockLocations = new Div().addClass('suey-dock-locations');
-            if (this.initialSide === 'left' || this.initialSide === 'right') {
-                if (this.getHeight() > 160) {
-                    const topDock = new Div().addClass('suey-dock-location', 'suey-dock-split-top');
-                    const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-split-bottom');
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-horizontal');
-                    dockLocations.add(topDock, bottomDock, middleDock);
-                } else {
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-horizontal');
-                    middleDock.setStyle('top', '0%', 'height', '100%');
-                    dockLocations.add(middleDock);
-                }
-            } else if (this.initialSide === 'top' || this.initialSide === 'bottom') {
-                if (this.getWidth() > 200) {
-                    const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-split-left');
-                    const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-split-right');
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-vertical');
-                    dockLocations.add(leftDock, rightDock, middleDock);
-                } else {
-                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-vertical');
-                    middleDock.setStyle('left', '0%', 'width', '100%');
-                    dockLocations.add(middleDock);
-                }
-            } else /* if (this.initialSide === 'center') */ {
-                const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
-                const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
-                const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
-                const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
-                if (this.isPrimary()) {
-                    const edgeSize = '2em';
-                    leftDock.setStyle('width', edgeSize);
-                    rightDock.setStyle('width', edgeSize);
-                    topDock.setStyle('height', edgeSize);
-                    bottomDock.setStyle('height', edgeSize);
-                    dockLocations.add(leftDock, rightDock, topDock, bottomDock);
-                } else {
-                    topDock.setStyle('left', '20%', 'width', '60%');
-                    bottomDock.setStyle('left', '20%', 'width', '60%');
-                    const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
-                    const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
-                    imageBox.addClass('suey-complement-colorize');
-                    imageBox.setStyle('width', '20%', 'height', '20%');
-                    centerDock.add(imageBox);
-                    dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
-                }
-            }
-            this.addToSelf(dockLocations);
-            this.dockLocations = dockLocations;
-        }
-        this.removeClass('suey-dock-self');
-        for (const child of this.dockLocations.children) {
-            child.removeClass('suey-dock-drop');
-            child.removeClass('suey-dock-self');
-        }
-    }
-
     /******************** TABS */
 
-    enableTabs() {
+    enableTabs(flexBefore = false) {
         if (this.isPrimary()) {
             console.warn('Docker.enableTabs: Cannot enable tabs on the primary dock');
             return undefined;
@@ -355,6 +286,11 @@ class Docker extends Panel {
                 if (tabbed.parent.hasClass('suey-docker')) tabbed.parent.removeDock();
             }
         });
+
+        // Add Some Spacing?
+        if (flexBefore) {
+            this.add(new FlexSpacer());
+        }
 
         // Save, Add, Return
         this.add(tabbed);
@@ -428,6 +364,74 @@ class Docker extends Panel {
         window.dispatchEvent(new Event('resize'));
         // Enable animations
         setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
+    }
+
+    /******************** DROP LOCATIONS */
+
+    hideDockLocations() {
+        this.removeClass('suey-dock-self');
+        if (this.dockLocations) {
+            this.remove(this.dockLocations);
+            this.dockLocations = undefined;
+        }
+    }
+
+    showDockLocations(edgesOnly = false) {
+        if (!this.dockLocations) {
+            const dockLocations = new Div().addClass('suey-dock-locations');
+            if (this.initialSide === 'left' || this.initialSide === 'right') {
+                if (this.getHeight() > 160) {
+                    const topDock = new Div().addClass('suey-dock-location', 'suey-dock-split-top');
+                    const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-split-bottom');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-horizontal');
+                    dockLocations.add(topDock, bottomDock, middleDock);
+                } else {
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-horizontal');
+                    middleDock.setStyle('top', '0%', 'height', '100%');
+                    dockLocations.add(middleDock);
+                }
+            } else if (this.initialSide === 'top' || this.initialSide === 'bottom') {
+                if (this.getWidth() > 200) {
+                    const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-split-left');
+                    const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-split-right');
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-vertical');
+                    dockLocations.add(leftDock, rightDock, middleDock);
+                } else {
+                    const middleDock = new Div().addClass('suey-dock-location', 'suey-dock-middle', 'suey-dock-middle-vertical');
+                    middleDock.setStyle('left', '0%', 'width', '100%');
+                    dockLocations.add(middleDock);
+                }
+            } else /* if (this.initialSide === 'center') */ {
+                const leftDock = new Div().addClass('suey-dock-location', 'suey-dock-left');
+                const rightDock = new Div().addClass('suey-dock-location', 'suey-dock-right');
+                const topDock = new Div().addClass('suey-dock-location', 'suey-dock-top');
+                const bottomDock = new Div().addClass('suey-dock-location', 'suey-dock-bottom');
+                if (edgesOnly) {
+                    const edgeSize = '2em';
+                    leftDock.setStyle('width', edgeSize);
+                    rightDock.setStyle('width', edgeSize);
+                    topDock.setStyle('height', edgeSize);
+                    bottomDock.setStyle('height', edgeSize);
+                    dockLocations.add(leftDock, rightDock, topDock, bottomDock);
+                } else {
+                    topDock.setStyle('left', '20%', 'width', '60%');
+                    bottomDock.setStyle('left', '20%', 'width', '60%');
+                    const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
+                    const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
+                    imageBox.addClass('suey-complement-colorize');
+                    imageBox.setStyle('width', '20%', 'height', '20%');
+                    centerDock.add(imageBox);
+                    dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
+                }
+            }
+            this.addToSelf(dockLocations);
+            this.dockLocations = dockLocations;
+        }
+        this.removeClass('suey-dock-self');
+        for (const child of this.dockLocations.children) {
+            child.removeClass('suey-dock-drop');
+            child.removeClass('suey-dock-self');
+        }
     }
 
     /******************** PANELS */
