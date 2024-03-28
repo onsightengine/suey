@@ -1960,6 +1960,43 @@ class Interaction {
     }
 }
 
+class Strings {
+    static addSpaces(string) {
+        if (typeof string !== 'string') string = String(string);
+        string = string.replace(/([a-z])([A-Z])/g, '$1 $2');
+        string = string.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+        return string.trim();
+    }
+    static capitalize(string) {
+        const words = String(string).split(' ');
+        for (let i = 0; i < words.length; i++) {
+            words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+        }
+        return words.join(' ');
+    }
+    static countDigits(number) {
+        return parseFloat(number).toString().length;
+    }
+    static escapeHTML(html) {
+        if (html == undefined) return html;
+        return html
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+    static nameFromUrl(url, capitalize = true) {
+        let imageName = new String(url.replace(/^.*[\\\/]/, ''));
+        imageName = imageName.replace(/\.[^/.]+$/, "");
+        if (capitalize) imageName = Strings.capitalize(imageName);
+        return imageName;
+    }
+    static prettyTitle(string) {
+        return Strings.addSpaces(Strings.capitalize(string));
+    }
+}
+
 const DEVICE_TYPE = {
     POINTER: 1,
     TOUCH: 2,
@@ -2307,7 +2344,7 @@ class Titled extends Panel {
         this.addClass('suey-titled');
         this.addClass('suey-expanded');
         this.isExpanded = true;
-        this.tabTitle = new Div(title).addClass('suey-tab-title');
+        this.tabTitle = new Div(Strings.capitalize(title)).addClass('suey-tab-title');
         if (title && title !== '') this.add(this.tabTitle);
         if (collapsible) {
             this.tabTitle.setStyle('pointer-events', 'all');
@@ -3206,7 +3243,7 @@ class Gooey extends Resizeable {
         document.body.appendChild(this.dom);
     }
     addFolder(folderName = '', icon = '') {
-        if (folderName && folderName !== '') folderName = capitalize$1(folderName);
+        if (folderName && folderName !== '') folderName = Strings.capitalize(folderName);
         const folder = new Folder({ title: folderName, icon });
         this.add(folder);
         return folder;
@@ -3278,7 +3315,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
+        const row = this.props.addRow(Strings.prettyTitle(variable), boolBox, new FlexSpacer());
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { boolBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
@@ -3313,7 +3350,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), colorButton);
+        const row = this.props.addRow(Strings.prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { colorButton.setValue(_clr.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
@@ -3321,9 +3358,9 @@ class Folder extends Shrinkable {
     }
     addFunction(params, variable) {
         const prop = new Property();
-        const button = new Button(prettyTitle(variable));
+        const button = new Button(Strings.prettyTitle(variable));
         button.onClick(() => params[variable]());
-        const row = this.props.addRow(prettyTitle(variable), button);
+        const row = this.props.addRow(Strings.prettyTitle(variable), button);
         prop.name = function(name, buttonText) {
             row.leftWidget.setInnerHtml(name);
             if (buttonText) button.setInnerHtml(buttonText);
@@ -3344,7 +3381,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), selectDropDown);
+        const row = this.props.addRow(Strings.prettyTitle(variable), selectDropDown);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() {
             if (type === 'string') selectDropDown.setValue(params[variable]);
@@ -3387,7 +3424,7 @@ class Folder extends Shrinkable {
             slideBox.setStep(newStep);
         }
         setStep(step);
-        const digits = countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
+        const digits = Strings.countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
         slideBox.setStyle('marginLeft', '0.14286em');
         function checkForMinMax() {
@@ -3400,7 +3437,7 @@ class Folder extends Shrinkable {
             }
         }
         checkForMinMax();
-        const row = this.props.addRow(prettyTitle(variable), slider, slideBox);
+        const row = this.props.addRow(Strings.prettyTitle(variable), slider, slideBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return prop; };
         prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return prop; };
@@ -3423,7 +3460,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), textBox);
+        const row = this.props.addRow(Strings.prettyTitle(variable), textBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { textBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
@@ -3432,7 +3469,7 @@ class Folder extends Shrinkable {
     addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
         const prop = new Property();
         const vector = params[variable];
-        const row = this.props.addRow(prettyTitle(variable));
+        const row = this.props.addRow(Strings.prettyTitle(variable));
         const boxes = [];
         for (let i = 0; i < vector.length; i++) {
             const box = new NumberBox();
@@ -3491,25 +3528,6 @@ class Property {
         this.finishChange = callback;
         return this;
     }
-}
-function prettyTitle(string) {
-    return addSpaces(capitalize$1(string));
-}
-function addSpaces(string) {
-    if (!string || string === '') return '';
-    return String(string).replace(/([A-Z])/g, ' $1').trim();
-}
-function capitalize$1(string) {
-    if (!string || string === '') return '';
-    let words = String(string);
-    words = words.split(' ');
-    for (let i = 0; i < words.length; i++) {
-        words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    }
-    return words.join(' ');
-}
-function countDigits(number) {
-    return parseFloat(number).toString().length;
 }
 
 class Break extends Element {
@@ -4177,6 +4195,7 @@ class TitleBar extends Div {
         this.on('dblclick', titleDoubleClick);
     }
     setTitle(title = '') {
+        title = Strings.capitalize(title);
         const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
         if (titleTextElement) {
             titleTextElement.textContent = title;
@@ -4211,7 +4230,7 @@ class Floater extends Panel {
         if (typeof options.shrink === 'string') {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
-        this.button = new TabButton(this, capitalize(id), options);
+        this.button = new TabButton(this, Strings.capitalize(id), options);
     }
 }
 class TabButton extends Div {
@@ -4428,11 +4447,6 @@ class TabButton extends Div {
         this.on('pointerleave', tabPointerLeave);
         this.on('pointerdown', tabPointerDown);
     }
-}
-function capitalize(string) {
-    const words = String(string).split(' ');
-    for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    return words.join(' ');
 }
 
 const MINIMUM_TABS_TO_SHOW = 1;
@@ -6117,4 +6131,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-rotate-colorize /* purple */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));\n}\n\n.suey-triadic-colorize /* red */ {\n    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

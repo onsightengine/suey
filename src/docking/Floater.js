@@ -4,6 +4,7 @@ import { Dom } from '../utils/Dom.js';
 import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
+import { Strings } from '../utils/Strings.js';
 import { VectorBox } from '../layout/VectorBox.js';
 import { Window } from './Window.js';
 
@@ -37,7 +38,7 @@ class Floater extends Panel {
         if (typeof options.shrink === 'string') {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
-        this.button = new TabButton(this, capitalize(id), options);
+        this.button = new TabButton(this, Strings.capitalize(id), options);
     }
 
 }
@@ -319,11 +320,3 @@ class TabButton extends Div {
 }
 
 export { Floater };
-
-/******************** INTERNAL ********************/
-
-function capitalize(string) {
-    const words = String(string).split(' ');
-    for (let i = 0; i < words.length; i++) words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    return words.join(' ');
-}

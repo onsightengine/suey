@@ -3,6 +3,7 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Span } from '../core/Span.js';
+import { Strings } from '../utils/Strings.js';
 
 import { CLOSE_SIDES } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
@@ -384,6 +385,7 @@ class TitleBar extends Div {
     }
 
     setTitle(title = '') {
+        title = Strings.capitalize(title);
         const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
         if (titleTextElement) {
             titleTextElement.textContent = title;

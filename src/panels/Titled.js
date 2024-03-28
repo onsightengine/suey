@@ -1,5 +1,6 @@
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
+import { Strings } from '../utils/Strings.js';
 
 class Titled extends Panel {
 
@@ -14,7 +15,7 @@ class Titled extends Panel {
         this.isExpanded = true;
 
         // Title
-        this.tabTitle = new Div(title).addClass('suey-tab-title');
+        this.tabTitle = new Div(Strings.capitalize(title)).addClass('suey-tab-title');
         if (title && title !== '') this.add(this.tabTitle)
 
         // Collapsible?

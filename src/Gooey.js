@@ -44,6 +44,7 @@
 import { ColorScheme } from './utils/ColorScheme.js';
 import { Css } from './utils/Css.js';
 import { Iris } from './utils/Iris.js';
+import { Strings } from './utils/Strings.js';
 
 import { Div } from './core/Div.js';
 import { FlexSpacer } from './layout/FlexSpacer.js';
@@ -92,7 +93,7 @@ class Gooey extends Resizeable {
     }
 
     addFolder(folderName = '', icon = '') {
-        if (folderName && folderName !== '') folderName = capitalize(folderName);
+        if (folderName && folderName !== '') folderName = Strings.capitalize(folderName);
         const folder = new Folder({ title: folderName, icon });
         this.add(folder);
         return folder;
@@ -180,7 +181,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), boolBox, new FlexSpacer());
+        const row = this.props.addRow(Strings.prettyTitle(variable), boolBox, new FlexSpacer());
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { boolBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
@@ -216,7 +217,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), colorButton);
+        const row = this.props.addRow(Strings.prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { colorButton.setValue(_clr.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
@@ -225,11 +226,11 @@ class Folder extends Shrinkable {
 
     addFunction(params, variable) {
         const prop = new Property();
-        const button = new Button(prettyTitle(variable));
+        const button = new Button(Strings.prettyTitle(variable));
         button.onClick(() => params[variable]());
         // this.props.addRowWithoutTitle(button);
         // prop.name = function(name) { button.setInnerHtml(name); return self; };
-        const row = this.props.addRow(prettyTitle(variable), button);
+        const row = this.props.addRow(Strings.prettyTitle(variable), button);
         prop.name = function(name, buttonText) {
             row.leftWidget.setInnerHtml(name);
             if (buttonText) button.setInnerHtml(buttonText);
@@ -253,7 +254,7 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
 
-        const row = this.props.addRow(prettyTitle(variable), selectDropDown);
+        const row = this.props.addRow(Strings.prettyTitle(variable), selectDropDown);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() {
             if (type === 'string') selectDropDown.setValue(params[variable]);
@@ -299,7 +300,7 @@ class Folder extends Shrinkable {
         }
         setStep(step);
 
-        const digits = countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
+        const digits = Strings.countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
         slideBox.setStyle('marginLeft', '0.14286em');
 
@@ -314,7 +315,7 @@ class Folder extends Shrinkable {
         }
         checkForMinMax();
 
-        const row = this.props.addRow(prettyTitle(variable), slider, slideBox);
+        const row = this.props.addRow(Strings.prettyTitle(variable), slider, slideBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return prop; };
         prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return prop; };
@@ -338,7 +339,7 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(prettyTitle(variable), textBox);
+        const row = this.props.addRow(Strings.prettyTitle(variable), textBox);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { textBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
@@ -348,7 +349,7 @@ class Folder extends Shrinkable {
     addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
         const prop = new Property();
         const vector = params[variable];
-        const row = this.props.addRow(prettyTitle(variable));
+        const row = this.props.addRow(Strings.prettyTitle(variable));
 
         const boxes = [];
         for (let i = 0; i < vector.length; i++) {
@@ -424,53 +425,4 @@ class Property {
         return this;
     }
 
-}
-
-/******************** INTERNAL ********************/
-
-/**
- * Capitalizes every word in a string and adds spaces between CamelCaseWords
- *
- * @param {String} string
- * @returns
- */
-function prettyTitle(string) {
-    return addSpaces(capitalize(string));
-}
-
-/**
- * Adds spaces between 'CamelCaseWords' -> 'Camel Case Words'
- *
- * @param {String} string
- * @returns {String}
- */
-function addSpaces(string) {
-    if (!string || string === '') return '';
-    return String(string).replace(/([A-Z])/g, ' $1').trim();
-}
-
-/**
- * Capitalizes the first letter of every word in a string
- *
- * @param {String} string string to be capitalized
- * @returns new capitalized string
- */
-function capitalize(string) {
-    if (!string || string === '') return '';
-    let words = String(string);
-    words = words.split(' ');
-    for (let i = 0; i < words.length; i++) {
-        words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-    }
-    return words.join(' ');
-}
-
-/**
- * Counts number of digits in a number
- *
- * @param {Number} number
- * @returns {Number}
- */
-function countDigits(number) {
-    return parseFloat(number).toString().length;
 }
