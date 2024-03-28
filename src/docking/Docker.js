@@ -111,6 +111,7 @@ class Docker extends Panel {
                 child.hasClass('suey-tabbed') ||
                 child.hasClass('suey-flex-spacer')) {
                 children.push(child);
+                if (child.hasClass('suey-flex-spacer)')) child.addClass('suey-hidden');
             }
         }
         twin.add(...children);
@@ -231,6 +232,7 @@ class Docker extends Panel {
                 child.hasClass('suey-docker') ||
                 child.hasClass('suey-flex-spacer')) {
                 children.push(child);
+                if (child.hasClass('suey-flex-spacer')) child.removeClass('suey-hidden');
             }
         }
         const wasCollapsed = twin.hasClass('suey-collapsed');
@@ -289,7 +291,7 @@ class Docker extends Panel {
 
         // Add Some Spacing?
         if (flexBefore) {
-            this.add(new FlexSpacer());
+            this.add(new FlexSpacer().addClass('suey-hidden'));
         }
 
         // Save, Add, Return

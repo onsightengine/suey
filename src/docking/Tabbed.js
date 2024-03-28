@@ -65,6 +65,9 @@ class Tabbed extends AbstractDock {
                 this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
             }
         }
+        if (this.selectedID === '') {
+            this.selectFirst();
+        }
         return this;
     }
 

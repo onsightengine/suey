@@ -4470,6 +4470,9 @@ class Tabbed extends AbstractDock {
                 this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
             }
         }
+        if (this.selectedID === '') {
+            this.selectFirst();
+        }
         return this;
     }
     selectFirst() {
@@ -4627,6 +4630,7 @@ class Docker extends Panel {
                 child.hasClass('suey-tabbed') ||
                 child.hasClass('suey-flex-spacer')) {
                 children.push(child);
+                if (child.hasClass('suey-flex-spacer)')) child.addClass('suey-hidden');
             }
         }
         twin.add(...children);
@@ -4725,6 +4729,7 @@ class Docker extends Panel {
                 child.hasClass('suey-docker') ||
                 child.hasClass('suey-flex-spacer')) {
                 children.push(child);
+                if (child.hasClass('suey-flex-spacer')) child.removeClass('suey-hidden');
             }
         }
         const wasCollapsed = twin.hasClass('suey-collapsed');
@@ -4762,7 +4767,7 @@ class Docker extends Panel {
             }
         });
         if (flexBefore) {
-            this.add(new FlexSpacer());
+            this.add(new FlexSpacer().addClass('suey-hidden'));
         }
         this.add(tabbed);
         return tabbed;
