@@ -12,7 +12,7 @@ class MenuItem extends Div {
         super();
         const self = this;
         this.setClass('suey-menu-item');
-        this.setName(text);
+        this.name = text;
 
         // Build
         this.divIcon = new VectorBox(icon);

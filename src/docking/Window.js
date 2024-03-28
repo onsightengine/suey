@@ -311,11 +311,11 @@ class Window extends Panel {
 
     /** Select Tab (returns true if new Tab was selected) */
     selectTab(newID) {
-        if (newID.isElement) newID = newID.getID();
-        const panel = this.panels.children.find((item) => (item.getID() === newID));
+        if (newID.isElement) newID = newID.id;
+        const panel = this.panels.children.find((item) => (item.id === newID));
         if (panel && panel.button) {
             // Deselect current Panel / Button
-            const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+            const selectedPanel = this.panels.children.find((item) => (item.id === this.selectedID));
             if (selectedPanel) selectedPanel.addClass('suey-hidden');
             if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
 

@@ -8,55 +8,74 @@ class Element {
 
     /**
      * Creates an instance of Element.
-     * @param {HTMLElement} dom - The DOM element to wrap.
+     * @param {HTMLElement} domElement - The DOM element to wrap.
      * @memberof Element
      * @constructor
      */
-    constructor(dom) {
-        if (dom == null) {
+    constructor(domElement) {
+        if (domElement == null) {
             console.trace('Element.constructor: No HTMLElement provided!');
-            dom = document.createElement('div');
+            domElement = document.createElement('div');
         }
-        const self = this;
 
+        // Prototype
         this.isElement = true;
 
-        this.dom = dom;                                 // 'HTMLElement'
-        this.name = undefined;                          // Object Name
+        // Properties
+        let dom = domElement;                           // 'HTMLElement'
+        let name = '';                                  // Object Name
+        let suey = this;                                // dom.suey
 
-        this.contents = function() { return self; };    // Inner 'Element' to be filled with other 'Element's
-        this.children = [];                             // Holds 'Element' children (.add / .remove / .clearContents)
         this.parent = undefined;                        // Parent 'Element'
+        this.children = [];                             // Holds 'Element' children (.add / .remove / .clearContents)
         this.slots = [];                                // Holds all 'SignalBinding' slots
+        this.contents = function() { return suey; };    // Inner 'Element' to be filled with other 'Element's
 
-        // Suey Reference
-        let suey = null;
+        // Property Definitions
+        Object.defineProperties(this, {
+            dom: {
+                get: function() { return dom; },
+                set: function(value) { dom = value; },
+            },
+            id: {
+                configurable: true,
+                get: function() { return dom.id; },
+                set: function(value) {
+                    dom.id = value;
+                    if (!name || name == '') name = value;
+                },
+            },
+            name: {
+                get: function() { return (name && name !== '') ? name : 'No name'; },
+                set: function(value) { name = String(value); } ,
+            }
+        });
 
-        // Dom Suey Access
-        Object.defineProperties(this.dom, {
+        Object.defineProperties(dom, {
             suey: {
                 get: function() { return suey; },
-                set: function(element) { suey = element; },
-            },
-        });
-        this.dom.suey = self;
-
-        // ID Access
-        Object.defineProperties(this, {
-            id: {
-                get: function() { return self.getID(); },
-                set: function(value) { self.setID(value); }
             },
         });
 
         // Clean Slots
         this.on('destroy', function() {
-            for (const slot of self.slots) {
+            for (const slot of suey.slots) {
                 if (typeof slot.detach === 'function') slot.detach();
                 if (typeof slot.destroy === 'function') slot.destroy();
             }
-            self.slots.length = 0;
+            suey.slots.length = 0;
         });
+    }
+
+    /**
+     * Sets the ID of the Element.
+     * @param {string} id - The ID to set.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
+    setID(id) {
+        this.id = id;
+        return this;
     }
 
     /******************** DESTROY */
@@ -222,47 +241,6 @@ class Element {
             this.dom.classList.remove(className);
         }
         return this;
-    }
-
-    /**
-     * Sets the ID of the Element.
-     * @param {string} id - The ID to set.
-     * @returns {Element} The Element instance.
-     * @memberof Element
-     */
-    setID(id) {
-        this.dom.id = id;
-        if (this.name === undefined) this.name = id;
-        return this;
-    }
-
-    /**
-     * Gets the ID of the Element.
-     * @returns {string} The ID of the Element.
-     * @memberof Element
-     */
-    getID() {
-        return this.dom.id;
-    }
-
-    /**
-     * Sets the name of the Element.
-     * @param {string} name - The name to set.
-     * @returns {Element} The Element instance.
-     * @memberof Element
-     */
-    setName(name) {
-        this.name = name;
-        return this;
-    }
-
-    /**
-     * Gets the name of the Element.
-     * @returns {string} The name of the Element.
-     * @memberof Element
-     */
-    getName() {
-        return (this.name === undefined) ? 'No name' : this.name;
     }
 
     /******************** HTML */

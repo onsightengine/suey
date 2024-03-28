@@ -14,7 +14,7 @@ class AssetBox extends Div {
 
         // Set Name
         if (typeof title !== 'string' || title === '') title = 'Unknown';
-        this.setName(title.toLowerCase());
+        this.name = title.toLowerCase();
 
         // Image
         const assetImageHolder = new ShadowBox();

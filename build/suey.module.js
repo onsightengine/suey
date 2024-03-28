@@ -1190,40 +1190,53 @@ function validateListener(listener, fnName) {
 }
 
 class Element {
-    constructor(dom) {
-        if (dom == null) {
+    constructor(domElement) {
+        if (domElement == null) {
             console.trace('Element.constructor: No HTMLElement provided!');
-            dom = document.createElement('div');
+            domElement = document.createElement('div');
         }
-        const self = this;
         this.isElement = true;
-        this.dom = dom;
-        this.name = undefined;
-        this.contents = function() { return self; };
-        this.children = [];
+        let dom = domElement;
+        let name = '';
+        let suey = this;
         this.parent = undefined;
+        this.children = [];
         this.slots = [];
-        let suey = null;
-        Object.defineProperties(this.dom, {
+        this.contents = function() { return suey; };
+        Object.defineProperties(this, {
+            dom: {
+                get: function() { return dom; },
+                set: function(value) { dom = value; },
+            },
+            id: {
+                configurable: true,
+                get: function() { return dom.id; },
+                set: function(value) {
+                    dom.id = value;
+                    if (!name || name == '') name = value;
+                },
+            },
+            name: {
+                get: function() { return (name && name !== '') ? name : 'No name'; },
+                set: function(value) { name = String(value); } ,
+            }
+        });
+        Object.defineProperties(dom, {
             suey: {
                 get: function() { return suey; },
-                set: function(element) { suey = element; },
-            },
-        });
-        this.dom.suey = self;
-        Object.defineProperties(this, {
-            id: {
-                get: function() { return self.getID(); },
-                set: function(value) { self.setID(value); }
             },
         });
         this.on('destroy', function() {
-            for (const slot of self.slots) {
+            for (const slot of suey.slots) {
                 if (typeof slot.detach === 'function') slot.detach();
                 if (typeof slot.destroy === 'function') slot.destroy();
             }
-            self.slots.length = 0;
+            suey.slots.length = 0;
         });
+    }
+    setID(id) {
+        this.id = id;
+        return this;
     }
     destroy() {
         clearChildren(this, true );
@@ -1297,21 +1310,6 @@ class Element {
             this.dom.classList.remove(className);
         }
         return this;
-    }
-    setID(id) {
-        this.dom.id = id;
-        if (this.name === undefined) this.name = id;
-        return this;
-    }
-    getID() {
-        return this.dom.id;
-    }
-    setName(name) {
-        this.name = name;
-        return this;
-    }
-    getName() {
-        return (this.name === undefined) ? 'No name' : this.name;
     }
     setAttribute(attrib, value) {
         this.dom.setAttribute(attrib, value);
@@ -2608,7 +2606,7 @@ class MenuItem extends Div {
         super();
         const self = this;
         this.setClass('suey-menu-item');
-        this.setName(text);
+        this.name = text;
         this.divIcon = new VectorBox(icon);
         this.divIconHolder = new Div().add(this.divIcon).setClass('suey-menu-icon');
         this.divText = new Div().setClass('suey-menu-text');
@@ -4104,10 +4102,10 @@ class Window extends Panel {
         return tabPanel;
     }
     selectTab(newID) {
-        if (newID.isElement) newID = newID.getID();
-        const panel = this.panels.children.find((item) => (item.getID() === newID));
+        if (newID.isElement) newID = newID.id;
+        const panel = this.panels.children.find((item) => (item.id === newID));
         if (panel && panel.button) {
-            const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+            const selectedPanel = this.panels.children.find((item) => (item.id === this.selectedID));
             if (selectedPanel) selectedPanel.addClass('suey-hidden');
             if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
             panel.removeClass('suey-hidden');
@@ -4203,6 +4201,16 @@ class TabButton extends Div {
         if (options.shadow) this.addClass('suey-tab-shadow');
         this.dom.draggable = true;
         this.tabPanel = tabPanel;
+        Object.defineProperty(this, 'id', {
+            get: function() { return (tabPanel) ? tabPanel.id : ''; },
+            set: function(value) {
+                if (tabPanel) {
+                    tabPanel.id = value;
+                } else {
+                    console.warn(`TabButton.constructor: TabPanel not found`);
+                }
+            },
+        });
         this.iconVector = new VectorBox(options.icon);
         this.iconBorder = new Div().setClass('suey-tab-icon-border');
         this.add(this.iconVector, this.iconBorder);
@@ -4380,7 +4388,7 @@ class TabButton extends Div {
                 locationUnder = null;
             } else {
                 if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
+                    self.tabPanel.dock.selectTab(self.tabPanel.id, true);
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
                 }
             }
@@ -4396,9 +4404,6 @@ class TabButton extends Div {
         this.on('pointerenter', tabPointerEnter);
         this.on('pointerleave', tabPointerLeave);
         this.on('pointerdown', tabPointerDown);
-    }
-    getID() {
-        return this.tabPanel?.getID();
     }
 }
 function capitalize(string) {
@@ -4449,7 +4454,7 @@ class Tabbed extends Panel {
     }
     selectFirst() {
         if (this.panels.children.length === 0) return false;
-        return this.selectTab(this.panels.children[0].getID());
+        return this.selectTab(this.panels.children[0].id);
     }
     selectTab(newID, wasClicked = false) {
         if (wasClicked) {
@@ -4460,10 +4465,10 @@ class Tabbed extends Panel {
                 return false;
             }
         }
-        const panel = this.panels.children.find((item) => (item.getID() === newID));
+        const panel = this.panels.children.find((item) => (item.id === newID));
         if (panel && panel.button) {
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
-            const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+            const selectedPanel = this.panels.children.find((item) => (item.id === this.selectedID));
             if (selectedPanel) selectedPanel.addClass('suey-hidden');
             if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
             panel.removeClass('suey-hidden');
@@ -4495,9 +4500,9 @@ class Tabbed extends Panel {
         if (panel) panel.addClass('suey-hidden');
         this.buttons.detach(button);
         this.panels.detach(panel);
-        if (panel.getID() === this.selectedID) {
+        if (panel.id === this.selectedID) {
             if (index > 0) {
-                this.selectTab(this.panels.children[index - 1].getID());
+                this.selectTab(this.panels.children[index - 1].id);
             } else if (this.panels.children.length > 0) {
                 this.selectFirst();
             } else {
@@ -4929,7 +4934,7 @@ class AssetBox extends Div {
         this.allowFocus();
         if (title !== '') this.dom.setAttribute('tooltip', title);
         if (typeof title !== 'string' || title === '') title = 'Unknown';
-        this.setName(title.toLowerCase());
+        this.name = title.toLowerCase();
         const assetImageHolder = new ShadowBox();
         assetImageHolder.dom.draggable = true;
         if (view == 'icon') {

@@ -56,6 +56,18 @@ class TabButton extends Div {
         // Parent Reference
         this.tabPanel = tabPanel;
 
+        // Overload 'id'
+        Object.defineProperty(this, 'id', {
+            get: function() { return (tabPanel) ? tabPanel.id : ''; },
+            set: function(value) {
+                if (tabPanel) {
+                    tabPanel.id = value;
+                } else {
+                    console.warn(`TabButton.constructor: TabPanel not found`);
+                }
+            },
+        });
+
         // Icon / Label
         this.iconVector = new VectorBox(options.icon);
         this.iconBorder = new Div().setClass('suey-tab-icon-border');
@@ -282,7 +294,7 @@ class TabButton extends Div {
             // Click?
             } else {
                 if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.getID(), true);
+                    self.tabPanel.dock.selectTab(self.tabPanel.id, true);
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
                 }
             }
@@ -299,10 +311,6 @@ class TabButton extends Div {
         this.on('pointerenter', tabPointerEnter);
         this.on('pointerleave', tabPointerLeave);
         this.on('pointerdown', tabPointerDown);
-    }
-
-    getID() {
-        return this.tabPanel?.getID();
     }
 
 }

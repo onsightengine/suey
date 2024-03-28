@@ -78,7 +78,7 @@ class Tabbed extends Panel {
     /** Select first Tab */
     selectFirst() {
         if (this.panels.children.length === 0) return false;
-        return this.selectTab(this.panels.children[0].getID());
+        return this.selectTab(this.panels.children[0].id);
     }
 
     /** Select Tab (returns true if new Tab was selected) */
@@ -96,13 +96,13 @@ class Tabbed extends Panel {
         }
 
         // Find button / panel with New ID
-        const panel = this.panels.children.find((item) => (item.getID() === newID));
+        const panel = this.panels.children.find((item) => (item.id === newID));
         if (panel && panel.button) {
             // Disable Animations
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
 
             // Deselect current Panel / Button
-            const selectedPanel = this.panels.children.find((item) => (item.getID() === this.selectedID));
+            const selectedPanel = this.panels.children.find((item) => (item.id === this.selectedID));
             if (selectedPanel) selectedPanel.addClass('suey-hidden');
             if (selectedPanel?.button) selectedPanel.button.removeClass('suey-selected');
 
@@ -153,9 +153,9 @@ class Tabbed extends Panel {
         this.panels.detach(panel);
 
         // Was Selected? (select new Tab)
-        if (panel.getID() === this.selectedID) {
+        if (panel.id === this.selectedID) {
             if (index > 0) {
-                this.selectTab(this.panels.children[index - 1].getID());
+                this.selectTab(this.panels.children[index - 1].id);
             } else if (this.panels.children.length > 0) {
                 this.selectFirst();
             } else {
