@@ -4884,7 +4884,7 @@ class Docker extends Panel {
         if (id == undefined || id === '') return null;
         const panels = this.floaters();
         for (const panel of panels) {
-            if (panel.id === id || panel.name === id) return panel;
+            if (panel.id === id) return panel;
         }
         return undefined;
     }

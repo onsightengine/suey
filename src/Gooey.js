@@ -74,13 +74,6 @@ const _clr = new Iris();
  */
 class Gooey extends Resizeable {
 
-    /**
-     * Creates an instance of Gooey.
-     * @param {string} title - The title of the Gooey panel.
-     * @param {number} [opacity] - The opacity of the Gooey panel.
-     * @memberof Gooey
-     * @constructor
-     */
     constructor(title, opacity) {
         super({
             style: PANEL_STYLES.FANCY,
@@ -98,13 +91,6 @@ class Gooey extends Resizeable {
         document.body.appendChild(this.dom);
     }
 
-    /**
-     * Adds a new folder to the Gooey panel.
-     * @param {string} [folderName=''] - The name of the folder.
-     * @param {string} [icon=''] - The icon for the folder.
-     * @returns {Folder} The created Folder instance.
-     * @memberof Gooey
-     */
     addFolder(folderName = '', icon = '') {
         if (folderName && folderName !== '') folderName = capitalize(folderName);
         const folder = new Folder({ title: folderName, icon });
@@ -112,23 +98,11 @@ class Gooey extends Resizeable {
         return folder;
     }
 
-    /**
-     * Sets the color scheme of the Gooey panel.
-     * @param {number} color - The color value for the color scheme.
-     * @returns {Gooey} The Gooey instance.
-     * @memberof Gooey
-     */
     color(color) {
         ColorScheme.changeColor(color);
         return this;
     }
 
-    /**
-     * Sets the opacity of the Gooey panel.
-     * @param {number} opacity - The opacity value (0.0 - 1.0).
-     * @returns {Gooey} The Gooey instance.
-     * @memberof Gooey
-     */
     opacity(opacity) {
         if (opacity == null || Number.isNaN(opacity)) return;
         opacity = Math.min(Math.max(opacity, 0.0), 1.0);
@@ -136,12 +110,6 @@ class Gooey extends Resizeable {
         return this;
     }
 
-    /**
-     * Sets the scale of the Gooey panel.
-     * @param {number} [multiplier=1.0] - The scale multiplier.
-     * @returns {Gooey} The Gooey instance.
-     * @memberof Gooey
-     */
     scale(multiplier) {
         if (!multiplier) multiplier = 1.0;
         multiplier = parseFloat(multiplier);
@@ -151,12 +119,6 @@ class Gooey extends Resizeable {
         return this;
     }
 
-    /**
-     * Sets the width of the Gooey panel.
-     * @param {number} width - The width value.
-     * @returns {Gooey} The Gooey instance.
-     * @memberof Gooey
-     */
     width(width) {
         if (width == null) return;
         if (width < this.minWidth * Css.guiScale(this.dom)) width = this.minWidth * Css.guiScale(this.dom);
