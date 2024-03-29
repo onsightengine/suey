@@ -73,7 +73,7 @@ class TabButton extends Div {
         this.iconVector = new VectorBox(options.icon);
         this.iconBorder = new Div().setClass('suey-tab-icon-border');
         this.add(this.iconVector, this.iconBorder);
-        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); };
+        this.setLabel = function(label) { self.iconBorder.setAttribute('tooltip', label); };
         this.setLabel(label);
 
         // Background Color

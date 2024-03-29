@@ -10,7 +10,7 @@ class AssetBox extends Div {
         this.allowFocus();
 
         // Tooltip
-        if (title !== '') this.dom.setAttribute('tooltip', title);
+        if (title !== '') this.setAttribute('tooltip', title);
 
         // Set Name
         if (typeof title !== 'string' || title === '') title = 'Unknown';

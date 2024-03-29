@@ -9,7 +9,7 @@ class TextArea extends Element {
         this.setClass('suey-text-area');
 
         this.dom.spellcheck = false;
-        this.dom.setAttribute('autocomplete', 'off');
+        this.setAttribute('autocomplete', 'off');
 
         // Events
         function textKeyDown(event) {

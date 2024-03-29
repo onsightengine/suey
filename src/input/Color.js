@@ -18,7 +18,7 @@ class Color extends Button {
         const colorBox = new Element(document.createElement('input'));
         colorBox.setClass('suey-input');
         colorBox.addClass('suey-color-input-button');
-        colorBox.dom.setAttribute('autocomplete', 'off');
+        colorBox.setAttribute('autocomplete', 'off');
         try { colorBox.dom.type = 'color'; } catch(exception) {}
         this.add(colorBox);
 
@@ -44,7 +44,7 @@ class Color extends Button {
 
         function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-            self.dom.setAttribute('tooltip', colorBox.dom.value);
+            self.setAttribute('tooltip', colorBox.dom.value);
         }
 
         function colorBoxBlur() {
@@ -77,7 +77,7 @@ class Color extends Button {
             _color.set(value);
             colorBox.dom.value = _color.hexString();
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-            self.dom.setAttribute('tooltip', colorBox.dom.value);
+            self.setAttribute('tooltip', colorBox.dom.value);
             return this;
         };
 

@@ -54,7 +54,7 @@ class Interaction {
 
         const imageBox = new ShadowBox(cornerImage).evenShadow().fullSize().addClass('suey-corner-image');
         button.add(imageBox);
-        button.dom.setAttribute('tooltip', buttonTooltip);
+        button.setAttribute('tooltip', buttonTooltip);
         button.setStyle('min-height', `${scale}em`, 'min-width', `${scale}em`);
         const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset + (buttonOffset * scale)}em`;
         button.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);

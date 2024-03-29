@@ -1753,7 +1753,7 @@ class Interaction {
         }
         const imageBox = new ShadowBox(cornerImage).evenShadow().fullSize().addClass('suey-corner-image');
         button.add(imageBox);
-        button.dom.setAttribute('tooltip', buttonTooltip);
+        button.setAttribute('tooltip', buttonTooltip);
         button.setStyle('min-height', `${scale}em`, 'min-width', `${scale}em`);
         const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset + (buttonOffset * scale)}em`;
         button.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
@@ -2405,7 +2405,7 @@ class Color extends Button {
         const colorBox = new Element(document.createElement('input'));
         colorBox.setClass('suey-input');
         colorBox.addClass('suey-color-input-button');
-        colorBox.dom.setAttribute('autocomplete', 'off');
+        colorBox.setAttribute('autocomplete', 'off');
         try { colorBox.dom.type = 'color'; } catch(exception) {}
         this.add(colorBox);
         const colorBackground = new Div().addClass('suey-drop-color');
@@ -2424,7 +2424,7 @@ class Color extends Button {
         }
         function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-            self.dom.setAttribute('tooltip', colorBox.dom.value);
+            self.setAttribute('tooltip', colorBox.dom.value);
         }
         function colorBoxBlur() {
             self.removeClass('suey-selected');
@@ -2448,7 +2448,7 @@ class Color extends Button {
             _color$2.set(value);
             colorBox.dom.value = _color$2.hexString();
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
-            self.dom.setAttribute('tooltip', colorBox.dom.value);
+            self.setAttribute('tooltip', colorBox.dom.value);
             return this;
         };
         this.setValue(0xffffff);
@@ -2875,7 +2875,7 @@ class NumberBox extends Element {
         this.addClass('suey-number');
         this.dom.style.cursor = 'text';
         this.dom.value = '0.00';
-        this.dom.setAttribute('autocomplete', 'off');
+        this.setAttribute('autocomplete', 'off');
         this.value = 0;
         this.min = -Infinity;
         this.max = Infinity;
@@ -4254,7 +4254,7 @@ class TabButton extends Div {
         this.iconVector = new VectorBox(options.icon);
         this.iconBorder = new Div().setClass('suey-tab-icon-border');
         this.add(this.iconVector, this.iconBorder);
-        this.setLabel = function(label) { self.iconBorder.dom.setAttribute('tooltip', label); };
+        this.setLabel = function(label) { self.iconBorder.setAttribute('tooltip', label); };
         this.setLabel(label);
         if (typeof options.color === 'string' && options.color.includes('var(--')) {
             this.iconVector.setStyle('background-color', `rgba(${options.color}, ${options.alpha})`);
@@ -4935,7 +4935,7 @@ class TextArea extends Element {
         const self = this;
         this.setClass('suey-text-area');
         this.dom.spellcheck = false;
-        this.dom.setAttribute('autocomplete', 'off');
+        this.setAttribute('autocomplete', 'off');
         function textKeyDown(event) {
             event.stopPropagation();
             if (event.key === 'Tab') {
@@ -4971,7 +4971,7 @@ class AssetBox extends Div {
         super();
         this.setClass('suey-asset-box');
         this.allowFocus();
-        if (title !== '') this.dom.setAttribute('tooltip', title);
+        if (title !== '') this.setAttribute('tooltip', title);
         if (typeof title !== 'string' || title === '') title = 'Unknown';
         this.name = title.toLowerCase();
         const assetImageHolder = new ShadowBox();
