@@ -72,6 +72,12 @@ class Docker extends Panel {
 
     /******************** DOCK */
 
+    clearDocks() {
+        const self = this;
+        this.remove(...this.children);
+        this.contents = function() { return self; };
+    }
+
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
         // Create Docks
         const dock = new Docker(false /* primary */);

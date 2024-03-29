@@ -4614,6 +4614,11 @@ class Docker extends Panel {
         }
         return resizers;
     }
+    clearDocks() {
+        const self = this;
+        this.remove(...this.children);
+        this.contents = function() { return self; };
+    }
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
         const dock = new Docker(false );
         const twin = new Docker(false );
