@@ -135,6 +135,7 @@ class TabButton extends Div {
 
                 // Drag Start
                 Css.setCursor('pointer');
+                document.body.classList.add('suey-dock-drag');
                 wasSelected = self.hasClass('suey-selected');
 
                 // Clone
@@ -244,6 +245,7 @@ class TabButton extends Div {
             // Drag End
             if (buttonClone) {
                 Css.setCursor('');
+                document.body.classList.remove('suey-dock-drag');
                 document.body.removeChild(buttonClone);
 
                 // Last Under Element was TabButton
