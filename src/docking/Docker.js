@@ -134,7 +134,8 @@ class Docker extends Panel {
         // Dock Data
         dock.isVertical = dock.hasClass('suey-docker-vertical');
         dock.isHorizontal = dock.hasClass('suey-docker-horizontal');
-        dock.dockSide = twin.dockSide = side;
+        dock.dockSide = side;
+        twin.dockSide = this.dockSide;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
         twin.initialSide = this.initialSide;
 
@@ -291,7 +292,7 @@ class Docker extends Panel {
         // Create New Tabbed
         tabbed = new Tabbed();
         tabbed.setTabSide(this.initialSide, true /* opposite? */)
-        const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
+        const wantsTall = this.dockSide === 'top' || this.dockSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
 
@@ -303,9 +304,7 @@ class Docker extends Panel {
         });
 
         // Add Some Spacing?
-        if (flexBefore) {
-            this.add(new FlexSpacer());//.addClass('suey-hidden'));
-        }
+        if (flexBefore) this.add(new FlexSpacer()); //.addClass('suey-hidden'));
 
         // Save, Add, Return
         this.add(tabbed);

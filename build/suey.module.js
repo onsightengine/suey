@@ -4658,7 +4658,8 @@ class Docker extends Panel {
         else this.addToSelf(twin, dock);
         dock.isVertical = dock.hasClass('suey-docker-vertical');
         dock.isHorizontal = dock.hasClass('suey-docker-horizontal');
-        dock.dockSide = twin.dockSide = side;
+        dock.dockSide = side;
+        twin.dockSide = this.dockSide;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
         twin.initialSide = this.initialSide;
         if (dock.isHorizontal) {
@@ -4778,7 +4779,7 @@ class Docker extends Panel {
         if (tabbed) return tabbed;
         tabbed = new Tabbed();
         tabbed.setTabSide(this.initialSide, true );
-        const wantsTall = this.initialSide === 'top' || this.initialSide === 'bottom';
+        const wantsTall = this.dockSide === 'top' || this.dockSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
         tabbed.on('tab-changed', () => {
@@ -4786,9 +4787,7 @@ class Docker extends Panel {
                 if (tabbed.parent.hasClass('suey-docker')) tabbed.parent.removeDock();
             }
         });
-        if (flexBefore) {
-            this.add(new FlexSpacer());
-        }
+        if (flexBefore) this.add(new FlexSpacer());
         this.add(tabbed);
         return tabbed;
     }
