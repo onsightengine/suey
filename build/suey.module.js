@@ -3917,26 +3917,29 @@ class AbstractDock extends Panel {
 const MIN_W$2 = 300;
 const MIN_H$2 = 150;
 class Window extends AbstractDock {
-    #initialWidth;
-    #initialHeight;
     #lastKnownRect;
     constructor({
         style = PANEL_STYLES$1.FANCY,
-        width = 600,
-        height = 600,
         resizers = 'all',
         title = '',
         draggable = true,
         maxButton = true,
         closeButton = true,
         buttonSides = CLOSE_SIDES.LEFT,
+        width = 600,
+        height = 600,
+        initialWidth = undefined,
+        initialHeight = undefined,
+        startCentered = true,
+        left = 0,
+        top = 0,
     } = {}) {
         super({ style });
         const self = this;
         this.addClass('suey-window');
         this.allowFocus();
-        this.#initialWidth = width;
-        this.#initialHeight = height;
+        this.initialWidth = (initialWidth != null) ? initialWidth : width;
+        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
         this.isWindow = true;
         this.maximized = false;
         const titleBar = new TitleBar(this, title, draggable, 1.3 );
@@ -3985,9 +3988,9 @@ class Window extends AbstractDock {
         }
         Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp);
         this.addResizers(resizers);
-        this.setStyle('left', '0', 'top', '0');
-        this.setStyle('width', this.#initialWidth);
-        this.setStyle('height', this.#initialHeight);
+        this.setStyle('left', left, 'top', top);
+        this.setStyle('width', width);
+        this.setStyle('height', height);
         function keepInWindow() {
             const computed = getComputedStyle(self.dom);
             const rect = {
@@ -4005,12 +4008,8 @@ class Window extends AbstractDock {
             self.setStyle('left', `${newLeft}px`);
         }
         window.addEventListener('resize', () => keepInWindow());
-        let firstTime = true;
         this.on('displayed', () => {
-            if (firstTime) {
-                self.center();
-                firstTime = false;
-            }
+            if (startCentered) self.center();
             keepInWindow();
         });
         this.setTitle = function(newTitle = '') {
@@ -4043,8 +4042,8 @@ class Window extends AbstractDock {
         this.setStyle('left', `${side}px`, 'top', `${top}px`);
     }
     setInitialSize() {
-        this.setStyle('width', this.#initialWidth);
-        this.setStyle('height', this.#initialHeight);
+        this.setStyle('width', this.initialWidth);
+        this.setStyle('height', this.initialHeight);
         this.dom.dispatchEvent(new Event('resizer'));
     }
     showWindow() {
@@ -4470,6 +4469,7 @@ class Tabbed extends AbstractDock {
     }
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
+        let count = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
             floater.dock = this;
@@ -4483,8 +4483,9 @@ class Tabbed extends AbstractDock {
             if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
                 this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
             }
+            count++;
         }
-        if (this.selectedID === '') {
+        if (count > 0 && this.selectedID === '') {
             this.selectFirst();
         }
         return this;
@@ -4659,7 +4660,7 @@ class Docker extends Panel {
         dock.isHorizontal = dock.hasClass('suey-docker-horizontal');
         dock.dockSide = twin.dockSide = side;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
-        twin.initialSide = (this.contents().initialSide === 'center') ? 'center' : this.initialSide;
+        twin.initialSide = this.initialSide;
         if (dock.isHorizontal) {
             if (dock.initialSide === DOCK_SIDES.LEFT) { dock.setStyle('left', 0); twin.setStyle('left', 0); }
             if (dock.initialSide === DOCK_SIDES.RIGHT) { dock.setStyle('right', 0); twin.setStyle('right', 0); }
@@ -4786,7 +4787,7 @@ class Docker extends Panel {
             }
         });
         if (flexBefore) {
-            this.add(new FlexSpacer().addClass('suey-hidden'));
+            this.add(new FlexSpacer());
         }
         this.add(tabbed);
         return tabbed;

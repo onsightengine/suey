@@ -78,6 +78,13 @@ class Docker extends Panel {
         this.contents = function() { return self; };
     }
 
+    /**
+     * Splits the current Docker in two and adds new Docker children.
+     * @param {DOCK_SIDES} side Side to add the new Docker.
+     * @param {Number|String} size Starting size of new Docker.
+     * @param {Boolean} primaryContents If true, adds new dock to the innermost 'center' dock. Otherwise, adds to self (parent most dock).
+     * @returns Newly added Docker.
+     */
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
         // Create Docks
         const dock = new Docker(false /* primary */);
@@ -129,7 +136,7 @@ class Docker extends Panel {
         dock.isHorizontal = dock.hasClass('suey-docker-horizontal');
         dock.dockSide = twin.dockSide = side;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
-        twin.initialSide = (this.contents().initialSide === 'center') ? 'center' : this.initialSide;
+        twin.initialSide = this.initialSide;
 
         // Collapsed Positioning
         if (dock.isHorizontal) {
@@ -297,7 +304,7 @@ class Docker extends Panel {
 
         // Add Some Spacing?
         if (flexBefore) {
-            this.add(new FlexSpacer().addClass('suey-hidden'));
+            this.add(new FlexSpacer());//.addClass('suey-hidden'));
         }
 
         // Save, Add, Return

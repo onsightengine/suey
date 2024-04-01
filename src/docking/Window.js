@@ -14,20 +14,23 @@ const MIN_H = 150;
 
 class Window extends AbstractDock {
 
-    #initialWidth;
-    #initialHeight;
     #lastKnownRect;
 
     constructor({
         style = PANEL_STYLES.FANCY,
-        width = 600,
-        height = 600,
         resizers = 'all', // [ RESIZERS.TOP, RESIZERS.BOTTOM, RESIZERS.LEFT, RESIZERS.RIGHT ],
         title = '',
         draggable = true,
         maxButton = true,
         closeButton = true,
         buttonSides = CLOSE_SIDES.LEFT,
+        width = 600,
+        height = 600,
+        initialWidth = undefined,
+        initialHeight = undefined,
+        startCentered = true,
+        left = 0,
+        top = 0,
     } = {}) {
         super({ style });
         const self = this;
@@ -35,8 +38,8 @@ class Window extends AbstractDock {
         this.allowFocus();
 
         // Properties, Private
-        this.#initialWidth = width;
-        this.#initialHeight = height;
+        this.initialWidth = (initialWidth != null) ? initialWidth : width;
+        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
 
         // Properties, Public
         this.isWindow = true;
@@ -99,9 +102,9 @@ class Window extends AbstractDock {
         this.addResizers(resizers);
 
         // Initial Size
-        this.setStyle('left', '0', 'top', '0');
-        this.setStyle('width', this.#initialWidth);
-        this.setStyle('height', this.#initialHeight);
+        this.setStyle('left', left, 'top', top);
+        this.setStyle('width', width);
+        this.setStyle('height', height);
 
         // Keep In Window
         function keepInWindow() {
@@ -132,13 +135,10 @@ class Window extends AbstractDock {
         }
         window.addEventListener('resize', () => keepInWindow());
 
-        let firstTime = true;
         this.on('displayed', () => {
             // Center first time shown
-            if (firstTime) {
-                self.center();
-                firstTime = false;
-            }
+            if (startCentered) self.center();
+
             // Resize if necessary
             keepInWindow();
         });
@@ -185,8 +185,8 @@ class Window extends AbstractDock {
     }
 
     setInitialSize() {
-        this.setStyle('width', this.#initialWidth);
-        this.setStyle('height', this.#initialHeight);
+        this.setStyle('width', this.initialWidth);
+        this.setStyle('height', this.initialHeight);
         this.dom.dispatchEvent(new Event('resizer'));
     }
 

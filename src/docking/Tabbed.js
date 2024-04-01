@@ -41,6 +41,7 @@ class Tabbed extends AbstractDock {
 
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
+        let count = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
 
@@ -64,8 +65,10 @@ class Tabbed extends AbstractDock {
             if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
                 this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
             }
+
+            count++;
         }
-        if (this.selectedID === '') {
+        if (count > 0 && this.selectedID === '') {
             this.selectFirst();
         }
         return this;
