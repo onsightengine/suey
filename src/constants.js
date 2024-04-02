@@ -50,14 +50,14 @@ export const TRAIT = {
     BUTTON_DARK:        'button-dark',
     BUTTON_LIGHT:       'button-light',
 
+    TEXT_DARK:          'text-dark',
+    TEXT:               'text',
+    TEXT_LIGHT:         'text-light',
+
     BLACKLIGHT:         'blacklight',
     DARKLIGHT:          'darklight',
     MIDLIGHT:           'midlight',
     HIGHLIGHT:          'highlight',
-
-    TEXT_DARK:          'text-dark',
-    TEXT:               'text',
-    TEXT_LIGHT:         'text-light',
 
     ICON_DARK:          'icon-dark',
     ICON:               'icon',                 // Main palette color

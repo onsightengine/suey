@@ -63,33 +63,14 @@ class ColorScheme {
     /***** Update CSS Variables *****/
 
     static updateCSS() {
-        Css.setVariable('--shadow',             _clr.set(ColorScheme.color(TRAIT.SHADOW)).rgbString());
-        Css.setVariable('--darkness',           _clr.set(ColorScheme.color(TRAIT.DARKNESS)).rgbString());
+        // Update Trait Colors
+        for (const key in TRAIT) {
+            const guiColor = TRAIT[key];
+            Css.setVariable(`--${guiColor}`, _clr.set(ColorScheme.color(guiColor)).rgbString());
+        }
 
-        Css.setVariable('--background-dark',    _clr.set(ColorScheme.color(TRAIT.BACKGROUND_DARK)).rgbString());
-        Css.setVariable('--background-light',   _clr.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).rgbString());
-        Css.setVariable('--button-dark',        _clr.set(ColorScheme.color(TRAIT.BUTTON_DARK)).rgbString());
-        Css.setVariable('--button-light',       _clr.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).rgbString());
-
-        Css.setVariable('--text-dark',          _clr.set(ColorScheme.color(TRAIT.TEXT_DARK)).rgbString());
-        Css.setVariable('--text',               _clr.set(ColorScheme.color(TRAIT.TEXT)).rgbString());
-        Css.setVariable('--text-light',         _clr.set(ColorScheme.color(TRAIT.TEXT_LIGHT)).rgbString());
-
-        Css.setVariable('--blacklight',         _clr.set(ColorScheme.color(TRAIT.BLACKLIGHT)).rgbString());
-        Css.setVariable('--darklight',          _clr.set(ColorScheme.color(TRAIT.DARKLIGHT)).rgbString());
-        Css.setVariable('--midlight',           _clr.set(ColorScheme.color(TRAIT.MIDLIGHT)).rgbString());
-        Css.setVariable('--highlight',          _clr.set(ColorScheme.color(TRAIT.HIGHLIGHT)).rgbString());
-
-        Css.setVariable('--icon-dark',          _clr.set(ColorScheme.color(TRAIT.ICON_DARK)).rgbString());
-        Css.setVariable('--icon',               _clr.set(ColorScheme.color(TRAIT.ICON)).rgbString());
-        Css.setVariable('--icon-light',         _clr.set(ColorScheme.color(TRAIT.ICON_LIGHT)).rgbString());
-        Css.setVariable('--complement',         _clr.set(ColorScheme.color(TRAIT.COMPLEMENT)).rgbString());
-        Css.setVariable('--triadic1',           _clr.set(ColorScheme.color(TRAIT.TRIADIC1)).rgbString());
-        Css.setVariable('--triadic2',           _clr.set(ColorScheme.color(TRAIT.TRIADIC2)).rgbString());
-        Css.setVariable('--triadic3',           _clr.set(ColorScheme.color(TRAIT.TRIADIC3)).rgbString());
-        Css.setVariable('--triadic4',           _clr.set(ColorScheme.color(TRAIT.TRIADIC4)).rgbString());
-
-        Css.setVariable('--bright',             (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
+        // Update Light/Dark Value
+        Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
 
         // Update necessary hue rotation degrees
         const startHue = _clr.set(DEFAULT_CLR).hue();
