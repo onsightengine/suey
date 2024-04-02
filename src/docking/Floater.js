@@ -259,10 +259,10 @@ class TabButton extends Div {
                         if (locationUnder.hasClassWithString('middle')) {
                             droppedOnDock = lastUnder.children.find(child => child.hasClass('suey-tabbed'));
                         } else if (locationUnder.hasClassWithString('top')) {
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '20%', false).enableTabs();
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.TOP, '25%', false).enableTabs();
                         } else if (locationUnder.hasClassWithString('bottom')) {
                             const flexBefore = (lastUnder.initialSide === 'left') || (lastUnder.initialSide === 'right');
-                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '20%', false).enableTabs(flexBefore);
+                            droppedOnDock = lastUnder.addDock(DOCK_SIDES.BOTTOM, '25%', false).enableTabs(flexBefore);
                         } else if (locationUnder.hasClassWithString('left')) {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.LEFT, '20%', false).enableTabs();
                         } else if (locationUnder.hasClassWithString('right')) {
