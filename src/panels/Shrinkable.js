@@ -16,7 +16,7 @@ class Shrinkable extends Panel {
         super();
         const self = this;
         this.addClass('suey-shrinkable');
-        if (!border) this.addClass('suey-borderless');
+        if (!border) this.addClass('suey-borderless-panel');
 
         // Members
         this.titleDiv = undefined;

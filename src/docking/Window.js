@@ -339,8 +339,8 @@ class Window extends AbstractDock {
             tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
 
-            // Set as Active Window
-            this.activeWindow()
+            // Focus In, set as Active Window
+            this.focus()
 
             // Selection Successful
             return true;

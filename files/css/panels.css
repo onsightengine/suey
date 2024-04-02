@@ -84,15 +84,14 @@
     border-radius: var(--radius-large);
     margin: var(--pad-x-small);
     box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */
-    overflow: hidden;
+    overflow: visible;
 }
-.suey-shrinkable.suey-borderless {
+.suey-shrinkable.suey-borderless-panel {
     border: solid var(--border-small) transparent;
     margin-bottom: 0;
     box-shadow: none;
-    overflow: visible;
 }
-.suey-shrinkable.suey-borderless.suey-expanded {
+.suey-shrinkable.suey-borderless-panel.suey-expanded {
     border-bottom: none;
 }
 
@@ -122,7 +121,10 @@
 .suey-shrink-title:hover {
     color: rgba(var(--highlight), 1.0)
 }
-.suey-shrinkable.suey-borderless .suey-shrink-title {
+.suey-shrinkable:not(.suey-expanded) .suey-shrink-title {
+    border-radius: var(--radius-small);
+}
+.suey-shrinkable.suey-borderless-panel .suey-shrink-title {
     outline: solid var(--border-small) rgba(var(--shadow), 0.25);
     border-radius: var(--radius-small);
 }
@@ -198,26 +200,20 @@
     flex-wrap: wrap;
     border-bottom-left-radius: var(--radius-small);
     border-bottom-right-radius: var(--radius-small);
-    padding: var(--pad-small);
+    padding: 0;
+    padding-top: var(--pad-small);
     overflow: hidden;
     pointer-events: auto;
 }
-.suey-shrinkable.suey-borderless .suey-shrink-body {
+.suey-shrinkable.suey-borderless-panel .suey-shrink-body {
     padding-bottom: 0;
 }
 .suey-shrinkable:not(.suey-expanded) .suey-shrink-body {
     pointer-events: none;
     display: none;
 }
-.suey-shrinkable.suey-expanded:not(.suey-borderless) .suey-shrink-body {
+.suey-shrinkable.suey-expanded:not(.suey-borderless-panel) .suey-shrink-body {
     border-top: solid var(--border-small) rgba(var(--shadow), 0.25);
-}
-
-/* Borderless Property List Row */
-.suey-shrinkable.suey-borderless .suey-property-row {
-    width: calc(100% + (var(--pad-small) * 5)) !important;
-    margin-left: calc(var(--pad-small) * -2.5) !important;
-    margin-right: calc(var(--pad-small) * -2.5) !important;
 }
 
 /********** Titled **********/
