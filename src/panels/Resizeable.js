@@ -41,7 +41,7 @@ class Resizeable extends Panel {
         function resizerDown() {
             rect.width = self.getWidth();
             rect.height = self.getHeight();
-            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+            document.dispatchEvent(new Event('closemenu'));
         }
         function resizerMove(resizer, diffX, diffY) {
             if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);

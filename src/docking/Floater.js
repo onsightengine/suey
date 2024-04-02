@@ -142,6 +142,9 @@ class TabButton extends Div {
                 buttonClone = self.dom.cloneNode(true);
                 buttonClone.classList.add('suey-drag-tab-button');
                 document.body.appendChild(buttonClone);
+
+                // Close Popup Menus
+                document.dispatchEvent(new Event('closemenu'));
             }
 
             // Button Follows Mouse
@@ -302,6 +305,7 @@ class TabButton extends Div {
                 if (performance.now() - downTime < MOUSE_CLICK) {
                     self.tabPanel.dock.selectTab(self.tabPanel.id, true);
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
+                    document.dispatchEvent(new Event('closemenu'));
                 }
             }
             document.removeEventListener('pointermove', tabPointerMove);

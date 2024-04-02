@@ -2232,7 +2232,7 @@ class Resizeable extends Panel {
         function resizerDown() {
             rect.width = self.getWidth();
             rect.height = self.getHeight();
-            self.dom.dispatchEvent(new Event('clicked', { 'bubbles': true, 'cancelable': true }));
+            document.dispatchEvent(new Event('closemenu'));
         }
         function resizerMove(resizer, diffX, diffY) {
             if (resizer.hasClassWithString('left')) self.changeWidth(rect.width - diffX);
@@ -4308,6 +4308,7 @@ class TabButton extends Div {
                 buttonClone = self.dom.cloneNode(true);
                 buttonClone.classList.add('suey-drag-tab-button');
                 document.body.appendChild(buttonClone);
+                document.dispatchEvent(new Event('closemenu'));
             }
             const newLeft = event.pageX - (self.getWidth() / 2);
             const newTop = event.pageY - (self.getHeight() / 2);
@@ -4433,6 +4434,7 @@ class TabButton extends Div {
                 if (performance.now() - downTime < MOUSE_CLICK) {
                     self.tabPanel.dock.selectTab(self.tabPanel.id, true);
                     self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
+                    document.dispatchEvent(new Event('closemenu'));
                 }
             }
             document.removeEventListener('pointermove', tabPointerMove);
