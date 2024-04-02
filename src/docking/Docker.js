@@ -291,7 +291,7 @@ class Docker extends Panel {
         }
 
         // Check for Tabbed
-        let tabbed = Dom.childWithClass(this, 'suey-tabbed', false /* recursive? */);
+        let tabbed = Dom.childWithClass(this.contents(), 'suey-tabbed', false /* recursive? */);
         if (tabbed) return tabbed;
 
         // Create New Tabbed

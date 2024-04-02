@@ -4631,6 +4631,10 @@ class Docker extends Panel {
         this.contents = function() { return self; };
     }
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
+        if (!Object.values(DOCK_SIDES).includes(side)) {
+            console.warn(`Docker.addDock: Unkown dock side '${side}', defaulting to 'left'`);
+            side = 'left';
+        }
         const dock = new Docker(false );
         const twin = new Docker(false );
         if (this.hasClass('suey-collapsed')) {
@@ -4785,7 +4789,7 @@ class Docker extends Panel {
             console.warn('Docker.enableTabs: Cannot enable tabs on the primary dock');
             return undefined;
         }
-        let tabbed = Dom.childWithClass(this, 'suey-tabbed', false );
+        let tabbed = Dom.childWithClass(this.contents(), 'suey-tabbed', false );
         if (tabbed) return tabbed;
         tabbed = new Tabbed();
         tabbed.setTabSide(this.initialSide, true );
