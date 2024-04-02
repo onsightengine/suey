@@ -148,6 +148,13 @@ class Window extends AbstractDock {
             title = newTitle;
             titleBar.setTitle(title);
         };
+
+        // Destroy
+        this.on('destroy', () => {
+            const tabChange = new Event('tab-changed', { bubbles: true });
+            tabChange.value = undefined;
+            self.dom.dispatchEvent(tabChange);
+        });
     }
 
     /******************** POSITION */
@@ -325,7 +332,7 @@ class Window extends AbstractDock {
             panel.button.addClass('suey-selected');
 
             // Event
-            const tabChange = new Event('tab-changed');
+            const tabChange = new Event('tab-changed', { bubbles: true });
             tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
 
@@ -341,7 +348,23 @@ class Window extends AbstractDock {
     /** Remove Tab (Floater) from Window. */
     removeTab(...floaters) {
         const parent = this.parent;
-        setTimeout(() => { if (parent && parent.isElement) parent.remove(this); }, 0);
+        if (floaters && Array.isArray(floaters)) {
+            for (const floater of floaters) {
+                const index = this.panels.children.indexOf(floater);
+                if (!floater || index === -1) continue;
+
+                // Remove Tab
+                const button = this.buttons.children[index];
+                const panel = this.panels.children[index];
+                if (button) button.removeClass('suey-selected');
+                if (panel) panel.addClass('suey-hidden');
+                this.buttons.detach(button);
+                this.panels.detach(panel);
+            }
+        }
+        if (this.panels.children.length === 0) {
+            setTimeout(() => { if (parent && parent.isElement) parent.remove(this); }, 0);
+        }
         return this;
     }
 

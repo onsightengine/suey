@@ -112,7 +112,7 @@ class Tabbed extends AbstractDock {
             this.selectedID = selectID;
 
             // Event
-            const tabChange = new Event('tab-changed');
+            const tabChange = new Event('tab-changed', { bubbles: true });
             tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
 
@@ -163,7 +163,7 @@ class Tabbed extends AbstractDock {
                 } else if (this.panels.children.length > 0) {
                     this.selectFirst();
                 } else {
-                    const tabChange = new Event('tab-changed');
+                    const tabChange = new Event('tab-changed', { bubbles: true });
                     tabChange.value = undefined;
                     this.dom.dispatchEvent(tabChange);
                 }

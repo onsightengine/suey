@@ -4016,6 +4016,11 @@ class Window extends AbstractDock {
             title = newTitle;
             titleBar.setTitle(title);
         };
+        this.on('destroy', () => {
+            const tabChange = new Event('tab-changed', { bubbles: true });
+            tabChange.value = undefined;
+            self.dom.dispatchEvent(tabChange);
+        });
     }
     activeWindow() {
         if (this.hasClass('suey-active-window')) return;
@@ -4154,7 +4159,7 @@ class Window extends AbstractDock {
             this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
-            const tabChange = new Event('tab-changed');
+            const tabChange = new Event('tab-changed', { bubbles: true });
             tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
             this.activeWindow();
@@ -4164,7 +4169,21 @@ class Window extends AbstractDock {
     }
     removeTab(...floaters) {
         const parent = this.parent;
-        setTimeout(() => { if (parent && parent.isElement) parent.remove(this); }, 0);
+        if (floaters && Array.isArray(floaters)) {
+            for (const floater of floaters) {
+                const index = this.panels.children.indexOf(floater);
+                if (!floater || index === -1) continue;
+                const button = this.buttons.children[index];
+                const panel = this.panels.children[index];
+                if (button) button.removeClass('suey-selected');
+                if (panel) panel.addClass('suey-hidden');
+                this.buttons.detach(button);
+                this.panels.detach(panel);
+            }
+        }
+        if (this.panels.children.length === 0) {
+            setTimeout(() => { if (parent && parent.isElement) parent.remove(this); }, 0);
+        }
         return this;
     }
 }
@@ -4515,7 +4534,7 @@ class Tabbed extends AbstractDock {
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
-            const tabChange = new Event('tab-changed');
+            const tabChange = new Event('tab-changed', { bubbles: true });
             tabChange.value = selectID;
             this.dom.dispatchEvent(tabChange);
             setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
@@ -4550,7 +4569,7 @@ class Tabbed extends AbstractDock {
                 } else if (this.panels.children.length > 0) {
                     this.selectFirst();
                 } else {
-                    const tabChange = new Event('tab-changed');
+                    const tabChange = new Event('tab-changed', { bubbles: true });
                     tabChange.value = undefined;
                     this.dom.dispatchEvent(tabChange);
                 }
