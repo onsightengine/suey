@@ -4,7 +4,7 @@
     width: 100%;
 }
 
-/* --- HEADER --- */
+/***** Property Header */
 
 .suey-property-header-title {
     position: relative;
@@ -60,7 +60,7 @@
     padding-left: 0.5em;
 }
 
-/* --- ROW --- */
+/***** Property Row */
 
 .suey-property-row {
     position: relative;
@@ -130,7 +130,7 @@
     height: 100%;
 }
 
-/* --- RIGHT SIDE OF ROW --- */
+/***** Right side of Property Row */
 
 .suey-property-right .suey-number:not(.suey-property-tiny-row),
 .suey-property-right > *:not(.suey-property-tiny-row):not(.suey-property-button):not(.suey-property-space) {
@@ -156,7 +156,8 @@
     height: 100%;
 }
 
-/* --- BUTTON --- */
+/***** Property Button */
+
 /* Button appearing in right column of Property List, fixed size */
 .suey-property-button {
     position: relative;
@@ -184,7 +185,7 @@
     align-items: flex-start;
     justify-content: left;
     overflow: hidden;
-    margin: calc(var(--pad-small) * 1.3);
+    margin: var(--pad-small);
 
     color: rgba(var(--text), 1.0);
     background-color: rgba(var(--background-dark), 0.25);

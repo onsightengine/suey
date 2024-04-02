@@ -86,6 +86,11 @@ class Docker extends Panel {
      * @returns Newly added Docker.
      */
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
+        if (!Object.values(DOCK_SIDES).includes(side)) {
+            console.warn(`Docker.addDock: Unkown dock side '${side}', defaulting to 'left'`);
+            side = 'left';
+        }
+
         // Create Docks
         const dock = new Docker(false /* primary */);
         const twin = new Docker(false /* primary */);

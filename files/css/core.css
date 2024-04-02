@@ -1,4 +1,4 @@
-/********** BASE ELEMENTS **********/
+/********** Base Styling **********/
 
 * {
     font-family: var(--font-family);
@@ -33,7 +33,7 @@ image {
     padding: var(--pad-micro);
 }
 
-/********** SCROLLBARS **********/
+/********** Scrollbars **********/
 
 div::-webkit-scrollbar {
     height: var(--scroll-size);

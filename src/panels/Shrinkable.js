@@ -60,10 +60,11 @@ class Shrinkable extends Panel {
         this.setExpanded(true, false /* event? */);
 
         // Events
-        function arrowClick() {
+        function expandCollapse() {
             self.toggle();
         }
-        arrowClicker.onClick(arrowClick);
+
+        title.on('pointerdown', expandCollapse);
     }
 
     setExpanded(expand = true, dispatchEvent = true) {
