@@ -182,13 +182,13 @@ class Element {
 
     /**
      * Sets the CSS class of the Element.
-     * @param {string} className - The CSS class name.
+     * @param {...string} className - The CSS class name(s).
      * @returns {Element} The Element instance.
      * @memberof Element
      */
-    setClass(className) {
-        this.dom.className = className;
-        return this;
+    setClass(...classNames) {
+        this.dom.className = '';
+        return this.addClass(...classNames);
     }
 
     /**

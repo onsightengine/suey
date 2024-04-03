@@ -1266,9 +1266,9 @@ class Element {
         if (removedElements.length === 1) return removedElements[0];
         return removedElements;
     }
-    setClass(className) {
-        this.dom.className = className;
-        return this;
+    setClass(...classNames) {
+        this.dom.className = '';
+        return this.addClass(...classNames);
     }
     addClass(...classNames) {
         for (const className of classNames) {
