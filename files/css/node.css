@@ -319,8 +319,8 @@
     height: 1.2em;
 }
 
-/* Item detacher (little 'X') */
-.suey-node-item-detach {
+/* Item Unhooker (little 'X') */
+.suey-node-item-unhook {
     pointer-events: none;
     position: absolute;
     width: 1em;
@@ -335,15 +335,15 @@
     opacity: 0;
 }
 
-.suey-node-right .suey-node-item-detach {
+.suey-node-right .suey-node-item-unhook {
     left: calc(100% + 0.7em);
 }
-.suey-node-left .suey-node-item-detach {
+.suey-node-left .suey-node-item-unhook {
     left: calc(0em - var(--row-height));
 }
 
 /* Increases mouse over hit area */
-.suey-node-item-detach::before {
+.suey-node-item-unhook::before {
     content: ' ';
     position: absolute;
     left: 0; right: 0; top: 0; bottom: 0;
@@ -351,18 +351,18 @@
     background-color: transparent;
 }
 
-.suey-node-item.suey-item-connected .suey-node-item-detach {
+.suey-node-item.suey-item-connected .suey-node-item-unhook {
     pointer-events: all;
 }
 
-.suey-node-item.suey-item-connected:hover .suey-node-item-detach {
+.suey-node-item.suey-item-connected:hover .suey-node-item-unhook {
     opacity: 1;
 }
 
-.suey-node-item-detach .suey-image {
+.suey-node-item-unhook .suey-image {
     filter: var(--drop-shadow);
 }
 
-.suey-node-item.suey-item-connected .suey-node-item-detach:hover {
+.suey-node-item.suey-item-connected .suey-node-item-unhook:hover {
     filter: brightness(100%);
 }

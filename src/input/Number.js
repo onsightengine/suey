@@ -36,8 +36,8 @@ class NumberBox extends Element {
 
             if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
-                if (event.shiftKey) editor.redo();
-                else editor.undo();
+                // if (event.shiftKey) editor.redo();
+                // else editor.undo();
                 return;
             }
 

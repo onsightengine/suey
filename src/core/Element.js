@@ -144,15 +144,34 @@ class Element {
     }
 
     /**
-     * Removes a child element from the Element without destroying it.
+     * Removes any number of 'Element' or 'HTMLElement' from the Element without destroying them.
      * @param {Element|HTMLElement} element - The element to detach.
      * @returns {Element|HTMLElement} The detached element.
      * @memberof Element
      */
-    detach(element) {
-        let removed = removeFromParent(this.contents(), element, false /* destroy? */);
-        if (!removed) removed = removeFromParent(this, element, false /* destroy? */);
-        return removed;
+    detach(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
+            // Attempt to remove element from contents(), then try to remove from self.children
+            let removed = removeFromParent(this.contents(), element, false /* destroy? */);
+            if (!removed) removed = removeFromParent(this, element, false /* destroy? */);
+            if (!removed) {
+                // // DEBUG: Could not remove element(s)
+                // console.log(`Element.detach: Could not remove child!`);
+            }
+            removedElements.push(removed);
+        }
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
+    }
+
+    /**
+     * Detaches all children Elements
+     * @returns Element or array of deatached Elements
+     */
+    detachChildren() {
+        return this.detach(...this.children);
     }
 
     /**

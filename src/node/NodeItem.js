@@ -18,8 +18,8 @@ class NodeItem extends Div {
         // Elements
         const disconnect = new VectorBox(IMAGE_CLOSE);
         this.point = new Div().addClass('suey-node-item-point');
-        this.detach = new Div().addClass('suey-node-item-detach').add(disconnect);
-        this.add(this.point, this.detach);
+        this.unhook = new Div().addClass('suey-node-item-unhook').add(disconnect);
+        this.add(this.point, this.unhook);
 
         // Properties
         this.connections = [];
@@ -95,7 +95,7 @@ class NodeItem extends Div {
             event.preventDefault();
             self.disconnect();
         }
-        this.detach.on('pointerdown', breakPointerDown);
+        this.unhook.on('pointerdown', breakPointerDown);
     }
 
     /******************** CONNECTION */
