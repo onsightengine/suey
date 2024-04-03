@@ -3,7 +3,9 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Floater } from './Floater.js';
+import { Interaction } from '../utils/Interaction.js';
 
+import { CLOSE_SIDES } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { TAB_SIDES } from '../constants.js';
 
@@ -12,8 +14,10 @@ const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when 
 class Tabbed extends AbstractDock {
 
     constructor({
-        tabSide = TAB_SIDES.RIGHT,
         style = PANEL_STYLES.FANCY,
+        tabSide = TAB_SIDES.RIGHT,
+        opposite = false,
+        closeButton = false,
     } = {}) {
         super({ style });
         self = this;
@@ -28,7 +32,13 @@ class Tabbed extends AbstractDock {
         this.add(this.buttons, this.panels);
 
         // Set TAB_SIDES that Tab Buttons should appear
+        tabSide = opposite ? oppositeSide(tabSide) : tabSide;
         this.setTabSide(tabSide);
+
+        if (closeButton) {
+            const buttonSide = (tabSide === 'right') ? CLOSE_SIDES.LEFT : CLOSE_SIDES.RIGHT;
+            Interaction.addCloseButton(this, buttonSide, 1.7 /* offset */, 1.3 /* scale */);
+        }
 
         // Events
         function tabbedPointerEnter() {
@@ -177,15 +187,9 @@ class Tabbed extends AbstractDock {
 
     /******************** INFO */
 
-    setTabSide(side, opposite = false) {
+    setTabSide(side) {
         side = String(side).toLowerCase();
         this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
-        if (opposite) {
-            if (side === 'left') side = 'right';
-            else if (side === 'right') side = 'left';
-            else if (side === 'top') side = 'bottom';
-            else if (side === 'bottom') side = 'top';
-        }
         this.buttons.addClass(`suey-${side}-side`);
     }
 
@@ -196,3 +200,13 @@ class Tabbed extends AbstractDock {
 }
 
 export { Tabbed };
+
+/******************** INTERNAL */
+
+function oppositeSide(side) {
+    if (side === 'left') return 'right';
+    if (side === 'right') return 'left';
+    if (side === 'top') return 'bottom';
+    if (side === 'bottom') return 'top';
+    return 'center';
+}

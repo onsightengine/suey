@@ -1765,7 +1765,10 @@ class Interaction {
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
                 button.on('click', () => {
-                    if (element.parent && element.parent.isElement) {
+                    if (element.hasClass('suey-tabbed')) {
+                        const floater = element.panels.children.find((item) => (item.id === element.selectedID));
+                        if (floater) element.removeTab(floater);
+                    } else if (element.parent && element.parent.isElement) {
                         element.parent.remove(element);
                     } else {
                         element.hide();
@@ -4461,8 +4464,10 @@ class TabButton extends Div {
 const MINIMUM_TABS_TO_SHOW = 1;
 class Tabbed extends AbstractDock {
     constructor({
-        tabSide = TAB_SIDES.RIGHT,
         style = PANEL_STYLES$1.FANCY,
+        tabSide = TAB_SIDES.RIGHT,
+        opposite = false,
+        closeButton = false,
     } = {}) {
         super({ style });
         self = this;
@@ -4471,7 +4476,12 @@ class Tabbed extends AbstractDock {
         this.buttons = new Div().setClass('suey-tab-buttons').setStyle('display', 'none');
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.buttons, this.panels);
+        tabSide = opposite ? oppositeSide(tabSide) : tabSide;
         this.setTabSide(tabSide);
+        if (closeButton) {
+            const buttonSide = (tabSide === 'right') ? CLOSE_SIDES.LEFT : CLOSE_SIDES.RIGHT;
+            Interaction.addCloseButton(this, buttonSide, 1.7 , 1.3 );
+        }
         function tabbedPointerEnter() {
             document.body.classList.remove('suey-no-resize');
         }
@@ -4565,20 +4575,21 @@ class Tabbed extends AbstractDock {
         }
         return this;
     }
-    setTabSide(side, opposite = false) {
+    setTabSide(side) {
         side = String(side).toLowerCase();
         this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
-        if (opposite) {
-            if (side === 'left') side = 'right';
-            else if (side === 'right') side = 'left';
-            else if (side === 'top') side = 'bottom';
-            else if (side === 'bottom') side = 'top';
-        }
         this.buttons.addClass(`suey-${side}-side`);
     }
     tabCount() {
         return this.panels.children.length;
     }
+}
+function oppositeSide(side) {
+    if (side === 'left') return 'right';
+    if (side === 'right') return 'left';
+    if (side === 'top') return 'bottom';
+    if (side === 'bottom') return 'top';
+    return 'center';
 }
 
 const MINIMUM_NORMAL = 100;
@@ -4768,9 +4779,13 @@ class Docker extends Panel {
             }
         }
         const wasCollapsed = twin.hasClass('suey-collapsed');
+        const primary = this.getPrimary();
         parent.addToSelf(...children);
         parent.remove(this, twin);
         parent.contents = function() { return parent; };
+        if (primary.contents() === twin || primary.contents() === this) {
+            primary.contents = function() { return parent; };
+        }
         parent.hideDockLocations();
         const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
         if (childTabbed && parent.addResizers) {
@@ -4791,14 +4806,13 @@ class Docker extends Panel {
         }
         let tabbed = Dom.childWithClass(this.contents(), 'suey-tabbed', false );
         if (tabbed) return tabbed;
-        tabbed = new Tabbed();
-        tabbed.setTabSide(this.initialSide, true );
+        tabbed = new Tabbed({ tabSide: this.initialSide, opposite: true, closeButton: true });
         const wantsTall = this.dockSide === 'top' || this.dockSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
         tabbed.on('tab-changed', () => {
-            if (tabbed.tabCount() === 0) {
-                if (tabbed.parent.hasClass('suey-docker')) tabbed.parent.removeDock();
+            if (tabbed.tabCount() === 0 && tabbed.parent.hasClass('suey-docker')) {
+                tabbed.parent.removeDock();
             }
         });
         if (flexBefore) this.add(new FlexSpacer());

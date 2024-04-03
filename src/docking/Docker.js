@@ -255,9 +255,15 @@ class Docker extends Panel {
             }
         }
         const wasCollapsed = twin.hasClass('suey-collapsed');
+        const primary = this.getPrimary();
         parent.addToSelf(...children);
         parent.remove(this, twin);
         parent.contents = function() { return parent; }
+
+        // Check Primary Contents
+        if (primary.contents() === twin || primary.contents() === this) {
+            primary.contents = function() { return parent; }
+        }
 
         // Remove old DockLocations
         parent.hideDockLocations();
@@ -295,16 +301,15 @@ class Docker extends Panel {
         if (tabbed) return tabbed;
 
         // Create New Tabbed
-        tabbed = new Tabbed();
-        tabbed.setTabSide(this.initialSide, true /* opposite? */)
+        tabbed = new Tabbed({ tabSide: this.initialSide, opposite: true, closeButton: true });
         const wantsTall = this.dockSide === 'top' || this.dockSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
 
         // Event: 'tab-changed'
         tabbed.on('tab-changed', () => {
-            if (tabbed.tabCount() === 0) {
-                if (tabbed.parent.hasClass('suey-docker')) tabbed.parent.removeDock();
+            if (tabbed.tabCount() === 0 && tabbed.parent.hasClass('suey-docker')) {
+                tabbed.parent.removeDock();
             }
         });
 
