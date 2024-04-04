@@ -87,7 +87,10 @@ class Interaction {
                 button.on('click', () => {
                     if (element.hasClass('suey-tabbed')) {
                         const floater = element.panels.children.find((item) => (item.id === element.selectedID));
-                        if (floater) element.removeTab(floater);
+                        if (floater) {
+                            element.removeTab(floater);
+                            floater.destroy();
+                        }
                     } else if (element.parent && element.parent.isElement) {
                         element.parent.remove(element);
                     } else {
