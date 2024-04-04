@@ -11,12 +11,17 @@ class Shrinkable extends Panel {
         text = '',
         icon = '',
         arrow = 'left',
-        border = true
+        border = true,
+        expanded = true,
     } = {}) {
         super();
         const self = this;
         this.addClass('suey-shrinkable');
         if (!border) this.addClass('suey-borderless-panel');
+        if (expanded) this.addClass('suey-expanded');
+
+        // Properties
+        this.isExpanded = expanded;
 
         // Members
         this.titleDiv = undefined;
@@ -57,13 +62,11 @@ class Shrinkable extends Panel {
         this.bodyDiv = body;
 
         this.contents = function() { return self.bodyDiv };         // Accessor for the body div
-        this.setExpanded(true, false /* event? */);
 
         // Events
         function expandCollapse() {
             self.toggle();
         }
-
         title.on('pointerdown', expandCollapse);
     }
 

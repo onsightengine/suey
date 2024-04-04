@@ -474,7 +474,7 @@ class Docker extends Panel {
     }
 
     floaters() {
-        return Dom.childrenWithClass(this, 'suey-floater');
+        return Dom.childrenWithClass(this, 'suey-floater', true /* recursive? */);
     }
 
     getFloaterByID(id) {
