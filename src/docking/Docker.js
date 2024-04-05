@@ -306,8 +306,8 @@ class Docker extends Panel {
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
 
-        // Event: 'tab-changed'
-        tabbed.on('tab-changed', () => {
+        // Event: 'tabs-changed'
+        tabbed.on('tabs-changed', () => {
             if (tabbed.tabCount() === 0 && tabbed.parent.hasClass('suey-docker')) {
                 tabbed.parent.removeDock();
             }

@@ -4018,15 +4018,15 @@ class Window extends AbstractDock {
             if (startCentered) self.center();
             keepInWindow();
         });
+        this.on('tabs-changed', () => {
+            if (self.panels.children.length === 0 && self.parent && self.parent.isElement) {
+                self.parent.remove(self);
+            }
+        });
         this.setTitle = function(newTitle = '') {
             title = newTitle;
             titleBar.setTitle(title);
         };
-        this.on('destroy', () => {
-            const tabChange = new Event('tab-changed', { bubbles: true });
-            tabChange.value = undefined;
-            self.dom.dispatchEvent(tabChange);
-        });
     }
     activeWindow() {
         if (this.hasClass('suey-active-window')) return;
@@ -4144,14 +4144,19 @@ class Window extends AbstractDock {
     }
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
+        let tabsAdded = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
             floater.dock = this;
             this.panels.add(floater);
             this.buttons.add(floater.button);
+            tabsAdded++;
             floater.traverse((child) => {
                 if (child.hasClass('suey-tab-title')) child.addClass('suey-hidden');
             });
+        }
+        if (tabsAdded > 0) {
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
     }
@@ -4167,16 +4172,17 @@ class Window extends AbstractDock {
             this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
-            const tabChange = new Event('tab-changed', { bubbles: true });
-            tabChange.value = selectID;
-            this.dom.dispatchEvent(tabChange);
+            const tabSelected = new Event('tab-selected', { bubbles: true });
+            tabSelected.value = selectID;
+            this.dom.dispatchEvent(tabSelected);
             this.focus();
             return true;
         }
         return false;
     }
     removeTab(...floaters) {
-        const parent = this.parent;
+        if (!floaters || !Array.isArray(floaters)) return this;
+        let tabsRemoved = 0;
         if (floaters && Array.isArray(floaters)) {
             for (const floater of floaters) {
                 const index = this.panels.children.indexOf(floater);
@@ -4187,10 +4193,11 @@ class Window extends AbstractDock {
                 if (panel) panel.addClass('suey-hidden');
                 this.buttons.detach(button);
                 this.panels.detach(panel);
+                tabsRemoved++;
             }
         }
-        if (this.panels.children.length === 0) {
-            setTimeout(() => { if (parent && parent.isElement) parent.remove(this); }, 0);
+        if (tabsRemoved > 0) {
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
     }
@@ -4508,12 +4515,13 @@ class Tabbed extends AbstractDock {
     }
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
-        let count = 0;
+        let tabsAdded = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
             floater.dock = this;
             this.panels.add(floater);
             this.buttons.add(floater.button);
+            tabsAdded++;
             floater.traverse((child) => {
                 if (child.hasClass('suey-tab-title')) child.removeClass('suey-hidden');
             });
@@ -4522,10 +4530,10 @@ class Tabbed extends AbstractDock {
             if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
                 this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
             }
-            count++;
         }
-        if (count > 0 && this.selectedID === '') {
-            this.selectFirst();
+        if (tabsAdded > 0) {
+            if (this.selectedID === '') this.selectFirst();
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
     }
@@ -4550,9 +4558,9 @@ class Tabbed extends AbstractDock {
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
-            const tabChange = new Event('tab-changed', { bubbles: true });
-            tabChange.value = selectID;
-            this.dom.dispatchEvent(tabChange);
+            const tabSelected = new Event('tab-selected', { bubbles: true });
+            tabSelected.value = selectID;
+            this.dom.dispatchEvent(tabSelected);
             setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
             return true;
         }
@@ -4570,6 +4578,7 @@ class Tabbed extends AbstractDock {
     }
     removeTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
+        let tabsRemoved = 0;
         for (const floater of floaters) {
             const index = this.panels.children.indexOf(floater);
             if (!floater || index === -1) continue;
@@ -4579,18 +4588,18 @@ class Tabbed extends AbstractDock {
             if (panel) panel.addClass('suey-hidden');
             this.buttons.detach(button);
             this.panels.detach(panel);
+            tabsRemoved++;
             if (panel.id === this.selectedID) {
                 if (index > 0) {
                     this.selectTab(this.panels.children[index - 1].id);
                 } else if (this.panels.children.length > 0) {
                     this.selectFirst();
-                } else {
-                    const tabChange = new Event('tab-changed', { bubbles: true });
-                    tabChange.value = undefined;
-                    this.dom.dispatchEvent(tabChange);
                 }
             }
             this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        }
+        if (tabsRemoved > 0) {
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
     }
@@ -4829,7 +4838,7 @@ class Docker extends Panel {
         const wantsTall = this.dockSide === 'top' || this.dockSide === 'bottom';
         tabbed.setStyle('width', '100%');
         tabbed.setStyle('height', wantsTall ? '100%' : 'auto');
-        tabbed.on('tab-changed', () => {
+        tabbed.on('tabs-changed', () => {
             if (tabbed.tabCount() === 0 && tabbed.parent.hasClass('suey-docker')) {
                 tabbed.parent.removeDock();
             }

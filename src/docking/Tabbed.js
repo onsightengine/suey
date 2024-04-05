@@ -51,7 +51,7 @@ class Tabbed extends AbstractDock {
 
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
-        let count = 0;
+        let tabsAdded = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
 
@@ -61,6 +61,7 @@ class Tabbed extends AbstractDock {
             // Push onto containers
             this.panels.add(floater);
             this.buttons.add(floater.button);
+            tabsAdded++;
 
             // Show Title
             floater.traverse((child) => {
@@ -75,11 +76,11 @@ class Tabbed extends AbstractDock {
             if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
                 this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
             }
-
-            count++;
         }
-        if (count > 0 && this.selectedID === '') {
-            this.selectFirst();
+        // Tabs Changed
+        if (tabsAdded > 0) {
+            if (this.selectedID === '') this.selectFirst();
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
     }
@@ -122,9 +123,9 @@ class Tabbed extends AbstractDock {
             this.selectedID = selectID;
 
             // Event
-            const tabChange = new Event('tab-changed', { bubbles: true });
-            tabChange.value = selectID;
-            this.dom.dispatchEvent(tabChange);
+            const tabSelected = new Event('tab-selected', { bubbles: true });
+            tabSelected.value = selectID;
+            this.dom.dispatchEvent(tabSelected);
 
             // Enable Animations
             setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
@@ -154,6 +155,8 @@ class Tabbed extends AbstractDock {
     /** Remove Tab (Floater) from Tabbed. */
     removeTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
+        let tabsRemoved = 0;
+        // Remove Tabs/Floaters
         for (const floater of floaters) {
             const index = this.panels.children.indexOf(floater);
             if (!floater || index === -1) continue;
@@ -165,6 +168,7 @@ class Tabbed extends AbstractDock {
             if (panel) panel.addClass('suey-hidden');
             this.buttons.detach(button);
             this.panels.detach(panel);
+            tabsRemoved++;
 
             // Was Selected? (select new Tab)
             if (panel.id === this.selectedID) {
@@ -172,15 +176,15 @@ class Tabbed extends AbstractDock {
                     this.selectTab(this.panels.children[index - 1].id);
                 } else if (this.panels.children.length > 0) {
                     this.selectFirst();
-                } else {
-                    const tabChange = new Event('tab-changed', { bubbles: true });
-                    tabChange.value = undefined;
-                    this.dom.dispatchEvent(tabChange);
                 }
             }
 
             // Minimum Tabs to Show
             this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        }
+        // Tabs Changed
+        if (tabsRemoved > 0) {
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
     }
