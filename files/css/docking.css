@@ -44,6 +44,10 @@
     min-height: calc(var(--tab-size) * 1) !important;
 }
 
+.suey-collapsed .suey-corner-button {
+    display: none !important;
+}
+
 .suey-collapsed > .suey-tabbed .suey-panel-simple,
 .suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,
 .suey-collapsed > .suey-tabbed .suey-panel-fancy-border,

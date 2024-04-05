@@ -324,8 +324,9 @@ class Docker extends Panel {
     collapseTabs() {
         // Disable Animations
         Css.setVariable('--tab-timing', '0');
+
         // Collapse Class
-        this.addClass('suey-collapsed');
+        if (!this.isPrimary()) this.addClass('suey-collapsed');
 
         // Find top most dock that wants collapsing (all child docks are collapsed)
         let collpaseDock = this;
@@ -358,6 +359,7 @@ class Docker extends Panel {
                 }
             }
         }, !this.isPrimary() /* applyToSelf */);
+
         // Enable animations
         setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
     }
