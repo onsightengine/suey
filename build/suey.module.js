@@ -3925,6 +3925,10 @@ class AbstractDock extends Panel {
         console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
+    tabCount() {
+        console.error(`${this.constructor.name}.tabCount(): Method must be reimplemented from AbstractDock`);
+        return 0;
+    }
 }
 
 const MIN_W$2 = 300;
@@ -4164,6 +4168,7 @@ class Window extends AbstractDock {
             });
         }
         if (tabsAdded > 0) {
+            if (this.tabCount() > 0) this.setStyle('display', '');
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
@@ -4183,6 +4188,7 @@ class Window extends AbstractDock {
             const tabSelected = new Event('tab-selected', { bubbles: true });
             tabSelected.value = selectID;
             this.dom.dispatchEvent(tabSelected);
+            this.setStyle('display', '');
             this.focus();
             return true;
         }
@@ -4208,6 +4214,9 @@ class Window extends AbstractDock {
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
+    }
+    tabCount() {
+        return this.panels.children.length;
     }
 }
 class TitleBar extends Div {
@@ -4540,6 +4549,7 @@ class Tabbed extends AbstractDock {
             }
         }
         if (tabsAdded > 0) {
+            if (this.tabCount() > 0) this.setStyle('display', '');
             if (this.selectedID === '') this.selectFirst();
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
@@ -4566,6 +4576,7 @@ class Tabbed extends AbstractDock {
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
+            this.setStyle('display', '');
             const tabSelected = new Event('tab-selected', { bubbles: true });
             tabSelected.value = selectID;
             this.dom.dispatchEvent(tabSelected);

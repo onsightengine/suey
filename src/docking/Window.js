@@ -318,6 +318,7 @@ class Window extends AbstractDock {
         }
         // Tabs Changed
         if (tabsAdded > 0) {
+            if (this.tabCount() > 0) this.setStyle('display', '');
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
@@ -346,6 +347,9 @@ class Window extends AbstractDock {
             const tabSelected = new Event('tab-selected', { bubbles: true });
             tabSelected.value = selectID;
             this.dom.dispatchEvent(tabSelected);
+
+            // Verify Visible
+            this.setStyle('display', '');
 
             // Focus In, set as Active Window
             this.focus()
@@ -380,6 +384,10 @@ class Window extends AbstractDock {
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
+    }
+
+    tabCount() {
+        return this.panels.children.length;
     }
 
 }

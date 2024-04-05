@@ -79,6 +79,7 @@ class Tabbed extends AbstractDock {
         }
         // Tabs Changed
         if (tabsAdded > 0) {
+            if (this.tabCount() > 0) this.setStyle('display', '');
             if (this.selectedID === '') this.selectFirst();
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
@@ -121,6 +122,9 @@ class Tabbed extends AbstractDock {
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
+
+            // Verify Visible
+            this.setStyle('display', '');
 
             // Event
             const tabSelected = new Event('tab-selected', { bubbles: true });

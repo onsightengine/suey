@@ -37,6 +37,12 @@ class AbstractDock extends Panel {
         return this;
     }
 
+    /** Returns number of Tabs currently within Dock. */
+    tabCount() {
+        console.error(`${this.constructor.name}.tabCount(): Method must be reimplemented from AbstractDock`);
+        return 0;
+    }
+
 }
 
 export { AbstractDock };
