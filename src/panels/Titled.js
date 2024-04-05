@@ -24,7 +24,7 @@ class Titled extends Panel {
             const arrowClicker = new Div().setClass('suey-title-arrow-click');
             arrowClicker.add(new Div().setClass('suey-title-arrow'));
             this.tabTitle.add(arrowClicker);
-            arrowClicker.onClick(() => { self.toggle(); });
+            arrowClicker.on('click', () => { self.toggle(); });
         }
 
         // Scroller

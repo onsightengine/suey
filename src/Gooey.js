@@ -227,7 +227,7 @@ class Folder extends Shrinkable {
     addFunction(params, variable) {
         const prop = new Property();
         const button = new Button(Strings.prettyTitle(variable));
-        button.onClick(() => params[variable]());
+        button.onPress(() => params[variable]());
         // this.props.addRowWithoutTitle(button);
         // prop.name = function(name) { button.setInnerHtml(name); return self; };
         const row = this.props.addRow(Strings.prettyTitle(variable), button);

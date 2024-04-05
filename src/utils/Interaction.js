@@ -84,7 +84,7 @@ class Interaction {
 
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
-                button.on('click', () => {
+                button.onPress(() => {
                     if (element.hasClass('suey-tabbed')) {
                         const floater = element.panels.children.find((item) => (item.id === element.selectedID));
                         if (floater) {
@@ -99,7 +99,7 @@ class Interaction {
                 });
                 break;
             case CORNER_BUTTONS.MAX:
-                button.on('click', () => {
+                button.onPress(() => {
                     if (typeof element.toggleMinMax === 'function') {
                         element.toggleMinMax();
                     }

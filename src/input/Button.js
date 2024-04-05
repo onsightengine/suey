@@ -5,7 +5,7 @@ import { ALIGN, OVERFLOW, POSITION } from '../utils/Popper.js';
 
 class Button extends Element {
 
-    constructor(buttonText) {
+    constructor(buttonText, closesMenus = true) {
         super(document.createElement('button'));
         const self = this;
 
@@ -17,6 +17,7 @@ class Button extends Element {
         this.menuOffsetY = 0;
         this.alignMenu = ALIGN.LEFT;
         this.overflowMenu = OVERFLOW.RIGHT;
+        this.closesMenus = closesMenus;
 
         Object.defineProperty(this, 'disabled', {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
@@ -36,6 +37,8 @@ class Button extends Element {
             if (self.attachedMenu) self.detachMenu();
         });
     }
+
+    /******************** MENU ********************/
 
     /** Attaches a PopUp menu to Button */
     attachMenu(menuElement, popupStyle = false) {
@@ -101,6 +104,34 @@ class Button extends Element {
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
         };
+    }
+
+    /******************** EVENTS ********************/
+
+    /** Override to alert about special event handler */
+    on(event, callback, once = false) {
+        if (event === 'click' || event === 'select') {
+            console.warn('Button.on: Events for this Element are meant to be used with onSelect()');
+        }
+        super.on(event, callback, once);
+        return this;
+    }
+
+    /** Special event handler for Button */
+    onPress(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('suey-disabled')) {
+                callback(event);
+                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
+            }
+        };
+        super.on('click', eventHandler);
+        return self;
     }
 
 }

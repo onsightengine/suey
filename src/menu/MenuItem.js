@@ -95,8 +95,18 @@ class MenuItem extends Div {
         this.selectable(false);
     }
 
-    /******************** EVENT OVERRIDES ********************/
+    /******************** EVENTS ********************/
 
+    /** Override to alert about special event handler */
+    on(event, callback, once = false) {
+        if (event === 'click' || event === 'select') {
+            console.warn('MenuItem.on: Events for this Element are meant to be used with onSelect()');
+        }
+        super.on(event, callback, once);
+        return this;
+    }
+
+    /** Special event handler for MenuItem */
     onSelect(callback) {
         if (typeof callback !== 'function') return;
         const self = this;
@@ -111,9 +121,7 @@ class MenuItem extends Div {
                 }
             }
         };
-        const dom = self.dom;
-        dom.addEventListener('select', eventHandler);
-        dom.addEventListener('destroy', () => { dom.removeEventListener('select', eventHandler); }, { once: true });
+        super.on('click', eventHandler);
         return self;
     }
 

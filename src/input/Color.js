@@ -52,7 +52,7 @@ class Color extends Button {
             selected = false;
         }
 
-        colorBox.onClick(colorBoxClick);
+        colorBox.on('click', colorBoxClick);
         colorBox.on('input', colorBoxInput);
         colorBox.on('blur', colorBoxBlur);
         colorBox.on('focusout', colorBoxBlur);

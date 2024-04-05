@@ -44,10 +44,6 @@
             Css.setVariable('--font-size', Css.toPx(fontSize));
         }
 
-        docker.onClick(() => {
-            // docker.setStyle('background-color', `rgba(${new Iris().setRandom().rgbString(0.25)})`);
-        });
-
         document.addEventListener('keyup', (event) => {
             if (event.key === 'c') docker.collapseTabs();
             if (event.key === 'e') docker.expandTabs();

@@ -1439,24 +1439,6 @@ class Element {
         return this;
     }
 }
-const events = [
-    'Click', 'Select',
-];
-events.forEach(function(event) {
-    const method = 'on' + event;
-    Element.prototype[method] = function(callback) {
-        const eventName = event.toLowerCase();
-        if (typeof callback !== 'function') {
-            console.warn(`${method} in ${this.name}: No callback function provided!`);
-            return this;
-        }
-        const eventHandler = callback.bind(this);
-        const dom = this.dom;
-        dom.addEventListener(eventName, eventHandler);
-        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return this;
-    };
-});
 function addToParent(parent, element) {
     if (!element) return;
     if (!parent) return;
@@ -1539,7 +1521,7 @@ function removeFromParent(parent, element, destroy = true) {
 }
 
 class Button extends Element {
-    constructor(buttonText) {
+    constructor(buttonText, closesMenus = true) {
         super(document.createElement('button'));
         const self = this;
         this.setClass('suey-button');
@@ -1549,6 +1531,7 @@ class Button extends Element {
         this.menuOffsetY = 0;
         this.alignMenu = ALIGN.LEFT;
         this.overflowMenu = OVERFLOW.RIGHT;
+        this.closesMenus = closesMenus;
         Object.defineProperty(this, 'disabled', {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
             set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
@@ -1606,6 +1589,28 @@ class Button extends Element {
             document.body.removeChild(self.attachedMenu.dom);
             self.attachedMenu = undefined;
         };
+    }
+    on(event, callback, once = false) {
+        if (event === 'click' || event === 'select') {
+            console.warn('Button.on: Events for this Element are meant to be used with onSelect()');
+        }
+        super.on(event, callback, once);
+        return this;
+    }
+    onPress(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('suey-disabled')) {
+                callback(event);
+                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
+            }
+        };
+        super.on('click', eventHandler);
+        return self;
     }
 }
 
@@ -1775,7 +1780,7 @@ class Interaction {
         }
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
-                button.on('click', () => {
+                button.onPress(() => {
                     if (element.hasClass('suey-tabbed')) {
                         const floater = element.panels.children.find((item) => (item.id === element.selectedID));
                         if (floater) {
@@ -1790,7 +1795,7 @@ class Interaction {
                 });
                 break;
             case CORNER_BUTTONS.MAX:
-                button.on('click', () => {
+                button.onPress(() => {
                     if (typeof element.toggleMinMax === 'function') {
                         element.toggleMinMax();
                     }
@@ -2353,7 +2358,7 @@ class Titled extends Panel {
             const arrowClicker = new Div().setClass('suey-title-arrow-click');
             arrowClicker.add(new Div().setClass('suey-title-arrow'));
             this.tabTitle.add(arrowClicker);
-            arrowClicker.onClick(() => { self.toggle(); });
+            arrowClicker.on('click', () => { self.toggle(); });
         }
         this.scroller = new Div().addClass('suey-scroller');
         this.add(this.scroller);
@@ -2432,7 +2437,7 @@ class Color extends Button {
             self.removeClass('suey-selected');
             selected = false;
         }
-        colorBox.onClick(colorBoxClick);
+        colorBox.on('click', colorBoxClick);
         colorBox.on('input', colorBoxInput);
         colorBox.on('blur', colorBoxBlur);
         colorBox.on('focusout', colorBoxBlur);
@@ -2703,6 +2708,13 @@ class MenuItem extends Div {
         this.setText(text);
         this.selectable(false);
     }
+    on(event, callback, once = false) {
+        if (event === 'click' || event === 'select') {
+            console.warn('MenuItem.on: Events for this Element are meant to be used with onSelect()');
+        }
+        super.on(event, callback, once);
+        return this;
+    }
     onSelect(callback) {
         if (typeof callback !== 'function') return;
         const self = this;
@@ -2717,9 +2729,7 @@ class MenuItem extends Div {
                 }
             }
         };
-        const dom = self.dom;
-        dom.addEventListener('select', eventHandler);
-        dom.addEventListener('destroy', () => { dom.removeEventListener('select', eventHandler); }, { once: true });
+        super.on('click', eventHandler);
         return self;
     }
     isChecked() {
@@ -3354,7 +3364,7 @@ class Folder extends Shrinkable {
     addFunction(params, variable) {
         const prop = new Property();
         const button = new Button(Strings.prettyTitle(variable));
-        button.onClick(() => params[variable]());
+        button.onPress(() => params[variable]());
         const row = this.props.addRow(Strings.prettyTitle(variable), button);
         prop.name = function(name, buttonText) {
             row.leftWidget.setInnerHtml(name);
@@ -5055,11 +5065,9 @@ class FlexBox extends Element {
 
 class ToolbarButton extends Button {
     constructor(buttonText, position , addBackground = true, closesMenus = true) {
-        super(buttonText);
-        const self = this;
+        super(buttonText, closesMenus);
         this.setClass('suey-toolbar-button');
         this.setStyle('pointerEvents', 'all');
-        this.closesMenus = closesMenus;
         switch (position) {
             case 'left': this.addClass('suey-button-left'); break;
             case 'middle': this.addClass('suey-button-middle'); break;
@@ -5072,23 +5080,6 @@ class ToolbarButton extends Button {
         this.contents = function() { return buttonImageHolder };
         this.on('pointerdown', (event) => { event.stopPropagation(); });
         this.on('pointerup', (event) => { event.stopPropagation(); });
-    }
-    onClick(callback) {
-        if (typeof callback !== 'function') return;
-        const self = this;
-        callback = callback.bind(self);
-        const eventHandler = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (!self.hasClass('suey-disabled')) {
-                callback(event);
-                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
-            }
-        };
-        const dom = self.dom;
-        dom.addEventListener('click', eventHandler);
-        dom.addEventListener('destroy', () => { dom.removeEventListener('click', eventHandler); }, { once: true });
-        return self;
     }
 }
 

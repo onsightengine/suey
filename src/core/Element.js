@@ -576,16 +576,16 @@ class Element {
     // 'dragenter', 'dragover', 'dragleave'
     // 'drop'
     //
-    // 'select'         Use special 'onSelect()' function that can be overridden
-    // 'click'          Use special 'onClick()' function that can be overridden
-    // 'dblclick'
+    // 'select'         Fires when some text has been selected
+    // 'click'          Fires on pointer (mouse) click, touch gesture, 'Space' or 'Enter' pressed while focused
+    // 'dblclick'       Fires after two 'click' events (after two pairs of 'mousedown' and 'mouseup' events)
     //
     // 'blur'           Fires when element has lost focus (does not bubble, 'focusout' follows and does bubble)
     // 'focus'          Fires when element has received focus (does not bubble, 'focusin' follows and does bubble)
     //
     // 'input'          Fires constantly as <input> <select> <textarea> value's are being changed.
     // 'change'         Fires when <input> <select> <textarea> value's are done being modified.
-    // 'wheel'
+    // 'wheel'          Fires when the user rotates a wheel button on a pointing device
     //
     // 'contextmenu'    Fires when user attempts to open context menu (typically right clicking mouse)
     //
@@ -620,28 +620,6 @@ class Element {
     }
 
 } // end Element
-
-// Add convenience methods for common events
-const events = [
-    'Click', 'Select',
-];
-
-events.forEach(function(event) {
-    const method = 'on' + event;
-
-    Element.prototype[method] = function(callback) {
-        const eventName = event.toLowerCase();
-        if (typeof callback !== 'function') {
-            console.warn(`${method} in ${this.name}: No callback function provided!`);
-            return this;
-        }
-        const eventHandler = callback.bind(this);
-        const dom = this.dom;
-        dom.addEventListener(eventName, eventHandler);
-        dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-        return this;
-    };
-});
 
 export { Element };
 
