@@ -1802,6 +1802,14 @@ class Interaction {
                 });
                 break;
         }
+        function buttonPointerEnter() {
+            document.body.classList.add('suey-no-resize');
+        }
+        function buttonPointerLeave() {
+            document.body.classList.remove('suey-no-resize');
+        }
+        button.on('pointerenter', buttonPointerEnter);
+        button.on('pointerleave', buttonPointerLeave);
         element.on('pointerenter', () => button.addClass('suey-item-shown'));
         element.on('pointerleave', () => button.removeClass('suey-item-shown'));
         element.addToSelf(button);
@@ -2279,7 +2287,7 @@ class Resizeable extends Panel {
 
 class Shrinkable extends Panel {
     constructor({
-        text = '',
+        title = '',
         icon = '',
         arrow = 'left',
         border = true,
@@ -2293,30 +2301,30 @@ class Shrinkable extends Panel {
         this.isExpanded = expanded;
         this.titleDiv = undefined;
         this.bodyDiv = undefined;
-        const title = new Div().setClass('suey-shrink-title');
+        const titleDiv = new Div().setClass('suey-shrink-title');
         const titleArrow = new Span().setClass('suey-shrink-arrow');
         const arrowClicker = new Div().addClass('suey-shrink-arrow-clicker');
         titleArrow.add(arrowClicker);
-        const titleText = new Span().setClass('suey-shrink-text').setInnerHtml(text);
+        const titleText = new Span().setClass('suey-shrink-text').setInnerHtml(title);
         const titleIcon = new Span().setClass('suey-shrink-icon');
         if (icon) titleIcon.addClass('suey-has-icon');
         const iconBox = new VectorBox(icon);
         titleIcon.add(iconBox);
         if (arrow === 'right') {
-            title.add(titleIcon, titleText, titleArrow);
+            titleDiv.add(titleIcon, titleText, titleArrow);
         } else {
-            title.add(titleArrow, titleIcon, titleText);
+            titleDiv.add(titleArrow, titleIcon, titleText);
         }
         const body = new Div().setClass('suey-shrink-body');
-        this.add(title);
+        this.add(titleDiv);
         this.add(body);
-        this.titleDiv = title;
+        this.titleDiv = titleDiv;
         this.bodyDiv = body;
         this.contents = function() { return self.bodyDiv };
         function expandCollapse() {
             self.toggle();
         }
-        title.on('pointerdown', expandCollapse);
+        titleDiv.on('pointerdown', expandCollapse);
     }
     setExpanded(expand = true, dispatchEvent = true) {
         expand = Boolean(expand);
@@ -3284,7 +3292,7 @@ class Folder extends Shrinkable {
         title,
         icon,
     } = {}) {
-        super({ text: title, icon });
+        super({ title, icon });
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);
         this.add(this.props);
         this.add = function(params, variable, a, b, c, d) {

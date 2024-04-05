@@ -107,6 +107,15 @@ class Interaction {
                 break;
         }
 
+        function buttonPointerEnter() {
+            document.body.classList.add('suey-no-resize');
+        }
+        function buttonPointerLeave() {
+            document.body.classList.remove('suey-no-resize');
+        }
+        button.on('pointerenter', buttonPointerEnter);
+        button.on('pointerleave', buttonPointerLeave);
+
         element.on('pointerenter', () => button.addClass('suey-item-shown'));
         element.on('pointerleave', () => button.removeClass('suey-item-shown'));
         element.addToSelf(button);

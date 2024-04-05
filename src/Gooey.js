@@ -140,7 +140,7 @@ class Folder extends Shrinkable {
         title,
         icon,
     } = {}) {
-        super({ text: title, icon });
+        super({ title, icon });
 
         // Build
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);

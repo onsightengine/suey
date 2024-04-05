@@ -8,7 +8,7 @@ import { VectorBox } from '../layout/VectorBox.js';
 class Shrinkable extends Panel {
 
     constructor({
-        text = '',
+        title = '',
         icon = '',
         arrow = 'left',
         border = true,
@@ -28,7 +28,7 @@ class Shrinkable extends Panel {
         this.bodyDiv = undefined;
 
         // Build
-        const title = new Div().setClass('suey-shrink-title');
+        const titleDiv = new Div().setClass('suey-shrink-title');
 
         // Title Arrow
         const titleArrow = new Span().setClass('suey-shrink-arrow');
@@ -36,7 +36,7 @@ class Shrinkable extends Panel {
         titleArrow.add(arrowClicker);
 
         // Title Text
-        const titleText = new Span().setClass('suey-shrink-text').setInnerHtml(text);
+        const titleText = new Span().setClass('suey-shrink-text').setInnerHtml(title);
 
         // Title Icon/Menu
         const titleIcon = new Span().setClass('suey-shrink-icon');
@@ -46,19 +46,19 @@ class Shrinkable extends Panel {
 
         // Add Title Elements
         if (arrow === 'right') {
-            title.add(titleIcon, titleText, titleArrow);
+            titleDiv.add(titleIcon, titleText, titleArrow);
         } else {
-            title.add(titleArrow, titleIcon, titleText);
+            titleDiv.add(titleArrow, titleIcon, titleText);
         }
 
         // Body
         const body = new Div().setClass('suey-shrink-body');
 
         // Setup
-        this.add(title);
+        this.add(titleDiv);
         this.add(body);
 
-        this.titleDiv = title;
+        this.titleDiv = titleDiv;
         this.bodyDiv = body;
 
         this.contents = function() { return self.bodyDiv };         // Accessor for the body div
@@ -67,7 +67,7 @@ class Shrinkable extends Panel {
         function expandCollapse() {
             self.toggle();
         }
-        title.on('pointerdown', expandCollapse);
+        titleDiv.on('pointerdown', expandCollapse);
     }
 
     setExpanded(expand = true, dispatchEvent = true) {
