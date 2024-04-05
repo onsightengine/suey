@@ -143,7 +143,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parsedSize;
         }
-        console.warn(`Css.toEm: Could not convert to em, unit passed in: ${pixels}`);
+        console.warn(`Css.toEm(): Could not convert to em, unit passed in: ${pixels}`);
         return size;
     }
 
@@ -165,7 +165,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parseInt((parseFloat(size) * 10.0 * Css.guiScale(element))) + 'px';
         }
-        console.warn(`Css.toPx: Could not convert to pixels, unit passed in: ${size}`);
+        console.warn(`Css.toPx(): Could not convert to pixels, unit passed in: ${size}`);
         return parseInt(parsedSize) + 'px';
     }
 

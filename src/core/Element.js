@@ -101,7 +101,7 @@ class Element {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
         } else {
-            console.warn(`Element.addSlot: '${this.name}' failed to add slot`, slot);
+            console.warn(`Element.addSlot(): '${this.name}' failed to add slot`, slot);
         }
     }
 
@@ -604,7 +604,7 @@ class Element {
      */
     on(event, callback, once = false) {
         if (typeof callback !== 'function') {
-            console.warn(`${method} in ${this.name}: No callback function provided!`);
+            console.warn(`Element.on(): No callback function provided for '${event}'`);
         } else {
             const eventName = event.toLowerCase();
             const eventHandler = callback.bind(this);

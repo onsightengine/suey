@@ -111,7 +111,7 @@ class PropertyList extends Div {
                 rightRow.add(argument);
                 if (i < args.length - 1) rightRow.add(new Span().addClass('suey-property-space'));
             } else {
-                console.error('PropertyList.createControls:', argument, 'is not an instance of Element.');
+                console.error('PropertyList.createControls(): ', argument, ' is not an instance of Element');
             }
         }
         // rightRow.add(new FlexSpacer());

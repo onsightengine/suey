@@ -211,7 +211,7 @@ class Interaction {
     }
 
     static makeResizeable(addToElement, onDown, onMove, onUp, beforeMove) {
-        if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
+        if (!addToElement || !addToElement.isElement) return console.warning('Interaction.makeResizeable(): AddToElement not defined');
 
         // Creates One Resizer
         function createResizer(className) {

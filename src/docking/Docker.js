@@ -87,7 +87,7 @@ class Docker extends Panel {
      */
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
         if (!Object.values(DOCK_SIDES).includes(side)) {
-            console.warn(`Docker.addDock: Unkown dock side '${side}', defaulting to 'left'`);
+            console.warn(`Docker.addDock(): Unkown dock side '${side}', defaulting to 'left'`);
             side = 'left';
         }
 
@@ -228,19 +228,19 @@ class Docker extends Panel {
 
     removeDock() {
         if (this.isPrimary()) {
-            console.warn('Docker.removeDock: Cannot remove the primary dock');
+            console.warn('Docker.removeDock(): Cannot remove the primary dock');
             return;
         }
 
         const parent = this.parent;
         if (!parent || !parent.isElement || !parent.hasClass('suey-docker')) {
-            console.warn('Docker.removeDock: Dock does not have a valid parent.');
+            console.warn('Docker.removeDock(): Dock does not have a valid parent.');
             return;
         }
 
         const twin = this.getTwin();
         if (!twin) {
-            console.warn('Docker.removeDock: Could not find the twin Docker.');
+            console.warn('Docker.removeDock(): Could not find the twin Docker.');
             return;
         }
 
@@ -292,7 +292,7 @@ class Docker extends Panel {
 
     enableTabs(flexBefore = false) {
         if (this.isPrimary()) {
-            console.warn('Docker.enableTabs: Cannot enable tabs on the primary dock');
+            console.warn('Docker.enableTabs(): Cannot enable tabs on the primary dock');
             return undefined;
         }
 

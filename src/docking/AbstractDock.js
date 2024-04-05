@@ -15,25 +15,25 @@ class AbstractDock extends Panel {
 
     /** Adds Tab (Floater) to the Dock. */
     addTab(...floaters) {
-        console.error(`AbstractDock.addTab: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
 
     /** Select first Tab (Floater). Return true if new Tab was selected. */
     selectFirst() {
-        console.error(`AbstractDock.selectFirst: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return false;
     }
 
     /** Select Tab (Floater). Return true if new Tab was selected. */
     selectTab(selectID, wasClicked = false) {
-        console.error(`AbstractDock.selectTab: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return false;
     }
 
     /** Remove Tab (Floater) from Dock. */
     removeTab(...floaters) {
-        console.error(`AbstractDock.removeTab: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
 

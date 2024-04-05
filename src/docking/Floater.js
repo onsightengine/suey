@@ -64,7 +64,7 @@ class TabButton extends Div {
                 if (tabPanel) {
                     tabPanel.id = value;
                 } else {
-                    console.warn(`TabButton.constructor: TabPanel not found`);
+                    console.warn(`TabButton.constructor(): TabPanel not found`);
                 }
             },
         });
@@ -277,7 +277,7 @@ class TabButton extends Div {
                             droppedOnDock.display();
                         // Unknown Dock Location
                         } else {
-                            console.warn('Unknown dock location!', locationUnder);
+                            console.warn('TabButton.tabPointerUp(): Unknown dock location', locationUnder);
                         }
                         // Have New Dock Panel
                         if (droppedOnDock) {

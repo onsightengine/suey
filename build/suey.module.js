@@ -216,7 +216,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parsedSize;
         }
-        console.warn(`Css.toEm: Could not convert to em, unit passed in: ${pixels}`);
+        console.warn(`Css.toEm(): Could not convert to em, unit passed in: ${pixels}`);
         return size;
     }
     static toPx(size, element = document.body, dimension = 'w' ) {
@@ -236,7 +236,7 @@ class Css {
         } else if (parsedSize.includes('em')) {
             return parseInt((parseFloat(size) * 10.0 * Css.guiScale(element))) + 'px';
         }
-        console.warn(`Css.toPx: Could not convert to pixels, unit passed in: ${size}`);
+        console.warn(`Css.toPx(): Could not convert to pixels, unit passed in: ${size}`);
         return parseInt(parsedSize) + 'px';
     }
 }
@@ -327,7 +327,7 @@ class Iris {
         if (arguments.length === 0) {
             return this.set(0);
         } else if (r === undefined || r === null || Number.isNaN(r)) {
-            if (g || b) console.warn(`Iris: Passed some valid arguments, however 'r' was ${r}`);
+            if (g || b) console.warn(`Iris.set(): Invalid 'r' value ${r}`);
         } else if (g === undefined && b === undefined) {
             let value = r;
             if (typeof value === 'number' || value === 0) { return this.setHex(value);
@@ -335,7 +335,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                const offset = (g != null && ! Number.isNaN(g) && g > 0) ? g : 0;
+                const offset = (g != null && !Number.isNaN(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
@@ -351,15 +351,15 @@ class Iris {
         return this;
     }
     setColorName(style) {
-        const hex = COLOR_KEYWORDS[ style.toLowerCase() ];
+        const hex = COLOR_KEYWORDS[style.toLowerCase()];
         if (hex) return this.setHex(hex);
-        console.warn(`Iris: Unknown color ${style}`);
+        console.warn(`Iris.setColorName(): Unknown color ${style}`);
         return this;
     }
     setHex(hexColor) {
         hexColor = Math.floor(hexColor);
         if (hexColor > 0xffffff || hexColor < 0) {
-            console.warn(`Iris: Given decimal outside of range, value was ${hexColor}`);
+            console.warn(`Iris.setHex(): Given decimal outside of range, value was ${hexColor}`);
             hexColor = clamp(hexColor, 0, 0xffffff);
         }
         const r = (hexColor & 0xff0000) >> 16;
@@ -536,7 +536,7 @@ class Iris {
         }
     }
     add(color) {
-        if (! color.isColor) console.warn(`Iris: add() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris.add(): Missing 'color' object`);
         return this.setRGBF(this.r + color.r, this.g + color.g, this.b + color.b);
     }
     addScalar(scalar) {
@@ -579,7 +579,7 @@ class Iris {
         return this.setHSL(this.hue() + h, this.saturation() + s, this.lightness() + l);
     }
     mix(color, percent = 0.5) {
-        if (! color.isColor) console.warn(`Iris: mix() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris.mix(): Missing 'color' object`);
         percent = clamp(percent, 0, 1);
         const r = (this.r * (1.0 - percent)) + (percent * color.r);
         const g = (this.g * (1.0 - percent)) + (percent * color.g);
@@ -587,7 +587,7 @@ class Iris {
         return this.setRGBF(r, g, b);
     }
     multiply(color) {
-        if (! color.isColor) console.warn(`Iris: multiply() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris.multiply(): Missing 'color' object`);
         return this.setRGBF(this.r * color.r, this.g * color.g, this.b * color.b);
     }
     multiplyScalar(scalar) {
@@ -611,11 +611,11 @@ class Iris {
         return this.setHSL(hue(matchSpectrum(newHue, SPECTRUM.RYB)), this.saturation(), this.lightness());
     }
     subtract(color) {
-        if (! color.isColor) console.warn(`Iris: subtract() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris.subtract(): Missing 'color' object`);
         return this.setRGBF(this.r - color.r, this.g - color.g, this.b - color.b);
     }
     equals(color) {
-        if (! color.isColor) console.warn(`Iris: equals() was not called with a 'Color' object`);
+        if (!color.isColor) console.warn(`Iris.equals(): Missing 'color' object`);
         return (fuzzy(this.r, color.r) && fuzzy(this.g, color.g) && fuzzy(this.b, color.b));
     }
     isEqual(color) {
@@ -627,7 +627,7 @@ class Iris {
         return ((l < 0.60 && (h >= 210 || h <= 27)) || (l <= 0.32));
     }
     isLight() {
-        return (! this.isDark());
+        return (!this.isDark());
     }
 }
 function isRGB(object) { return (object.r !== undefined && object.g !== undefined && object.b !== undefined); }
@@ -676,7 +676,7 @@ function hsl(hexColor, channel = 'h') {
         case 'h': return _hslH;
         case 's': return _hslS;
         case 'l': return _hslL;
-        default: console.warn(`Iris: Unknown channel (${channel}) requested in hsl()`);
+        default: console.warn(`Iris.hsl(): Unknown channel (${channel})`);
     }
     return 0;
 }
@@ -1229,7 +1229,7 @@ class Element {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
         } else {
-            console.warn(`Element.addSlot: '${this.name}' failed to add slot`, slot);
+            console.warn(`Element.addSlot(): '${this.name}' failed to add slot`, slot);
         }
     }
     add(...elements) {
@@ -1424,7 +1424,7 @@ class Element {
     }
     on(event, callback, once = false) {
         if (typeof callback !== 'function') {
-            console.warn(`${method} in ${this.name}: No callback function provided!`);
+            console.warn(`Element.on(): No callback function provided for '${event}'`);
         } else {
             const eventName = event.toLowerCase();
             const eventHandler = callback.bind(this);
@@ -1592,7 +1592,7 @@ class Button extends Element {
     }
     on(event, callback, once = false) {
         if (event === 'click' || event === 'select') {
-            console.warn('Button.on: Events for this Element are meant to be used with onSelect()');
+            console.warn('Button.on(): Click event for this Element is meant to be used with onPress()');
         }
         super.on(event, callback, once);
         return this;
@@ -1893,7 +1893,7 @@ class Interaction {
         eventElement.addEventListener('destroy', () => { eventElement.removeEventListener('pointerdown', dragPointerDown); }, { once: true });
     }
     static makeResizeable(addToElement, onDown, onMove, onUp, beforeMove) {
-        if (!addToElement || !addToElement.isElement) return console.warning('Resizeable.enable: AddToElement not defined');
+        if (!addToElement || !addToElement.isElement) return console.warning('Interaction.makeResizeable(): AddToElement not defined');
         function createResizer(className) {
             const resizer = new Div().addClass('suey-resizer', className);
             let downX, downY, lastX, lastY;
@@ -2162,7 +2162,7 @@ class PropertyList extends Div {
                 rightRow.add(argument);
                 if (i < args.length - 1) rightRow.add(new Span().addClass('suey-property-space'));
             } else {
-                console.error('PropertyList.createControls:', argument, 'is not an instance of Element.');
+                console.error('PropertyList.createControls(): ', argument, ' is not an instance of Element');
             }
         }
         return rightRow;
@@ -2710,7 +2710,7 @@ class MenuItem extends Div {
     }
     on(event, callback, once = false) {
         if (event === 'click' || event === 'select') {
-            console.warn('MenuItem.on: Events for this Element are meant to be used with onSelect()');
+            console.warn('MenuItem.on: Click event for this Element is meant to be used with onSelect()');
         }
         super.on(event, callback, once);
         return this;
@@ -3902,19 +3902,19 @@ class AbstractDock extends Panel {
         this.addClass('suey-dock');
     }
     addTab(...floaters) {
-        console.error(`AbstractDock.addTab: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
     selectFirst() {
-        console.error(`AbstractDock.selectFirst: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return false;
     }
     selectTab(selectID, wasClicked = false) {
-        console.error(`AbstractDock.selectTab: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return false;
     }
     removeTab(...floaters) {
-        console.error(`AbstractDock.removeTab: Method must be implemented`);
+        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
 }
@@ -4204,7 +4204,7 @@ class Window extends AbstractDock {
 }
 class TitleBar extends Div {
     constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+        if (!parent || !parent.isElement) return console.warn(`TitleBar.constructor(): Missing parent element`);
         super();
         const self = this;
         this.setClass('suey-title-bar');
@@ -4281,7 +4281,7 @@ class TabButton extends Div {
                 if (tabPanel) {
                     tabPanel.id = value;
                 } else {
-                    console.warn(`TabButton.constructor: TabPanel not found`);
+                    console.warn(`TabButton.constructor(): TabPanel not found`);
                 }
             },
         });
@@ -4448,7 +4448,7 @@ class TabButton extends Div {
                             lastUnder.getPrimary().addToSelf(droppedOnDock);
                             droppedOnDock.display();
                         } else {
-                            console.warn('Unknown dock location!', locationUnder);
+                            console.warn('TabButton.tabPointerUp(): Unknown dock location', locationUnder);
                         }
                         if (droppedOnDock) {
                             if (droppedOnDock !== self.tabPanel.dock) {
@@ -4671,7 +4671,7 @@ class Docker extends Panel {
     }
     addDock(side = DOCK_SIDES.LEFT, size = '20%', primaryContents = true) {
         if (!Object.values(DOCK_SIDES).includes(side)) {
-            console.warn(`Docker.addDock: Unkown dock side '${side}', defaulting to 'left'`);
+            console.warn(`Docker.addDock(): Unkown dock side '${side}', defaulting to 'left'`);
             side = 'left';
         }
         const dock = new Docker(false );
@@ -4784,17 +4784,17 @@ class Docker extends Panel {
     }
     removeDock() {
         if (this.isPrimary()) {
-            console.warn('Docker.removeDock: Cannot remove the primary dock');
+            console.warn('Docker.removeDock(): Cannot remove the primary dock');
             return;
         }
         const parent = this.parent;
         if (!parent || !parent.isElement || !parent.hasClass('suey-docker')) {
-            console.warn('Docker.removeDock: Dock does not have a valid parent.');
+            console.warn('Docker.removeDock(): Dock does not have a valid parent.');
             return;
         }
         const twin = this.getTwin();
         if (!twin) {
-            console.warn('Docker.removeDock: Could not find the twin Docker.');
+            console.warn('Docker.removeDock(): Could not find the twin Docker.');
             return;
         }
         const children = [];
@@ -4829,7 +4829,7 @@ class Docker extends Panel {
     }
     enableTabs(flexBefore = false) {
         if (this.isPrimary()) {
-            console.warn('Docker.enableTabs: Cannot enable tabs on the primary dock');
+            console.warn('Docker.enableTabs(): Cannot enable tabs on the primary dock');
             return undefined;
         }
         let tabbed = Dom.childWithClass(this.contents(), 'suey-tabbed', false );
