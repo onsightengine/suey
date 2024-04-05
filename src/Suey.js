@@ -65,6 +65,7 @@
 //  PANELS
 //      Panel                   div                     .suey-panel
 //      Resizeable              div                     .suey-resizeable
+//      Scrollable              div                     .suey-scroller
 //      Shrinkable              div                     .suey-shrinkable
 //      Titled                  duv                     .suey-titled
 //
@@ -149,6 +150,7 @@ export { NodeItem } from './node/NodeItem.js';
 // Panels
 export { Panel } from './panels/Panel.js';
 export { Resizeable } from './panels/Resizeable.js';
+export { Scrollable } from './panels/Scrollable.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Titled } from './panels/Titled.js';
 

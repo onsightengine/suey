@@ -6117,6 +6117,15 @@ class NodeItem extends Div {
     }
 }
 
+class Scrollable extends Panel {
+    constructor({
+        style = PANEL_STYLES$1.NONE,
+    } = {}) {
+        super(style);
+        this.addClass('suey-scroller');
+    }
+}
+
 function styleInject(css, ref) {
   if ( ref === void 0 ) ref = {};
   var insertAt = ref.insertAt;
@@ -6192,4 +6201,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-rotate-colorize /* purple */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));\n}\n\n.suey-triadic-colorize /* red */ {\n    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_EXPAND, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, RESIZERS, Resizeable, Row, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
