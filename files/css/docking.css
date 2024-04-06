@@ -382,3 +382,32 @@
 .suey-window:not(.suey-active-window) .suey-tab-icon-border {
     border-color: rgba(var(--button-light)) !important;
 }
+
+/* Tab Title Buttons */
+.suey-window .suey-panel-fancy-outer,
+.suey-window .suey-panel-fancy-border,
+.suey-window .suey-panel-fancy-inside,
+.suey-window .suey-tab-panels,
+.suey-window .suey-floater,
+.suey-window .suey-titled {
+    overflow: visible;
+}
+.suey-window .suey-tab-title {
+    position: absolute;
+    top: -1.75em;
+    left: 0;
+    right: 0;
+    width: 70%;
+    margin: auto;
+    min-height: 1.65em;
+    background: transparent;
+    background-image: none;
+    box-shadow: none;
+    outline: none;
+    color: rgba(0, 0, 0, 0);
+    text-shadow: none;
+}
+.suey-window .suey-tab-title .suey-borderless-button {
+    background: rgb(var(--button-dark)) !important;
+    border: solid var(--border-small) rgb(var(--icon));
+}

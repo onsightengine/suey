@@ -268,7 +268,7 @@
     --font-size-increase:   1.3;
 
     position: relative;
-    display: block;
+    display: flex;
     flex-shrink: 0; /* don't allow title to shrink */
     color: rgba(var(--text-light), 1);
     background-color: transparent;
@@ -285,8 +285,8 @@
 
     font-size: calc(100% * var(--font-size-increase));
     margin: var(--pad-x-small);
-    padding-top: var(--pad-medium);
-    padding-bottom: var(--pad-medium);
+    justify-content: center;
+    align-items: center;
     min-height: 1.867em;
 }
 .suey-tab-title-text {

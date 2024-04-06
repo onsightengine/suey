@@ -64,11 +64,6 @@ class Tabbed extends AbstractDock {
             this.buttons.add(floater.button);
             tabsAdded++;
 
-            // Show Title
-            floater.traverse((child) => {
-                if (child.hasClass('suey-tab-title')) child.removeClass('suey-hidden');
-            });
-
             // Minimum Tabs to Show
             this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
 

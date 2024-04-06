@@ -163,8 +163,8 @@ class Docker extends Panel {
         function checkCancel(event) {
             if (event && event.isTrusted /* not generated programmatically */) {
                 const tabbed = Dom.findElementAt('suey-tabbed', event.pageX, event.pageY);
-                const button = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
-                if (button || !tabbed) document.body.classList.add('suey-no-resize');
+                const tab = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
+                if (tab || !tabbed) document.body.classList.add('suey-no-resize');
             }
         }
         function resizerDown() {

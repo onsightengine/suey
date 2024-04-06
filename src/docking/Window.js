@@ -310,11 +310,6 @@ class Window extends AbstractDock {
             this.panels.add(floater);
             this.buttons.add(floater.button);
             tabsAdded++;
-
-            // Hide Title
-            floater.traverse((child) => {
-                if (child.hasClass('suey-tab-title')) child.addClass('suey-hidden');
-            });
         }
         // Tabs Changed
         if (tabsAdded > 0) {
