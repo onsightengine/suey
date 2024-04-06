@@ -12,6 +12,7 @@ class NumberBox extends Element {
 
         // // Setup
         // this.dom.type = 'number'; /* !! NOTE: doesn't work with custom 'unit' */
+        this.dom.name = 'NumberBox';
         this.dom.style.cursor = 'text';
         this.dom.value = '0.00';
         this.setAttribute('autocomplete', 'off');

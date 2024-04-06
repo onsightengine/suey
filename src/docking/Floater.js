@@ -206,8 +206,10 @@ class TabButton extends Div {
                         }
 
                         buttonUnder.addClass('suey-drop-target');
-                        const newIndex = Array.from(elementUnder.dom.children).indexOf(buttonUnder.dom);
-                        if (newIndex !== Array.from(elementUnder.dom.children).indexOf(self.dom)) {
+                        const childrenArray = Array.from(elementUnder.dom.children);
+                        const newIndex = childrenArray.indexOf(buttonUnder.dom);
+                        const oldIndex = childrenArray.indexOf(self.dom);
+                        if (newIndex !== oldIndex) {
                             elementUnder.dom.appendChild(self.dom); // send to back
                             elementUnder.dom.insertBefore(self.dom, elementUnder.dom.children[newIndex]); // insert in new position
                         }

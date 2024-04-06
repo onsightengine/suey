@@ -2395,6 +2395,7 @@ class Checkbox extends Element {
         this.checkbox.setClass('suey-input');
         this.checkbox.addClass('suey-checkbox-input');
         this.checkbox.dom.type = 'checkbox';
+        this.checkbox.dom.name = 'Checkbox';
         this.button = new Div().addClass('suey-checkbox-button');
         this.add(this.checkbox, this.button);
         this.setValue(boolean);
@@ -2893,6 +2894,7 @@ class NumberBox extends Element {
         const self = this;
         this.setClass('suey-input');
         this.addClass('suey-number');
+        this.dom.name = 'NumberBox';
         this.dom.style.cursor = 'text';
         this.dom.value = '0.00';
         this.setAttribute('autocomplete', 'off');
@@ -3213,6 +3215,7 @@ class TextBox extends Element {
         this.setClass('suey-input');
         this.addClass('suey-text-box');
         this.dom.type = 'text';
+        this.dom.name = 'TextBox';
         this.setAttribute('autocomplete', 'off');
         this.setAttribute('spellcheck', 'false');
         this.setValue(text ?? '');
@@ -4407,8 +4410,10 @@ class TabButton extends Div {
                             if (wasSelected) buttonUnder.tabPanel.dock.selectTab(self.tabPanel.id);
                         }
                         buttonUnder.addClass('suey-drop-target');
-                        const newIndex = Array.from(elementUnder.dom.children).indexOf(buttonUnder.dom);
-                        if (newIndex !== Array.from(elementUnder.dom.children).indexOf(self.dom)) {
+                        const childrenArray = Array.from(elementUnder.dom.children);
+                        const newIndex = childrenArray.indexOf(buttonUnder.dom);
+                        const oldIndex = childrenArray.indexOf(self.dom);
+                        if (newIndex !== oldIndex) {
                             elementUnder.dom.appendChild(self.dom);
                             elementUnder.dom.insertBefore(self.dom, elementUnder.dom.children[newIndex]);
                         }
@@ -4523,7 +4528,8 @@ class Tabbed extends AbstractDock {
         this.setTabSide(tabSide);
         if (closeButton) {
             const buttonSide = (tabSide === 'right') ? CLOSE_SIDES.LEFT : CLOSE_SIDES.RIGHT;
-            Interaction.addCloseButton(this, buttonSide, 1.7 , 1.3 );
+            const offset = (tabSide === 'right' || tabSide === 'left') ? 0 : 1.7;
+            Interaction.addCloseButton(this, buttonSide, offset, 1.3 );
         }
         function tabbedPointerEnter() {
             document.body.classList.remove('suey-no-resize');

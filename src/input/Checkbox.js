@@ -11,6 +11,7 @@ class Checkbox extends Element {
         this.checkbox.setClass('suey-input');
         this.checkbox.addClass('suey-checkbox-input');
         this.checkbox.dom.type = 'checkbox';
+        this.checkbox.dom.name = 'Checkbox';
         this.button = new Div().addClass('suey-checkbox-button');
         this.add(this.checkbox, this.button);
 

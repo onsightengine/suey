@@ -37,7 +37,8 @@ class Tabbed extends AbstractDock {
 
         if (closeButton) {
             const buttonSide = (tabSide === 'right') ? CLOSE_SIDES.LEFT : CLOSE_SIDES.RIGHT;
-            Interaction.addCloseButton(this, buttonSide, 1.7 /* offset */, 1.3 /* scale */);
+            const offset = (tabSide === 'right' || tabSide === 'left') ? 0 : 1.7;
+            Interaction.addCloseButton(this, buttonSide, offset, 1.3 /* scale */);
         }
 
         // Events
