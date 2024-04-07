@@ -20,7 +20,7 @@ class Tabbed extends AbstractDock {
         closeButton = false,
     } = {}) {
         super({ style });
-        self = this;
+        const self = this;
         this.addClass('suey-tabbed');
 
         // Public Properties
@@ -35,17 +35,12 @@ class Tabbed extends AbstractDock {
         tabSide = opposite ? oppositeSide(tabSide) : tabSide;
         this.setTabSide(tabSide);
 
+        // Add Close Button
         if (closeButton) {
             const buttonSide = (tabSide === 'right') ? CLOSE_SIDES.LEFT : CLOSE_SIDES.RIGHT;
             const offset = (tabSide === 'right' || tabSide === 'left') ? 0 : 1.7;
             Interaction.addCloseButton(this, buttonSide, offset, 1.3 /* scale */);
         }
-
-        // Events
-        function tabbedPointerEnter() {
-            document.body.classList.remove('suey-no-resize');
-        }
-        this.on('pointerenter', tabbedPointerEnter);
     }
 
     /******************** ADD */

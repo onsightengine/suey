@@ -157,7 +157,6 @@ class Window extends AbstractDock {
             title = newTitle;
             titleBar.setTitle(title);
         };
-
     }
 
     /******************** POSITION */

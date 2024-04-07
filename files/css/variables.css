@@ -89,9 +89,7 @@
     --asset-size:           3.2em;              /* AssetBox size */
     --button-size:          2.65em;             /* Toolbar button size */
     --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */
-    --resize-size:          0.8em;              /* 14px, panel resizer thickness */
-    --resize-size-offset:   1.6em;              /* double thickness to accommodate offset */
-    --resize-offset:       -0.8em;              /* resizer offset */
+    --resize-size:          1.0em;              /* 14px, panel resizer thickness */
     --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */
     --tab-size:             2.25em;             /* Tab button diameter */
     --tab-timing:           200ms;              /* Tab animation time */

@@ -26,6 +26,7 @@ class Docker extends Panel {
 
         // Properties
         this.initialSide = 'center';
+        this.dockSide = 'center';
         this.isHorizontal = false;
         this.isVertical = false;
         this.minimumSize = MINIMUM_NORMAL;
@@ -45,7 +46,7 @@ class Docker extends Panel {
         }
     }
 
-    /******************** RESIZERS */
+    /******************** PRIMARY */
 
     getPrimary() {
         let primary = undefined;
@@ -56,18 +57,7 @@ class Docker extends Panel {
     }
 
     isPrimary() {
-        return this.#primary; // return this.hasClass('suey-docker-primary');
-    }
-
-    wantsResizer(side) {
-        const resizers = [];
-        switch (side) {
-            case DOCK_SIDES.LEFT: resizers.push(RESIZERS.RIGHT); break;
-            case DOCK_SIDES.RIGHT: resizers.push(RESIZERS.LEFT); break;
-            case DOCK_SIDES.TOP: resizers.push(RESIZERS.BOTTOM); break;
-            case DOCK_SIDES.BOTTOM: resizers.push(RESIZERS.TOP); break;
-        }
-        return resizers;
+        return this.#primary;
     }
 
     /******************** DOCK */
@@ -95,8 +85,7 @@ class Docker extends Panel {
         const dock = new Docker(false /* primary */);
         const twin = new Docker(false /* primary */);
 
-        /***** INIT */
-
+        // Collapsed?
         if (this.hasClass('suey-collapsed')) {
             dock.addClass('suey-collapsed');
             twin.addClass('suey-collapsed');
@@ -137,12 +126,15 @@ class Docker extends Panel {
         else this.addToSelf(twin, dock);
 
         // Dock Data
-        dock.isVertical = dock.hasClass('suey-docker-vertical');
-        dock.isHorizontal = dock.hasClass('suey-docker-horizontal');
+        dock.isVertical = twin.isVertical = dock.hasClass('suey-docker-vertical');
+        dock.isHorizontal = twin.isHorizontal = dock.hasClass('suey-docker-horizontal');
         dock.dockSide = side;
         twin.dockSide = this.dockSide;
         dock.initialSide = (this.initialSide === 'center') ? side : this.initialSide;
         twin.initialSide = this.initialSide;
+
+        dock.addClass(`initalside-${dock.initialSide}`); dock.addClass(`dockside-${dock.dockSide}`);
+        twin.addClass(`initalside-${twin.initialSide}`); twin.addClass(`dockside-${twin.dockSide}`);
 
         // Collapsed Positioning
         if (dock.isHorizontal) {
@@ -156,64 +148,14 @@ class Docker extends Panel {
         // Set new 'Contents'
         if (primaryContents) this.contents = function() { return twin; }
 
-        /***** EVENTS */
-
-        // Resizers
-        const rect = {};
-        function checkCancel(event) {
-            if (event && event.isTrusted /* not generated programmatically */) {
-                const tabbed = Dom.findElementAt('suey-tabbed', event.pageX, event.pageY);
-                const tab = Dom.findElementAt('suey-tab-button', event.pageX, event.pageY);
-                if (tab || !tabbed) document.body.classList.add('suey-no-resize');
-            }
-        }
-        function resizerDown() {
-            rect.width = dock.getWidth();
-            rect.height = dock.getHeight();
-        }
-        function resizerMove(resizer, diffX, diffY) {
-            if (!dock.parent || !dock.parent.isElement) return;
-            let newWidth = null;
-            let newHeight = null;
-            if (resizer && resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
-            if (resizer && resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
-            if (resizer && resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
-            if (resizer && resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
-            if (newWidth != null) dock.setStyle('width', `${newWidth}px`);
-            if (newHeight != null) dock.setStyle('height', `${newHeight}px`);
-            if (newWidth != null || newHeight != null) dock.dom.dispatchEvent(new Event('resized'));
-        }
-        Interaction.makeResizeable(dock, resizerDown, resizerMove, null, checkCancel);
-        dock.addResizers(this.wantsResizer(side), true /* offset */);
-
-        // Limit Size, Resize Twin
-        function resizeTwin() {
-            const twin = dock.getTwin();
-            let maxSize = Infinity;
-            if (twin.dom.children.length > 0) {
-                const computed = getComputedStyle(twin.dom);
-                if (dock.isVertical) maxSize = dock.parent.getWidth() - parseFloat(computed.minWidth);
-                if (dock.isHorizontal) maxSize = dock.parent.getHeight() - parseFloat(computed.minHeight);
-            }
-            if (dock.isVertical) {
-                let newSize = Math.max(dock.getWidth(), dock.minimumSize);
-                if (Number.isFinite(maxSize)) newSize = Math.min(newSize, maxSize);
-                dock.setStyle('width', `${newSize}px`);
-            }
-            if (dock.isHorizontal) {
-                let newSize = Math.max(dock.getHeight(), dock.minimumSize);
-                if (Number.isFinite(maxSize)) newSize = Math.min(newSize, maxSize);
-                dock.setStyle('height', `${newSize}px`);
-            }
-            if (dock.isVertical) twin.setStyle('width', `${dock.parent.getWidth() - dock.getWidth()}px`);
-            if (dock.isHorizontal) twin.setStyle('height', `${dock.parent.getHeight() - dock.getHeight()}px`);
-            for (const child of dock.children) child.dom.dispatchEvent(new Event('resized'));
-            for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
-        }
-        dock.on('resized', resizeTwin);
-
         // Initial Size
-        resizeTwin();
+        dock.on('resized', () => {
+            dock.updateSize(); // update twin size
+        });
+        dock.updateSize();
+
+        // Rebuild Tabbed Resizers
+        this.buildResizers();
 
         // Return new Dock
         return dock;
@@ -227,20 +169,19 @@ class Docker extends Panel {
     }
 
     removeDock() {
+        // Checks
         if (this.isPrimary()) {
             console.warn('Docker.removeDock(): Cannot remove the primary dock');
             return;
         }
-
         const parent = this.parent;
         if (!parent || !parent.isElement || !parent.hasClass('suey-docker')) {
-            console.warn('Docker.removeDock(): Dock does not have a valid parent.');
+            console.warn('Docker.removeDock(): Dock does not have a valid parent');
             return;
         }
-
         const twin = this.getTwin();
         if (!twin) {
-            console.warn('Docker.removeDock(): Could not find the twin Docker.');
+            console.warn('Docker.removeDock(): Could not find the twin Docker');
             return;
         }
 
@@ -268,12 +209,6 @@ class Docker extends Panel {
         // Remove old DockLocations
         parent.hideDockLocations();
 
-        // Add back new Resizer
-        const childTabbed = parent.children.find(child => child !== this && child.hasClass('suey-tabbed'));
-        if (childTabbed && parent.addResizers) {
-            parent.addResizers(parent.wantsResizer(parent.dockSide), true /* offset */);
-        }
-
         // Set Tabbed Sizes
         for (const child of parent.children) {
             if (child.hasClass('suey-tabbed')) {
@@ -283,6 +218,9 @@ class Docker extends Panel {
 
         // Resize the parent
         parent.traverse((child) => child.dom.dispatchEvent(new Event('resized')));
+
+        // Rebuild Tabbed Resizers
+        parent.buildResizers();
 
         // Collapsed?
         if (wasCollapsed) parent.collapseTabs();
@@ -296,7 +234,7 @@ class Docker extends Panel {
             return undefined;
         }
 
-        // Check for Tabbed
+        // See if Tabbed already exists
         let tabbed = Dom.childWithClass(this.contents(), 'suey-tabbed', false /* recursive? */);
         if (tabbed) return tabbed;
 
@@ -314,10 +252,14 @@ class Docker extends Panel {
         });
 
         // Add Some Spacing?
-        if (flexBefore) this.add(new FlexSpacer()); //.addClass('suey-hidden'));
+        if (flexBefore) this.add(new FlexSpacer());
 
-        // Save, Add, Return
+        // Add Tabbed
         this.add(tabbed);
+
+        // Rebuild Tabbed Resizers
+        this.buildResizers();
+
         return tabbed;
     }
 
@@ -390,6 +332,129 @@ class Docker extends Panel {
         window.dispatchEvent(new Event('resize'));
         // Enable animations
         setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
+    }
+
+    /******************** RESIZERS */
+
+    updateSize(width, height) {
+        if (width != null) this.setStyle('width', `${width}px`);
+        if (height != null) this.setStyle('height', `${height}px`);
+        if (!this.parent) return;
+
+        // Resize Twin
+        const twin = this.getTwin();
+        if (!twin) return;
+        let maxSize = Infinity;
+        if (twin.dom.children.length > 0) {
+            const computed = getComputedStyle(twin.dom);
+            if (this.isVertical) maxSize = this.parent.getWidth() - parseFloat(computed.minWidth);
+            if (this.isHorizontal) maxSize = this.parent.getHeight() - parseFloat(computed.minHeight);
+        }
+        if (this.isVertical) {
+            let newSize = Math.max(this.getWidth(), this.minimumSize);
+            if (Number.isFinite(maxSize)) newSize = Math.min(newSize, maxSize);
+            this.setStyle('width', `${newSize}px`);
+        }
+        if (this.isHorizontal) {
+            let newSize = Math.max(this.getHeight(), this.minimumSize);
+            if (Number.isFinite(maxSize)) newSize = Math.min(newSize, maxSize);
+            this.setStyle('height', `${newSize}px`);
+        }
+        if (this.isVertical) twin.setStyle('width', `${this.parent.getWidth() - this.getWidth()}px`);
+        if (this.isHorizontal) twin.setStyle('height', `${this.parent.getHeight() - this.getHeight()}px`);
+        for (const child of this.children) child.dom.dispatchEvent(new Event('resized'));
+        for (const child of twin.children) child.dom.dispatchEvent(new Event('resized'));
+
+        // Emit new event?
+        if (width != null || height != null) this.dom.dispatchEvent(new Event('resized'));
+    }
+
+    /** Recursively rebuild Resizers on Tabbed children */
+    buildResizers() {
+        this.traverse((docker) => {
+            const tabbedElements = docker.children.filter(child => child.hasClass('suey-tabbed'));
+            for (const tabbed of tabbedElements) {
+                // Remove Resizers
+                const resizers = tabbed.children.filter(child => child.hasClass('suey-resizer'));
+                tabbed.remove(...resizers);
+
+                // Add Resizers
+                function createResizer(resizerClass, dock) {
+                    const resizer = new Div().addClass('suey-resizer', resizerClass);
+                    Css.setVariable('--resize-size', '1em', resizer);
+                    Css.setVariable('--offset', '0em', resizer);
+                    let downX, downY, lastX, lastY, isDown = false;
+                    const rect = {};
+                    function resizePointerDown(event) {
+                        if (event.button !== 0) return;
+                        event.stopPropagation();
+                        event.preventDefault();
+                        resizer.dom.setPointerCapture(event.pointerId);
+                        isDown = true;
+                        downX = event.pageX;
+                        downY = event.pageY;
+                        lastX = event.pageX;
+                        lastY = event.pageY;
+                        document.addEventListener('pointerup', resizePointerUp);
+                        document.dispatchEvent(new Event('closemenu'));
+                        rect.width = dock.getWidth();
+                        rect.height = dock.getHeight();
+                    }
+                    function resizePointerMove(event) {
+                        if (!isDown) return;
+                        event.stopPropagation();
+                        event.preventDefault();
+                        if (event.isTrusted /* not generated programmatically */) {
+                            lastX = event.pageX;
+                            lastY = event.pageY;
+                        }
+                        const diffX = lastX - downX;
+                        const diffY = lastY - downY;
+                        if (!dock.parent || !dock.parent.isElement) return;
+                        let newWidth = null;
+                        let newHeight = null;
+                        if (resizer && resizer.hasClassWithString('left')) newWidth = rect.width - diffX;
+                        if (resizer && resizer.hasClassWithString('right')) newWidth = rect.width + diffX;
+                        if (resizer && resizer.hasClassWithString('top')) newHeight = rect.height - diffY;
+                        if (resizer && resizer.hasClassWithString('bottom')) newHeight = rect.height + diffY;
+                        dock.updateSize(newWidth, newHeight);
+                    }
+                    function resizePointerUp(event) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        resizer.dom.releasePointerCapture(event.pointerId);
+                        isDown = false;
+                        document.removeEventListener('pointerup', resizePointerUp);
+                    }
+                    resizer.on('pointerdown', resizePointerDown);
+                    resizer.on('pointermove', resizePointerMove);
+                    return resizer;
+                }
+
+                // Search for Docks to attach Resizers
+                const sizers = [ RESIZERS.LEFT , RESIZERS.RIGHT, RESIZERS.TOP, RESIZERS.BOTTOM ];
+                const myRect = docker.dom.getBoundingClientRect();
+                let parent = docker.parent;
+                while (sizers.length > 0 && parent && parent.hasClass('suey-docker')) {
+                    for (const child of parent.children) {
+                        if (child === docker) continue;
+                        if (!child.hasClass('suey-docker')) continue;
+                        function addResizer(side) {
+                            const twin = child.getTwin();
+                            if (twin) tabbed.addToSelf(createResizer(`suey-resizer-${side}`, twin)); else console.log('missing twin!');
+                            sizers.splice(sizers.indexOf(side), 1);
+                        }
+                        const childRect = child.dom.getBoundingClientRect();
+                        if (sizers.includes(RESIZERS.LEFT) && childRect.left < myRect.left) addResizer(RESIZERS.LEFT);
+                        if (sizers.includes(RESIZERS.RIGHT) && childRect.right > myRect.right) addResizer(RESIZERS.RIGHT);
+                        if (sizers.includes(RESIZERS.TOP) && childRect.top < myRect.top) addResizer(RESIZERS.TOP);
+                        if (sizers.includes(RESIZERS.BOTTOM) && childRect.bottom > myRect.bottom) addResizer(RESIZERS.BOTTOM);
+                    }
+                    parent = parent.parent;
+                }
+
+            }
+        }, true /* applyToSelf */);
     }
 
     /******************** DROP LOCATIONS */

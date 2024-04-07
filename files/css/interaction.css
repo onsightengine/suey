@@ -74,19 +74,12 @@
 .suey-resizer {
     --height: 100%;
     --width: 100%;
-    --offset: 0.2em;
+    --offset: 0em;
     position: absolute;
     pointer-events: all;
     margin: 0;
-    opacity: 0;                             /* NOTE: Change to > 0.0 to see 'Resizers' */
-    z-index: 99; /* Resizer */
-}
-
-.suey-no-resize .suey-resizer {
-    pointer-events: none !important;
-}
-.suey-no-resize .suey-window .suey-resizer {
-    pointer-events: auto !important;
+    opacity: 0.2;                            /* NOTE: Change to > 0.0 to see 'Resizers' */
+    z-index: 0; /* Resizer */
 }
 
 .suey-resizer-left {

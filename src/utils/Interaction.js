@@ -107,15 +107,6 @@ class Interaction {
                 break;
         }
 
-        function buttonPointerEnter() {
-            document.body.classList.add('suey-no-resize');
-        }
-        function buttonPointerLeave() {
-            document.body.classList.remove('suey-no-resize');
-        }
-        button.on('pointerenter', buttonPointerEnter);
-        button.on('pointerleave', buttonPointerLeave);
-
         element.on('pointerenter', () => button.addClass('suey-item-shown'));
         element.on('pointerleave', () => button.removeClass('suey-item-shown'));
         element.addToSelf(button);
@@ -219,7 +210,7 @@ class Interaction {
         eventElement.addEventListener('destroy', () => { eventElement.removeEventListener('pointerdown', dragPointerDown); }, { once: true });
     }
 
-    static makeResizeable(addToElement, onDown, onMove, onUp, beforeMove) {
+    static makeResizeable(addToElement, onDown, onMove, onUp) {
         if (!addToElement || !addToElement.isElement) return console.warning('Interaction.makeResizeable(): AddToElement not defined');
 
         // Creates One Resizer
@@ -243,10 +234,7 @@ class Interaction {
                 if (typeof onDown === 'function') onDown();
             }
             function resizePointerMove(event) {
-                if (!isDown) {
-                    if (typeof beforeMove === 'function') beforeMove(event);
-                    return;
-                }
+                if (!isDown) return;
                 event.stopPropagation();
                 event.preventDefault();
                 if (event.isTrusted /* not generated programmatically */) {
@@ -272,18 +260,13 @@ class Interaction {
             return resizer;
         }
 
-        addToElement.addResizers = function(resizers = [], offset = false) {
+        addToElement.addResizers = function(resizers = []) {
             for (const key in RESIZERS) {
                 const resizerName = RESIZERS[key];
                 if (resizers === 'all' || (Array.isArray(resizers) && resizers.includes(resizerName))) {
                     const className = `suey-resizer-${resizerName}`;
                     const existingResizer = addToElement.children.find(child => child.hasClass(className));
-                    if (!existingResizer) {
-                        const resizer = createResizer(className);
-                        if (offset) Css.setVariable('--resize-size', 'var(--resize-size-offset)', resizer);
-                        if (offset) Css.setVariable('--offset', 'var(--resize-offset)', resizer);
-                        addToElement.addToSelf(resizer);
-                    }
+                    if (!existingResizer) addToElement.addToSelf(createResizer(className));
                 }
             }
         }

@@ -72,8 +72,9 @@
     margin: 0 !important;
 }
 
-.suey-collapsed > .suey-resizer {
+.suey-collapsed .suey-tabbed .suey-resizer {
     pointer-events: none !important;
+    display: none !important;
 }
 
 /***** Dock Locations */
@@ -141,6 +142,7 @@
 /********** Tabbed **********/
 
 .suey-tabbed {
+    pointer-events: all;
     max-height: 100%;
     padding: var(--pad-small);
 }
@@ -384,15 +386,13 @@
 }
 
 /* Tab Title Buttons */
-.suey-window .suey-panel-fancy-outer,
-.suey-window .suey-panel-fancy-border,
-.suey-window .suey-panel-fancy-inside,
 .suey-window .suey-tab-panels,
 .suey-window .suey-floater,
 .suey-window .suey-titled {
     overflow: visible;
 }
 .suey-window .suey-tab-title {
+    pointer-events: none;
     position: absolute;
     top: -1.75em;
     left: 0;
@@ -404,10 +404,14 @@
     background-image: none;
     box-shadow: none;
     outline: none;
-    color: rgba(0, 0, 0, 0);
-    text-shadow: none;
+    color: rgba(255, 0, 0, 1);
+    /* text-shadow: none; */
 }
 .suey-window .suey-tab-title .suey-borderless-button {
+    pointer-events: all;
     background: rgb(var(--button-dark)) !important;
     border: solid var(--border-small) rgb(var(--icon));
+}
+.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {
+    border: solid var(--border-small) rgb(var(--button-light));
 }

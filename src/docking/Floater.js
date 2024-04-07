@@ -313,15 +313,6 @@ class TabButton extends Div {
             document.removeEventListener('pointermove', tabPointerMove);
             document.removeEventListener('pointerup', tabPointerUp);
         }
-        function tabPointerEnter() {
-            document.body.classList.add('suey-no-resize');
-        }
-        function tabPointerLeave() {
-            document.body.classList.remove('suey-no-resize');
-        }
-
-        this.on('pointerenter', tabPointerEnter);
-        this.on('pointerleave', tabPointerLeave);
         this.on('pointerdown', tabPointerDown);
     }
 
