@@ -78,7 +78,7 @@
     position: absolute;
     pointer-events: all;
     margin: 0;
-    opacity: 0.2;                            /* NOTE: Change to > 0.0 to see 'Resizers' */
+    opacity: 0;                         /* NOTE: Change to > 0.0 to see 'Resizers' */
     z-index: 0; /* Resizer */
 }
 

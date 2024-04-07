@@ -4785,7 +4785,10 @@ class Docker extends Panel {
     }
     collapseTabs() {
         Css.setVariable('--tab-timing', '0');
-        if (!this.isPrimary()) this.addClass('suey-collapsed');
+        if (!this.isPrimary()) {
+            this.addClass('suey-collapsed');
+            this.dom.dispatchEvent(new Event('toggle', { bubbles: false }));
+        }
         let collpaseDock = this;
         this.traverseAncestors((parent) => {
             if (!parent.hasClass('suey-docker')) return;
@@ -4800,6 +4803,7 @@ class Docker extends Panel {
         collpaseDock.traverse((child) => {
             if (child.hasClass('suey-docker') && child.children.length > 0) {
                 child.addClass('suey-collapsed');
+                child.dom.dispatchEvent(new Event('toggle', { bubbles: false }));
                 if (child.expandSize == null) {
                     if (child.initialSide === 'left' || child.initialSide === 'right') {
                         child.expandSize = child.dom.style.width;
@@ -4821,6 +4825,7 @@ class Docker extends Panel {
         function removeCollapsed(dock) {
             if (dock && dock.hasClass('suey-docker')) {
                 dock.removeClass('suey-collapsed');
+                dock.dom.dispatchEvent(new Event('toggle', { bubbles: false }));
                 dock.minimumSize = MINIMUM_NORMAL;
                 if (dock.expandSide !== '' && !dock.isPrimary()) {
                     dock.setStyle(dock.expandSide, dock.expandSize);
@@ -4931,7 +4936,16 @@ class Docker extends Panel {
                         if (!child.hasClass('suey-docker')) continue;
                         function addResizer(side) {
                             const twin = child.getTwin();
-                            if (twin) tabbed.addToSelf(createResizer(`suey-resizer-${side}`, twin)); else console.log('missing twin!');
+                            if (twin) {
+                                const newResizer = createResizer(`suey-resizer-${side}`, twin);
+                                tabbed.addToSelf(newResizer);
+                                function listenToggle() {
+                                    newResizer.setStyle('display', child.hasClass('suey-collapsed') ? 'none' : '');
+                                }
+                                child.dom.addEventListener('toggle', listenToggle);
+                                child.dom.addEventListener('destroy', () => child.dom.removeEventListener('toggle', listenToggle), { once: true });
+                                newResizer.dom.addEventListener('destroy', () => child.dom.removeEventListener('toggle', listenToggle), { once: true });
+                            }
                             sizers.splice(sizers.indexOf(side), 1);
                         }
                         const childRect = child.dom.getBoundingClientRect();
