@@ -393,6 +393,10 @@
 .suey-window .suey-titled {
     overflow: visible;
 }
+.suey-window .suey-floater {
+    z-index: 101; /* window floater */
+
+}
 .suey-window .suey-tab-title {
     pointer-events: none;
     position: absolute;
@@ -401,18 +405,22 @@
     right: 0;
     width: 70%;
     margin: auto;
-    min-height: 1.65em;
+    min-height: 1.9em;
     background: transparent;
     background-image: none;
     box-shadow: none;
     outline: none;
-    color: rgba(255, 0, 0, 1);
-    /* text-shadow: none; */
+    color: transparent;
+    text-shadow: none;
+    overflow: visible;
 }
 .suey-window .suey-tab-title .suey-borderless-button {
     pointer-events: all;
+    position: relative;
+    pointer-events: all;
     background: rgb(var(--button-dark)) !important;
     border: solid var(--border-small) rgb(var(--icon));
+    overflow: visible;
 }
 .suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {
     border: solid var(--border-small) rgb(var(--button-light));
