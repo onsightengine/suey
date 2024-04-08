@@ -228,6 +228,9 @@
     opacity: 0.8;
     transform: scale(100%);
 }
+.suey-drag-tab-button .suey-tab-icon-border {
+    border-width: var(--border-small);
+}
 
 :not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {
     color: rgba(var(--highlight), 1.0);
@@ -267,7 +270,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    border: 0.22em solid rgba(var(--icon));
+    border: var(--pad-small) solid rgba(var(--icon));
     border-radius: calc(var(--tab-size) * 0.7);
     outline: none;
     display: flex;
@@ -287,8 +290,7 @@
 
 .suey-tab-button:active .suey-tab-icon-border {
     box-shadow:
-        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35),
-        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);
+        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);
 }
 
 :not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {
@@ -324,7 +326,7 @@
     --title-width: 0;
     color: rgba(var(--highlight), 0.5);
     border: var(--border-small) solid rgb(var(--button-light));
-    border-radius: 9999px;
+    border-radius: var(--radius-large);
     background-color: rgba(var(--background-dark), 1.0);
     background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));
     box-shadow: none;

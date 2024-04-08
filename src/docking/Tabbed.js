@@ -77,6 +77,18 @@ class Tabbed extends AbstractDock {
         return this;
     }
 
+    /******************** COLLAPSE / EXPAND */
+
+    toggleTabs() {
+        if (this.parent && this.parent.hasClass('suey-docker')) {
+            if (this.parent.hasClass('suey-collapsed')) {
+                this.parent.expandTabs();
+            } else {
+                this.parent.collapseTabs();
+            }
+        }
+    }
+
     /******************** SELECT */
 
     /** Select first Tab */
@@ -91,11 +103,10 @@ class Tabbed extends AbstractDock {
         if (wasClicked) {
             // Is Currently Collapsed?
             if (this.parent.hasClass('suey-collapsed')) {
-                this.parent.expandTabs();
-            // Wants Collapse?
+                this.toggleTabs();
+            // Single click, already selected
             } else if (selectID === this.selectedID) {
-                this.parent.collapseTabs();
-                return false;
+                return true;
             }
         }
 

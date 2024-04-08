@@ -112,6 +112,7 @@ class TabButton extends Div {
         let lastUnder = undefined;
         let locationUnder = undefined;
         let wasSelected = false;
+        let lastClickTime = performance.now();
 
         function tabPointerDown(event) {
             if (event.button !== 0) return;
@@ -305,10 +306,18 @@ class TabButton extends Div {
             // Click?
             } else {
                 if (performance.now() - downTime < MOUSE_CLICK) {
-                    self.tabPanel.dock.selectTab(self.tabPanel.id, true);
-                    self.tabPanel.dock.dom.dispatchEvent(new Event('resized'));
-                    document.dispatchEvent(new Event('closemenu'));
+                    // Double Click
+                    if (performance.now() - lastClickTime < MOUSE_CLICK * 1.5) {
+                        if (typeof self.tabPanel.dock.toggleTabs === 'function') {
+                            self.tabPanel.dock.toggleTabs();
+                        }
+                    // Single Click
+                    } else {
+                        document.dispatchEvent(new Event('closemenu'));
+                        self.tabPanel.dock.selectTab(self.tabPanel.id, true);
+                    }
                 }
+                lastClickTime = performance.now();
             }
             document.removeEventListener('pointermove', tabPointerMove);
             document.removeEventListener('pointerup', tabPointerUp);
