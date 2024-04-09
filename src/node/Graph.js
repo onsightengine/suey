@@ -75,6 +75,9 @@ class Graph extends Panel {
             self.zoomTo();
         }
         window.addEventListener('resize', onWindowResize);
+        this.on('destroy', () => {
+            window.removeEventListener('resize', onWindowResize);
+        });
 
         // Key Events
         let grabbing = false, selecting = false;

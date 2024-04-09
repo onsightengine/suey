@@ -85,11 +85,11 @@ class Window extends AbstractDock {
                 self.setStyle('height', `${newHeight}px`);
             }
             if (resizer.hasClassWithString('right')) {
-                const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), window.innerWidth - rect.left);
+                const newWidth = Math.min(Math.max(MIN_W, rect.width + diffX), self.parentWidth() - rect.left);
                 self.setStyle('width', `${newWidth}px`);
             }
             if (resizer.hasClassWithString('bottom')) {
-                const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), window.innerHeight - rect.top);
+                const newHeight = Math.min(Math.max(MIN_H, rect.height + diffY), self.parentHeight() - rect.top);
                 self.setStyle('height', `${newHeight}px`);
             }
             self.removeClass('suey-maximized');
@@ -118,8 +118,8 @@ class Window extends AbstractDock {
                 height: parseFloat(computed.height),
             };
             const titleHeight = parseInt(Css.toPx('4em'));
-            let newLeft = Math.min(window.innerWidth - (rect.width / 2), rect.left);
-            let newTop = Math.min(window.innerHeight - titleHeight, rect.top);
+            let newLeft = Math.min(self.parentWidth() - (rect.width / 2), rect.left);
+            let newTop = Math.min(self.parentHeight() - titleHeight, rect.top);
             newLeft = Math.max(- (rect.width / 2), newLeft);
             newTop = Math.max(0, newTop);
             self.setStyle('top', `${newTop}px`);
@@ -127,14 +127,17 @@ class Window extends AbstractDock {
 
             // // OPTION: Limit to Window
             // const rect = self.dom.getBoundingClientRect();
-            // if (rect.right > window.innerWidth) self.setStyle('left', `${Math.max(0, window.innerWidth - rect.width)}px`);
-            // if (rect.bottom > window.innerHeight) self.setStyle('top', `${Math.max(0, window.innerHeight - rect.height)}px`);
+            // if (rect.right > self.parentWidth()) self.setStyle('left', `${Math.max(0, self.parentWidth() - rect.width)}px`);
+            // if (rect.bottom > self.parentHeight()) self.setStyle('top', `${Math.max(0, self.parentHeight() - rect.height)}px`);
             // if (rect.top < 0) self.setStyle('top', '0px');
             // if (rect.left < 0) self.setStyle('left', '0px');
-            // if (rect.width > window.innerWidth) self.setStyle('width', `${window.innerWidth}px`);
-            // if (rect.height > window.innerHeight) self.setStyle('height', `${window.innerHeight}px`);
+            // if (rect.width > self.parentWidth()) self.setStyle('width', `${self.parentWidth()}px`);
+            // if (rect.height > self.parentHeight()) self.setStyle('height', `${self.parentHeight()}px`);
         }
-        window.addEventListener('resize', () => keepInWindow());
+        window.addEventListener('resize', keepInWindow);
+        this.on('destroy', () => {
+            window.removeEventListener('resize', keepInWindow);
+        });
 
         // Event: 'displayed'
         this.on('displayed', () => {
@@ -186,11 +189,21 @@ class Window extends AbstractDock {
         });
     }
 
-    /** Centers 'Window' panel in document window */
+    /** Centers 'Window' panel in parent element */
     center() {
-        const side = (window.innerWidth - this.getWidth()) / 2;
-        const top = (window.innerHeight - this.getHeight()) / 2;
+        const side = (this.parentWidth() - this.getWidth()) / 2;
+        const top = (this.parentHeight() - this.getHeight()) / 2;
         this.setStyle('left', `${side}px`, 'top', `${top}px`);
+    }
+
+    parentWidth() {
+        if (!this.parent || !this.parent.isElement) return window.innerWidth;
+        return this.parent.getWidth();
+    }
+
+    parentHeight() {
+        if (!this.parent || !this.parent.isElement) return window.innerHeight;
+        return this.parent.getHeight();
     }
 
     setInitialSize() {
@@ -212,13 +225,13 @@ class Window extends AbstractDock {
             this.#lastKnownRect = this.dom.getBoundingClientRect();
             this.setStyle('left', `0`);
             this.setStyle('top', `0`);
-            this.setStyle('width', `${window.innerWidth}px`);
-            this.setStyle('height', `${window.innerHeight}px`);
+            this.setStyle('width', `${this.parentWidth()}px`);
+            this.setStyle('height', `${this.parentHeight()}px`);
             this.maximized = true;
         } else {
             this.removeClass('suey-maximized');
-            const newLeft = Math.max(0, Math.min(window.innerWidth - this.#lastKnownRect.width, this.#lastKnownRect.left));
-            const newTop = Math.max(0, Math.min(window.innerHeight - this.#lastKnownRect.height, this.#lastKnownRect.top));
+            const newLeft = Math.max(0, Math.min(this.parentWidth() - this.#lastKnownRect.width, this.#lastKnownRect.left));
+            const newTop = Math.max(0, Math.min(this.parentHeight() - this.#lastKnownRect.height, this.#lastKnownRect.top));
             this.setStyle('left', `${newLeft}px`);
             this.setStyle('top', `${newTop}px`);
             this.setStyle('width', `${this.#lastKnownRect.width}px`);
@@ -415,7 +428,7 @@ class TitleBar extends Div {
                 self.parent.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
                 self.parent.removeClass('suey-maximized');
                 self.parent.maximized = false;
-                window.dispatchEvent(new Event('resize'));
+                parent.dom.dispatchEvent(new Event('resize'));
             }
         }
 

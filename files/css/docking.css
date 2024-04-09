@@ -22,7 +22,7 @@
     height: 100vh;
     top: 0;
     left: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .suey-docker-vertical {
@@ -302,7 +302,7 @@
 .suey-window {
     --window-z-index: 200;
 
-    position: fixed;
+    position: absolute;
     padding: var(--pad-small);
     opacity: calc(90% + (10% * var(--panel-transparency)));
     z-index: var(--window-z-index); /* Window */

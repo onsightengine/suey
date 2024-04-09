@@ -249,6 +249,9 @@
 }
 
 /* Hover Active */
+.suey-hover-active {
+    overflow: visible;
+}
 .suey-hover-active:hover, .suey-hover-active:active {
     box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */
 }

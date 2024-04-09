@@ -36,10 +36,16 @@ class Docker extends Panel {
         if (primary) {
             this.addClass('suey-docker-primary');
             this.initialSide = 'center';
-            window.addEventListener('resize', () => {
+
+            // Resize Children
+            function alertChildrenOfResize() {
                 for (const child of self.children) {
                     child.dom.dispatchEvent(new Event('resized'));
                 }
+            }
+            window.addEventListener('resize', alertChildrenOfResize);
+            this.on('destroy', () => {
+                window.removeEventListener('resize', alertChildrenOfResize);
             });
         }
     }
