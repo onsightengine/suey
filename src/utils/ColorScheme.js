@@ -79,6 +79,20 @@ class ColorScheme {
         Css.setVariable('--rotate-hue', diffHue);
     }
 
+    /** Returns string of color names and current values */
+    static toString() {
+        const COLUMN_LENGTH = 20;
+        let output = '';
+        for (const key in TRAIT) {
+            const guiColor = TRAIT[key];
+            _clr.set(ColorScheme.color(guiColor));
+            output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr.hexString()}\n`;
+        }
+        return output;
+    }
+
     /***** Get Scheme Color *****/
 
     static color(guiColor, ignoreSaturation = false) {
