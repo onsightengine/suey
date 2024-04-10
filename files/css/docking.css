@@ -348,11 +348,7 @@
     text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
 }
 
-/***** Window Tabs */
-
-.suey-window .suey-tab-panels {
-    margin-top: 1em;
-}
+/* Window Tab Buttons */
 
 .suey-tab-buttons.suey-window-side {
     flex-direction: row;
@@ -387,16 +383,23 @@
     border-color: rgba(var(--button-light)) !important;
 }
 
-/* Tab Title Buttons */
+/* Window Floaters */
 .suey-window .suey-tab-panels,
 .suey-window .suey-floater,
 .suey-window .suey-titled {
     overflow: visible;
 }
+
+.suey-window .suey-tab-panels {
+    margin-top: 1em;
+}
+
 .suey-window .suey-floater {
     z-index: 101; /* window floater */
-
+    height: calc(100% - 1em);
 }
+
+/* Window Tab Title Buttons */
 .suey-window .suey-tab-title {
     pointer-events: none;
     position: absolute;

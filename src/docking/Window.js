@@ -331,6 +331,16 @@ class Window extends AbstractDock {
         return this;
     }
 
+    clearTabs() {
+        this.removeTab(...this.panels.children);
+        return this;
+    }
+
+    destroy() {
+        this.clearTabs();
+        super.destroy();
+    }
+
     /** Select first Tab (Floater). Return true if new Tab was selected. */
     selectFirst() {
         if (this.panels.children.length === 0) return false;

@@ -145,12 +145,10 @@ class Tabbed extends AbstractDock {
     /******************** REMOVE */
 
     clearTabs() {
-        if (this.buttons) this.buttons.clearContents();
-        if (this.panels) this.panels.clearContents();
+        this.removeTab(...this.panels.children);
         this.setStyle('minHeight', '');
-
-        // Minimum Tabs to Show
         this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        return this;
     }
 
     destroy() {

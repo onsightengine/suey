@@ -91,6 +91,8 @@ class Interaction {
                             element.removeTab(floater);
                             floater.destroy();
                         }
+                    } else if (element.hasClass('suey-window')) {
+                        element.destroy();
                     } else if (element.parent && element.parent.isElement) {
                         element.parent.remove(element);
                     } else {
