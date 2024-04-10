@@ -75,13 +75,13 @@ class Window extends AbstractDock {
         function resizerMove(resizer, diffX, diffY) {
             if (resizer.hasClassWithString('left')) {
                 const newLeft = Math.max(0, Math.min(rect.right - MIN_W, (rect.left - parentRect.left) + diffX));
-                const newWidth = rect.right - newLeft;
+                const newWidth = (rect.right - parentRect.left) - newLeft;
                 self.setStyle('left', `${newLeft}px`);
                 self.setStyle('width', `${newWidth}px`);
             }
             if (resizer.hasClassWithString('top')) {
                 const newTop = Math.max(0, Math.min(rect.bottom - MIN_H, (rect.top - parentRect.top) + diffY));
-                const newHeight = rect.bottom - newTop;
+                const newHeight = (rect.bottom - parentRect.top) - newTop;
                 self.setStyle('top', `${newTop}px`);
                 self.setStyle('height', `${newHeight}px`);
             }
@@ -320,13 +320,12 @@ class Window extends AbstractDock {
         return this;
     }
 
-    clearTabs() {
-        this.removeTab(...this.panels.children);
-        return this;
-    }
-
     destroy() {
-        this.clearTabs();
+        const children = [...this.panels.children];
+        for (const child of children) {
+            this.removeTab(child);
+            child.destroy();
+        }
         super.destroy();
     }
 

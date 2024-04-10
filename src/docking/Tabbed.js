@@ -144,15 +144,12 @@ class Tabbed extends AbstractDock {
 
     /******************** REMOVE */
 
-    clearTabs() {
-        this.removeTab(...this.panels.children);
-        this.setStyle('minHeight', '');
-        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-        return this;
-    }
-
     destroy() {
-        this.clearTabs();
+        const children = [...this.panels.children];
+        for (const child of children) {
+            this.removeTab(child);
+            child.destroy();
+        }
         super.destroy();
     }
 
@@ -189,6 +186,11 @@ class Tabbed extends AbstractDock {
         // Tabs Changed
         if (tabsRemoved > 0) {
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+        }
+        // Empty?
+        if (this.panels.children.length === 0) {
+            this.setStyle('minHeight', '');
+            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
         }
         return this;
     }

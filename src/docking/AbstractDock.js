@@ -19,11 +19,6 @@ class AbstractDock extends Panel {
         return this;
     }
 
-    clearTabs() {
-        console.error(`${this.constructor.name}.clearTabs(): Method must be reimplemented from AbstractDock`);
-        return this;
-    }
-
     /** Select first Tab (Floater). Return true if new Tab was selected. */
     selectFirst() {
         console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
