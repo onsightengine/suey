@@ -486,3 +486,8 @@
     flex-direction: column;
     justify-content: center;
 }
+
+.suey-text-box::selection {
+    color: rgba(var(--blacklight), 1);
+    background-color: rgba(var(--icon), 1);
+}

@@ -1,6 +1,6 @@
 /********** Base Styling **********/
 
-* {
+*:not(.suey-custom-font *) {
     font-family: var(--font-family);
     font-size: var(--font-size);
 }
