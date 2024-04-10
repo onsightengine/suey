@@ -1508,16 +1508,16 @@ function clearDomChildren(dom) {
 function clearChildren(element, destroy = true) {
     if (!element) return;
     if (element.isElement) {
-        clearElementChildren(element);
-        clearDomChildren(element.dom);
         if (destroy && element.dom && element.dom.dispatchEvent) {
             element.dom.dispatchEvent(new Event('destroy'));
         }
+        clearElementChildren(element);
+        clearDomChildren(element.dom);
     } else {
-        clearDomChildren(element);
         if (destroy && element && element.dispatchEvent) {
             element.dispatchEvent(new Event('destroy'));
         }
+        clearDomChildren(element);
     }
 }
 function removeFromParent(parent, element, destroy = true) {

@@ -695,22 +695,24 @@ function clearChildren(element, destroy = true) {
 
     // Suey 'Element'
     if (element.isElement) {
-        clearElementChildren(element);
-        clearDomChildren(element.dom);
-
         // Destroy Event
         if (destroy && element.dom && element.dom.dispatchEvent) {
             element.dom.dispatchEvent(new Event('destroy'));
         }
 
+        // Remove Children
+        clearElementChildren(element);
+        clearDomChildren(element.dom);
+
     // 'HTMLElement'
     } else {
-        clearDomChildren(element);
-
         // Destroy Event
         if (destroy && element && element.dispatchEvent) {
             element.dispatchEvent(new Event('destroy'));
         }
+
+        // Remove Children
+        clearDomChildren(element);
     }
 }
 
