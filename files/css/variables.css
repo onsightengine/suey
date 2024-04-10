@@ -39,10 +39,12 @@
     --icon-light:           101, 229, 255;      /* icon brightened          light clasic aqua   #65e5ff */
 
     --complement:           255, 132,  10;      /* icon shifted 180°        orange              #ff840a */
-    --triadic1:             255,  10,  67;      /* icon shifted 120°        pink                #ff0a43 */
+    --triadic1:             255,  10,  67;      /* icon shifted 120°        red                 #ff0a43 */
     --triadic2:             157, 255,  59;      /* complement shifted 120°  lime green          #9dff3b */
-    --triadic3:             255,  10, 238;      /* icon shifted 90°         purple              #ff0aee */
-    --triadic4:             232, 255,  59;      /* complement shifted 90°   yellow              #e8ff3b */
+    --triadic3:             255,  10, 238;      /* icon shifted 90°         pink                #ff0aee */
+    --triadic4:             232, 255,  59;      /* complement shifted 90°   pale yellow         #e8ff3b */
+    --triadic5:             116,  10, 255;      /* icon shifted 60°         purple              #740aff */
+    --triadic6:             255, 228,  59;      /* complement shifted 60°   yellow              #ffe43b */
 
     /* Theme Multiplier */
     --bright:               1;                  /* 1: Mid/Dark, 0: Light */

@@ -20,6 +20,8 @@ const _triadic1 = new Iris();
 const _triadic2 = new Iris();
 const _triadic3 = new Iris();
 const _triadic4 = new Iris();
+const _triadic5 = new Iris();
+const _triadic6 = new Iris();
 
 // Save state
 const DEFAULT_CLR = 0x00b4af; /* classic icon aqua */
@@ -56,6 +58,8 @@ class ColorScheme {
         _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
         _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
         _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
+        _triadic5.copy(_icon).rybRotateHue(60).brighten(0.2);
+        _triadic6.copy(_complement).rybRotateHue(60).brighten(0.2);
 
         ColorScheme.updateCSS();
     }
@@ -174,6 +178,8 @@ class ColorScheme {
             case TRAIT.TRIADIC2:    _clr.copy(_triadic2);   break;
             case TRAIT.TRIADIC3:    _clr.copy(_triadic3);   break;
             case TRAIT.TRIADIC4:    _clr.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr.copy(_triadic6);   break;
         }
 
         // Tint / Lightness / Saturation
@@ -183,6 +189,8 @@ class ColorScheme {
             case TRAIT.TRIADIC2:
             case TRAIT.TRIADIC3:
             case TRAIT.TRIADIC4:
+            case TRAIT.TRIADIC5:
+            case TRAIT.TRIADIC6:
                 saturation = 0.0;
                 /* NO BREAK ON PURPOSE */
             case TRAIT.ICON_DARK:

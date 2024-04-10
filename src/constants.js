@@ -62,11 +62,13 @@ export const TRAIT = {
     ICON_DARK:          'icon-dark',
     ICON:               'icon',                 // Main palette color
     ICON_LIGHT:         'icon-light',
-    COMPLEMENT:         'complement',           // Complimentary (opposite) color
+    COMPLEMENT:         'complement',           // Complimentary (opposite / icon shifted 180°) color
     TRIADIC1:           'triadic1',             // Triadic color 1 (icon shifted 120°)
     TRIADIC2:           'triadic2',             // Triadic color 2 (complement shifted 120°)
     TRIADIC3:           'triadic3',             // Triadic color 3 (icon shifted 90°)
     TRIADIC4:           'triadic4',             // Triadic color 4 (complement shifted 90°)
+    TRIADIC5:           'triadic5',             // Triadic color 5 (icon shifted 60°)
+    TRIADIC6:           'triadic6',             // Triadic color 6 (complement shifted 60°)
 };
 
 /********** PANELS */
