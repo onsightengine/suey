@@ -1784,7 +1784,7 @@ class Interaction {
             case CORNER_BUTTONS.CLOSE:
                 button.onPress(() => {
                     if (element.hasClass('suey-tabbed')) {
-                        element.removeTab(element.selectedID, true);
+                        element.removeTab(element.selectedID, true );
                     } else {
                         element.removeSelf();
                     }
@@ -4203,8 +4203,7 @@ class Window extends AbstractDock {
     removeTabs() {
         const children = [ ...this.panels.children ];
         for (const child of children) {
-            child.destroy();
-            this.removeTab(child);
+            this.removeTab(child, true );
         }
     }
     selectFirst() {
@@ -4608,8 +4607,7 @@ class Tabbed extends AbstractDock {
     removeTabs() {
         const children = [ ...this.panels.children ];
         for (const child of children) {
-            child.destroy();
-            this.removeTab(child);
+            this.removeTab(child, true );
         }
     }
     selectFirst() {

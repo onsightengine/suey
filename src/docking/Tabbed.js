@@ -133,8 +133,7 @@ class Tabbed extends AbstractDock {
     removeTabs() {
         const children = [ ...this.panels.children ];
         for (const child of children) {
-            child.destroy();
-            this.removeTab(child);
+            this.removeTab(child, true /* destroy */);
         }
     }
 
