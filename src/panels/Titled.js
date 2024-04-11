@@ -1,6 +1,7 @@
 import { Div } from '../core/Div.js';
 import { Panel } from './Panel.js';
 import { Strings } from '../utils/Strings.js';
+import { Text } from '../core/Text.js';
 
 class Titled extends Panel {
 
@@ -14,9 +15,12 @@ class Titled extends Panel {
         this.addClass('suey-expanded');
         this.isExpanded = true;
 
-        // Title
-        this.tabTitle = new Div(Strings.capitalize(title)).addClass('suey-tab-title');
-        if (title && title !== '') this.add(this.tabTitle)
+        // Title Text
+        const titleText = new Text(Strings.capitalize(title)).addClass('suey-tab-title-text');
+        const tabTitle = new Div().addClass('suey-tab-title');
+        tabTitle.add(titleText);
+        this.add(tabTitle);
+        this.tabTitle = tabTitle;
 
         // Collapsible?
         if (collapsible) {
@@ -43,6 +47,14 @@ class Titled extends Panel {
         } else {
             this.removeClass('suey-expanded');
             this.scroller.setStyle('display', 'none');
+        }
+    }
+
+    setTitle(title = '') {
+        title = Strings.capitalize(title);
+        const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
+        if (titleTextElement) {
+            titleTextElement.textContent = title;
         }
     }
 

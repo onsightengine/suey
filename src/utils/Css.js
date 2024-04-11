@@ -149,6 +149,7 @@ class Css {
 
     /** Returns input units to converted pixels string ending in 'px' */
     static toPx(size, element = document.body, dimension = 'w' /* or 'h' (for percentage) */) {
+        if (!element) element = document.body;
         const parsedSize = Css.parseSize(size);
         if (parsedSize.includes('%')) {
             if (element) {

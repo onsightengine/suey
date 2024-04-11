@@ -323,8 +323,8 @@ class Window extends AbstractDock {
     destroy() {
         const children = [...this.panels.children];
         for (const child of children) {
-            this.removeTab(child);
             child.destroy();
+            this.removeTab(child);
         }
         super.destroy();
     }
