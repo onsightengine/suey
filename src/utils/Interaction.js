@@ -86,17 +86,9 @@ class Interaction {
             case CORNER_BUTTONS.CLOSE:
                 button.onPress(() => {
                     if (element.hasClass('suey-tabbed')) {
-                        const floater = element.panels.children.find((item) => (item.id === element.selectedID));
-                        if (floater) {
-                            floater.destroy();
-                            element.removeTab(floater);
-                        }
-                    } else if (element.hasClass('suey-window')) {
-                        element.destroy();
-                    } else if (element.parent && element.parent.isElement) {
-                        element.parent.remove(element);
+                        element.removeTab(element.selectedID, true);
                     } else {
-                        element.hide();
+                        element.removeSelf();
                     }
                 });
                 break;

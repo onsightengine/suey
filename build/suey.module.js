@@ -1244,10 +1244,6 @@ class Element {
         this.id = id;
         return this;
     }
-    destroy() {
-        clearChildren(this, true );
-        return this;
-    }
     addSlot(slot) {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
@@ -1268,7 +1264,11 @@ class Element {
         return this;
     }
     clearContents() {
-        clearChildren(this.contents(), false );
+        destroyChildren(this.contents(), false );
+        return this;
+    }
+    destroy() {
+        destroyChildren(this, true );
         return this;
     }
     detach(...elements) {
@@ -1276,29 +1276,29 @@ class Element {
         for (const element of elements) {
             let removed = removeFromParent(this.contents(), element, false );
             if (!removed) removed = removeFromParent(this, element, false );
-            if (!removed) {
-            }
+            if (!removed) {  }
             removedElements.push(removed);
         }
         if (removedElements.length === 0) return undefined;
         if (removedElements.length === 1) return removedElements[0];
         return removedElements;
-    }
-    detachChildren() {
-        return this.detach(...this.children);
     }
     remove(...elements) {
         const removedElements = [];
         for (const element of elements) {
-            let removed = removeFromParent(this.contents(), element);
-            if (!removed) removed = removeFromParent(this, element);
-            if (!removed) {
-            }
+            let removed = removeFromParent(this.contents(), element, true );
+            if (!removed) removed = removeFromParent(this, element, true );
+            if (!removed) {  }
             removedElements.push(removed);
         }
         if (removedElements.length === 0) return undefined;
         if (removedElements.length === 1) return removedElements[0];
         return removedElements;
+    }
+    removeSelf() {
+        this.destroy();
+        removeFromParent(this.parent, this, false );
+        return this;
     }
     setClass(...classNames) {
         this.dom.className = '';
@@ -1463,67 +1463,49 @@ class Element {
     }
 }
 function addToParent(parent, element) {
-    if (!element) return;
-    if (!parent) return;
+    if (!parent || !element) return;
     if (element.isElement) {
         if (parent.isElement && element.parent === parent) return;
         if (element.parent && element.parent.isElement) {
             removeFromParent(element.parent, element, false);
         }
     }
+    const parentDom = parent.isElement ? parent.dom : parent;
+    const elementDom = element.isElement ? element.dom : element;
+    try { if (parentDom) parentDom.appendChild(elementDom); }
+    catch (error) {  }
     if (element.isElement) {
-        parent.dom.appendChild(element.dom);
         let hasIt = false;
         for (const child of parent.children) {
-            if (child.dom.isSameNode(element.dom)) {
-                hasIt = true;
-                break;
-            }
+            if (child.dom.isSameNode(element.dom)) { hasIt = true; break; }
         }
         if (!hasIt) parent.children.push(element);
         element.parent = parent;
-    } else {
-        try {
-            parent.dom.appendChild(element);
-        } catch (error) {
+    }
+    if (elementDom instanceof HTMLElement) {
+        elementDom.dispatchEvent(new Event('parentChanged'));
+    }
+}
+function destroyChildren(element, destroySelf = true) {
+    if (!element) return;
+    const dom = element.isElement ? element.dom : element;
+    if (!(dom instanceof HTMLElement)) return;
+    if (destroySelf) {
+        if (!dom.wasDestroyed) {
+            dom.dispatchEvent(new Event('destroy'));
+            dom.wasDestroyed = true;
         }
     }
-    if (element.isElement) element = element.dom;
-    if (element && element.dispatchEvent) element.dispatchEvent(new Event('parentChanged'));
-}
-function clearElementChildren(suey) {
-    for (let i = 0; i < suey.children.length; i++) {
-        const child = suey.children[i];
-        clearChildren(child, true );
-    }
-    suey.children.length = 0;
-}
-function clearDomChildren(dom) {
-    if (!dom.children) return;
     for (let i = dom.children.length - 1; i >= 0; i--) {
         const child = dom.children[i];
-        clearChildren(child, true );
+        destroyChildren(child, true );
         try { dom.removeChild(child); } catch (error) {  }
     }
-}
-function clearChildren(element, destroy = true) {
-    if (!element) return;
-    if (element.isElement) {
-        if (destroy && element.dom && element.dom.dispatchEvent) {
-            element.dom.dispatchEvent(new Event('destroy'));
-        }
-        clearElementChildren(element);
-        clearDomChildren(element.dom);
-    } else {
-        if (destroy && element && element.dispatchEvent) {
-            element.dispatchEvent(new Event('destroy'));
-        }
-        clearDomChildren(element);
-    }
+    if (dom.suey && dom.suey.isElement) dom.suey.children.length = 0;
 }
 function removeFromParent(parent, element, destroy = true) {
-    if (!parent) return undefined;
-    if (!element) return undefined;
+    if (!parent || !element) return undefined;
+    if (destroy) destroyChildren(element, true );
     if (element.isElement && parent.isElement) {
         for (let i = 0; i < parent.children.length; i++) {
             const child = parent.children[i];
@@ -1533,14 +1515,11 @@ function removeFromParent(parent, element, destroy = true) {
             }
         }
     }
-   if (destroy) clearChildren(element, true );
     try {
         if (parent.isElement) parent = parent.dom;
-        const removed = parent.removeChild((element.isElement) ? element.dom : element);
+        const removed = parent.removeChild(element.isElement ? element.dom : element);
         return (removed && removed.suey) ? removed.suey : removed;
-    } catch (error) {
-        return undefined;
-    }
+    } catch (error) {  }
 }
 
 class Button extends Element {
@@ -1805,17 +1784,9 @@ class Interaction {
             case CORNER_BUTTONS.CLOSE:
                 button.onPress(() => {
                     if (element.hasClass('suey-tabbed')) {
-                        const floater = element.panels.children.find((item) => (item.id === element.selectedID));
-                        if (floater) {
-                            floater.destroy();
-                            element.removeTab(floater);
-                        }
-                    } else if (element.hasClass('suey-window')) {
-                        element.destroy();
-                    } else if (element.parent && element.parent.isElement) {
-                        element.parent.remove(element);
+                        element.removeTab(element.selectedID, true);
                     } else {
-                        element.hide();
+                        element.removeSelf();
                     }
                 });
                 break;
@@ -3932,20 +3903,27 @@ class AbstractDock extends Panel {
         this.addClass('suey-dock');
     }
     addTab(...floaters) {
-        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
+        console.error(`${this.constructor.name}.addTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
-    selectFirst() {
+    findTab(tabID = '') {
+        console.error(`${this.constructor.name}.findTab(): Method must be reimplemented from AbstractDock`);
+        return null;
+    }
+    removeTab(floater, destroy = false) {
         console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
+        return false;
+    }
+    removeTabs() {
+        console.error(`${this.constructor.name}.removeTabs(): Method must be reimplemented from AbstractDock`);
+    }
+    selectFirst() {
+        console.error(`${this.constructor.name}.selectFirst(): Method must be reimplemented from AbstractDock`);
         return false;
     }
     selectTab(selectID, wasClicked = false) {
-        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
+        console.error(`${this.constructor.name}.selectTab(): Method must be reimplemented from AbstractDock`);
         return false;
-    }
-    removeTab(...floaters) {
-        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
-        return this;
     }
     tabCount() {
         console.error(`${this.constructor.name}.tabCount(): Method must be reimplemented from AbstractDock`);
@@ -3977,12 +3955,15 @@ class Window extends AbstractDock {
         const self = this;
         this.addClass('suey-window');
         this.allowFocus();
-        this.initialWidth = (initialWidth != null) ? initialWidth : width;
-        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
         this.isWindow = true;
         this.maximized = false;
+        this.initialWidth = (initialWidth != null) ? initialWidth : width;
+        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
         const titleBar = new TitleBar(this, title, draggable, 1.3 );
         this.addToSelf(titleBar);
+        this.setTitle = function(newTitle = '') {
+            titleBar.setTitle(newTitle);
+        };
         if (closeButton) Interaction.addCloseButton(this, buttonSides, 1.7 );
         if (maxButton) Interaction.addMaxButton(this, buttonSides, 1.7 );
         this.buttons = new Div().setClass('suey-tab-buttons').addClass('suey-window-side');
@@ -4057,14 +4038,12 @@ class Window extends AbstractDock {
             keepInWindow();
         });
         this.on('tabs-changed', () => {
-            if (self.panels.children.length === 0 && self.parent && self.parent.isElement) {
-                self.parent.remove(self);
-            }
+            if (self.panels.children.length === 0) self.removeSelf();
         });
-        this.setTitle = function(newTitle = '') {
-            title = newTitle;
-            titleBar.setTitle(title);
-        };
+    }
+    destroy() {
+        this.removeTabs();
+        super.destroy();
     }
     activeWindow() {
         if (this.hasClass('suey-active-window')) return;
@@ -4202,13 +4181,31 @@ class Window extends AbstractDock {
         }
         return this;
     }
-    destroy() {
-        const children = [...this.panels.children];
+    findTab(tabID = '') {
+        return this.panels.children.find((item) => (item.id === tabID));
+    }
+    removeTab(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findTab(floater);
+        if (!floater) return false;
+        if (destroy) floater.destroy();
+        const index = this.panels.children.indexOf(floater);
+        if (!floater || index === -1) return false;
+        const button = this.buttons.children[index];
+        const panel = this.panels.children[index];
+        if (button) button.removeClass('suey-selected');
+        if (panel) panel.addClass('suey-hidden');
+        this.buttons.detach(button);
+        this.panels.detach(panel);
+        this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+        if (destroy) floater.destroy();
+        return true;
+    }
+    removeTabs() {
+        const children = [ ...this.panels.children ];
         for (const child of children) {
             child.destroy();
             this.removeTab(child);
         }
-        super.destroy();
     }
     selectFirst() {
         if (this.panels.children.length === 0) return false;
@@ -4216,10 +4213,10 @@ class Window extends AbstractDock {
     }
     selectTab(selectID, wasClicked = false) {
         if (selectID.isElement) selectID = selectID.id;
-        const panel = this.panels.children.find((item) => (item.id === selectID));
+        const panel = this.findTab(selectID);
         if (panel && panel.button) {
-            this.panels.children.forEach((element) => { element.addClass('suey-hidden'); });
-            this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
+            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             const tabSelected = new Event('tab-selected', { bubbles: true });
@@ -4230,27 +4227,6 @@ class Window extends AbstractDock {
             return true;
         }
         return false;
-    }
-    removeTab(...floaters) {
-        if (!floaters || !Array.isArray(floaters)) return this;
-        let tabsRemoved = 0;
-        if (floaters && Array.isArray(floaters)) {
-            for (const floater of floaters) {
-                const index = this.panels.children.indexOf(floater);
-                if (!floater || index === -1) continue;
-                const button = this.buttons.children[index];
-                const panel = this.panels.children[index];
-                if (button) button.removeClass('suey-selected');
-                if (panel) panel.addClass('suey-hidden');
-                this.buttons.detach(button);
-                this.panels.detach(panel);
-                tabsRemoved++;
-            }
-        }
-        if (tabsRemoved > 0) {
-            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        }
-        return this;
     }
     tabCount() {
         return this.panels.children.length;
@@ -4319,6 +4295,17 @@ class Floater extends Panel {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
         this.button = new TabButton(this, Strings.capitalize(id), options);
+    }
+    destroy() {
+        this.button.destroy();
+        super.destroy();
+    }
+    removeSelf() {
+        if (this.dock) {
+            this.dock.removeTab(this, true);
+        } else {
+            super.removeSelf();
+        }
     }
 }
 class TabButton extends Div {
@@ -4565,6 +4552,10 @@ class Tabbed extends AbstractDock {
             Interaction.addCloseButton(this, buttonSide, offset, 1.3 );
         }
     }
+    destroy() {
+        this.removeTabs();
+        super.destroy();
+    }
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
         let tabsAdded = 0;
@@ -4587,13 +4578,38 @@ class Tabbed extends AbstractDock {
         }
         return this;
     }
-    toggleTabs() {
-        if (this.parent && this.parent.hasClass('suey-docker')) {
-            if (this.parent.hasClass('suey-collapsed')) {
-                this.parent.expandTabs();
-            } else {
-                this.parent.collapseTabs();
-            }
+    findTab(tabID = '') {
+        return this.panels.children.find((item) => (item.id === tabID));
+    }
+    removeTab(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findTab(floater);
+        if (!floater) return false;
+        if (destroy) floater.destroy();
+        const index = this.panels.children.indexOf(floater);
+        if (!floater || index === -1) return false;
+        const button = this.buttons.children[index];
+        const panel = this.panels.children[index];
+        if (button) button.removeClass('suey-selected');
+        if (panel) panel.addClass('suey-hidden');
+        this.buttons.detach(button);
+        this.panels.detach(panel);
+        if (panel.id === this.selectedID) {
+            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
+            else if (this.panels.children.length > 0) this.selectFirst();
+        }
+        this.setContentsStyle('minHeight', '');
+        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
+        }
+        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+        this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+        return true;
+    }
+    removeTabs() {
+        const children = [ ...this.panels.children ];
+        for (const child of children) {
+            child.destroy();
+            this.removeTab(child);
         }
     }
     selectFirst() {
@@ -4608,11 +4624,11 @@ class Tabbed extends AbstractDock {
                 return true;
             }
         }
-        const panel = this.panels.children.find((item) => (item.id === selectID));
+        const panel = this.findTab(selectID);
         if (panel && panel.button) {
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
-            this.panels.children.forEach((element) => { element.addClass('suey-hidden'); });
-            this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
+            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
             panel.removeClass('suey-hidden');
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
@@ -4625,52 +4641,22 @@ class Tabbed extends AbstractDock {
         }
         return false;
     }
-    destroy() {
-        const children = [...this.panels.children];
-        for (const child of children) {
-            child.destroy();
-            this.removeTab(child);
-        }
-        super.destroy();
+    tabCount() {
+        return this.panels.children.length;
     }
-    removeTab(...floaters) {
-        if (!floaters || !Array.isArray(floaters)) return this;
-        let tabsRemoved = 0;
-        for (const floater of floaters) {
-            const index = this.panels.children.indexOf(floater);
-            if (!floater || index === -1) continue;
-            const button = this.buttons.children[index];
-            const panel = this.panels.children[index];
-            if (button) button.removeClass('suey-selected');
-            if (panel) panel.addClass('suey-hidden');
-            this.buttons.detach(button);
-            this.panels.detach(panel);
-            tabsRemoved++;
-            if (panel.id === this.selectedID) {
-                if (index > 0) {
-                    this.selectTab(this.panels.children[index - 1].id);
-                } else if (this.panels.children.length > 0) {
-                    this.selectFirst();
-                }
+    toggleTabs() {
+        if (this.parent && this.parent.hasClass('suey-docker')) {
+            if (this.parent.hasClass('suey-collapsed')) {
+                this.parent.expandTabs();
+            } else {
+                this.parent.collapseTabs();
             }
-            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
         }
-        if (tabsRemoved > 0) {
-            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        }
-        if (this.panels.children.length === 0) {
-            this.setStyle('minHeight', '');
-            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-        }
-        return this;
     }
     setTabSide(side) {
         side = String(side).toLowerCase();
         this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
         this.buttons.addClass(`suey-${side}-side`);
-    }
-    tabCount() {
-        return this.panels.children.length;
     }
 }
 function oppositeSide(side) {

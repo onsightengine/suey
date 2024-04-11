@@ -37,17 +37,20 @@ class Window extends AbstractDock {
         this.addClass('suey-window');
         this.allowFocus();
 
-        // Properties, Private
-        this.initialWidth = (initialWidth != null) ? initialWidth : width;
-        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
-
-        // Properties, Public
+        // Properties
         this.isWindow = true;
         this.maximized = false;
+        this.initialWidth = (initialWidth != null) ? initialWidth : width;
+        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
 
         // Title Bar
         const titleBar = new TitleBar(this, title, draggable, 1.3 /* scale*/);
         this.addToSelf(titleBar);
+
+        // Set Title Function
+        this.setTitle = function(newTitle = '') {
+            titleBar.setTitle(newTitle);
+        };
 
         // Window Buttons
         if (closeButton) Interaction.addCloseButton(this, buttonSides, 1.7 /* offset */);
@@ -59,7 +62,7 @@ class Window extends AbstractDock {
         this.add(this.panels);
         titleBar.add(this.buttons);
 
-        // Stacks
+        // Z-Index Stacking
         this.on('focusout', () => self.removeClass('suey-active-window'));
         this.on('focusin', () => self.activeWindow());
         this.on('displayed', () => self.activeWindow());
@@ -103,12 +106,14 @@ class Window extends AbstractDock {
         Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp);
         this.addResizers(resizers);
 
-        // Initial Size
+        // Set Initial Size
         this.setStyle('left', left, 'top', top);
         this.setStyle('width', width);
         this.setStyle('height', height);
 
-        // Keep In Window
+        /***** EVENTS *****/
+
+        // Resize: Keep within parent
         function keepInWindow() {
             // NOTE: Limits top based on Title Bar
             const computed = getComputedStyle(self.dom);
@@ -131,27 +136,24 @@ class Window extends AbstractDock {
             window.removeEventListener('resize', keepInWindow);
         });
 
-        // Event: 'displayed'
+        // Displayed: Center,  within parent
         this.on('displayed', () => {
-            // Center first time shown
-            if (startCentered) self.center();
-
-            // Resize if necessary
-            keepInWindow();
+            if (startCentered) self.center();   // center first time shown
+            keepInWindow();                     // resize if necessary
         });
 
-        // Event: 'tabs-changed'
+        // Tabs Changed: Remove from parent if empty
         this.on('tabs-changed', () => {
-            if (self.panels.children.length === 0 && self.parent && self.parent.isElement) {
-                self.parent.remove(self);
-            }
+            if (self.panels.children.length === 0) self.removeSelf();
         });
 
-        // Set Title Function
-        this.setTitle = function(newTitle = '') {
-            title = newTitle;
-            titleBar.setTitle(title);
-        };
+    } // end ctor
+
+    /******************** DESTROY */
+
+    destroy() {
+        this.removeTabs();
+        super.destroy();
     }
 
     /******************** POSITION */
@@ -320,13 +322,46 @@ class Window extends AbstractDock {
         return this;
     }
 
-    destroy() {
-        const children = [...this.panels.children];
+    /** Finds a child Tab by ID */
+    findTab(tabID = '') {
+        return this.panels.children.find((item) => (item.id === tabID));
+    }
+
+    /** Remove Tab (Floater) from Windo. */
+    removeTab(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findTab(floater);
+        if (!floater) return false;
+
+        // Destroy Floater?
+        if (destroy) floater.destroy();
+
+        // Find Floater
+        const index = this.panels.children.indexOf(floater);
+        if (!floater || index === -1) return false;
+
+        // Remove Tab
+        const button = this.buttons.children[index];
+        const panel = this.panels.children[index];
+        if (button) button.removeClass('suey-selected');
+        if (panel) panel.addClass('suey-hidden');
+        this.buttons.detach(button);
+        this.panels.detach(panel);
+
+        // Tabs Changed
+        this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+
+        // Destroy Floater?
+        if (destroy) floater.destroy();
+        return true;
+    }
+
+    /** Removes all Tabs/Floaters */
+    removeTabs() {
+        const children = [ ...this.panels.children ];
         for (const child of children) {
             child.destroy();
             this.removeTab(child);
         }
-        super.destroy();
     }
 
     /** Select first Tab (Floater). Return true if new Tab was selected. */
@@ -338,11 +373,11 @@ class Window extends AbstractDock {
     /** Select Tab (Floater). Return true if new Tab was selected. */
     selectTab(selectID, wasClicked = false) {
         if (selectID.isElement) selectID = selectID.id;
-        const panel = this.panels.children.find((item) => (item.id === selectID));
+        const panel = this.findTab(selectID);
         if (panel && panel.button) {
             // Deselect current Panel / Button
-            this.panels.children.forEach((element) => { element.addClass('suey-hidden'); });
-            this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
+            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
 
             // Select new Panel / Button
             panel.removeClass('suey-hidden');
@@ -363,32 +398,6 @@ class Window extends AbstractDock {
             return true;
         }
         return false;
-    }
-
-    /** Remove Tab (Floater) from Window. */
-    removeTab(...floaters) {
-        if (!floaters || !Array.isArray(floaters)) return this;
-        let tabsRemoved = 0;
-        if (floaters && Array.isArray(floaters)) {
-            for (const floater of floaters) {
-                const index = this.panels.children.indexOf(floater);
-                if (!floater || index === -1) continue;
-
-                // Remove Tab
-                const button = this.buttons.children[index];
-                const panel = this.panels.children[index];
-                if (button) button.removeClass('suey-selected');
-                if (panel) panel.addClass('suey-hidden');
-                this.buttons.detach(button);
-                this.panels.detach(panel);
-                tabsRemoved++;
-            }
-        }
-        // Tabs Changed
-        if (tabsRemoved > 0) {
-            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        }
-        return this;
     }
 
     tabCount() {

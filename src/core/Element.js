@@ -78,18 +78,6 @@ class Element {
         return this;
     }
 
-    /******************** DESTROY */
-
-    /**
-     * Removes all children DOM elements from this element.
-     * @returns {Element} The Element instance.
-     * @memberof Element
-     */
-    destroy() {
-        clearChildren(this, true /* destroy event */);
-        return this;
-    }
-
     /******************** SIGNALS */
 
     /**
@@ -139,7 +127,17 @@ class Element {
      * @memberof Element
      */
     clearContents() {
-        clearChildren(this.contents(), false /* destroy event */);
+        destroyChildren(this.contents(), false /* destroySelf */);
+        return this;
+    }
+
+    /**
+     * Removes all children DOM elements from this element.
+     * @returns {Element} The Element instance.
+     * @memberof Element
+     */
+    destroy() {
+        destroyChildren(this, true /* destroySelf */);
         return this;
     }
 
@@ -151,27 +149,16 @@ class Element {
      */
     detach(...elements) {
         const removedElements = [];
+        // Attempt to remove element from contents(), then try to remove from self.children
         for (const element of elements) {
-            // Attempt to remove element from contents(), then try to remove from self.children
             let removed = removeFromParent(this.contents(), element, false /* destroy? */);
             if (!removed) removed = removeFromParent(this, element, false /* destroy? */);
-            if (!removed) {
-                // // DEBUG: Could not remove element(s)
-                // console.log(`Element.detach: Could not remove child!`);
-            }
+            if (!removed) { /* Could not find or remove */ }
             removedElements.push(removed);
         }
         if (removedElements.length === 0) return undefined;
         if (removedElements.length === 1) return removedElements[0];
         return removedElements;
-    }
-
-    /**
-     * Detaches all children Elements
-     * @returns Element or array of deatached Elements
-     */
-    detachChildren() {
-        return this.detach(...this.children);
     }
 
     /**
@@ -182,19 +169,25 @@ class Element {
      */
     remove(...elements) {
         const removedElements = [];
+        // Attempt to remove element from contents(), then try to remove from self.children
         for (const element of elements) {
-            // Attempt to remove element from contents(), then try to remove from self.children
-            let removed = removeFromParent(this.contents(), element);
-            if (!removed) removed = removeFromParent(this, element);
-            if (!removed) {
-                // // DEBUG: Could not remove element(s)
-                // console.log(`Element.removeFromParent: Could not remove child!`);
-            }
+            let removed = removeFromParent(this.contents(), element, true /* destroy? */);
+            if (!removed) removed = removeFromParent(this, element, true /* destroy? */);
+            if (!removed) { /* Could not find or remove */ }
             removedElements.push(removed);
         }
         if (removedElements.length === 0) return undefined;
         if (removedElements.length === 1) return removedElements[0];
         return removedElements;
+    }
+
+    /**
+     * Removes this element from it's parent, destroying it in the process
+     */
+    removeSelf() {
+        this.destroy();
+        removeFromParent(this.parent, this, false /* already destroyed above */);
+        return this;
     }
 
     /******************** CLASS / ID / NAME */
@@ -626,102 +619,79 @@ export { Element };
 /******************** INTERNAL ********************/
 
 function addToParent(parent, element) {
-    if (!element) return;
-    if (!parent) return;
+    if (!parent || !element) return;
 
-    // Check if already parent
+    // Check if Element has Parent
     if (element.isElement) {
+        // Element is already a child of Parent?
         if (parent.isElement && element.parent === parent) return;
-
-        // Detach from current parent
+        // Detach from current Parent
         if (element.parent && element.parent.isElement) {
             removeFromParent(element.parent, element, false);
         }
     }
 
-    // Suey 'Element'
-    if (element.isElement) {
-        // Add node
-        parent.dom.appendChild(element.dom);
+    // Add to HTMLElement
+    const parentDom = parent.isElement ? parent.dom : parent;
+    const elementDom = element.isElement ? element.dom : element;
+    try { if (parentDom) parentDom.appendChild(elementDom); }
+    catch (error) { /* FAILED TO ADD */ }
 
+    // Add to Suey Element
+    if (element.isElement) {
         // Add to child array if not already there
         let hasIt = false;
         for (const child of parent.children) {
-            if (child.dom.isSameNode(element.dom)) {
-                hasIt = true;
-                break;
-            }
+            if (child.dom.isSameNode(element.dom)) { hasIt = true; break; }
         }
         if (!hasIt) parent.children.push(element);
-
         // Set element parent
         element.parent = parent;
-
-    // 'HTMLElement'
-    } else {
-        try {
-            parent.dom.appendChild(element);
-        } catch (error) {
-            // REMOVE FAILED
-        }
     }
 
-    if (element.isElement) element = element.dom;
-    if (element && element.dispatchEvent) element.dispatchEvent(new Event('parentChanged'));
-}
-
-// Clears 'Element' Children
-function clearElementChildren(suey) {
-    for (let i = 0; i < suey.children.length; i++) {
-        const child = suey.children[i];
-        clearChildren(child, true /* destroy event */);
-    }
-    suey.children.length = 0;
-}
-
-// Clears Dom Element Children
-function clearDomChildren(dom) {
-    if (!dom.children) return;
-    for (let i = dom.children.length - 1; i >= 0; i--) {
-        const child = dom.children[i];
-        clearChildren(child, true /* destroy event */);
-        try { dom.removeChild(child); } catch (error) { /* FAILED TO REMOVE */ }
+    // Parent Event
+    if (elementDom instanceof HTMLElement) {
+        elementDom.dispatchEvent(new Event('parentChanged'));
     }
 }
 
-/* Clears all 'Element' children and/or 'HTMLElement' (dom) children from element */
-function clearChildren(element, destroy = true) {
+/**
+ * Destroys and removes all children with optional 'destroy' event on self
+ */
+function destroyChildren(element, destroySelf = true) {
     if (!element) return;
 
-    // Suey 'Element'
-    if (element.isElement) {
-        // Destroy Event
-        if (destroy && element.dom && element.dom.dispatchEvent) {
-            element.dom.dispatchEvent(new Event('destroy'));
+    // Find HTMLElement
+    const dom = element.isElement ? element.dom : element;
+    if (!(dom instanceof HTMLElement)) return;
+
+    // Destroy Event
+    if (destroySelf) {
+        if (!dom.wasDestroyed) {
+            dom.dispatchEvent(new Event('destroy'));
+            dom.wasDestroyed = true;
         }
-
-        // Remove Children
-        clearElementChildren(element);
-        clearDomChildren(element.dom);
-
-    // 'HTMLElement'
-    } else {
-        // Destroy Event
-        if (destroy && element && element.dispatchEvent) {
-            element.dispatchEvent(new Event('destroy'));
-        }
-
-        // Remove Children
-        clearDomChildren(element);
     }
+
+    // Remove Children
+    for (let i = dom.children.length - 1; i >= 0; i--) {
+        const child = dom.children[i];
+        destroyChildren(child, true /* destroySelf */);
+        try { dom.removeChild(child); } catch (error) { /* FAILED TO REMOVE */ }
+    }
+    if (dom.suey && dom.suey.isElement) dom.suey.children.length = 0;
 }
 
-/** Returns dom element that was removed */
+/**
+ * Removes an element from a parent, returns element that was removed
+ */
 function removeFromParent(parent, element, destroy = true) {
-    if (!parent) return undefined;
-    if (!element) return undefined;
+    if (!parent || !element) return undefined;
 
-    // Suey 'Element'
+    // Destroy on Removal?
+    if (destroy) destroyChildren(element, true /* destroySelf */);
+
+    // Remove from Suey Element
     if (element.isElement && parent.isElement) {
         for (let i = 0; i < parent.children.length; i++) {
             const child = parent.children[i];
@@ -732,15 +702,10 @@ function removeFromParent(parent, element, destroy = true) {
         }
     }
 
-   // Clear Children
-   if (destroy) clearChildren(element, true /* destroy */);
-
-    // Remove from Parent
+    // Remove from HTMLElement
     try {
         if (parent.isElement) parent = parent.dom;
-        const removed = parent.removeChild((element.isElement) ? element.dom : element);
+        const removed = parent.removeChild(element.isElement ? element.dom : element);
         return (removed && removed.suey) ? removed.suey : removed;
-    } catch (error) {
-        return undefined; /* REMOVE FAILED */
-    }
+    } catch (error) { /* FAILED TO REMOVE */ }
 }

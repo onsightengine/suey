@@ -41,6 +41,19 @@ class Floater extends Panel {
         this.button = new TabButton(this, Strings.capitalize(id), options);
     }
 
+    destroy() {
+        this.button.destroy();
+        super.destroy();
+    }
+
+    removeSelf() {
+        if (this.dock) {
+            this.dock.removeTab(this, true);
+        } else {
+            super.removeSelf();
+        }
+    }
+
 }
 
 class TabButton extends Div {

@@ -43,7 +43,14 @@ class Tabbed extends AbstractDock {
         }
     }
 
-    /******************** ADD */
+    /******************** DESTROY */
+
+    destroy() {
+        this.removeTabs();
+        super.destroy();
+    }
+
+    /******************** TABS */
 
     addTab(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
@@ -77,19 +84,59 @@ class Tabbed extends AbstractDock {
         return this;
     }
 
-    /******************** COLLAPSE / EXPAND */
-
-    toggleTabs() {
-        if (this.parent && this.parent.hasClass('suey-docker')) {
-            if (this.parent.hasClass('suey-collapsed')) {
-                this.parent.expandTabs();
-            } else {
-                this.parent.collapseTabs();
-            }
-        }
+    /** Finds a child Tab by ID */
+    findTab(tabID = '') {
+        return this.panels.children.find((item) => (item.id === tabID));
     }
 
-    /******************** SELECT */
+    /** Remove Tab (Floater) from Tabbed */
+    removeTab(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findTab(floater);
+        if (!floater) return false;
+
+        // Destroy Floater?
+        if (destroy) floater.destroy();
+
+        // Find Floater
+        const index = this.panels.children.indexOf(floater);
+        if (!floater || index === -1) return false;
+
+        // Remove Tab
+        const button = this.buttons.children[index];
+        const panel = this.panels.children[index];
+        if (button) button.removeClass('suey-selected');
+        if (panel) panel.addClass('suey-hidden');
+        this.buttons.detach(button);
+        this.panels.detach(panel);
+
+        // Was Selected? (select new Tab)
+        if (panel.id === this.selectedID) {
+            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
+            else if (this.panels.children.length > 0) this.selectFirst();
+        }
+
+        // Minimum height (so Tab Buttons dont float over nothing)
+        this.setContentsStyle('minHeight', '');
+        if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
+            this.setContentsStyle('minHeight', ((2.2 * this.buttons.children.length) + 0.4) + 'em');
+        }
+
+        // Hide/Show Tabs
+        this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
+
+        // Tabs Changed
+        this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+        return true;
+    }
+
+    /** Removes all Tabs/Floaters */
+    removeTabs() {
+        const children = [ ...this.panels.children ];
+        for (const child of children) {
+            child.destroy();
+            this.removeTab(child);
+        }
+    }
 
     /** Select first Tab */
     selectFirst() {
@@ -111,14 +158,14 @@ class Tabbed extends AbstractDock {
         }
 
         // Find button / panel with New ID
-        const panel = this.panels.children.find((item) => (item.id === selectID));
+        const panel = this.findTab(selectID);
         if (panel && panel.button) {
             // Disable Animations
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
 
             // Deselect current Panel / Button
-            this.panels.children.forEach((element) => { element.addClass('suey-hidden'); });
-            this.buttons.children.forEach((element) => { element.removeClass('suey-selected'); });
+            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
 
             // Select new Panel / Button
             panel.removeClass('suey-hidden');
@@ -142,69 +189,28 @@ class Tabbed extends AbstractDock {
         return false;
     }
 
-    /******************** REMOVE */
-
-    destroy() {
-        const children = [...this.panels.children];
-        for (const child of children) {
-            child.destroy();
-            this.removeTab(child);
-        }
-        super.destroy();
+    tabCount() {
+        return this.panels.children.length;
     }
 
-    /** Remove Tab (Floater) from Tabbed. */
-    removeTab(...floaters) {
-        if (!floaters || !Array.isArray(floaters)) return this;
-        let tabsRemoved = 0;
-        // Remove Tabs/Floaters
-        for (const floater of floaters) {
-            const index = this.panels.children.indexOf(floater);
-            if (!floater || index === -1) continue;
+    /******************** COLLAPSE / EXPAND */
 
-            // Remove Tab
-            const button = this.buttons.children[index];
-            const panel = this.panels.children[index];
-            if (button) button.removeClass('suey-selected');
-            if (panel) panel.addClass('suey-hidden');
-            this.buttons.detach(button);
-            this.panels.detach(panel);
-            tabsRemoved++;
-
-            // Was Selected? (select new Tab)
-            if (panel.id === this.selectedID) {
-                if (index > 0) {
-                    this.selectTab(this.panels.children[index - 1].id);
-                } else if (this.panels.children.length > 0) {
-                    this.selectFirst();
-                }
+    toggleTabs() {
+        if (this.parent && this.parent.hasClass('suey-docker')) {
+            if (this.parent.hasClass('suey-collapsed')) {
+                this.parent.expandTabs();
+            } else {
+                this.parent.collapseTabs();
             }
-
-            // Minimum Tabs to Show
-            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
         }
-        // Tabs Changed
-        if (tabsRemoved > 0) {
-            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        }
-        // Empty?
-        if (this.panels.children.length === 0) {
-            this.setStyle('minHeight', '');
-            this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
-        }
-        return this;
     }
 
-    /******************** INFO */
+    /******************** SIDE */
 
     setTabSide(side) {
         side = String(side).toLowerCase();
         this.buttons.removeClass('suey-left-side', 'suey-right-side', 'suey-top-side', 'suey-bottom-side');
         this.buttons.addClass(`suey-${side}-side`);
-    }
-
-    tabCount() {
-        return this.panels.children.length;
     }
 
 }
