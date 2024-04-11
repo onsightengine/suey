@@ -21,20 +21,26 @@
             Css,
             Div,
             Docker,
+            FlexBox,
+            FlexSpacer,
             Floater,
+            MainWindow,
             Iris,
             Tabbed,
             Titled,
+            ToolbarButton,
+            ToolbarSeparator,
         } from 'suey';
 
         import {
             DOCK_SIDES,
             RESIZERS,
-            TAB_SIDES,
+            TAB_SIDES
         } from 'suey';
 
-        const docker = new Docker();
-        document.body.appendChild(docker.dom);
+        const mainWindow = new MainWindow()
+        document.body.appendChild(mainWindow.dom);
+        const docker = mainWindow.docker;
 
         /***** Helper Functions *****/
 
@@ -110,6 +116,30 @@
         const huppy = new Floater('huppy', new Titled({ title: 'huppy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
         const duppy = new Floater('duppy', new Titled({ title: 'duppy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
         tabby5.addTab(huppy, duppy);
+
+        /***** Windows *****/
+
+        mainWindow.addWindow({ title: 'Window' });
+
+        /***** Toolbar *****/
+
+        const button1 = new ToolbarButton();
+        const button2 = new ToolbarButton(null, 'left');
+        const button3 = new ToolbarButton(null, 'middle');
+        const button4 = new ToolbarButton(null, 'right');
+        const button5 = new ToolbarButton();
+        const button6 = new ToolbarButton();
+
+        const toolbar = new FlexBox().setStyle('flex', '0 0 auto', 'pointerEvents', 'none');
+        toolbar.add(button1, new ToolbarSeparator(), button2, button3, button4)
+        toolbar.add(new FlexSpacer(), button5, new FlexSpacer(), button6);
+        mainWindow.addToSelf(toolbar);
+
+        toolbar.setStyle('padding', 'var(--pad-small)', 'padding-bottom', '0');
+        mainWindow.docker.setStyle(
+            'height', 'calc(100% - (var(--button-size) + (var(--pad-small) * 2)))',
+            'top', 'calc(var(--button-size) + (var(--pad-small) * 2))',
+        );
 
     </script>
 

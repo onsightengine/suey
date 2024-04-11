@@ -24,8 +24,8 @@ class Window extends AbstractDock {
         maxButton = true,
         closeButton = true,
         buttonSides = CLOSE_SIDES.LEFT,
-        width = 600,
-        height = 600,
+        width = '60%',
+        height = '60%',
         initialWidth = undefined,
         initialHeight = undefined,
         startCentered = true,
@@ -107,9 +107,12 @@ class Window extends AbstractDock {
         this.addResizers(resizers);
 
         // Set Initial Size
-        this.setStyle('left', left, 'top', top);
-        this.setStyle('width', width);
-        this.setStyle('height', height);
+        this.setStyle(
+            'left', Css.parseSize(left),
+            'top', Css.parseSize(top),
+            'width', Css.parseSize(width),
+            'height', Css.parseSize(height),
+        );
 
         /***** EVENTS *****/
 
@@ -197,8 +200,8 @@ class Window extends AbstractDock {
     }
 
     setInitialSize() {
-        this.setStyle('width', this.initialWidth);
-        this.setStyle('height', this.initialHeight);
+        this.setStyle('width', Css.parseSize(this.initialWidth));
+        this.setStyle('height', Css.parseSize(this.initialHeight));
         this.dom.dispatchEvent(new Event('resizer'));
     }
 

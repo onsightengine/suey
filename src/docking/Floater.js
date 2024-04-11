@@ -288,9 +288,8 @@ class TabButton extends Div {
                             droppedOnDock = lastUnder.addDock(DOCK_SIDES.RIGHT, '20%', false).enableTabs();
                         // New Window
                         } else if (locationUnder.hasClassWithString('center')) {
-                            droppedOnDock = new Window({ title: self.tabPanel.id, width: '50%', height: '70%' });
-                            lastUnder.getPrimary().addToSelf(droppedOnDock);
-                            droppedOnDock.display();
+                            const mainWindow = lastUnder.getMainWindow();
+                            if (mainWindow) droppedOnDock = mainWindow.addWindow({ title: self.tabPanel.id, width: '50%', height: '70%' });
                         // Unknown Dock Location
                         } else {
                             console.warn('TabButton.tabPointerUp(): Unknown dock location', locationUnder);

@@ -130,6 +130,8 @@ class Css {
             } else {
                 return parseFloat(size).toFixed(2) + 'px';
             }
+        } else if (Number.isNaN(size)) {
+            return '0';
         } else {
             return parseFloat(size).toFixed(2) + 'px';
         }
@@ -150,6 +152,7 @@ class Css {
     /** Returns input units to converted pixels string ending in 'px' */
     static toPx(size, element = document.body, dimension = 'w' /* or 'h' (for percentage) */) {
         if (!element) element = document.body;
+        if (element && element.isElement) element = element.dom;
         const parsedSize = Css.parseSize(size);
         if (parsedSize.includes('%')) {
             if (element) {

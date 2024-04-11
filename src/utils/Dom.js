@@ -44,15 +44,19 @@ class Dom {
     }
 
     /** Finds and returns all children of 'element' with class 'className' */
-    static childrenWithClass(element, className, recursive = true) {
+    static childrenWithClass(element, className, recursive = true, searchChildenOfTarget = true) {
         if (element.isElement && element.dom) element = element.dom;
         const children = [];
         const queue = [ element ];
         while (queue.length > 0) {
             const currentElement = queue.shift();
             for (const child of currentElement.children) {
-                if (child.classList.contains(className)) children.push(child.suey ?? child);
-                if (recursive) queue.push(child);
+                if (child.classList.contains(className)) {
+                    children.push(child.suey ?? child);
+                    if (recursive && searchChildenOfTarget) queue.push(child);
+                } else {
+                    if (recursive) queue.push(child);
+                }
             }
         }
         return children;

@@ -25,6 +25,7 @@
 //      AbstractDock            div                     .suey-dock
 //      Docker                  div                     .suey-docker
 //      Floater                 div                     .suey-floater, .suey-tab-button
+//      MainWindow              div                     .suey-main-window
 //      Tabbed                  div                     .suey-dock.suey-tabbed
 //      Window                  div                     .suey-dock.suey-window
 //
@@ -110,6 +111,7 @@ export { TreeList } from './data/TreeList.js';
 // Docking
 export { Docker } from './docking/Docker.js';
 export { Floater } from './docking/Floater.js';
+export { MainWindow } from './docking/MainWindow.js';
 export { Tabbed } from './docking/Tabbed.js';
 export { Window } from './docking/Window.js';
 

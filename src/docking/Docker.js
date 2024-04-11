@@ -6,7 +6,6 @@ import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Tabbed } from './Tabbed.js';
-import { Window } from './Window.js';
 
 import { DOCK_SIDES } from '../constants.js';
 import { IMAGE_ADD } from '../constants.js';
@@ -51,6 +50,15 @@ class Docker extends Panel {
     }
 
     /******************** PRIMARY */
+
+    getMainWindow() {
+        const primary = this.getPrimary();
+        if (primary) {
+            const mainWindow = primary.parent;
+            if (mainWindow && mainWindow.hasClass('suey-main-window')) return mainWindow;
+        }
+        return null;
+    }
 
     getPrimary() {
         let primary = undefined;
@@ -531,14 +539,20 @@ class Docker extends Panel {
                     bottomDock.setStyle('height', edgeSize);
                     dockLocations.add(leftDock, rightDock, topDock, bottomDock);
                 } else {
-                    topDock.setStyle('left', '20%', 'width', '60%');
-                    bottomDock.setStyle('left', '20%', 'width', '60%');
-                    const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
-                    const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
-                    imageBox.addClass('suey-complement-colorize');
-                    imageBox.setStyle('width', '20%', 'height', '20%');
-                    centerDock.add(imageBox);
-                    dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
+                    if (this.getMainWindow()) {
+                        topDock.setStyle('left', '20%', 'width', '60%');
+                        bottomDock.setStyle('left', '20%', 'width', '60%');
+                        const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
+                        const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
+                        imageBox.addClass('suey-complement-colorize');
+                        imageBox.setStyle('width', '20%', 'height', '20%');
+                        centerDock.add(imageBox);
+                        dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
+                    } else {
+                        topDock.setStyle('left', '20%', 'width', '60%', 'height', '50%');
+                        bottomDock.setStyle('left', '20%', 'width', '60%', 'height', '50%');
+                        dockLocations.add(leftDock, rightDock, topDock, bottomDock);
+                    }
                 }
             }
             this.addToSelf(dockLocations);
@@ -549,34 +563,6 @@ class Docker extends Panel {
             child.removeClass('suey-dock-drop');
             child.removeClass('suey-dock-self');
         }
-    }
-
-    /******************** FLOATERS */
-
-    addFloater(floater, location = 'center') {
-        let dock = undefined;
-        if (location === 'center' || this.isPrimary()) {
-            dock = new Window({ title: floater.id, width: '50%', height: '70%' });
-            this.getPrimary().addToSelf(window);
-            window.display();
-        } else {
-            dock = this.enableTabs();
-        }
-        dock.addTab(floater);
-        dock.selectTab(floater.id);
-    }
-
-    floaters() {
-        return Dom.childrenWithClass(this, 'suey-floater', true /* recursive? */);
-    }
-
-    getFloaterByID(id) {
-        if (id == undefined || id === '') return undefined;
-        const floaters = this.floaters();
-        for (const floater of floaters) {
-            if (floater.id === id) return floater;
-        }
-        return undefined;
     }
 
 }
