@@ -377,12 +377,12 @@
     overflow: visible;
 }
 
-.suey-window .suey-tab-panels {
-    margin-top: 1em;
-}
-
 .suey-window .suey-floater {
     z-index: 101; /* window floater */
+}
+
+.suey-window .suey-tab-panels {
+    margin-top: 1em;
     height: calc(100% - 1em);
 }
 
