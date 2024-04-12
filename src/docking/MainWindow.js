@@ -1,3 +1,4 @@
+import { Div } from '../core/Div.js';
 import { Docker } from './Docker.js';
 import { Dom } from '../utils/Dom.js';
 import { Panel } from '../panels/Panel.js';
@@ -18,6 +19,12 @@ class MainWindow extends Panel {
         const docker = new Docker();
         this.add(docker);
         this.docker = docker;
+
+        // Windows
+        const windows = new Div().addClass('suey-window-holder');
+        windows.getPrimary = function() { return docker; };
+        this.add(windows);
+        this.windows = windows;
     }
 
     getPrimary() {
@@ -39,14 +46,13 @@ class MainWindow extends Panel {
         } else {
             window = new Window(options);
         }
-        this.addToSelf(window);
+        this.windows.addToSelf(window);
         window.display();
         return window;
     }
 
     clearWindows() {
-        const windows = Dom.childrenWithClass(this, 'suey-window', true /* recursive? */, false /* searchChildrenOfTarget */);
-        this.remove(...windows);
+        this.windows.clearContents();
     }
 
     /******************** FLOATERS */

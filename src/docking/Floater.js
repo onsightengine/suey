@@ -125,7 +125,7 @@ class TabButton extends Div {
         let lastUnder = undefined;
         let locationUnder = undefined;
         let wasSelected = false;
-        let lastClickTime = performance.now();
+        let lastClickTime = performance.now() - 1000;
 
         function tabPointerDown(event) {
             if (event.button !== 0) return;
@@ -178,7 +178,8 @@ class TabButton extends Div {
                 } else {
                     elementUnder = null;
                 }
-            } else {
+            }
+            if (!elementUnder) {
                 // Check for Edges
                 const primary = self.tabPanel.dock?.parent?.getPrimary();
                 if (primary) {
