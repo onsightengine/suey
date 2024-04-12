@@ -177,8 +177,12 @@ class Interaction {
                 // newLeft = Math.max(0, newLeft);
                 // newTop = Math.max(0, newTop);
             }
-            dragElement.style.left = `${newLeft}px`;
-            dragElement.style.top = `${newTop}px`;
+            if (dragElement.suey) {
+                dragElement.suey.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
+            } else {
+                dragElement.style.left = `${newLeft}px`;
+                dragElement.style.top = `${newTop}px`;
+            }
             if (parent.isWindow) {
                 const parentRect = parent.dom.parentElement.getBoundingClientRect();
                 if (event.clientX < parentRect.left + 50) parent.dockLeft();

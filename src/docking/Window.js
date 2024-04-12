@@ -12,6 +12,8 @@ import { RESIZERS } from '../constants.js';
 const MIN_W = 300;
 const MIN_H = 150;
 
+let _styleTimeout = undefined;
+
 class Window extends AbstractDock {
 
     #lastKnownRect;
@@ -160,6 +162,22 @@ class Window extends AbstractDock {
     }
 
     /******************** POSITION */
+
+    setStyle(...styles) {
+        super.setStyle(...styles);
+        const self = this;
+
+        // Shrink Tab Button if Window near top of screen
+        clearTimeout(_styleTimeout);
+        _styleTimeout = setTimeout(() => {
+            const rect = self.dom.getBoundingClientRect();
+            if (rect.top < parseFloat(Css.toPx('0.7em'))) {
+                self.addClass('suey-shrink-tab-button');
+            } else {
+                self.removeClass('suey-shrink-tab-button');
+            }
+        }, 0);
+    }
 
     /** Applies 'suey-active-window', ensures this is the only element with this special class */
     activeWindow() {
