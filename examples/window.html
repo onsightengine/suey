@@ -26,14 +26,15 @@
             Floater,
             MainWindow,
             Iris,
+            ShadowBox,
             Tabbed,
             Titled,
             ToolbarButton,
-            ToolbarSeparator,
         } from 'suey';
 
         import {
             DOCK_SIDES,
+            IMAGE_ADD,
             RESIZERS,
             TAB_SIDES
         } from 'suey';
@@ -71,9 +72,8 @@
         function randInt(max) {
             return Math.floor(Math.random() * max);
         }
-        function randomChars(min = 8, max = 2000) {
-            // const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            const CHARACTERS = '.';
+        function randomChars(min = 8, max = 2000, letters = false) {
+            const CHARACTERS = letters ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' : '.';
             const CHANCE_ENTER = 10;
             const length = randInt(max - min + 1) + min;
             let word = '';
@@ -119,20 +119,41 @@
 
         /***** Windows *****/
 
-        mainWindow.addWindow({ title: 'Window' });
+        function addWindow() {
+            const rect = mainWindow.dom.getBoundingClientRect();
+            const newWindow = mainWindow.addWindow({
+                title: 'Window',
+                height: '300px',
+                width: '300px',
+                left: `${randInt(rect.width - 300)}px`,
+                top: `${randInt(rect.height - 400) + 100}px`,
+                startCentered: false,
+            });
+            const windowName = randomChars(5, 9, true);
+            newWindow.addTab(new Floater(windowName, null, { color: new Iris().setRandom().hexString() }));
+            newWindow.selectTab(windowName);
+            newWindow.setTitle(windowName);
+        }
+        addWindow();
+        addWindow();
 
         /***** Toolbar *****/
 
-        const button1 = new ToolbarButton();
+        const button1 = new ToolbarButton().add(new ShadowBox(IMAGE_ADD).evenShadow());
         const button2 = new ToolbarButton(null, 'left');
         const button3 = new ToolbarButton(null, 'middle');
         const button4 = new ToolbarButton(null, 'right');
         const button5 = new ToolbarButton();
         const button6 = new ToolbarButton();
+        const button7 = new ToolbarButton();
+
+        button1.onPress(() => {
+            addWindow();
+        });
 
         const toolbar = new FlexBox().setStyle('flex', '0 0 auto', 'pointerEvents', 'none');
-        toolbar.add(button1, new ToolbarSeparator(), button2, button3, button4)
-        toolbar.add(new FlexSpacer(), button5, new FlexSpacer(), button6);
+        toolbar.add(button1, new FlexSpacer(), button2, button3, button4)
+        toolbar.add(new FlexSpacer(), button5, button6, button7);
         mainWindow.addToSelf(toolbar);
 
         toolbar.setStyle('padding', 'var(--pad-small)', 'padding-bottom', '0');
