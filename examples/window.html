@@ -89,7 +89,6 @@
         const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
         const dockRight = docker.addDock(DOCK_SIDES.RIGHT, '20%');
         const dockBottom = docker.addDock(DOCK_SIDES.BOTTOM, '35%');
-        const dockTop = docker.addDock(DOCK_SIDES.TOP, '20%');
 
         const tabby1 = dockLeft.enableTabs();
         const howdy = new Floater('howdy', new Titled({ title: 'howdy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
@@ -106,36 +105,26 @@
         const dippy = new Floater('dippy', new Titled({ title: 'dippy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
         tabby3.addTab(hippy, dippy);
 
-        const tabby4 = dockTop.enableTabs();
-        const hoopy = new Floater('hoopy', new Titled({ title: 'hoopy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
-        const doopy = new Floater('doopy', new Titled({ title: 'doopy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
-        tabby4.addTab(hoopy, doopy);
-
-        const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
-        const tabby5 = miniDock.enableTabs();
-        const huppy = new Floater('huppy', new Titled({ title: 'huppy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
-        const duppy = new Floater('duppy', new Titled({ title: 'duppy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
-        tabby5.addTab(huppy, duppy);
-
         /***** Windows *****/
 
-        function addWindow() {
+        function addWindow(qty = 1) {
             const rect = mainWindow.dom.getBoundingClientRect();
-            const newWindow = mainWindow.addWindow({
-                title: 'Window',
-                height: '300px',
-                width: '300px',
-                left: `${randInt(rect.width - 300)}px`,
-                top: `${randInt(rect.height - 400) + 100}px`,
-                startCentered: false,
-            });
-            const windowName = randomChars(5, 9, true);
-            newWindow.addTab(new Floater(windowName, null, { color: new Iris().setRandom().hexString() }));
-            newWindow.selectTab(windowName);
-            newWindow.setTitle(windowName);
+            for (let i = 0; i < qty; i++) {
+                const newWindow = mainWindow.addWindow({
+                    title: 'Window',
+                    height: '300px',
+                    width: '300px',
+                    left: `${randInt(rect.width - 300)}px`,
+                    top: `${randInt(rect.height - 400) + 100}px`,
+                    startCentered: false,
+                });
+                const windowName = randomChars(5, 9, true);
+                newWindow.addTab(new Floater(windowName, null, { color: new Iris().setRandom().hexString() }));
+                newWindow.selectTab(windowName);
+                newWindow.setTitle(windowName);
+            }
         }
-        addWindow();
-        addWindow();
+        addWindow(3);
 
         /***** Toolbar *****/
 
