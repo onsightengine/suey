@@ -3926,18 +3926,19 @@ class AbstractDock extends Panel {
     }
     removeTab(floater, destroy = false) {
         console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
-        return false;
+        return this;
     }
     removeTabs() {
         console.error(`${this.constructor.name}.removeTabs(): Method must be reimplemented from AbstractDock`);
+        return this;
     }
     selectFirst() {
         console.error(`${this.constructor.name}.selectFirst(): Method must be reimplemented from AbstractDock`);
-        return false;
+        return this;
     }
     selectTab(selectID, wasClicked = false) {
         console.error(`${this.constructor.name}.selectTab(): Method must be reimplemented from AbstractDock`);
-        return false;
+        return this;
     }
     tabCount() {
         console.error(`${this.constructor.name}.tabCount(): Method must be reimplemented from AbstractDock`);
@@ -4213,10 +4214,10 @@ class Window extends AbstractDock {
     }
     removeTab(floater, destroy = false) {
         if (typeof floater === 'string') floater = this.findTab(floater);
-        if (!floater) return false;
+        if (!floater) return this;
         if (destroy) floater.destroy();
         const index = this.panels.children.indexOf(floater);
-        if (!floater || index === -1) return false;
+        if (!floater || index === -1) return this;
         const button = this.buttons.children[index];
         const panel = this.panels.children[index];
         if (button) button.removeClass('suey-selected');
@@ -4225,20 +4226,22 @@ class Window extends AbstractDock {
         this.panels.detach(panel);
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         if (this.tabCount() === 0) this.removeSelf();
-        return true;
+        return this;
     }
     removeTabs() {
         const children = [ ...this.panels.children ];
         for (const child of children) {
             this.removeTab(child, true );
         }
+        return this;
     }
     selectFirst() {
-        if (this.panels.children.length === 0) return false;
-        return this.selectTab(this.panels.children[0].id);
+        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        return this;
     }
     selectTab(selectID, wasClicked = false) {
-        if (selectID.isElement) selectID = selectID.id;
+        if (selectID && selectID.isElement) selectID = selectID.id;
+        if (typeof selectID !== 'string') return this;
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
             this.panels.children.forEach((element) => element.addClass('suey-hidden'));
@@ -4250,9 +4253,8 @@ class Window extends AbstractDock {
             this.dom.dispatchEvent(tabSelected);
             this.setStyle('display', '');
             this.focus();
-            return true;
         }
-        return false;
+        return this;
     }
     tabCount() {
         return this.panels.children.length;
@@ -4609,10 +4611,10 @@ class Tabbed extends AbstractDock {
     }
     removeTab(floater, destroy = false) {
         if (typeof floater === 'string') floater = this.findTab(floater);
-        if (!floater) return false;
+        if (!floater) return this;
         if (destroy) floater.destroy();
         const index = this.panels.children.indexOf(floater);
-        if (!floater || index === -1) return false;
+        if (!floater || index === -1) return this;
         const button = this.buttons.children[index];
         const panel = this.panels.children[index];
         if (button) button.removeClass('suey-selected');
@@ -4629,24 +4631,27 @@ class Tabbed extends AbstractDock {
         }
         this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        return true;
+        return this;
     }
     removeTabs() {
         const children = [ ...this.panels.children ];
         for (const child of children) {
             this.removeTab(child, true );
         }
+        return this;
     }
     selectFirst() {
-        if (this.panels.children.length === 0) return false;
-        return this.selectTab(this.panels.children[0].id);
+        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        return this;
     }
     selectTab(selectID, wasClicked = false) {
+        if (selectID && selectID.isElement) selectID = selectID.id;
+        if (typeof selectID !== 'string') return this;
         if (wasClicked) {
             if (this.parent.hasClass('suey-collapsed')) {
                 this.toggleTabs();
             } else if (selectID === this.selectedID) {
-                return true;
+                return this;
             }
         }
         const panel = this.findTab(selectID);
@@ -4662,9 +4667,8 @@ class Tabbed extends AbstractDock {
             tabSelected.value = selectID;
             this.dom.dispatchEvent(tabSelected);
             setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
-            return true;
         }
-        return false;
+        return this;
     }
     tabCount() {
         return this.panels.children.length;

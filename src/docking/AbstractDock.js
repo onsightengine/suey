@@ -13,42 +13,43 @@ class AbstractDock extends Panel {
         this.addClass('suey-dock');
     }
 
-    /** Adds Tab(s) (Floater) to the Dock. */
+    /** Adds Floater(s) to the Dock */
     addTab(...floaters) {
         console.error(`${this.constructor.name}.addTab(): Method must be reimplemented from AbstractDock`);
         return this;
     }
 
-    /** Finds a child Tab by ID */
+    /** Finds and returns Floater by ID */
     findTab(tabID = '') {
         console.error(`${this.constructor.name}.findTab(): Method must be reimplemented from AbstractDock`);
         return null;
     }
 
-    /** Remove Tab (Floater) from Dock. Return true is Tab was removed. */
+    /** Remove a Floater from the Dock */
     removeTab(floater, destroy = false) {
         console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
-        return false;
+        return this;
     }
 
-    /** Removes all Tabs/Floaters */
+    /** Removes all Floaters from the Dock */
     removeTabs() {
         console.error(`${this.constructor.name}.removeTabs(): Method must be reimplemented from AbstractDock`);
+        return this;
     }
 
-    /** Select first Tab (Floater). Return true if new Tab was selected. */
+    /** Select first Tab / Floater */
     selectFirst() {
         console.error(`${this.constructor.name}.selectFirst(): Method must be reimplemented from AbstractDock`);
-        return false;
+        return this;
     }
 
-    /** Select Tab (Floater). Return true if new Tab was selected. */
+    /** Select Floater by ID */
     selectTab(selectID, wasClicked = false) {
         console.error(`${this.constructor.name}.selectTab(): Method must be reimplemented from AbstractDock`);
-        return false;
+        return this;
     }
 
-    /** Returns number of Tabs currently within Dock. */
+    /** Returns number of Floaters currently within Dock */
     tabCount() {
         console.error(`${this.constructor.name}.tabCount(): Method must be reimplemented from AbstractDock`);
         return 0;

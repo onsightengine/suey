@@ -127,7 +127,8 @@
                     startCentered: false,
                 });
                 const windowName = randomChars(5, 9, true);
-                newWindow.addTab(new Floater(windowName, new Div(randomChars()).setStyle('overflow', 'auto'), { color: new Iris().setRandom().hexString() }));
+                const floater = new Floater(windowName, new Div(randomChars()).setStyle('overflow', 'auto'), { color: new Iris().setRandom().hexString() });
+                newWindow.addTab(floater);
                 newWindow.selectTab(windowName);
                 newWindow.setTitle(windowName);
             }

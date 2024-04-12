@@ -84,22 +84,22 @@ class Tabbed extends AbstractDock {
         return this;
     }
 
-    /** Finds a child Tab by ID */
+    /** Finds and returns Floater by ID */
     findTab(tabID = '') {
         return this.panels.children.find((item) => (item.id === tabID));
     }
 
-    /** Remove Tab (Floater) from Tabbed */
+    /** Remove a Floater from the Dock */
     removeTab(floater, destroy = false) {
         if (typeof floater === 'string') floater = this.findTab(floater);
-        if (!floater) return false;
+        if (!floater) return this;
 
         // Destroy Floater?
         if (destroy) floater.destroy();
 
         // Find Floater
         const index = this.panels.children.indexOf(floater);
-        if (!floater || index === -1) return false;
+        if (!floater || index === -1) return this;
 
         // Remove Tab
         const button = this.buttons.children[index];
@@ -126,25 +126,29 @@ class Tabbed extends AbstractDock {
 
         // Tabs Changed
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        return true;
+        return this;
     }
 
-    /** Removes all Tabs/Floaters */
+    /** Removes all Floaters from the Dock */
     removeTabs() {
         const children = [ ...this.panels.children ];
         for (const child of children) {
             this.removeTab(child, true /* destroy */);
         }
+        return this;
     }
 
-    /** Select first Tab */
+    /** Select first Tab / Floater */
     selectFirst() {
-        if (this.panels.children.length === 0) return false;
-        return this.selectTab(this.panels.children[0].id);
+        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        return this;
     }
 
-    /** Select Tab (returns true if new Tab was selected) */
+    /** Select Floater by ID */
     selectTab(selectID, wasClicked = false) {
+        if (selectID && selectID.isElement) selectID = selectID.id;
+        if (typeof selectID !== 'string') return this;
+
         // Clicked?
         if (wasClicked) {
             // Is Currently Collapsed?
@@ -152,11 +156,11 @@ class Tabbed extends AbstractDock {
                 this.toggleTabs();
             // Single click, already selected
             } else if (selectID === this.selectedID) {
-                return true;
+                return this;
             }
         }
 
-        // Find button / panel with New ID
+        // Find button / panel with selectID
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
             // Disable Animations
@@ -181,11 +185,8 @@ class Tabbed extends AbstractDock {
 
             // Enable Animations
             setTimeout(() => Css.setVariable('--tab-timing', '200ms'), 50);
-
-            // Selection Successful
-            return true;
         }
-        return false;
+        return this;
     }
 
     tabCount() {
