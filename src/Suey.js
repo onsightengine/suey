@@ -25,7 +25,7 @@
 //      AbstractDock            div                     .suey-dock
 //      Docker                  div                     .suey-docker
 //      Floater                 div                     .suey-floater, .suey-tab-button
-//      MainWindow              div                     .suey-main-window
+//      MainWindow              div                     .suey-main-window, .suey-window-holder
 //      Tabbed                  div                     .suey-dock.suey-tabbed
 //      Window                  div                     .suey-dock.suey-window
 //
