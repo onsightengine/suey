@@ -8,8 +8,9 @@ class Button extends Element {
     constructor(buttonText, closesMenus = true) {
         super(document.createElement('button'));
         const self = this;
-
         this.setClass('suey-button');
+        this.allowMouseFocus();
+
         this.dom.textContent = buttonText ?? ' ';
 
         this.attachedMenu = undefined;
@@ -26,12 +27,16 @@ class Button extends Element {
 
         /***** EVENTS *****/
 
-        function hideTooltip(event) {
+        function onPointerDown(event) {
+            // Hide Tooltip
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
+
+            // Stop Button from Receiving Focus
+            event.preventDefault();
         }
 
-        this.on('pointerdown', hideTooltip);
+        this.on('pointerdown', onPointerDown);
 
         this.on('destroy', () => {
             if (self.attachedMenu) self.detachMenu();

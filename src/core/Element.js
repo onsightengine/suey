@@ -333,15 +333,22 @@ class Element {
 
     /**
      * Enables user focus on the Element.
+     * - Turns on focusin / focusout events
+     * - Keyboard 'keyup' event doesn't work without setting tabIndex >= 0
      * @memberof Element
      */
     allowFocus() {
-        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
-        // - turns on focusin / focusout events
-        // - keyup event doesn't work without setting tabIndex
-        this.dom.tabIndex = 0;
-        // // OR
-        // this.dom.setAttribute('tabindex', '0');
+        this.dom.tabIndex = 0; // this.dom.setAttribute('tabindex', '0');
+    }
+
+    /**
+     * Element will receive mouse focus but not keyboard focus (needs >= 0 for keyboard focus).
+     * NOTE: Element will be inaccessible to keyboard-only users, so it should be used with caution.
+     * https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
+     * @memberof Element
+     */
+    allowMouseFocus() {
+        this.dom.tabIndex = -1; // this.dom.setAttribute('tabindex', '-1');
     }
 
     /**

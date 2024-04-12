@@ -1367,6 +1367,9 @@ class Element {
     allowFocus() {
         this.dom.tabIndex = 0;
     }
+    allowMouseFocus() {
+        this.dom.tabIndex = -1;
+    }
     focus() {
         this.dom.focus();
     }
@@ -1537,6 +1540,7 @@ class Button extends Element {
         super(document.createElement('button'));
         const self = this;
         this.setClass('suey-button');
+        this.allowMouseFocus();
         this.dom.textContent = buttonText ?? ' ';
         this.attachedMenu = undefined;
         this.menuOffsetX = 0;
@@ -1548,11 +1552,12 @@ class Button extends Element {
             get: function() { return (this.dom) ? this.dom.disabled : true; },
             set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
         });
-        function hideTooltip(event) {
+        function onPointerDown(event) {
             const hideEvent = new Event('hidetooltip', { bubbles: true });
             self.dom.dispatchEvent(hideEvent);
+            event.preventDefault();
         }
-        this.on('pointerdown', hideTooltip);
+        this.on('pointerdown', onPointerDown);
         this.on('destroy', () => {
             if (self.attachedMenu) self.detachMenu();
         });
@@ -3985,10 +3990,36 @@ class Window extends AbstractDock {
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.panels);
         titleBar.add(this.buttons);
+        function activeWindow() {
+            if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
+                if (self.panels && self.panels.children.length > 0) {
+                    const floater = self.panels.children[0];
+                    floater.dom.dispatchEvent(new Event('activate-window'));
+                }
+            }
+            if (self.hasClass('suey-active-window')) return;
+            self.addClass('suey-active-window');
+            if (self.parent) {
+                const windows = Dom.childrenWithClass(self.parent, 'suey-window', true, false );
+                windows.forEach((element) => {
+                    if (element && element.isElement) element = element.dom;
+                    if (element !== self.dom) element.classList.remove('suey-active-window');
+                });
+                const topZ = windows.length + 200;
+                Css.setVariable('--window-z-index', `${topZ}`, self);
+                windows.forEach((element) => {
+                    if (element === self.dom) return;
+                    let currentZ = Css.getVariable('--window-z-index', element);
+                    if (currentZ >= topZ) currentZ = topZ;
+                    currentZ--;
+                    if (currentZ < 200) currentZ = 200;
+                    Css.setVariable('--window-z-index', `${currentZ}`, element);
+                });
+            }
+        }
+        this.on('displayed', () => activeWindow());
+        this.on('focusin', () => activeWindow());
         this.on('focusout', () => self.removeClass('suey-active-window'));
-        this.on('focusin', () => self.activeWindow());
-        this.on('displayed', () => self.activeWindow());
-        this.on('pointerdown', () => self.activeWindow());
         let rect = {}, parentRect = {};
         function resizerDown() {
             self.focus();
@@ -4072,25 +4103,6 @@ class Window extends AbstractDock {
                 self.removeClass('suey-shrink-tab-button');
             }
         }, 10);
-    }
-    activeWindow() {
-        if (this.hasClass('suey-active-window')) return;
-        this.addClass('suey-active-window');
-        const windows = document.querySelectorAll('.suey-window');
-        windows.forEach((element) => {
-            if (element !== this.dom) element.classList.remove('suey-active-window');
-        });
-        const topZ = windows.length + 200;
-        Css.setVariable('--window-z-index', `${topZ}`, this);
-        windows.forEach((element) => {
-            if (element !== this.dom) {
-                let currentZ = Css.getVariable('--window-z-index', element);
-                if (currentZ >= topZ) currentZ = topZ;
-                currentZ--;
-                if (currentZ < 200) currentZ = 200;
-                Css.setVariable('--window-z-index', `${currentZ}`, element);
-            }
-        });
     }
     center() {
         const parentRect = this.parentRect();
@@ -5172,7 +5184,7 @@ class MainWindow extends Panel {
         return Dom.childrenWithClass(this, 'suey-floater', true , false );
     }
     getFloaterByID(id) {
-        if (id == undefined || id === '') return undefined;
+        if (id == undefined || id === '' || typeof id !== 'string') return undefined;
         return this.floaters().find((floater) => (floater.id === id));
     }
 }
@@ -5957,7 +5969,7 @@ class Node extends Div {
         super();
         const self = this;
         this.addClass('suey-node');
-        this.setAttribute('tabindex', '-1');
+        this.allowMouseFocus();
         this.isNode = true;
         this.graph = undefined;
         this.#color.set(color);

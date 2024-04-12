@@ -67,7 +67,7 @@ class MainWindow extends Panel {
     }
 
     getFloaterByID(id) {
-        if (id == undefined || id === '') return undefined;
+        if (id == undefined || id === '' || typeof id !== 'string') return undefined;
         return this.floaters().find((floater) => (floater.id === id));
     }
 

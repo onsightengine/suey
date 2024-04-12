@@ -32,10 +32,7 @@ class Node extends Div {
         super();
         const self = this;
         this.addClass('suey-node');
-
-        // Enable mouse focus, needs >= 0 for keyboard focus
-        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#using_tabindex
-        this.setAttribute('tabindex', '-1');
+        this.allowMouseFocus();
 
         // Prototype
         this.isNode = true;

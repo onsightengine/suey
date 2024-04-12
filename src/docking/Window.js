@@ -1,6 +1,7 @@
 import { AbstractDock } from './AbstractDock.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
+import { Dom } from '../utils/Dom.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Span } from '../core/Span.js';
 import { Strings } from '../utils/Strings.js';
@@ -63,10 +64,42 @@ class Window extends AbstractDock {
         titleBar.add(this.buttons);
 
         // Z-Index Stacking
+        function activeWindow() {
+            // Floater wants Focus if no Window descendant has focus
+            if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
+                if (self.panels && self.panels.children.length > 0) {
+                    const floater = self.panels.children[0];
+                    floater.dom.dispatchEvent(new Event('activate-window'));
+                }
+            }
+            // Apply Class, Sort Windows
+            if (self.hasClass('suey-active-window')) return;
+            self.addClass('suey-active-window');
+            // Ensure only active window
+            if (self.parent) {
+                // Find Windows
+                const windows = Dom.childrenWithClass(self.parent, 'suey-window', true, false /* searchChildenOfTarget */);
+                windows.forEach((element) => {
+                    if (element && element.isElement) element = element.dom;
+                    if (element !== self.dom) element.classList.remove('suey-active-window');
+                });
+                // Set self as Highest Z-Order
+                const topZ = windows.length + 200;
+                Css.setVariable('--window-z-index', `${topZ}`, self);
+                // Arrange other Window Z-Orders
+                windows.forEach((element) => {
+                    if (element === self.dom) return;
+                    let currentZ = Css.getVariable('--window-z-index', element);
+                    if (currentZ >= topZ) currentZ = topZ;
+                    currentZ--;
+                    if (currentZ < 200) currentZ = 200;
+                    Css.setVariable('--window-z-index', `${currentZ}`, element);
+                });
+            }
+        }
+        this.on('displayed', () => activeWindow());
+        this.on('focusin', () => activeWindow());
         this.on('focusout', () => self.removeClass('suey-active-window'));
-        this.on('focusin', () => self.activeWindow());
-        this.on('displayed', () => self.activeWindow());
-        this.on('pointerdown', () => self.activeWindow());
 
         // Resizers
         let rect = {}, parentRect = {};
@@ -170,31 +203,6 @@ class Window extends AbstractDock {
                 self.removeClass('suey-shrink-tab-button');
             }
         }, 10);
-    }
-
-    /** Applies 'suey-active-window', ensures this is the only element with this special class */
-    activeWindow() {
-        if (this.hasClass('suey-active-window')) return;
-        this.addClass('suey-active-window');
-
-        // Ensure only active window
-        const windows = document.querySelectorAll('.suey-window');
-        windows.forEach((element) => {
-            if (element !== this.dom) element.classList.remove('suey-active-window');
-        });
-
-        // Arrange Z-Orders
-        const topZ = windows.length + 200;
-        Css.setVariable('--window-z-index', `${topZ}`, this);
-        windows.forEach((element) => {
-            if (element !== this.dom) {
-                let currentZ = Css.getVariable('--window-z-index', element);
-                if (currentZ >= topZ) currentZ = topZ;
-                currentZ--;
-                if (currentZ < 200) currentZ = 200;
-                Css.setVariable('--window-z-index', `${currentZ}`, element);
-            }
-        });
     }
 
     /** Centers 'Window' panel in parent element */
