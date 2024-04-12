@@ -12,8 +12,6 @@ import { RESIZERS } from '../constants.js';
 const MIN_W = 300;
 const MIN_H = 150;
 
-let _styleTimeout = undefined;
-
 class Window extends AbstractDock {
 
     #lastKnownRect;
@@ -147,11 +145,6 @@ class Window extends AbstractDock {
             keepInWindow();                     // resize if necessary
         });
 
-        // Tabs Changed: Remove from parent if empty
-        this.on('tabs-changed', () => {
-            if (self.panels.children.length === 0) self.removeSelf();
-        });
-
     } // end ctor
 
     /******************** DESTROY */
@@ -168,15 +161,15 @@ class Window extends AbstractDock {
         const self = this;
 
         // Shrink Tab Button if Window near top of screen
-        clearTimeout(_styleTimeout);
-        _styleTimeout = setTimeout(() => {
+        clearTimeout(this._styleTimeout);
+        this._styleTimeout = setTimeout(() => {
             const rect = self.dom.getBoundingClientRect();
             if (rect.top < parseFloat(Css.toPx('0.7em'))) {
                 self.addClass('suey-shrink-tab-button');
             } else {
                 self.removeClass('suey-shrink-tab-button');
             }
-        }, 0);
+        }, 10);
     }
 
     /** Applies 'suey-active-window', ensures this is the only element with this special class */
@@ -371,8 +364,8 @@ class Window extends AbstractDock {
         // Tabs Changed
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
 
-        // Destroy Floater?
-        if (destroy) floater.destroy();
+        // Remove from document if empty
+        if (this.tabCount() === 0) this.removeSelf();
         return true;
     }
 

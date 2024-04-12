@@ -186,7 +186,8 @@ class Element {
      */
     removeSelf() {
         this.destroy();
-        removeFromParent(this.parent, this, false /* already destroyed above */);
+        const parent = this.parent ?? this.dom?.parentElement;
+        removeFromParent(parent, this, false /* already destroyed above */);
         return this;
     }
 
@@ -651,7 +652,7 @@ function addToParent(parent, element) {
 
     // Parent Event
     if (elementDom instanceof HTMLElement) {
-        elementDom.dispatchEvent(new Event('parentChanged'));
+        elementDom.dispatchEvent(new Event('parent-changed'));
     }
 }
 
@@ -705,7 +706,9 @@ function removeFromParent(parent, element, destroy = true) {
     // Remove from HTMLElement
     try {
         if (parent.isElement) parent = parent.dom;
-        const removed = parent.removeChild(element.isElement ? element.dom : element);
-        return (removed && removed.suey) ? removed.suey : removed;
+        if (parent instanceof HTMLElement) {
+            const removed = parent.removeChild(element.isElement ? element.dom : element);
+            return (removed && removed.suey) ? removed.suey : removed;
+        }
     } catch (error) { /* FAILED TO REMOVE */ }
 }

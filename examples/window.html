@@ -105,6 +105,12 @@
         const dippy = new Floater('dippy', new Titled({ title: 'dippy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
         tabby3.addTab(hippy, dippy);
 
+        const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
+        const tabby5 = miniDock.enableTabs();
+        const huppy = new Floater('huppy', new Titled({ title: 'huppy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
+        const duppy = new Floater('duppy', new Titled({ title: 'duppy' }).add(new Div(randomChars())), { color: new Iris().setRandom().hexString() });
+        tabby5.addTab(huppy, duppy);
+
         /***** Windows *****/
 
         function addWindow(qty = 1) {
@@ -119,7 +125,7 @@
                     startCentered: false,
                 });
                 const windowName = randomChars(5, 9, true);
-                newWindow.addTab(new Floater(windowName, null, { color: new Iris().setRandom().hexString() }));
+                newWindow.addTab(new Floater(windowName, new Div(randomChars()).setStyle('overflow', 'auto'), { color: new Iris().setRandom().hexString() }));
                 newWindow.selectTab(windowName);
                 newWindow.setTitle(windowName);
             }
