@@ -5,10 +5,9 @@ import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { Strings } from '../utils/Strings.js';
+import { Text } from '../core/Text.js';
 import { VectorBox } from '../layout/VectorBox.js';
-import { Window } from './Window.js';
 
-import { CLOSE_SIDES } from '../constants.js';
 import { DOCK_SIDES } from '../constants.js';
 import { IMAGE_EMPTY } from '../constants.js';
 import { MOUSE_CLICK, MOUSE_SLOP_LARGE } from '../constants.js';
@@ -37,7 +36,27 @@ class Floater extends Panel {
         if (typeof options.shrink === 'string') {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
+
         this.button = new TabButton(this, Strings.capitalize(id), options);
+
+        // Title
+        if (!('titled' in options)) options.titled = true;
+        if (typeof options.title !== 'string') options.title = id;
+
+        if (options.titled) {
+            // Tab Title
+            const tabTitle = new Div().addClass('suey-tab-title');
+            tabTitle.add(new Text(Strings.capitalize(options.title)).addClass('suey-tab-title-text'));
+            this.add(tabTitle);
+            this.tabTitle = tabTitle;
+
+            // Scroller
+            this.scroller = new Div().addClass('suey-scroller');
+            this.add(this.scroller);
+
+            // Override Contents
+            this.contents = function() { return this.scroller; };
+        }
     }
 
     destroy() {
@@ -50,6 +69,14 @@ class Floater extends Panel {
             this.dock.removeTab(this, true);
         } else {
             super.removeSelf();
+        }
+    }
+
+    setTitle(title = '') {
+        title = Strings.capitalize(title);
+        const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
+        if (titleTextElement) {
+            titleTextElement.textContent = title;
         }
     }
 

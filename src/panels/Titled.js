@@ -15,10 +15,9 @@ class Titled extends Panel {
         this.addClass('suey-expanded');
         this.isExpanded = true;
 
-        // Title Text
-        const titleText = new Text(Strings.capitalize(title)).addClass('suey-tab-title-text');
+        // Title
         const tabTitle = new Div().addClass('suey-tab-title');
-        tabTitle.add(titleText);
+        tabTitle.add(new Text(Strings.capitalize(title)).addClass('suey-tab-title-text'));
         this.add(tabTitle);
         this.tabTitle = tabTitle;
 

@@ -2358,9 +2358,8 @@ class Titled extends Panel {
         this.addClass('suey-titled');
         this.addClass('suey-expanded');
         this.isExpanded = true;
-        const titleText = new Text(Strings.capitalize(title)).addClass('suey-tab-title-text');
         const tabTitle = new Div().addClass('suey-tab-title');
-        tabTitle.add(titleText);
+        tabTitle.add(new Text(Strings.capitalize(title)).addClass('suey-tab-title-text'));
         this.add(tabTitle);
         this.tabTitle = tabTitle;
         if (collapsible) {
@@ -3951,371 +3950,6 @@ class AbstractDock extends Panel {
     }
 }
 
-const MIN_W$2 = 300;
-const MIN_H$2 = 150;
-class Window extends AbstractDock {
-    #lastKnownRect;
-    constructor({
-        style = PANEL_STYLES$1.FANCY,
-        resizers = 'all',
-        title = '',
-        draggable = true,
-        maxButton = true,
-        closeButton = true,
-        buttonSides = CLOSE_SIDES.LEFT,
-        width = '60%',
-        height = '60%',
-        initialWidth = undefined,
-        initialHeight = undefined,
-        startCentered = true,
-        left = 0,
-        top = 0,
-    } = {}) {
-        super({ style });
-        const self = this;
-        this.addClass('suey-window');
-        this.allowFocus();
-        this.isWindow = true;
-        this.maximized = false;
-        this.initialWidth = (initialWidth != null) ? initialWidth : width;
-        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
-        const titleBar = new TitleBar(this, title, draggable, 1.3 );
-        this.addToSelf(titleBar);
-        this.setTitle = function(newTitle = '') {
-            titleBar.setTitle(newTitle);
-        };
-        if (closeButton) Interaction.addCloseButton(this, buttonSides, 1.7 );
-        if (maxButton) Interaction.addMaxButton(this, buttonSides, 1.7 );
-        this.buttons = new Div().setClass('suey-tab-buttons').addClass('suey-window-side');
-        this.panels = new Div().setClass('suey-tab-panels');
-        this.add(this.panels);
-        titleBar.add(this.buttons);
-        function activeWindow() {
-            if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
-                if (self.panels && self.panels.children.length > 0) {
-                    const floater = self.panels.children[0];
-                    floater.dom.dispatchEvent(new Event('activate-window'));
-                }
-            }
-            if (self.hasClass('suey-active-window')) return;
-            self.addClass('suey-active-window');
-            if (self.parent) {
-                const windows = Dom.childrenWithClass(self.parent, 'suey-window', true, false );
-                windows.forEach((element) => {
-                    if (element && element.isElement) element = element.dom;
-                    if (element !== self.dom) element.classList.remove('suey-active-window');
-                });
-                const topZ = windows.length + 200;
-                Css.setVariable('--window-z-index', `${topZ}`, self);
-                windows.forEach((element) => {
-                    if (element === self.dom) return;
-                    let currentZ = Css.getVariable('--window-z-index', element);
-                    if (currentZ >= topZ) currentZ = topZ;
-                    currentZ--;
-                    if (currentZ < 200) currentZ = 200;
-                    Css.setVariable('--window-z-index', `${currentZ}`, element);
-                });
-            }
-        }
-        this.on('displayed', () => activeWindow());
-        this.on('focusin', () => activeWindow());
-        this.on('focusout', () => self.removeClass('suey-active-window'));
-        let rect = {}, parentRect = {};
-        function resizerDown() {
-            self.focus();
-            rect = self.dom.getBoundingClientRect();
-            parentRect = self.parentRect();
-        }
-        function resizerMove(resizer, diffX, diffY) {
-            if (resizer.hasClassWithString('left')) {
-                const newLeft = Math.max(0, Math.min(rect.right - MIN_W$2, (rect.left - parentRect.left) + diffX));
-                const newWidth = (rect.right - parentRect.left) - newLeft;
-                self.setStyle('left', `${newLeft}px`);
-                self.setStyle('width', `${newWidth}px`);
-            }
-            if (resizer.hasClassWithString('top')) {
-                const newTop = Math.max(0, Math.min(rect.bottom - MIN_H$2, (rect.top - parentRect.top) + diffY));
-                const newHeight = (rect.bottom - parentRect.top) - newTop;
-                self.setStyle('top', `${newTop}px`);
-                self.setStyle('height', `${newHeight}px`);
-            }
-            if (resizer.hasClassWithString('right')) {
-                const newWidth = Math.min(Math.max(MIN_W$2, rect.width + diffX), parentRect.width - (rect.left - parentRect.left));
-                self.setStyle('width', `${newWidth}px`);
-            }
-            if (resizer.hasClassWithString('bottom')) {
-                const newHeight = Math.min(Math.max(MIN_H$2, rect.height + diffY), parentRect.height - (rect.top - parentRect.top));
-                self.setStyle('height', `${newHeight}px`);
-            }
-            self.removeClass('suey-maximized');
-            self.maximized = false;
-            self.dom.dispatchEvent(new Event('resizer'));
-        }
-        function resizerUp() {
-            keepInWindow();
-        }
-        Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp);
-        this.addResizers(resizers);
-        this.setStyle(
-            'left', Css.parseSize(left),
-            'top', Css.parseSize(top),
-            'width', Css.parseSize(width),
-            'height', Css.parseSize(height),
-        );
-        function keepInWindow() {
-            const computed = getComputedStyle(self.dom);
-            const rect = {
-                left: parseFloat(computed.left),
-                top: parseFloat(computed.top),
-                width: parseFloat(computed.width),
-                height: parseFloat(computed.height),
-            };
-            const titleHeight = parseInt(Css.toPx('4em'));
-            let newLeft = Math.min(self.parentRect().width - (rect.width / 2), rect.left);
-            let newTop = Math.min(self.parentRect().height - titleHeight, rect.top);
-            newLeft = Math.max(- (rect.width / 2), newLeft);
-            newTop = Math.max(0, newTop);
-            self.setStyle('top', `${newTop}px`);
-            self.setStyle('left', `${newLeft}px`);
-        }
-        window.addEventListener('resize', keepInWindow);
-        this.on('destroy', () => {
-            window.removeEventListener('resize', keepInWindow);
-        });
-        this.on('displayed', () => {
-            if (startCentered) self.center();
-            keepInWindow();
-        });
-    }
-    destroy() {
-        this.removeTabs();
-        super.destroy();
-    }
-    setStyle(...styles) {
-        super.setStyle(...styles);
-        const self = this;
-        clearTimeout(this._styleTimeout);
-        this._styleTimeout = setTimeout(() => {
-            const rect = self.dom.getBoundingClientRect();
-            if (rect.top < parseFloat(Css.toPx('0.7em'))) {
-                self.addClass('suey-shrink-tab-button');
-            } else {
-                self.removeClass('suey-shrink-tab-button');
-            }
-        }, 10);
-    }
-    center() {
-        const parentRect = this.parentRect();
-        const side = (parentRect.width - this.getWidth()) / 2;
-        const top = (parentRect.height - this.getHeight()) / 2;
-        this.setStyle('left', `${side}px`, 'top', `${top}px`);
-    }
-    parentRect() {
-        if (this.parent && this.parent.isElement) return this.parent.dom.getBoundingClientRect();
-        return document.body.getBoundingClientRect();
-    }
-    setInitialSize() {
-        this.setStyle('width', Css.parseSize(this.initialWidth));
-        this.setStyle('height', Css.parseSize(this.initialHeight));
-        this.dom.dispatchEvent(new Event('resizer'));
-    }
-    showWindow() {
-        this.display();
-        this.focus();
-    }
-    toggleMinMax() {
-        this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-        const parentRect = this.parentRect();
-        if (!this.maximized) {
-            this.addClass('suey-maximized');
-            this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.setStyle('left', `0`);
-            this.setStyle('top', `0`);
-            this.setStyle('width', `${parentRect.width}px`);
-            this.setStyle('height', `${parentRect.height}px`);
-            this.maximized = true;
-        } else {
-            this.removeClass('suey-maximized');
-            const newLeft = Math.max(0, Math.min(parentRect.width - this.#lastKnownRect.width, this.#lastKnownRect.left));
-            const newTop = Math.max(0, Math.min(parentRect.height - this.#lastKnownRect.height, this.#lastKnownRect.top));
-            this.setStyle('left', `${newLeft}px`);
-            this.setStyle('top', `${newTop}px`);
-            this.setStyle('width', `${this.#lastKnownRect.width}px`);
-            this.setStyle('height', `${this.#lastKnownRect.height}px`);
-            this.maximized = false;
-        }
-        this.dom.dispatchEvent(new Event('resizer'));
-    }
-    dockLeft() {
-        if (!this.hasClass('suey-docked-left')) {
-            this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-            this.addClass('suey-docked-left');
-        }
-        this.setStyle('left', `0`);
-        this.setStyle('top', `0`);
-        this.setStyle('width', `50%`);
-        this.setStyle('height', `100%`);
-    }
-    dockRight() {
-        if (!this.hasClass('suey-docked-right')) {
-            this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-            this.addClass('suey-docked-right');
-        }
-        this.setStyle('left', `50%`);
-        this.setStyle('top', `0`);
-        this.setStyle('width', `50%`);
-        this.setStyle('height', `100%`);
-    }
-    dockTop() {
-        if (!this.hasClass('suey-docked-top')) {
-            this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-            this.addClass('suey-docked-top');
-        }
-        this.setStyle('left', `0`);
-        this.setStyle('top', `0`);
-        this.setStyle('width', `100%`);
-        this.setStyle('height', `50%`);
-    }
-    dockBottom() {
-        if (!this.hasClass('suey-docked-bottom')) {
-            this.#lastKnownRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-            this.addClass('suey-docked-bottom');
-        }
-        this.setStyle('left', `0`);
-        this.setStyle('top', `50%`);
-        this.setStyle('width', `100%`);
-        this.setStyle('height', `50%`);
-    }
-    undock() {
-        if (this.hasClass('suey-docked-right') ||
-            this.hasClass('suey-docked-left') ||
-            this.hasClass('suey-docked-top') ||
-            this.hasClass('suey-docked-bottom')) {
-            const currentRect = this.dom.getBoundingClientRect();
-            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-            if (this.#lastKnownRect) {
-                const newLeft = currentRect.left + ((currentRect.width - this.#lastKnownRect.width) / 2);
-                this.setStyle('left', `${newLeft}px`);
-                this.setStyle('width', `${this.#lastKnownRect.width}px`);
-                this.setStyle('height', `${this.#lastKnownRect.height}px`);
-            }
-        }
-    }
-    addTab(...floaters) {
-        if (!floaters || !Array.isArray(floaters)) return this;
-        let tabsAdded = 0;
-        for (const floater of floaters) {
-            if (!floater || !floater.hasClass('suey-floater')) continue;
-            floater.dock = this;
-            this.panels.add(floater);
-            this.buttons.add(floater.button);
-            tabsAdded++;
-        }
-        if (tabsAdded > 0) {
-            if (this.tabCount() > 0) this.setStyle('display', '');
-            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        }
-        return this;
-    }
-    findTab(tabID = '') {
-        return this.panels.children.find((item) => (item.id === tabID));
-    }
-    removeTab(floater, destroy = false) {
-        if (typeof floater === 'string') floater = this.findTab(floater);
-        if (!floater) return this;
-        if (destroy) floater.destroy();
-        const index = this.panels.children.indexOf(floater);
-        if (!floater || index === -1) return this;
-        const button = this.buttons.children[index];
-        const panel = this.panels.children[index];
-        if (button) button.removeClass('suey-selected');
-        if (panel) panel.addClass('suey-hidden');
-        this.buttons.detach(button);
-        this.panels.detach(panel);
-        this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
-        if (this.tabCount() === 0) this.removeSelf();
-        return this;
-    }
-    removeTabs() {
-        const children = [ ...this.panels.children ];
-        for (const child of children) {
-            this.removeTab(child, true );
-        }
-        return this;
-    }
-    selectFirst() {
-        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
-        return this;
-    }
-    selectTab(selectID, wasClicked = false) {
-        if (selectID && selectID.isElement) selectID = selectID.id;
-        if (typeof selectID !== 'string') return this;
-        const panel = this.findTab(selectID);
-        if (panel && panel.button) {
-            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
-            this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
-            panel.removeClass('suey-hidden');
-            panel.button.addClass('suey-selected');
-            const tabSelected = new Event('tab-selected', { bubbles: true });
-            tabSelected.value = selectID;
-            this.dom.dispatchEvent(tabSelected);
-            this.setStyle('display', '');
-            this.focus();
-        }
-        return this;
-    }
-    tabCount() {
-        return this.panels.children.length;
-    }
-}
-class TitleBar extends Div {
-    constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (!parent || !parent.isElement) return console.warn(`TitleBar.constructor(): Missing parent element`);
-        super();
-        const self = this;
-        this.setClass('suey-title-bar');
-        this.addClass('suey-panel-button');
-        this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
-        this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
-        this.setTitle(title);
-        function titleDown() {
-            if (parent && typeof parent.focus === 'function') parent.focus();
-        }
-        function titleDoubleClick() {
-            if (self.parent && self.parent.isElement) {
-                if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
-                if (typeof self.parent.center === 'function') self.parent.center();
-                self.parent.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-                self.parent.removeClass('suey-maximized');
-                self.parent.maximized = false;
-                parent.dom.dispatchEvent(new Event('resize'));
-            }
-        }
-        if (draggable) Interaction.makeDraggable(this, parent, true , titleDown);
-        this.on('dblclick', titleDoubleClick);
-    }
-    setTitle(title = '') {
-        title = Strings.capitalize(title);
-        const titleTextElement = this.dom.querySelector('.suey-window-title-text');
-        if (titleTextElement) {
-            titleTextElement.textContent = title;
-        } else {
-            const titleText = new Span(title);
-            titleText.addClass('suey-window-title-text');
-            titleText.setStyle('user-select', 'none');
-            this.add(titleText);
-        }
-        let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));
-        width += parseFloat(Css.toPx('4em'));
-        Css.setVariable('--title-width', `${width}px`, this);
-        this.setStyle('width', Css.toEm(`${width}px`));
-    }
-}
-
 const _color$1 = new Iris();
 class Floater extends Panel {
     constructor(id = 'unknown', options = {}) {
@@ -4334,6 +3968,17 @@ class Floater extends Panel {
             options.shrink = parseFloat(options.shrink) / (options.shrink.includes('%') ? 100 : 1);
         }
         this.button = new TabButton(this, Strings.capitalize(id), options);
+        if (!('titled' in options)) options.titled = true;
+        if (typeof options.title !== 'string') options.title = id;
+        if (options.titled) {
+            const tabTitle = new Div().addClass('suey-tab-title');
+            tabTitle.add(new Text(Strings.capitalize(options.title)).addClass('suey-tab-title-text'));
+            this.add(tabTitle);
+            this.tabTitle = tabTitle;
+            this.scroller = new Div().addClass('suey-scroller');
+            this.add(this.scroller);
+            this.contents = function() { return this.scroller; };
+        }
     }
     destroy() {
         this.button.destroy();
@@ -4344,6 +3989,13 @@ class Floater extends Panel {
             this.dock.removeTab(this, true);
         } else {
             super.removeSelf();
+        }
+    }
+    setTitle(title = '') {
+        title = Strings.capitalize(title);
+        const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
+        if (titleTextElement) {
+            titleTextElement.textContent = title;
         }
     }
 }
@@ -5135,6 +4787,371 @@ class Docker extends Panel {
             child.removeClass('suey-dock-drop');
             child.removeClass('suey-dock-self');
         }
+    }
+}
+
+const MIN_W$2 = 300;
+const MIN_H$2 = 150;
+class Window extends AbstractDock {
+    #lastKnownRect;
+    constructor({
+        style = PANEL_STYLES$1.FANCY,
+        resizers = 'all',
+        title = '',
+        draggable = true,
+        maxButton = true,
+        closeButton = true,
+        buttonSides = CLOSE_SIDES.LEFT,
+        width = '60%',
+        height = '60%',
+        initialWidth = undefined,
+        initialHeight = undefined,
+        startCentered = true,
+        left = 0,
+        top = 0,
+    } = {}) {
+        super({ style });
+        const self = this;
+        this.addClass('suey-window');
+        this.allowFocus();
+        this.isWindow = true;
+        this.maximized = false;
+        this.initialWidth = (initialWidth != null) ? initialWidth : width;
+        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
+        const titleBar = new TitleBar(this, title, draggable, 1.3 );
+        this.addToSelf(titleBar);
+        this.setTitle = function(newTitle = '') {
+            titleBar.setTitle(newTitle);
+        };
+        if (closeButton) Interaction.addCloseButton(this, buttonSides, 1.7 );
+        if (maxButton) Interaction.addMaxButton(this, buttonSides, 1.7 );
+        this.buttons = new Div().setClass('suey-tab-buttons').addClass('suey-window-side');
+        this.panels = new Div().setClass('suey-tab-panels');
+        this.add(this.panels);
+        titleBar.add(this.buttons);
+        function activeWindow() {
+            if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
+                if (self.panels && self.panels.children.length > 0) {
+                    const floater = self.panels.children[0];
+                    floater.dom.dispatchEvent(new Event('activate-window'));
+                }
+            }
+            if (self.hasClass('suey-active-window')) return;
+            self.addClass('suey-active-window');
+            if (self.parent) {
+                const windows = Dom.childrenWithClass(self.parent, 'suey-window', true, false );
+                windows.forEach((element) => {
+                    if (element && element.isElement) element = element.dom;
+                    if (element !== self.dom) element.classList.remove('suey-active-window');
+                });
+                const topZ = windows.length + 200;
+                Css.setVariable('--window-z-index', `${topZ}`, self);
+                windows.forEach((element) => {
+                    if (element === self.dom) return;
+                    let currentZ = Css.getVariable('--window-z-index', element);
+                    if (currentZ >= topZ) currentZ = topZ;
+                    currentZ--;
+                    if (currentZ < 200) currentZ = 200;
+                    Css.setVariable('--window-z-index', `${currentZ}`, element);
+                });
+            }
+        }
+        this.on('displayed', () => activeWindow());
+        this.on('focusin', () => activeWindow());
+        this.on('focusout', () => self.removeClass('suey-active-window'));
+        let rect = {}, parentRect = {};
+        function resizerDown() {
+            self.focus();
+            rect = self.dom.getBoundingClientRect();
+            parentRect = self.parentRect();
+        }
+        function resizerMove(resizer, diffX, diffY) {
+            if (resizer.hasClassWithString('left')) {
+                const newLeft = Math.max(0, Math.min(rect.right - MIN_W$2, (rect.left - parentRect.left) + diffX));
+                const newWidth = (rect.right - parentRect.left) - newLeft;
+                self.setStyle('left', `${newLeft}px`);
+                self.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('top')) {
+                const newTop = Math.max(0, Math.min(rect.bottom - MIN_H$2, (rect.top - parentRect.top) + diffY));
+                const newHeight = (rect.bottom - parentRect.top) - newTop;
+                self.setStyle('top', `${newTop}px`);
+                self.setStyle('height', `${newHeight}px`);
+            }
+            if (resizer.hasClassWithString('right')) {
+                const newWidth = Math.min(Math.max(MIN_W$2, rect.width + diffX), parentRect.width - (rect.left - parentRect.left));
+                self.setStyle('width', `${newWidth}px`);
+            }
+            if (resizer.hasClassWithString('bottom')) {
+                const newHeight = Math.min(Math.max(MIN_H$2, rect.height + diffY), parentRect.height - (rect.top - parentRect.top));
+                self.setStyle('height', `${newHeight}px`);
+            }
+            self.removeClass('suey-maximized');
+            self.maximized = false;
+            self.dom.dispatchEvent(new Event('resizer'));
+        }
+        function resizerUp() {
+            keepInWindow();
+        }
+        Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp);
+        this.addResizers(resizers);
+        this.setStyle(
+            'left', Css.parseSize(left),
+            'top', Css.parseSize(top),
+            'width', Css.parseSize(width),
+            'height', Css.parseSize(height),
+        );
+        function keepInWindow() {
+            const computed = getComputedStyle(self.dom);
+            const rect = {
+                left: parseFloat(computed.left),
+                top: parseFloat(computed.top),
+                width: parseFloat(computed.width),
+                height: parseFloat(computed.height),
+            };
+            const titleHeight = parseInt(Css.toPx('4em'));
+            let newLeft = Math.min(self.parentRect().width - (rect.width / 2), rect.left);
+            let newTop = Math.min(self.parentRect().height - titleHeight, rect.top);
+            newLeft = Math.max(- (rect.width / 2), newLeft);
+            newTop = Math.max(0, newTop);
+            self.setStyle('top', `${newTop}px`);
+            self.setStyle('left', `${newLeft}px`);
+        }
+        window.addEventListener('resize', keepInWindow);
+        this.on('destroy', () => {
+            window.removeEventListener('resize', keepInWindow);
+        });
+        this.on('displayed', () => {
+            if (startCentered) self.center();
+            keepInWindow();
+        });
+    }
+    destroy() {
+        this.removeTabs();
+        super.destroy();
+    }
+    setStyle(...styles) {
+        super.setStyle(...styles);
+        const self = this;
+        clearTimeout(this._styleTimeout);
+        this._styleTimeout = setTimeout(() => {
+            const rect = self.dom.getBoundingClientRect();
+            if (rect.top < parseFloat(Css.toPx('0.7em'))) {
+                self.addClass('suey-shrink-tab-button');
+            } else {
+                self.removeClass('suey-shrink-tab-button');
+            }
+        }, 10);
+    }
+    center() {
+        const parentRect = this.parentRect();
+        const side = (parentRect.width - this.getWidth()) / 2;
+        const top = (parentRect.height - this.getHeight()) / 2;
+        this.setStyle('left', `${side}px`, 'top', `${top}px`);
+    }
+    parentRect() {
+        if (this.parent && this.parent.isElement) return this.parent.dom.getBoundingClientRect();
+        return document.body.getBoundingClientRect();
+    }
+    setInitialSize() {
+        this.setStyle('width', Css.parseSize(this.initialWidth));
+        this.setStyle('height', Css.parseSize(this.initialHeight));
+        this.dom.dispatchEvent(new Event('resizer'));
+    }
+    showWindow() {
+        this.display();
+        this.focus();
+    }
+    toggleMinMax() {
+        this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+        const parentRect = this.parentRect();
+        if (!this.maximized) {
+            this.addClass('suey-maximized');
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.setStyle('left', `0`);
+            this.setStyle('top', `0`);
+            this.setStyle('width', `${parentRect.width}px`);
+            this.setStyle('height', `${parentRect.height}px`);
+            this.maximized = true;
+        } else {
+            this.removeClass('suey-maximized');
+            const newLeft = Math.max(0, Math.min(parentRect.width - this.#lastKnownRect.width, this.#lastKnownRect.left));
+            const newTop = Math.max(0, Math.min(parentRect.height - this.#lastKnownRect.height, this.#lastKnownRect.top));
+            this.setStyle('left', `${newLeft}px`);
+            this.setStyle('top', `${newTop}px`);
+            this.setStyle('width', `${this.#lastKnownRect.width}px`);
+            this.setStyle('height', `${this.#lastKnownRect.height}px`);
+            this.maximized = false;
+        }
+        this.dom.dispatchEvent(new Event('resizer'));
+    }
+    dockLeft() {
+        if (!this.hasClass('suey-docked-left')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            this.addClass('suey-docked-left');
+        }
+        this.setStyle('left', `0`);
+        this.setStyle('top', `0`);
+        this.setStyle('width', `50%`);
+        this.setStyle('height', `100%`);
+    }
+    dockRight() {
+        if (!this.hasClass('suey-docked-right')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            this.addClass('suey-docked-right');
+        }
+        this.setStyle('left', `50%`);
+        this.setStyle('top', `0`);
+        this.setStyle('width', `50%`);
+        this.setStyle('height', `100%`);
+    }
+    dockTop() {
+        if (!this.hasClass('suey-docked-top')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            this.addClass('suey-docked-top');
+        }
+        this.setStyle('left', `0`);
+        this.setStyle('top', `0`);
+        this.setStyle('width', `100%`);
+        this.setStyle('height', `50%`);
+    }
+    dockBottom() {
+        if (!this.hasClass('suey-docked-bottom')) {
+            this.#lastKnownRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            this.addClass('suey-docked-bottom');
+        }
+        this.setStyle('left', `0`);
+        this.setStyle('top', `50%`);
+        this.setStyle('width', `100%`);
+        this.setStyle('height', `50%`);
+    }
+    undock() {
+        if (this.hasClass('suey-docked-right') ||
+            this.hasClass('suey-docked-left') ||
+            this.hasClass('suey-docked-top') ||
+            this.hasClass('suey-docked-bottom')) {
+            const currentRect = this.dom.getBoundingClientRect();
+            this.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+            if (this.#lastKnownRect) {
+                const newLeft = currentRect.left + ((currentRect.width - this.#lastKnownRect.width) / 2);
+                this.setStyle('left', `${newLeft}px`);
+                this.setStyle('width', `${this.#lastKnownRect.width}px`);
+                this.setStyle('height', `${this.#lastKnownRect.height}px`);
+            }
+        }
+    }
+    addTab(...floaters) {
+        if (!floaters || !Array.isArray(floaters)) return this;
+        let tabsAdded = 0;
+        for (const floater of floaters) {
+            if (!floater || !floater.hasClass('suey-floater')) continue;
+            floater.dock = this;
+            this.panels.add(floater);
+            this.buttons.add(floater.button);
+            tabsAdded++;
+        }
+        if (tabsAdded > 0) {
+            if (this.tabCount() > 0) this.setStyle('display', '');
+            this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+        }
+        return this;
+    }
+    findTab(tabID = '') {
+        return this.panels.children.find((item) => (item.id === tabID));
+    }
+    removeTab(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findTab(floater);
+        if (!floater) return this;
+        if (destroy) floater.destroy();
+        const index = this.panels.children.indexOf(floater);
+        if (!floater || index === -1) return this;
+        const button = this.buttons.children[index];
+        const panel = this.panels.children[index];
+        if (button) button.removeClass('suey-selected');
+        if (panel) panel.addClass('suey-hidden');
+        this.buttons.detach(button);
+        this.panels.detach(panel);
+        this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
+        if (this.tabCount() === 0) this.removeSelf();
+        return this;
+    }
+    removeTabs() {
+        const children = [ ...this.panels.children ];
+        for (const child of children) {
+            this.removeTab(child, true );
+        }
+        return this;
+    }
+    selectFirst() {
+        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        return this;
+    }
+    selectTab(selectID, wasClicked = false) {
+        if (selectID && selectID.isElement) selectID = selectID.id;
+        if (typeof selectID !== 'string') return this;
+        const panel = this.findTab(selectID);
+        if (panel && panel.button) {
+            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
+            panel.removeClass('suey-hidden');
+            panel.button.addClass('suey-selected');
+            const tabSelected = new Event('tab-selected', { bubbles: true });
+            tabSelected.value = selectID;
+            this.dom.dispatchEvent(tabSelected);
+            this.setStyle('display', '');
+            this.focus();
+        }
+        return this;
+    }
+    tabCount() {
+        return this.panels.children.length;
+    }
+}
+class TitleBar extends Div {
+    constructor(parent, title = '', draggable = false, scale = 1.3) {
+        if (!parent || !parent.isElement) return console.warn(`TitleBar.constructor(): Missing parent element`);
+        super();
+        const self = this;
+        this.setClass('suey-title-bar');
+        this.addClass('suey-panel-button');
+        this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
+        this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
+        this.setTitle(title);
+        function titleDown() {
+            if (parent && typeof parent.focus === 'function') parent.focus();
+        }
+        function titleDoubleClick() {
+            if (self.parent && self.parent.isElement) {
+                if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
+                if (typeof self.parent.center === 'function') self.parent.center();
+                self.parent.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+                self.parent.removeClass('suey-maximized');
+                self.parent.maximized = false;
+                parent.dom.dispatchEvent(new Event('resize'));
+            }
+        }
+        if (draggable) Interaction.makeDraggable(this, parent, true , titleDown);
+        this.on('dblclick', titleDoubleClick);
+    }
+    setTitle(title = '') {
+        title = Strings.capitalize(title);
+        const titleTextElement = this.dom.querySelector('.suey-window-title-text');
+        if (titleTextElement) {
+            titleTextElement.textContent = title;
+        } else {
+            const titleText = new Span(title);
+            titleText.addClass('suey-window-title-text');
+            titleText.setStyle('user-select', 'none');
+            this.add(titleText);
+        }
+        let width = parseFloat(Css.getTextWidth(title, Css.getFontCssFromElement(this.dom)));
+        width += parseFloat(Css.toPx('4em'));
+        Css.setVariable('--title-width', `${width}px`, this);
+        this.setStyle('width', Css.toEm(`${width}px`));
     }
 }
 
