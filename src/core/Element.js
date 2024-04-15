@@ -299,8 +299,10 @@ class Element {
      * @memberof Element
      */
     hide(dispatchEvent = true) {
-        this.setStyle('display', 'none');
+        if (this.isHidden()) return;
         if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
+        this.addClass('suey-hidden');
+        this.setStyle('display', 'none');
     }
 
     /**
@@ -309,6 +311,8 @@ class Element {
      * @memberof Element
      */
     display(dispatchEvent = true) {
+        if (this.isDisplayed()) return;
+        this.removeClass('suey-hidden');
         this.setStyle('display', '');
         if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
     }

@@ -1351,10 +1351,14 @@ class Element {
         return this;
     }
     hide(dispatchEvent = true) {
-        this.setStyle('display', 'none');
+        if (this.isHidden()) return;
         if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
+        this.addClass('suey-hidden');
+        this.setStyle('display', 'none');
     }
     display(dispatchEvent = true) {
+        if (this.isDisplayed()) return;
+        this.removeClass('suey-hidden');
         this.setStyle('display', '');
         if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
     }
@@ -4316,9 +4320,9 @@ class Tabbed extends AbstractDock {
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
-            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.panels.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
-            panel.removeClass('suey-hidden');
+            panel.display();
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
             this.setStyle('display', '');
@@ -5095,9 +5099,9 @@ class Window extends AbstractDock {
         if (typeof selectID !== 'string') return this;
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
-            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.panels.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
-            panel.removeClass('suey-hidden');
+            panel.display();
             panel.button.addClass('suey-selected');
             const tabSelected = new Event('tab-selected', { bubbles: true });
             tabSelected.value = selectID;

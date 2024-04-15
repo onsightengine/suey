@@ -401,11 +401,11 @@ class Window extends AbstractDock {
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
             // Deselect current Panel / Button
-            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.panels.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
 
             // Select new Panel / Button
-            panel.removeClass('suey-hidden');
+            panel.display();
             panel.button.addClass('suey-selected');
 
             // Event

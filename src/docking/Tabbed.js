@@ -167,11 +167,11 @@ class Tabbed extends AbstractDock {
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
 
             // Deselect current Panel / Button
-            this.panels.children.forEach((element) => element.addClass('suey-hidden'));
+            this.panels.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
 
             // Select new Panel / Button
-            panel.removeClass('suey-hidden');
+            panel.display();
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
 
