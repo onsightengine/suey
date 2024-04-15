@@ -468,12 +468,12 @@ class TitleBar extends Div {
 
     setTitle(title = '') {
         title = Strings.capitalize(title);
-        const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
+        const titleTextElement = this.dom.querySelector('.suey-window-title-text');
         if (titleTextElement) {
             titleTextElement.textContent = title;
         } else {
             const titleText = new Span(title);
-            titleText.addClass('suey-tab-title-text');
+            titleText.addClass('suey-window-title-text');
             titleText.setStyle('user-select', 'none');
             this.add(titleText);
         }

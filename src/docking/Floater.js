@@ -18,11 +18,10 @@ const _color = new Iris();
 
 class Floater extends Panel {
 
-    constructor(id = 'unknown', content, options = {}) {
+    constructor(id = 'unknown', options = {}) {
         super();
         this.setID(id);
         this.addClass('suey-floater', 'suey-hidden');
-        this.add(content);
 
         // Parent AbstractDock holding Floater (Tabbed, Window, etc.)
         this.dock = null;
@@ -58,7 +57,7 @@ class Floater extends Panel {
 
 class TabButton extends Div {
 
-    constructor(tabPanel, label, options = {}) {
+    constructor(tabPanel, tooltip, options = {}) {
         super();
         const self = this;
         this.setClass('suey-tab-button');
@@ -82,12 +81,12 @@ class TabButton extends Div {
             },
         });
 
-        // Icon / Label
+        // Icon
         this.iconVector = new VectorBox(options.icon);
         this.iconBorder = new Div().setClass('suey-tab-icon-border');
         this.add(this.iconVector, this.iconBorder);
-        this.setLabel = function(label) { self.iconBorder.setAttribute('tooltip', label); };
-        this.setLabel(label);
+        this.setTooltip = function(tooltip) { self.iconBorder.setAttribute('tooltip', tooltip); };
+        this.setTooltip(tooltip);
 
         // Background Color
         if (typeof options.color === 'string' && options.color.includes('var(--')) {
@@ -111,11 +110,7 @@ class TabButton extends Div {
         // Shrink?
         const shrink = options.shrink;
         if (this.iconVector.img && !isNaN(shrink)) {
-            this.iconVector.img.setStyle('position', 'absolute');
-            this.iconVector.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
-            this.iconVector.img.setStyle('margin', 'auto');
-            this.iconVector.img.setStyle('width', `${shrink * 100}%`);
-            this.iconVector.img.setStyle('height', `${shrink * 100}%`);
+            this.iconVector.img.setStyle('transform', `scale(${shrink})`);
         }
 
         // Dragging Tabs

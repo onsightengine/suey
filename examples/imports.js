@@ -1,6 +1,9 @@
 /***** Local *****/
 
 // "suey": "../build/suey.module.js"
+
+/***** CDN *****/
+
 // "suey": "https://unpkg.com/suey/build/suey.module.js"
 // "suey": "https://unpkg.com/suey@x.x.x/build/suey.module.js"
 

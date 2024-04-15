@@ -12,7 +12,7 @@
     padding: 0;
     overflow: hidden;
     filter: none;
-    z-index: 101; /* Panel Button */
+    z-index: 1001; /* Panel Button */
 }
 
 .suey-panel-button:hover {
