@@ -113,6 +113,11 @@
         const duppy = new Floater('duppy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
         tabby5.addTab(huppy, duppy);
 
+        // Force initial resizing
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 0);
+
         /***** Windows *****/
 
         function addWindow(qty = 1) {
