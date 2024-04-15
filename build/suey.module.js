@@ -4816,7 +4816,7 @@ class Window extends AbstractDock {
     } = {}) {
         super({ style });
         const self = this;
-        this.addClass('suey-window');
+        this.addClass('suey-window', 'suey-hidden');
         this.allowFocus();
         this.isWindow = true;
         this.maximized = false;
