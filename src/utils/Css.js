@@ -50,7 +50,7 @@ class Css {
     /******************** FONT / GUI SIZING ********************/
 
     static baseSize() { /* 1rem === 10px @ root */
-        return parseFloat(getComputedStyle(document.querySelector(':root')).fontSize);
+        return parseFloat(Css.getVariable('--base-size'));
     }
 
     static fontSize(element = document.body) {
@@ -62,6 +62,7 @@ class Css {
 
     /** Calculates current GUI scale based on <body> font size */
     static guiScale(element = document.body) {
+        if (element && element.isElement) element = element.dom;
         return Css.fontSize(element) / Css.baseSize();
     }
 
@@ -76,6 +77,7 @@ class Css {
     }
 
     static getFontCssFromElement(element = document.body) {
+        if (element && element.isElement) element = element.dom;
         const fontWeight = getComputedStyle(element).fontWeight || 'normal';
         const fontSize = getComputedStyle(element).fontSize || '16px';
         const fontFamily = getComputedStyle(element).fontFamily || 'Arial';
@@ -139,6 +141,7 @@ class Css {
 
     /** Returns input units from 'px' to 'em' */
     static toEm(pixels, element = document.body) {
+        if (element && element.isElement) element = element.dom;
         const parsedSize = Css.parseSize(pixels);
         if (parsedSize.includes('px')) {
             return ((parseFloat(parsedSize) / 10.0) / Css.guiScale(element)) + 'em';
@@ -151,7 +154,6 @@ class Css {
 
     /** Returns input units to converted pixels string ending in 'px' */
     static toPx(size, element = document.body, dimension = 'w' /* or 'h' (for percentage) */) {
-        if (!element) element = document.body;
         if (element && element.isElement) element = element.dom;
         const parsedSize = Css.parseSize(size);
         if (parsedSize.includes('%')) {

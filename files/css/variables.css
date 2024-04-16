@@ -65,7 +65,7 @@
     --panel-transparency:   0.85;
 
     /* Font */
-    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px)
+    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px) */
     --base-size:            10px;               /* Gui designed to scale from this original font size */
     --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */
     --font-family:          'Roboto', Helvetica, Arial, sans-serif;
