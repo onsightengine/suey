@@ -36,7 +36,7 @@ import * as SUEY from 'suey';
 
 - Option 3: Import directly from CDN...
 ```javascript
-import * as SUEY from 'https://unpkg.com/suey/build/suey.module.js';
+import * as SUEY from 'https://unpkg.com/@salinity/suey/dist/suey.module.js';
 ```
 
 <br>

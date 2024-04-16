@@ -43,7 +43,7 @@ const builds = [
 
         output: [{
             format: 'esm',
-            file: './build/suey.module.js',
+            file: './dist/suey.module.js',
             sourcemap: false,
             plugins: [
                 header(),
@@ -65,7 +65,7 @@ const builds = [
 
         output: [{
             format: 'esm',
-            file: './build/suey.min.js',
+            file: './dist/suey.min.js',
             sourcemap: false,
             plugins: [
                 terser({ format: { comments: false } }),

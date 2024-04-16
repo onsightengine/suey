@@ -42,7 +42,7 @@ class Window extends AbstractDock {
         this.isWindow = true;
         this.maximized = false;
         this.initialWidth = (initialWidth != null) ? initialWidth : width;
-        this.initialHeight = (initialHeight != null) ? initialHeight : height;;
+        this.initialHeight = (initialHeight != null) ? initialHeight : height;
 
         // Title Bar
         const titleBar = new TitleBar(this, title, draggable, 1.3 /* scale*/);
