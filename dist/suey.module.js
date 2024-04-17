@@ -4257,9 +4257,7 @@ class Tabbed extends AbstractDock {
         closeButton = false,
     } = {}) {
         super({ style });
-        const self = this;
         this.addClass('suey-tabbed');
-        this.selectedID = '';
         this.buttons = new Div().setClass('suey-tab-buttons').setStyle('display', 'none');
         this.panels = new Div().setClass('suey-tab-panels');
         this.add(this.buttons, this.panels);
@@ -4338,13 +4336,10 @@ class Tabbed extends AbstractDock {
     selectTab(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
-        if (wasClicked) {
-            if (this.parent.hasClass('suey-collapsed')) {
-                this.toggleTabs();
-            } else if (selectID === this.selectedID) {
-                return this;
-            }
+        if (wasClicked && this.parent.hasClass('suey-collapsed')) {
+            this.toggleTabs();
         }
+        if (this.selectedID === selectID) return this;
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
@@ -4394,6 +4389,7 @@ class Docker extends Panel {
         super({ style: PANEL_STYLES$1.NONE });
         const self = this;
         this.addClass('suey-docker');
+        this.selectedID = '';
         this.initialSide = 'center';
         this.dockSide = 'center';
         this.minimumSize = MINIMUM_NORMAL;
@@ -5088,6 +5084,7 @@ class Window extends AbstractDock {
         }
         if (tabsAdded > 0) {
             if (this.tabCount() > 0) this.setStyle('display', '');
+            if (this.selectedID === '') this.selectFirst();
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
@@ -5107,6 +5104,10 @@ class Window extends AbstractDock {
         if (panel) panel.addClass('suey-hidden');
         this.buttons.detach(button);
         this.panels.detach(panel);
+        if (panel.id === this.selectedID) {
+            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
+            else if (this.panels.children.length > 0) this.selectFirst();
+        }
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         if (this.tabCount() === 0) this.removeSelf();
         return this;
@@ -5125,12 +5126,17 @@ class Window extends AbstractDock {
     selectTab(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
+        if (this.selectedID === selectID) {
+            this.focus();
+            return this;
+        }
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
             this.panels.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
             panel.display();
             panel.button.addClass('suey-selected');
+            this.selectedID = selectID;
             const tabSelected = new Event('tab-selected', { bubbles: true });
             tabSelected.value = selectID;
             this.dom.dispatchEvent(tabSelected);

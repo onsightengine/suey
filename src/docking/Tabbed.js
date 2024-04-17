@@ -20,11 +20,7 @@ class Tabbed extends AbstractDock {
         closeButton = false,
     } = {}) {
         super({ style });
-        const self = this;
         this.addClass('suey-tabbed');
-
-        // Public Properties
-        this.selectedID = '';       // 'id' (name) of selected tab
 
         // Children Elements
         this.buttons = new Div().setClass('suey-tab-buttons').setStyle('display', 'none');
@@ -149,16 +145,13 @@ class Tabbed extends AbstractDock {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
 
-        // Clicked?
-        if (wasClicked) {
-            // Is Currently Collapsed?
-            if (this.parent.hasClass('suey-collapsed')) {
-                this.toggleTabs();
-            // Single click, already selected
-            } else if (selectID === this.selectedID) {
-                return this;
-            }
+        // Clicked && Collapsed?
+        if (wasClicked && this.parent.hasClass('suey-collapsed')) {
+            this.toggleTabs();
         }
+
+        // Already Selected
+        if (this.selectedID === selectID) return this;
 
         // Find button / panel with selectID
         const panel = this.findTab(selectID);

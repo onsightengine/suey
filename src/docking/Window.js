@@ -339,6 +339,7 @@ class Window extends AbstractDock {
         // Tabs Changed
         if (tabsAdded > 0) {
             if (this.tabCount() > 0) this.setStyle('display', '');
+            if (this.selectedID === '') this.selectFirst();
             this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         }
         return this;
@@ -369,6 +370,12 @@ class Window extends AbstractDock {
         this.buttons.detach(button);
         this.panels.detach(panel);
 
+        // Was Selected? (select new Tab)
+        if (panel.id === this.selectedID) {
+            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
+            else if (this.panels.children.length > 0) this.selectFirst();
+        }
+
         // Tabs Changed
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
 
@@ -397,6 +404,12 @@ class Window extends AbstractDock {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
 
+        // Already Selected
+        if (this.selectedID === selectID) {
+            this.focus();
+            return this;
+        }
+
         // Find button / panel with selectID
         const panel = this.findTab(selectID);
         if (panel && panel.button) {
@@ -407,6 +420,7 @@ class Window extends AbstractDock {
             // Select new Panel / Button
             panel.display();
             panel.button.addClass('suey-selected');
+            this.selectedID = selectID;
 
             // Event
             const tabSelected = new Event('tab-selected', { bubbles: true });
