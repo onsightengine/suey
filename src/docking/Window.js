@@ -58,17 +58,17 @@ class Window extends AbstractDock {
         if (maxButton) Interaction.addMaxButton(this, buttonSides, 1.7 /* offset */);
 
         // Tab Elements
-        this.buttons = new Div().setClass('suey-tab-buttons').addClass('suey-window-side');
-        this.panels = new Div().setClass('suey-tab-panels');
-        this.add(this.panels);
+        this.buttons = new Div().setClass('suey-tab-buttons', 'suey-window-side');
+        this.floaters = new Div().setClass('suey-tab-floaters');
+        this.add(this.floaters);
         titleBar.add(this.buttons);
 
         // Z-Index Stacking
         function activeWindow() {
             // Floater wants Focus if no Window descendant has focus
             if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
-                if (self.panels && self.panels.children.length > 0) {
-                    const floater = self.panels.children[0];
+                if (self.floaters && self.floaters.children.length > 0) {
+                    const floater = self.floaters.children[0];
                     floater.dom.dispatchEvent(new Event('activate-window'));
                 }
             }
@@ -183,7 +183,7 @@ class Window extends AbstractDock {
     /******************** DESTROY */
 
     destroy() {
-        this.removeTabs();
+        this.removeFloaters();
         super.destroy();
     }
 
@@ -205,7 +205,7 @@ class Window extends AbstractDock {
         }, 10);
     }
 
-    /** Centers 'Window' panel in parent element */
+    /** Centers 'Window' in parent element */
     center() {
         const parentRect = this.parentRect();
         const side = (parentRect.width - this.getWidth()) / 2;
@@ -322,7 +322,7 @@ class Window extends AbstractDock {
 
     /******************** TABS */
 
-    addTab(...floaters) {
+    addFloater(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
         let tabsAdded = 0;
         for (const floater of floaters) {
@@ -332,7 +332,7 @@ class Window extends AbstractDock {
             floater.dock = this;
 
             // Push onto containers
-            this.panels.add(floater);
+            this.floaters.add(floater);
             this.buttons.add(floater.button);
             tabsAdded++;
         }
@@ -346,34 +346,34 @@ class Window extends AbstractDock {
     }
 
     /** Finds and returns Floater by ID */
-    findTab(tabID = '') {
-        return this.panels.children.find((item) => (item.id === tabID));
+    findFloater(tabID = '') {
+        return this.floaters.children.find((item) => (item.id === tabID));
     }
 
     /** Remove a Floater from the Dock */
-    removeTab(floater, destroy = false) {
-        if (typeof floater === 'string') floater = this.findTab(floater);
+    removeFloater(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findFloater(floater);
         if (!floater) return this;
 
         // Destroy Floater?
         if (destroy) floater.destroy();
 
         // Find Floater
-        const index = this.panels.children.indexOf(floater);
+        const index = this.floaters.children.indexOf(floater);
         if (!floater || index === -1) return this;
 
         // Remove Tab
         const button = this.buttons.children[index];
-        const panel = this.panels.children[index];
+        const panel = this.floaters.children[index];
         if (button) button.removeClass('suey-selected');
         if (panel) panel.addClass('suey-hidden');
         this.buttons.detach(button);
-        this.panels.detach(panel);
+        this.floaters.detach(panel);
 
         // Was Selected? (select new Tab)
         if (panel.id === this.selectedID) {
-            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
-            else if (this.panels.children.length > 0) this.selectFirst();
+            if (index > 0) this.selectFloater(this.floaters.children[index - 1].id);
+            else if (this.floaters.children.length > 0) this.selectFirst();
         }
 
         // Tabs Changed
@@ -385,22 +385,22 @@ class Window extends AbstractDock {
     }
 
     /** Removes all Floaters from the Dock */
-    removeTabs() {
-        const children = [ ...this.panels.children ];
+    removeFloaters() {
+        const children = [ ...this.floaters.children ];
         for (const child of children) {
-            this.removeTab(child, true /* destroy */);
+            this.removeFloater(child, true /* destroy */);
         }
         return this;
     }
 
-    /** Select first Tab / Floater */
+    /** Select first Floater */
     selectFirst() {
-        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        if (this.floaters.children.length > 0) this.selectFloater(this.floaters.children[0].id);
         return this;
     }
 
     /** Select Floater by ID */
-    selectTab(selectID, wasClicked = false) {
+    selectFloater(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
 
@@ -411,16 +411,19 @@ class Window extends AbstractDock {
         }
 
         // Find button / panel with selectID
-        const panel = this.findTab(selectID);
+        const panel = this.findFloater(selectID);
         if (panel && panel.button) {
             // Deselect current Panel / Button
-            this.panels.children.forEach((element) => element.hide());
+            this.floaters.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
 
             // Select new Panel / Button
             panel.display();
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
+
+            // Set Title
+            this.setTitle(selectID);
 
             // Event
             const tabSelected = new Event('tab-selected', { bubbles: true });
@@ -437,7 +440,7 @@ class Window extends AbstractDock {
     }
 
     tabCount() {
-        return this.panels.children.length;
+        return this.floaters.children.length;
     }
 
 }
@@ -453,17 +456,17 @@ class TitleBar extends Div {
 
         super();
         const self = this;
-        this.setClass('suey-title-bar');
-        this.addClass('suey-panel-button');
-
+        this.setClass('suey-title-bar', 'suey-panel-button');
         this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
-        this.setTitle(title);
 
+        // Initial Set
+        if (title && typeof title === 'string' && title != '') this.setTitle(title);
+
+        // Events
         function titleDown() {
             if (parent && typeof parent.focus === 'function') parent.focus();
         }
-
         function titleDoubleClick() {
             if (self.parent && self.parent.isElement) {
                 if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();

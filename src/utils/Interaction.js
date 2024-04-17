@@ -85,8 +85,8 @@ class Interaction {
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
                 button.onPress(() => {
-                    if (element.hasClass('suey-tabbed')) {
-                        element.removeTab(element.selectedID, true /* destroy */);
+                    if (element.hasClass('suey-dock') && element.tabCount() > 0) {
+                        element.removeFloater(element.selectedID, true /* destroy */);
                     } else {
                         element.removeSelf();
                     }

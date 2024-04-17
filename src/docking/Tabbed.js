@@ -24,8 +24,8 @@ class Tabbed extends AbstractDock {
 
         // Children Elements
         this.buttons = new Div().setClass('suey-tab-buttons').setStyle('display', 'none');
-        this.panels = new Div().setClass('suey-tab-panels');
-        this.add(this.buttons, this.panels);
+        this.floaters = new Div().setClass('suey-tab-floaters');
+        this.add(this.buttons, this.floaters);
 
         // Set TAB_SIDES that Tab Buttons should appear
         tabSide = opposite ? oppositeSide(tabSide) : tabSide;
@@ -42,13 +42,13 @@ class Tabbed extends AbstractDock {
     /******************** DESTROY */
 
     destroy() {
-        this.removeTabs();
+        this.removeFloaters();
         super.destroy();
     }
 
     /******************** TABS */
 
-    addTab(...floaters) {
+    addFloater(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
         let tabsAdded = 0;
         for (const floater of floaters) {
@@ -58,7 +58,7 @@ class Tabbed extends AbstractDock {
             floater.dock = this;
 
             // Push onto containers
-            this.panels.add(floater);
+            this.floaters.add(floater);
             this.buttons.add(floater.button);
             tabsAdded++;
 
@@ -81,34 +81,34 @@ class Tabbed extends AbstractDock {
     }
 
     /** Finds and returns Floater by ID */
-    findTab(tabID = '') {
-        return this.panels.children.find((item) => (item.id === tabID));
+    findFloater(tabID = '') {
+        return this.floaters.children.find((item) => (item.id === tabID));
     }
 
     /** Remove a Floater from the Dock */
-    removeTab(floater, destroy = false) {
-        if (typeof floater === 'string') floater = this.findTab(floater);
+    removeFloater(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findFloater(floater);
         if (!floater) return this;
 
         // Destroy Floater?
         if (destroy) floater.destroy();
 
         // Find Floater
-        const index = this.panels.children.indexOf(floater);
+        const index = this.floaters.children.indexOf(floater);
         if (!floater || index === -1) return this;
 
         // Remove Tab
         const button = this.buttons.children[index];
-        const panel = this.panels.children[index];
+        const panel = this.floaters.children[index];
         if (button) button.removeClass('suey-selected');
         if (panel) panel.addClass('suey-hidden');
         this.buttons.detach(button);
-        this.panels.detach(panel);
+        this.floaters.detach(panel);
 
         // Was Selected? (select new Tab)
         if (panel.id === this.selectedID) {
-            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
-            else if (this.panels.children.length > 0) this.selectFirst();
+            if (index > 0) this.selectFloater(this.floaters.children[index - 1].id);
+            else if (this.floaters.children.length > 0) this.selectFirst();
         }
 
         // Minimum height (so Tab Buttons dont float over nothing)
@@ -126,22 +126,22 @@ class Tabbed extends AbstractDock {
     }
 
     /** Removes all Floaters from the Dock */
-    removeTabs() {
-        const children = [ ...this.panels.children ];
+    removeFloaters() {
+        const children = [ ...this.floaters.children ];
         for (const child of children) {
-            this.removeTab(child, true /* destroy */);
+            this.removeFloater(child, true /* destroy */);
         }
         return this;
     }
 
-    /** Select first Tab / Floater */
+    /** Select first Floater */
     selectFirst() {
-        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        if (this.floaters.children.length > 0) this.selectFloater(this.floaters.children[0].id);
         return this;
     }
 
     /** Select Floater by ID */
-    selectTab(selectID, wasClicked = false) {
+    selectFloater(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
 
@@ -154,13 +154,13 @@ class Tabbed extends AbstractDock {
         if (this.selectedID === selectID) return this;
 
         // Find button / panel with selectID
-        const panel = this.findTab(selectID);
+        const panel = this.findFloater(selectID);
         if (panel && panel.button) {
             // Disable Animations
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
 
             // Deselect current Panel / Button
-            this.panels.children.forEach((element) => element.hide());
+            this.floaters.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
 
             // Select new Panel / Button
@@ -183,7 +183,7 @@ class Tabbed extends AbstractDock {
     }
 
     tabCount() {
-        return this.panels.children.length;
+        return this.floaters.children.length;
     }
 
     /******************** COLLAPSE / EXPAND */

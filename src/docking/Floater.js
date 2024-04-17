@@ -66,7 +66,7 @@ class Floater extends Panel {
 
     removeSelf() {
         if (this.dock) {
-            this.dock.removeTab(this, true);
+            this.dock.removeFloater(this, true);
         } else {
             super.removeSelf();
         }
@@ -235,11 +235,11 @@ class TabButton extends Div {
                         if (elementUnder.children.indexOf(self) === -1) {
                             // Remove from current Tabbed
                             if (self.tabPanel.dock) {
-                                self.tabPanel.dock.removeTab(self.tabPanel);
+                                self.tabPanel.dock.removeFloater(self.tabPanel);
                             }
                             // Add to New Tabbed
-                            buttonUnder.tabPanel.dock.addTab(self.tabPanel);
-                            if (wasSelected) buttonUnder.tabPanel.dock.selectTab(self.tabPanel.id);
+                            buttonUnder.tabPanel.dock.addFloater(self.tabPanel);
+                            if (wasSelected) buttonUnder.tabPanel.dock.selectFloater(self.tabPanel.id);
                         }
 
                         buttonUnder.addClass('suey-drop-target');
@@ -321,11 +321,11 @@ class TabButton extends Div {
                         if (droppedOnDock) {
                             // Remove from current Tabbed
                             if (droppedOnDock !== self.tabPanel.dock) {
-                                self.tabPanel.dock.removeTab(self.tabPanel);
+                                self.tabPanel.dock.removeFloater(self.tabPanel);
                             }
                             // Add to New Tabbed
-                            droppedOnDock.addTab(self.tabPanel);
-                            droppedOnDock.selectTab(self.tabPanel.id);
+                            droppedOnDock.addFloater(self.tabPanel);
+                            droppedOnDock.selectFloater(self.tabPanel.id);
                         }
                     }
                     // Clear Dock Locations
@@ -349,7 +349,7 @@ class TabButton extends Div {
                     // Single Click
                     } else {
                         document.dispatchEvent(new Event('closemenu'));
-                        self.tabPanel.dock.selectTab(self.tabPanel.id, true);
+                        self.tabPanel.dock.selectFloater(self.tabPanel.id, true);
                     }
                 }
                 lastClickTime = performance.now();

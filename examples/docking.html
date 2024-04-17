@@ -88,28 +88,28 @@
         const tabby1 = dockLeft.enableTabs();
         const howdy = new Floater('howdy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
         const doody = new Floater('doody', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
-        tabby1.addTab(howdy, doody);
+        tabby1.addFloater(howdy, doody);
 
         const tabby2 = dockRight.enableTabs();
         const handy = new Floater('handy', { icon: `../files/logo/suey.svg`, color: '#773399', shrink: 0.5 }).add(new Div(randomChars()));
         const dandy = new Floater('dandy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
-        tabby2.addTab(handy, dandy);
+        tabby2.addFloater(handy, dandy);
 
         const tabby3 = dockBottom.enableTabs();
         const hippy = new Floater('hippy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
         const dippy = new Floater('dippy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
-        tabby3.addTab(hippy, dippy);
+        tabby3.addFloater(hippy, dippy);
 
         const tabby4 = dockTop.enableTabs();
         const hoopy = new Floater('hoopy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
         const doopy = new Floater('doopy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
-        tabby4.addTab(hoopy, doopy);
+        tabby4.addFloater(hoopy, doopy);
 
         const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
         const tabby5 = miniDock.enableTabs();
         const huppy = new Floater('huppy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
         const duppy = new Floater('duppy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
-        tabby5.addTab(huppy, duppy);
+        tabby5.addFloater(huppy, duppy);
 
         // Force initial resizing
         setTimeout(() => {

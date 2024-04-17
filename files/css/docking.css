@@ -80,7 +80,7 @@
     box-shadow: none !important;
 }
 
-.suey-collapsed > .suey-tabbed .suey-tab-panels * {
+.suey-collapsed > .suey-tabbed .suey-tab-floaters * {
     opacity: 0 !important;
     user-select: none !important;
     pointer-events: none !important;
@@ -172,7 +172,7 @@
 /***** TabPanels */
 
 /* Child of Tabbed that holds multiple 'Floater' */
-.suey-tab-panels {
+.suey-tab-floaters {
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -404,7 +404,7 @@
 .suey-window .suey-panel-fancy-outer,
 .suey-window .suey-panel-fancy-border,
 .suey-window .suey-panel-fancy-inside,
-.suey-window .suey-tab-panels,
+.suey-window .suey-tab-floaters,
 .suey-window .suey-floater,
 .suey-window .suey-titled {
     overflow: visible;
@@ -414,7 +414,7 @@
     z-index: 101; /* window floater */
 }
 
-.suey-window .suey-tab-panels {
+.suey-window .suey-tab-floaters {
     margin-top: 1em;
     height: calc(100% - 1em);
 }

@@ -23,9 +23,6 @@ class Docker extends Panel {
         const self = this;
         this.addClass('suey-docker');
 
-        // Selected Tab ID (name)
-        this.selectedID = '';
-
         // Properties
         this.initialSide = 'center';
         this.dockSide = 'center';

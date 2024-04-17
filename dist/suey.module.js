@@ -1830,8 +1830,8 @@ class Interaction {
         switch (type) {
             case CORNER_BUTTONS.CLOSE:
                 button.onPress(() => {
-                    if (element.hasClass('suey-tabbed')) {
-                        element.removeTab(element.selectedID, true );
+                    if (element.hasClass('suey-dock') && element.tabCount() > 0) {
+                        element.removeFloater(element.selectedID, true );
                     } else {
                         element.removeSelf();
                     }
@@ -3951,29 +3951,30 @@ class AbstractDock extends Panel {
     } = {}) {
         super({ style });
         this.addClass('suey-dock');
+        this.selectedID = '';
     }
-    addTab(...floaters) {
-        console.error(`${this.constructor.name}.addTab(): Method must be reimplemented from AbstractDock`);
+    addFloater(...floaters) {
+        console.error(`${this.constructor.name}.addFloater(): Method must be reimplemented from AbstractDock`);
         return this;
     }
-    findTab(tabID = '') {
-        console.error(`${this.constructor.name}.findTab(): Method must be reimplemented from AbstractDock`);
+    findFloater(tabID = '') {
+        console.error(`${this.constructor.name}.findFloater(): Method must be reimplemented from AbstractDock`);
         return null;
     }
-    removeTab(floater, destroy = false) {
-        console.error(`${this.constructor.name}.removeTab(): Method must be reimplemented from AbstractDock`);
+    removeFloater(floater, destroy = false) {
+        console.error(`${this.constructor.name}.removeFloater(): Method must be reimplemented from AbstractDock`);
         return this;
     }
-    removeTabs() {
-        console.error(`${this.constructor.name}.removeTabs(): Method must be reimplemented from AbstractDock`);
+    removeFloaters() {
+        console.error(`${this.constructor.name}.removeFloaters(): Method must be reimplemented from AbstractDock`);
         return this;
     }
     selectFirst() {
         console.error(`${this.constructor.name}.selectFirst(): Method must be reimplemented from AbstractDock`);
         return this;
     }
-    selectTab(selectID, wasClicked = false) {
-        console.error(`${this.constructor.name}.selectTab(): Method must be reimplemented from AbstractDock`);
+    selectFloater(selectID, wasClicked = false) {
+        console.error(`${this.constructor.name}.selectFloater(): Method must be reimplemented from AbstractDock`);
         return this;
     }
     tabCount() {
@@ -4018,7 +4019,7 @@ class Floater extends Panel {
     }
     removeSelf() {
         if (this.dock) {
-            this.dock.removeTab(this, true);
+            this.dock.removeFloater(this, true);
         } else {
             super.removeSelf();
         }
@@ -4146,10 +4147,10 @@ class TabButton extends Div {
                     if (buttonUnder) {
                         if (elementUnder.children.indexOf(self) === -1) {
                             if (self.tabPanel.dock) {
-                                self.tabPanel.dock.removeTab(self.tabPanel);
+                                self.tabPanel.dock.removeFloater(self.tabPanel);
                             }
-                            buttonUnder.tabPanel.dock.addTab(self.tabPanel);
-                            if (wasSelected) buttonUnder.tabPanel.dock.selectTab(self.tabPanel.id);
+                            buttonUnder.tabPanel.dock.addFloater(self.tabPanel);
+                            if (wasSelected) buttonUnder.tabPanel.dock.selectFloater(self.tabPanel.id);
                         }
                         buttonUnder.addClass('suey-drop-target');
                         const childrenArray = Array.from(elementUnder.dom.children);
@@ -4215,10 +4216,10 @@ class TabButton extends Div {
                         }
                         if (droppedOnDock) {
                             if (droppedOnDock !== self.tabPanel.dock) {
-                                self.tabPanel.dock.removeTab(self.tabPanel);
+                                self.tabPanel.dock.removeFloater(self.tabPanel);
                             }
-                            droppedOnDock.addTab(self.tabPanel);
-                            droppedOnDock.selectTab(self.tabPanel.id);
+                            droppedOnDock.addFloater(self.tabPanel);
+                            droppedOnDock.selectFloater(self.tabPanel.id);
                         }
                     }
                     lastUnder.hideDockLocations();
@@ -4236,7 +4237,7 @@ class TabButton extends Div {
                         }
                     } else {
                         document.dispatchEvent(new Event('closemenu'));
-                        self.tabPanel.dock.selectTab(self.tabPanel.id, true);
+                        self.tabPanel.dock.selectFloater(self.tabPanel.id, true);
                     }
                 }
                 lastClickTime = performance.now();
@@ -4259,8 +4260,8 @@ class Tabbed extends AbstractDock {
         super({ style });
         this.addClass('suey-tabbed');
         this.buttons = new Div().setClass('suey-tab-buttons').setStyle('display', 'none');
-        this.panels = new Div().setClass('suey-tab-panels');
-        this.add(this.buttons, this.panels);
+        this.floaters = new Div().setClass('suey-tab-floaters');
+        this.add(this.buttons, this.floaters);
         tabSide = opposite ? oppositeSide(tabSide) : tabSide;
         this.setTabSide(tabSide);
         if (closeButton) {
@@ -4270,16 +4271,16 @@ class Tabbed extends AbstractDock {
         }
     }
     destroy() {
-        this.removeTabs();
+        this.removeFloaters();
         super.destroy();
     }
-    addTab(...floaters) {
+    addFloater(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
         let tabsAdded = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
             floater.dock = this;
-            this.panels.add(floater);
+            this.floaters.add(floater);
             this.buttons.add(floater.button);
             tabsAdded++;
             this.buttons.setStyle('display', (this.buttons.children.length >= MINIMUM_TABS_TO_SHOW) ? '' : 'none');
@@ -4295,24 +4296,24 @@ class Tabbed extends AbstractDock {
         }
         return this;
     }
-    findTab(tabID = '') {
-        return this.panels.children.find((item) => (item.id === tabID));
+    findFloater(tabID = '') {
+        return this.floaters.children.find((item) => (item.id === tabID));
     }
-    removeTab(floater, destroy = false) {
-        if (typeof floater === 'string') floater = this.findTab(floater);
+    removeFloater(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findFloater(floater);
         if (!floater) return this;
         if (destroy) floater.destroy();
-        const index = this.panels.children.indexOf(floater);
+        const index = this.floaters.children.indexOf(floater);
         if (!floater || index === -1) return this;
         const button = this.buttons.children[index];
-        const panel = this.panels.children[index];
+        const panel = this.floaters.children[index];
         if (button) button.removeClass('suey-selected');
         if (panel) panel.addClass('suey-hidden');
         this.buttons.detach(button);
-        this.panels.detach(panel);
+        this.floaters.detach(panel);
         if (panel.id === this.selectedID) {
-            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
-            else if (this.panels.children.length > 0) this.selectFirst();
+            if (index > 0) this.selectFloater(this.floaters.children[index - 1].id);
+            else if (this.floaters.children.length > 0) this.selectFirst();
         }
         this.setContentsStyle('minHeight', '');
         if (this.buttons.hasClass('suey-left-side') || this.buttons.hasClass('suey-right-side')) {
@@ -4322,28 +4323,28 @@ class Tabbed extends AbstractDock {
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         return this;
     }
-    removeTabs() {
-        const children = [ ...this.panels.children ];
+    removeFloaters() {
+        const children = [ ...this.floaters.children ];
         for (const child of children) {
-            this.removeTab(child, true );
+            this.removeFloater(child, true );
         }
         return this;
     }
     selectFirst() {
-        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        if (this.floaters.children.length > 0) this.selectFloater(this.floaters.children[0].id);
         return this;
     }
-    selectTab(selectID, wasClicked = false) {
+    selectFloater(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
         if (wasClicked && this.parent.hasClass('suey-collapsed')) {
             this.toggleTabs();
         }
         if (this.selectedID === selectID) return this;
-        const panel = this.findTab(selectID);
+        const panel = this.findFloater(selectID);
         if (panel && panel.button) {
             if (!wasClicked) Css.setVariable('--tab-timing', '0');
-            this.panels.children.forEach((element) => element.hide());
+            this.floaters.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
             panel.display();
             panel.button.addClass('suey-selected');
@@ -4357,7 +4358,7 @@ class Tabbed extends AbstractDock {
         return this;
     }
     tabCount() {
-        return this.panels.children.length;
+        return this.floaters.children.length;
     }
     toggleTabs() {
         if (this.parent && this.parent.hasClass('suey-docker')) {
@@ -4389,7 +4390,6 @@ class Docker extends Panel {
         super({ style: PANEL_STYLES$1.NONE });
         const self = this;
         this.addClass('suey-docker');
-        this.selectedID = '';
         this.initialSide = 'center';
         this.dockSide = 'center';
         this.minimumSize = MINIMUM_NORMAL;
@@ -4853,14 +4853,14 @@ class Window extends AbstractDock {
         };
         if (closeButton) Interaction.addCloseButton(this, buttonSides, 1.7 );
         if (maxButton) Interaction.addMaxButton(this, buttonSides, 1.7 );
-        this.buttons = new Div().setClass('suey-tab-buttons').addClass('suey-window-side');
-        this.panels = new Div().setClass('suey-tab-panels');
-        this.add(this.panels);
+        this.buttons = new Div().setClass('suey-tab-buttons', 'suey-window-side');
+        this.floaters = new Div().setClass('suey-tab-floaters');
+        this.add(this.floaters);
         titleBar.add(this.buttons);
         function activeWindow() {
             if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
-                if (self.panels && self.panels.children.length > 0) {
-                    const floater = self.panels.children[0];
+                if (self.floaters && self.floaters.children.length > 0) {
+                    const floater = self.floaters.children[0];
                     floater.dom.dispatchEvent(new Event('activate-window'));
                 }
             }
@@ -4955,7 +4955,7 @@ class Window extends AbstractDock {
         });
     }
     destroy() {
-        this.removeTabs();
+        this.removeFloaters();
         super.destroy();
     }
     setStyle(...styles) {
@@ -5072,13 +5072,13 @@ class Window extends AbstractDock {
             }
         }
     }
-    addTab(...floaters) {
+    addFloater(...floaters) {
         if (!floaters || !Array.isArray(floaters)) return this;
         let tabsAdded = 0;
         for (const floater of floaters) {
             if (!floater || !floater.hasClass('suey-floater')) continue;
             floater.dock = this;
-            this.panels.add(floater);
+            this.floaters.add(floater);
             this.buttons.add(floater.button);
             tabsAdded++;
         }
@@ -5089,54 +5089,55 @@ class Window extends AbstractDock {
         }
         return this;
     }
-    findTab(tabID = '') {
-        return this.panels.children.find((item) => (item.id === tabID));
+    findFloater(tabID = '') {
+        return this.floaters.children.find((item) => (item.id === tabID));
     }
-    removeTab(floater, destroy = false) {
-        if (typeof floater === 'string') floater = this.findTab(floater);
+    removeFloater(floater, destroy = false) {
+        if (typeof floater === 'string') floater = this.findFloater(floater);
         if (!floater) return this;
         if (destroy) floater.destroy();
-        const index = this.panels.children.indexOf(floater);
+        const index = this.floaters.children.indexOf(floater);
         if (!floater || index === -1) return this;
         const button = this.buttons.children[index];
-        const panel = this.panels.children[index];
+        const panel = this.floaters.children[index];
         if (button) button.removeClass('suey-selected');
         if (panel) panel.addClass('suey-hidden');
         this.buttons.detach(button);
-        this.panels.detach(panel);
+        this.floaters.detach(panel);
         if (panel.id === this.selectedID) {
-            if (index > 0) this.selectTab(this.panels.children[index - 1].id);
-            else if (this.panels.children.length > 0) this.selectFirst();
+            if (index > 0) this.selectFloater(this.floaters.children[index - 1].id);
+            else if (this.floaters.children.length > 0) this.selectFirst();
         }
         this.dom.dispatchEvent(new Event('tabs-changed', { bubbles: true }));
         if (this.tabCount() === 0) this.removeSelf();
         return this;
     }
-    removeTabs() {
-        const children = [ ...this.panels.children ];
+    removeFloaters() {
+        const children = [ ...this.floaters.children ];
         for (const child of children) {
-            this.removeTab(child, true );
+            this.removeFloater(child, true );
         }
         return this;
     }
     selectFirst() {
-        if (this.panels.children.length > 0) this.selectTab(this.panels.children[0].id);
+        if (this.floaters.children.length > 0) this.selectFloater(this.floaters.children[0].id);
         return this;
     }
-    selectTab(selectID, wasClicked = false) {
+    selectFloater(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
         if (this.selectedID === selectID) {
             this.focus();
             return this;
         }
-        const panel = this.findTab(selectID);
+        const panel = this.findFloater(selectID);
         if (panel && panel.button) {
-            this.panels.children.forEach((element) => element.hide());
+            this.floaters.children.forEach((element) => element.hide());
             this.buttons.children.forEach((element) => element.removeClass('suey-selected'));
             panel.display();
             panel.button.addClass('suey-selected');
             this.selectedID = selectID;
+            this.setTitle(selectID);
             const tabSelected = new Event('tab-selected', { bubbles: true });
             tabSelected.value = selectID;
             this.dom.dispatchEvent(tabSelected);
@@ -5146,7 +5147,7 @@ class Window extends AbstractDock {
         return this;
     }
     tabCount() {
-        return this.panels.children.length;
+        return this.floaters.children.length;
     }
 }
 class TitleBar extends Div {
@@ -5154,11 +5155,10 @@ class TitleBar extends Div {
         if (!parent || !parent.isElement) return console.warn(`TitleBar.constructor(): Missing parent element`);
         super();
         const self = this;
-        this.setClass('suey-title-bar');
-        this.addClass('suey-panel-button');
+        this.setClass('suey-title-bar', 'suey-panel-button');
         this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
-        this.setTitle(title);
+        if (title && typeof title === 'string' && title != '') this.setTitle(title);
         function titleDown() {
             if (parent && typeof parent.focus === 'function') parent.focus();
         }
@@ -6523,8 +6523,8 @@ var css_248z$7 = "/***** Question *****/\n\n.suey-question {\n    position: fixe
 var stylesheet$7="/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n\n/* Question Panel Colors */\n\n.suey-question-info .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--info));\n}\n\n.suey-question-question .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--valid));\n}\n\n.suey-question-warning .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--warning));\n}\n\n.suey-question-error .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--invalid));\n}\n";
 styleInject(css_248z$7);
 
-var css_248z$6 = "/********** Main Window **********/\n\n.suey-main-window {\n    user-select: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n}\n\n.suey-window-holder {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    pointer-events: none;\n}\n\n/********** Abstract Dock **********/\n\n.suey-dock {\n    position: relative;\n}\n\n/********** Docker **********/\n\n.suey-docker {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    min-width: 8em;\n    min-height: 8em;\n    max-width: 100%;\n    max-height: 100%;\n    pointer-events: none;\n}\n\n.suey-docker.suey-docker-primary {\n    width: 100vw;\n    height: 100vh;\n    top: 0;\n    left: 0;\n    overflow: visible;\n}\n\n.suey-docker-vertical {\n    height: 100%;\n}\n\n.suey-docker-horizontal {\n    width: 100%;\n}\n\n.suey-dock-drag .suey-docker {\n    pointer-events: all !important;\n}\n\n/***** Collapsed Docks */\n\n.suey-docker.suey-collapsed {\n    min-width: calc(var(--tab-size) * 1) !important;\n    min-height: calc(var(--tab-size) * 1) !important;\n}\n\n.suey-collapsed .suey-corner-button {\n    display: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-panel-simple,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {\n    background-color: transparent !important;\n    border-color: transparent !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-panels * {\n    opacity: 0 !important;\n    user-select: none !important;\n    pointer-events: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-button {\n    margin: 0 !important;\n}\n\n.suey-collapsed .suey-tabbed .suey-resizer {\n    pointer-events: none !important;\n    display: none !important;\n}\n\n/***** Dock Locations */\n\n.suey-dock-locations {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n\n.suey-dock-location {\n    --size: 2em;\n    position: absolute;\n    opacity: 0.0;\n}\n.suey-dock-left   { left:  0; top:    0; width:  20%; height: 100%; }\n.suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }\n.suey-dock-top    { left:  0; top:    0; width: 100%; height:  25%; }\n.suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  25%; }\n.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }\n\n.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }\n.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }\n.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }\n.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }\n\n.suey-dock-location.suey-dock-drop {\n    background-color: transparent;\n    opacity: 1.0;\n}\n.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {\n    --shrink: 0.57143em;\n    content: '';\n    position: absolute;\n    left: var(--shrink);\n    right: var(--shrink);\n    top: var(--shrink);\n    bottom: var(--shrink);\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--complement));\n    border-radius: var(--radius-large);\n    outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n}\n\n.suey-docker.suey-dock-self .suey-panel-simple,\n.suey-docker.suey-dock-self .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n/********** Floater **********/\n\n.suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: auto;\n}\n\n/********** Tabbed **********/\n\n.suey-tabbed {\n    pointer-events: all;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/***** TabPanels */\n\n/* Child of Tabbed that holds multiple 'Floater' */\n.suey-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/***** TabButtons */\n\n/* Child of Tabbed that holds multiple 'TabButton' */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n    margin: 0;\n}\n\n.suey-tab-buttons.suey-left-side,\n.suey-tab-buttons.suey-right-side {\n    flex-direction: column;\n    top: 1em;\n}\n\n.suey-tab-buttons.suey-top-side,\n.suey-tab-buttons.suey-bottom-side {\n    flex-direction: row;\n    left: 1em;\n}\n\n.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {\n    margin-left: calc(-1 * var(--pad-x-small));\n    margin-right: calc(-1 * var(--pad-x-small));\n}\n\n.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {\n    margin-top: calc(-1 * var(--pad-x-small));\n    margin-bottom: calc(-1 * var(--pad-x-small));\n}\n\n.suey-drag-tab-button {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n.suey-drag-tab-button .suey-tab-icon-border {\n    border-width: var(--border-small);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, var(--pixel));\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: var(--pad-small) solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transform: scale(1.05);\n}\n\n.suey-tab-button.suey-drop-target .suey-tab-icon-border {\n    border-color: rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/********** Window **********/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: absolute;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window.suey-drop-target .suey-panel-simple,\n.suey-window.suey-drop-target .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    --title-width: 0;\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: var(--radius-large);\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n    overflow: visible;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n/* Window Tab Buttons */\n\n.suey-tab-buttons.suey-window-side {\n    flex-direction: row;\n    top: calc((var(--tab-size) / -2.0) + 0.4em);\n    transition: transform 0.15s;\n}\n.suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: var(--border-small) solid rgba(var(--icon));\n    transition: border 0.15s;\n}\n\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side {\n    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/\n    transform: scale(65%);\n}\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: 0.24em solid rgba(var(--icon));\n}\n\n.suey-panel-button.suey-title-bar .suey-tab-buttons {\n    left: 110%;\n    margin-left: 0.5em;\n}\n\n.suey-window:not(.suey-active-window) .suey-tab-icon-border {\n    border-color: rgba(var(--button-light)) !important;\n}\n\n/* Window Floaters */\n.suey-window .suey-panel-fancy-outer,\n.suey-window .suey-panel-fancy-border,\n.suey-window .suey-panel-fancy-inside,\n.suey-window .suey-tab-panels,\n.suey-window .suey-floater,\n.suey-window .suey-titled {\n    overflow: visible;\n}\n\n.suey-window .suey-floater {\n    z-index: 101; /* window floater */\n}\n\n.suey-window .suey-tab-panels {\n    margin-top: 1em;\n    height: calc(100% - 1em);\n}\n\n/* Window Tab Title Buttons */\n.suey-window .suey-tab-title {\n    pointer-events: none;\n    position: absolute;\n    top: -1.8em;\n    left: 0;\n    right: 0;\n    width: 75%;\n    margin: auto;\n    min-height: 1.9em;\n    background: transparent;\n    background-image: none;\n    box-shadow: none;\n    outline: none;\n    color: transparent;\n    text-shadow: none;\n    overflow: visible;\n}\n.suey-window .suey-tab-title .suey-borderless-button {\n    pointer-events: all;\n    position: relative;\n    pointer-events: all;\n    background: rgb(var(--button-dark)) !important;\n    border: solid var(--border-small) rgb(var(--icon));\n    overflow: visible;\n}\n.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {\n    border: solid var(--border-small) rgb(var(--button-light));\n}\n";
-var stylesheet$6="/********** Main Window **********/\n\n.suey-main-window {\n    user-select: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n}\n\n.suey-window-holder {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    pointer-events: none;\n}\n\n/********** Abstract Dock **********/\n\n.suey-dock {\n    position: relative;\n}\n\n/********** Docker **********/\n\n.suey-docker {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    min-width: 8em;\n    min-height: 8em;\n    max-width: 100%;\n    max-height: 100%;\n    pointer-events: none;\n}\n\n.suey-docker.suey-docker-primary {\n    width: 100vw;\n    height: 100vh;\n    top: 0;\n    left: 0;\n    overflow: visible;\n}\n\n.suey-docker-vertical {\n    height: 100%;\n}\n\n.suey-docker-horizontal {\n    width: 100%;\n}\n\n.suey-dock-drag .suey-docker {\n    pointer-events: all !important;\n}\n\n/***** Collapsed Docks */\n\n.suey-docker.suey-collapsed {\n    min-width: calc(var(--tab-size) * 1) !important;\n    min-height: calc(var(--tab-size) * 1) !important;\n}\n\n.suey-collapsed .suey-corner-button {\n    display: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-panel-simple,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {\n    background-color: transparent !important;\n    border-color: transparent !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-panels * {\n    opacity: 0 !important;\n    user-select: none !important;\n    pointer-events: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-button {\n    margin: 0 !important;\n}\n\n.suey-collapsed .suey-tabbed .suey-resizer {\n    pointer-events: none !important;\n    display: none !important;\n}\n\n/***** Dock Locations */\n\n.suey-dock-locations {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n\n.suey-dock-location {\n    --size: 2em;\n    position: absolute;\n    opacity: 0.0;\n}\n.suey-dock-left   { left:  0; top:    0; width:  20%; height: 100%; }\n.suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }\n.suey-dock-top    { left:  0; top:    0; width: 100%; height:  25%; }\n.suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  25%; }\n.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }\n\n.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }\n.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }\n.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }\n.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }\n\n.suey-dock-location.suey-dock-drop {\n    background-color: transparent;\n    opacity: 1.0;\n}\n.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {\n    --shrink: 0.57143em;\n    content: '';\n    position: absolute;\n    left: var(--shrink);\n    right: var(--shrink);\n    top: var(--shrink);\n    bottom: var(--shrink);\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--complement));\n    border-radius: var(--radius-large);\n    outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n}\n\n.suey-docker.suey-dock-self .suey-panel-simple,\n.suey-docker.suey-dock-self .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n/********** Floater **********/\n\n.suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: auto;\n}\n\n/********** Tabbed **********/\n\n.suey-tabbed {\n    pointer-events: all;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/***** TabPanels */\n\n/* Child of Tabbed that holds multiple 'Floater' */\n.suey-tab-panels {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/***** TabButtons */\n\n/* Child of Tabbed that holds multiple 'TabButton' */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n    margin: 0;\n}\n\n.suey-tab-buttons.suey-left-side,\n.suey-tab-buttons.suey-right-side {\n    flex-direction: column;\n    top: 1em;\n}\n\n.suey-tab-buttons.suey-top-side,\n.suey-tab-buttons.suey-bottom-side {\n    flex-direction: row;\n    left: 1em;\n}\n\n.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {\n    margin-left: calc(-1 * var(--pad-x-small));\n    margin-right: calc(-1 * var(--pad-x-small));\n}\n\n.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {\n    margin-top: calc(-1 * var(--pad-x-small));\n    margin-bottom: calc(-1 * var(--pad-x-small));\n}\n\n.suey-drag-tab-button {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n.suey-drag-tab-button .suey-tab-icon-border {\n    border-width: var(--border-small);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, var(--pixel));\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: var(--pad-small) solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transform: scale(1.05);\n}\n\n.suey-tab-button.suey-drop-target .suey-tab-icon-border {\n    border-color: rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/********** Window **********/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: absolute;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window.suey-drop-target .suey-panel-simple,\n.suey-window.suey-drop-target .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    --title-width: 0;\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: var(--radius-large);\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n    overflow: visible;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n/* Window Tab Buttons */\n\n.suey-tab-buttons.suey-window-side {\n    flex-direction: row;\n    top: calc((var(--tab-size) / -2.0) + 0.4em);\n    transition: transform 0.15s;\n}\n.suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: var(--border-small) solid rgba(var(--icon));\n    transition: border 0.15s;\n}\n\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side {\n    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/\n    transform: scale(65%);\n}\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: 0.24em solid rgba(var(--icon));\n}\n\n.suey-panel-button.suey-title-bar .suey-tab-buttons {\n    left: 110%;\n    margin-left: 0.5em;\n}\n\n.suey-window:not(.suey-active-window) .suey-tab-icon-border {\n    border-color: rgba(var(--button-light)) !important;\n}\n\n/* Window Floaters */\n.suey-window .suey-panel-fancy-outer,\n.suey-window .suey-panel-fancy-border,\n.suey-window .suey-panel-fancy-inside,\n.suey-window .suey-tab-panels,\n.suey-window .suey-floater,\n.suey-window .suey-titled {\n    overflow: visible;\n}\n\n.suey-window .suey-floater {\n    z-index: 101; /* window floater */\n}\n\n.suey-window .suey-tab-panels {\n    margin-top: 1em;\n    height: calc(100% - 1em);\n}\n\n/* Window Tab Title Buttons */\n.suey-window .suey-tab-title {\n    pointer-events: none;\n    position: absolute;\n    top: -1.8em;\n    left: 0;\n    right: 0;\n    width: 75%;\n    margin: auto;\n    min-height: 1.9em;\n    background: transparent;\n    background-image: none;\n    box-shadow: none;\n    outline: none;\n    color: transparent;\n    text-shadow: none;\n    overflow: visible;\n}\n.suey-window .suey-tab-title .suey-borderless-button {\n    pointer-events: all;\n    position: relative;\n    pointer-events: all;\n    background: rgb(var(--button-dark)) !important;\n    border: solid var(--border-small) rgb(var(--icon));\n    overflow: visible;\n}\n.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {\n    border: solid var(--border-small) rgb(var(--button-light));\n}\n";
+var css_248z$6 = "/********** Main Window **********/\n\n.suey-main-window {\n    user-select: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n}\n\n.suey-window-holder {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    pointer-events: none;\n}\n\n/********** Abstract Dock **********/\n\n.suey-dock {\n    position: relative;\n}\n\n/********** Docker **********/\n\n.suey-docker {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    min-width: 8em;\n    min-height: 8em;\n    max-width: 100%;\n    max-height: 100%;\n    pointer-events: none;\n}\n\n.suey-docker.suey-docker-primary {\n    width: 100vw;\n    height: 100vh;\n    top: 0;\n    left: 0;\n    overflow: visible;\n}\n\n.suey-docker-vertical {\n    height: 100%;\n}\n\n.suey-docker-horizontal {\n    width: 100%;\n}\n\n.suey-dock-drag .suey-docker {\n    pointer-events: all !important;\n}\n\n/***** Collapsed Docks */\n\n.suey-docker.suey-collapsed {\n    min-width: calc(var(--tab-size) * 1) !important;\n    min-height: calc(var(--tab-size) * 1) !important;\n}\n\n.suey-collapsed .suey-corner-button {\n    display: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-panel-simple,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {\n    background-color: transparent !important;\n    border-color: transparent !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-floaters * {\n    opacity: 0 !important;\n    user-select: none !important;\n    pointer-events: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-button {\n    margin: 0 !important;\n}\n\n.suey-collapsed .suey-tabbed .suey-resizer {\n    pointer-events: none !important;\n    display: none !important;\n}\n\n/***** Dock Locations */\n\n.suey-dock-locations {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n\n.suey-dock-location {\n    --size: 2em;\n    position: absolute;\n    opacity: 0.0;\n}\n.suey-dock-left   { left:  0; top:    0; width:  20%; height: 100%; }\n.suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }\n.suey-dock-top    { left:  0; top:    0; width: 100%; height:  25%; }\n.suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  25%; }\n.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }\n\n.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }\n.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }\n.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }\n.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }\n\n.suey-dock-location.suey-dock-drop {\n    background-color: transparent;\n    opacity: 1.0;\n}\n.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {\n    --shrink: 0.57143em;\n    content: '';\n    position: absolute;\n    left: var(--shrink);\n    right: var(--shrink);\n    top: var(--shrink);\n    bottom: var(--shrink);\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--complement));\n    border-radius: var(--radius-large);\n    outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n}\n\n.suey-docker.suey-dock-self .suey-panel-simple,\n.suey-docker.suey-dock-self .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n/********** Floater **********/\n\n.suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: auto;\n}\n\n/********** Tabbed **********/\n\n.suey-tabbed {\n    pointer-events: all;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/***** TabPanels */\n\n/* Child of Tabbed that holds multiple 'Floater' */\n.suey-tab-floaters {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/***** TabButtons */\n\n/* Child of Tabbed that holds multiple 'TabButton' */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n    margin: 0;\n}\n\n.suey-tab-buttons.suey-left-side,\n.suey-tab-buttons.suey-right-side {\n    flex-direction: column;\n    top: 1em;\n}\n\n.suey-tab-buttons.suey-top-side,\n.suey-tab-buttons.suey-bottom-side {\n    flex-direction: row;\n    left: 1em;\n}\n\n.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {\n    margin-left: calc(-1 * var(--pad-x-small));\n    margin-right: calc(-1 * var(--pad-x-small));\n}\n\n.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {\n    margin-top: calc(-1 * var(--pad-x-small));\n    margin-bottom: calc(-1 * var(--pad-x-small));\n}\n\n.suey-drag-tab-button {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n.suey-drag-tab-button .suey-tab-icon-border {\n    border-width: var(--border-small);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, var(--pixel));\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: var(--pad-small) solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transform: scale(1.05);\n}\n\n.suey-tab-button.suey-drop-target .suey-tab-icon-border {\n    border-color: rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/********** Window **********/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: absolute;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window.suey-drop-target .suey-panel-simple,\n.suey-window.suey-drop-target .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    --title-width: 0;\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: var(--radius-large);\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n    overflow: visible;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n/* Window Tab Buttons */\n\n.suey-tab-buttons.suey-window-side {\n    flex-direction: row;\n    top: calc((var(--tab-size) / -2.0) + 0.4em);\n    transition: transform 0.15s;\n}\n.suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: var(--border-small) solid rgba(var(--icon));\n    transition: border 0.15s;\n}\n\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side {\n    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/\n    transform: scale(65%);\n}\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: 0.24em solid rgba(var(--icon));\n}\n\n.suey-panel-button.suey-title-bar .suey-tab-buttons {\n    left: 110%;\n    margin-left: 0.5em;\n}\n\n.suey-window:not(.suey-active-window) .suey-tab-icon-border {\n    border-color: rgba(var(--button-light)) !important;\n}\n\n/* Window Floaters */\n.suey-window .suey-panel-fancy-outer,\n.suey-window .suey-panel-fancy-border,\n.suey-window .suey-panel-fancy-inside,\n.suey-window .suey-tab-floaters,\n.suey-window .suey-floater,\n.suey-window .suey-titled {\n    overflow: visible;\n}\n\n.suey-window .suey-floater {\n    z-index: 101; /* window floater */\n}\n\n.suey-window .suey-tab-floaters {\n    margin-top: 1em;\n    height: calc(100% - 1em);\n}\n\n/* Window Tab Title Buttons */\n.suey-window .suey-tab-title {\n    pointer-events: none;\n    position: absolute;\n    top: -1.8em;\n    left: 0;\n    right: 0;\n    width: 75%;\n    margin: auto;\n    min-height: 1.9em;\n    background: transparent;\n    background-image: none;\n    box-shadow: none;\n    outline: none;\n    color: transparent;\n    text-shadow: none;\n    overflow: visible;\n}\n.suey-window .suey-tab-title .suey-borderless-button {\n    pointer-events: all;\n    position: relative;\n    pointer-events: all;\n    background: rgb(var(--button-dark)) !important;\n    border: solid var(--border-small) rgb(var(--icon));\n    overflow: visible;\n}\n.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {\n    border: solid var(--border-small) rgb(var(--button-light));\n}\n";
+var stylesheet$6="/********** Main Window **********/\n\n.suey-main-window {\n    user-select: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n}\n\n.suey-window-holder {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    pointer-events: none;\n}\n\n/********** Abstract Dock **********/\n\n.suey-dock {\n    position: relative;\n}\n\n/********** Docker **********/\n\n.suey-docker {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    min-width: 8em;\n    min-height: 8em;\n    max-width: 100%;\n    max-height: 100%;\n    pointer-events: none;\n}\n\n.suey-docker.suey-docker-primary {\n    width: 100vw;\n    height: 100vh;\n    top: 0;\n    left: 0;\n    overflow: visible;\n}\n\n.suey-docker-vertical {\n    height: 100%;\n}\n\n.suey-docker-horizontal {\n    width: 100%;\n}\n\n.suey-dock-drag .suey-docker {\n    pointer-events: all !important;\n}\n\n/***** Collapsed Docks */\n\n.suey-docker.suey-collapsed {\n    min-width: calc(var(--tab-size) * 1) !important;\n    min-height: calc(var(--tab-size) * 1) !important;\n}\n\n.suey-collapsed .suey-corner-button {\n    display: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-panel-simple,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {\n    background-color: transparent !important;\n    border-color: transparent !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-floaters * {\n    opacity: 0 !important;\n    user-select: none !important;\n    pointer-events: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-button {\n    margin: 0 !important;\n}\n\n.suey-collapsed .suey-tabbed .suey-resizer {\n    pointer-events: none !important;\n    display: none !important;\n}\n\n/***** Dock Locations */\n\n.suey-dock-locations {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n\n.suey-dock-location {\n    --size: 2em;\n    position: absolute;\n    opacity: 0.0;\n}\n.suey-dock-left   { left:  0; top:    0; width:  20%; height: 100%; }\n.suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }\n.suey-dock-top    { left:  0; top:    0; width: 100%; height:  25%; }\n.suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  25%; }\n.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }\n\n.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }\n.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }\n.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }\n.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }\n\n.suey-dock-location.suey-dock-drop {\n    background-color: transparent;\n    opacity: 1.0;\n}\n.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {\n    --shrink: 0.57143em;\n    content: '';\n    position: absolute;\n    left: var(--shrink);\n    right: var(--shrink);\n    top: var(--shrink);\n    bottom: var(--shrink);\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--complement));\n    border-radius: var(--radius-large);\n    outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n}\n\n.suey-docker.suey-dock-self .suey-panel-simple,\n.suey-docker.suey-dock-self .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n/********** Floater **********/\n\n.suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: auto;\n}\n\n/********** Tabbed **********/\n\n.suey-tabbed {\n    pointer-events: all;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/***** TabPanels */\n\n/* Child of Tabbed that holds multiple 'Floater' */\n.suey-tab-floaters {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/***** TabButtons */\n\n/* Child of Tabbed that holds multiple 'TabButton' */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n    margin: 0;\n}\n\n.suey-tab-buttons.suey-left-side,\n.suey-tab-buttons.suey-right-side {\n    flex-direction: column;\n    top: 1em;\n}\n\n.suey-tab-buttons.suey-top-side,\n.suey-tab-buttons.suey-bottom-side {\n    flex-direction: row;\n    left: 1em;\n}\n\n.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {\n    margin-left: calc(-1 * var(--pad-x-small));\n    margin-right: calc(-1 * var(--pad-x-small));\n}\n\n.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {\n    margin-top: calc(-1 * var(--pad-x-small));\n    margin-bottom: calc(-1 * var(--pad-x-small));\n}\n\n.suey-drag-tab-button {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n.suey-drag-tab-button .suey-tab-icon-border {\n    border-width: var(--border-small);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, var(--pixel));\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: var(--pad-small) solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transform: scale(1.05);\n}\n\n.suey-tab-button.suey-drop-target .suey-tab-icon-border {\n    border-color: rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/********** Window **********/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: absolute;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window.suey-drop-target .suey-panel-simple,\n.suey-window.suey-drop-target .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    --title-width: 0;\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: var(--radius-large);\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n    overflow: visible;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n/* Window Tab Buttons */\n\n.suey-tab-buttons.suey-window-side {\n    flex-direction: row;\n    top: calc((var(--tab-size) / -2.0) + 0.4em);\n    transition: transform 0.15s;\n}\n.suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: var(--border-small) solid rgba(var(--icon));\n    transition: border 0.15s;\n}\n\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side {\n    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/\n    transform: scale(65%);\n}\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: 0.24em solid rgba(var(--icon));\n}\n\n.suey-panel-button.suey-title-bar .suey-tab-buttons {\n    left: 110%;\n    margin-left: 0.5em;\n}\n\n.suey-window:not(.suey-active-window) .suey-tab-icon-border {\n    border-color: rgba(var(--button-light)) !important;\n}\n\n/* Window Floaters */\n.suey-window .suey-panel-fancy-outer,\n.suey-window .suey-panel-fancy-border,\n.suey-window .suey-panel-fancy-inside,\n.suey-window .suey-tab-floaters,\n.suey-window .suey-floater,\n.suey-window .suey-titled {\n    overflow: visible;\n}\n\n.suey-window .suey-floater {\n    z-index: 101; /* window floater */\n}\n\n.suey-window .suey-tab-floaters {\n    margin-top: 1em;\n    height: calc(100% - 1em);\n}\n\n/* Window Tab Title Buttons */\n.suey-window .suey-tab-title {\n    pointer-events: none;\n    position: absolute;\n    top: -1.8em;\n    left: 0;\n    right: 0;\n    width: 75%;\n    margin: auto;\n    min-height: 1.9em;\n    background: transparent;\n    background-image: none;\n    box-shadow: none;\n    outline: none;\n    color: transparent;\n    text-shadow: none;\n    overflow: visible;\n}\n.suey-window .suey-tab-title .suey-borderless-button {\n    pointer-events: all;\n    position: relative;\n    pointer-events: all;\n    background: rgb(var(--button-dark)) !important;\n    border: solid var(--border-small) rgb(var(--icon));\n    overflow: visible;\n}\n.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {\n    border: solid var(--border-small) rgb(var(--button-light));\n}\n";
 styleInject(css_248z$6);
 
 var css_248z$5 = "/********** Gooey Panel **********/\n\n.suey-gooey {\n    position: absolute;\n    top: 0;\n    right: 0;\n    width: 21em;\n    z-index: 1; /* Gooey */\n}\n";
