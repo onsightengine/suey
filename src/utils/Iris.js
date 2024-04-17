@@ -101,7 +101,7 @@ class Iris {
         if (arguments.length === 0) {
             return this.set(0);
         // No valid arguments passed
-        } else if (r === undefined || r === null || Number.isNaN(r)) {
+        } else if (r == undefined || Number.isNaN(r)) {
             if (g || b) console.warn(`Iris.set(): Invalid 'r' value ${r}`);
             // nothing to do
         // r is Object, Hexidecimal, or String
@@ -119,6 +119,13 @@ class Iris {
             }
         // Three arguments were passed
         } else {
+            // Integers were passed
+            if (format == null || format === '') {
+                if (Number.isInteger(r) && Number.isInteger(g) && Number.isInteger(b)) {
+                    if (r > 1 && g > 1 && b > 1) format = 'rgb';
+                }
+            }
+            // Set from rgb
             switch (format) {
                 case 'rgb': return this.setRGB(r, g, b);
                 case 'hsl': return this.setHSL(r, g, b);

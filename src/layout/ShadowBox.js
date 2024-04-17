@@ -22,7 +22,8 @@ class ShadowBox extends Div {
     firstImage() {
         for (const child of this.contents().children) {
             if (!child || !child.isElement) continue;
-            if (child.hasClass('suey-image') || child.hasClass('suey-vector-box')) return child;
+            if (child.hasClass('suey-image')) return child;
+            if (child.hasClass('suey-vector-box')) return child.firstImage();
         }
     }
 

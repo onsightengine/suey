@@ -370,7 +370,7 @@ class Iris {
     set(r = 0, g, b, format = '') {
         if (arguments.length === 0) {
             return this.set(0);
-        } else if (r === undefined || r === null || Number.isNaN(r)) {
+        } else if (r == undefined || Number.isNaN(r)) {
             if (g || b) console.warn(`Iris.set(): Invalid 'r' value ${r}`);
         } else if (g === undefined && b === undefined) {
             let value = r;
@@ -385,6 +385,11 @@ class Iris {
                 return this.setStyle(value);
             }
         } else {
+            if (format == null || format === '') {
+                if (Number.isInteger(r) && Number.isInteger(g) && Number.isInteger(b)) {
+                    if (r > 1 && g > 1 && b > 1) format = 'rgb';
+                }
+            }
             switch (format) {
                 case 'rgb': return this.setRGB(r, g, b);
                 case 'hsl': return this.setHSL(r, g, b);
@@ -854,7 +859,7 @@ const COLOR_KEYWORDS = {
     'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
 };
 
-const _clr$2 = new Iris();
+const _clr$3 = new Iris();
 const _icon = new Iris();
 const _icon_light = new Iris();
 const _icon_dark = new Iris();
@@ -867,7 +872,7 @@ const _triadic5 = new Iris();
 const _triadic6 = new Iris();
 const DEFAULT_CLR = 0x00b4af;
 let _background = BACKGROUNDS.DARK;
-let _color$3 = DEFAULT_CLR;
+let _color$4 = DEFAULT_CLR;
 let _tint = 0.0;
 let _saturation = 0.0;
 class ColorScheme {
@@ -878,7 +883,7 @@ class ColorScheme {
     }
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
-        _color$3 = _clr$2.set(color).hex();
+        _color$4 = _clr$3.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
         _icon.set(color);
@@ -896,11 +901,11 @@ class ColorScheme {
     static updateCSS() {
         for (const key in TRAIT) {
             const guiColor = TRAIT[key];
-            Css.setVariable(`--${guiColor}`, _clr$2.set(ColorScheme.color(guiColor)).rgbString());
+            Css.setVariable(`--${guiColor}`, _clr$3.set(ColorScheme.color(guiColor)).rgbString());
         }
         Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$2.set(DEFAULT_CLR).hue();
-        const newHue = _clr$2.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const startHue = _clr$3.set(DEFAULT_CLR).hue();
+        const newHue = _clr$3.set(ColorScheme.color(TRAIT.ICON, true )).hue();
         const diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
@@ -909,15 +914,15 @@ class ColorScheme {
         let output = '';
         for (const key in TRAIT) {
             const guiColor = TRAIT[key];
-            _clr$2.set(ColorScheme.color(guiColor));
+            _clr$3.set(ColorScheme.color(guiColor));
             output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$2.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$2.hexString()}\n`;
+            output += `${_clr$3.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr$3.hexString()}\n`;
         }
         return output;
     }
     static color(guiColor, ignoreSaturation = false) {
-        _clr$2.set(0);
+        _clr$3.set(0);
         let tint = _tint;
         let saturation = _saturation;
         let darkness = 0;
@@ -930,57 +935,57 @@ class ColorScheme {
         }
         if (_background == BACKGROUNDS.LIGHT) {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$2.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$2.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$2.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$2.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$2.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$2.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$2.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$2.set(255, 255, 255, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$2.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$2.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$2.set(  0,   0,   0, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$3.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$3.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$3.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$3.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$3.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$3.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$3.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$3.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$3.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$3.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$3.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$3.set(  0,   0,   0, 'rgb'); break;
             }
         } else {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$2.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$2.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$2.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$2.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$2.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$2.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$2.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$2.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$2.set(  0,   0,   0, 'rgb'); lightness = 0; break;
-                case TRAIT.DARKLIGHT:           _clr$2.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$2.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$2.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr$3.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$3.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$3.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$3.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$3.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$3.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$3.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$3.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$3.set(  0,   0,   0, 'rgb'); lightness = 0; break;
+                case TRAIT.DARKLIGHT:           _clr$3.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr$3.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$3.set(255, 255, 255, 'rgb'); break;
             }
             if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$2.set( 64,  64,  64, 'rgb');
+                _clr$3.set( 64,  64,  64, 'rgb');
             }
         }
         if (guiColor === TRAIT.DARKNESS) {
             switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$2.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$2.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$2.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$2.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.DARK:      _clr$3.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr$3.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr$3.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr$3.set(  0,   0,   0, 'rgb');     break;
             }
         }
         switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$2.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$2.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$2.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$2.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$2.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$2.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$2.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$2.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr$2.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr$2.copy(_triadic6);   break;
+            case TRAIT.ICON_DARK:   _clr$3.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$3.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$3.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$3.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$3.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$3.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$3.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$3.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr$3.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr$3.copy(_triadic6);   break;
         }
         switch (guiColor) {
             case TRAIT.COMPLEMENT:
@@ -998,14 +1003,244 @@ class ColorScheme {
                 lightness = 0;
                 break;
         }
-        if (tint !== 0) _clr$2.mix(_icon, tint);
-        if (lightness !== 0) _clr$2.brighten(lightness);
-        if (darkness !== 0) _clr$2.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$2.hslOffset(0, saturation, 0);
-        return _clr$2.hex();
+        if (tint !== 0) _clr$3.mix(_icon, tint);
+        if (lightness !== 0) _clr$3.brighten(lightness);
+        if (darkness !== 0) _clr$3.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr$3.hslOffset(0, saturation, 0);
+        return _clr$3.hex();
     }
 }
 ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
+
+class Color$1 {
+    constructor(r, g, b) {
+        this.set(r, g, b);
+    }
+    toString() {
+        return `rgb(${Math.round(this.r)}, ${Math.round(this.g)}, ${Math.round(this.b)})`;
+    }
+    set(r, g, b) {
+        this.r = this.clamp(r);
+        this.g = this.clamp(g);
+        this.b = this.clamp(b);
+    }
+    hueRotate(angle = 0) {
+        angle = angle / 180 * Math.PI;
+        let sin = Math.sin(angle);
+        let cos = Math.cos(angle);
+        this.multiply([
+            0.213 + cos * 0.787 - sin * 0.213, 0.715 - cos * 0.715 - sin * 0.715, 0.072 - cos * 0.072 + sin * 0.928,
+            0.213 - cos * 0.213 + sin * 0.143, 0.715 + cos * 0.285 + sin * 0.140, 0.072 - cos * 0.072 - sin * 0.283,
+            0.213 - cos * 0.213 - sin * 0.787, 0.715 - cos * 0.715 + sin * 0.715, 0.072 + cos * 0.928 + sin * 0.072
+        ]);
+    }
+    grayscale(value = 1) {
+        this.multiply([
+            0.2126 + 0.7874 * (1 - value), 0.7152 - 0.7152 * (1 - value), 0.0722 - 0.0722 * (1 - value),
+            0.2126 - 0.2126 * (1 - value), 0.7152 + 0.2848 * (1 - value), 0.0722 - 0.0722 * (1 - value),
+            0.2126 - 0.2126 * (1 - value), 0.7152 - 0.7152 * (1 - value), 0.0722 + 0.9278 * (1 - value)
+        ]);
+    }
+    sepia(value = 1) {
+        this.multiply([
+            0.393 + 0.607 * (1 - value), 0.769 - 0.769 * (1 - value), 0.189 - 0.189 * (1 - value),
+            0.349 - 0.349 * (1 - value), 0.686 + 0.314 * (1 - value), 0.168 - 0.168 * (1 - value),
+            0.272 - 0.272 * (1 - value), 0.534 - 0.534 * (1 - value), 0.131 + 0.869 * (1 - value)
+        ]);
+    }
+    saturate(value = 1) {
+        this.multiply([
+            0.213 + 0.787 * value, 0.715 - 0.715 * value, 0.072 - 0.072 * value,
+            0.213 - 0.213 * value, 0.715 + 0.285 * value, 0.072 - 0.072 * value,
+            0.213 - 0.213 * value, 0.715 - 0.715 * value, 0.072 + 0.928 * value
+        ]);
+    }
+    multiply(matrix) {
+        let newR = this.clamp(this.r * matrix[0] + this.g * matrix[1] + this.b * matrix[2]);
+        let newG = this.clamp(this.r * matrix[3] + this.g * matrix[4] + this.b * matrix[5]);
+        let newB = this.clamp(this.r * matrix[6] + this.g * matrix[7] + this.b * matrix[8]);
+        this.r = newR; this.g = newG; this.b = newB;
+    }
+    brightness(value = 1) {
+        this.linear(value);
+    }
+    contrast(value = 1) {
+        this.linear(value, - (0.5 * value) + 0.5);
+    }
+    linear(slope = 1, intercept = 0) {
+        this.r = this.clamp(this.r * slope + intercept * 255);
+        this.g = this.clamp(this.g * slope + intercept * 255);
+        this.b = this.clamp(this.b * slope + intercept * 255);
+    }
+    invert(value = 1) {
+        this.r = this.clamp((value + this.r / 255 * (1 - 2 * value)) * 255);
+        this.g = this.clamp((value + this.g / 255 * (1 - 2 * value)) * 255);
+        this.b = this.clamp((value + this.b / 255 * (1 - 2 * value)) * 255);
+    }
+    hsl() {
+        const r = this.r / 255;
+        const g = this.g / 255;
+        const b = this.b / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const delta = max - min;
+        let h, s, l = (max + min) / 2;
+        if (delta === 0) {
+            h = s = 0;
+        } else {
+            s = (l <= 0.5) ? (delta / (max + min)) : (delta / (2 - max - min));
+            switch (max) {
+                case r: h = (g - b) / delta + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / delta + 2; break;
+                case b: h = (r - g) / delta + 4; break;
+            }
+            h /= 6;
+        }
+        return {
+            h: h * 100,
+            s: s * 100,
+            l: l * 100,
+        };
+    }
+    clamp(value) {
+        if (value > 255) {
+            value = 255;
+        } else if (value < 0) {
+            value = 0;
+        }
+        return value;
+    }
+}
+class Solver {
+    constructor() {
+        this.target = new Color$1(0, 0, 0);
+        this.targetHSL = { h: 0, s: 0, l: 0 };
+        this.reusedColor = new Color$1(0, 0, 0);
+    }
+    setTarget(r, g, b) {
+        this.target.set(r, g, b);
+        this.targetHSL = this.target.hsl();
+        this.reusedColor.set(0, 0, 0);
+    }
+    solve(toBlack = true) {
+        const result = this.solveNarrow(this.solveWide());
+        return {
+            values: result.values,
+            loss: result.loss,
+            filter: this.css(result.values, toBlack),
+        };
+    }
+    solveWide() {
+        const A = 5;
+        const c = 15;
+        const a = [60, 180, 18000, 600, 1.2, 1.2];
+        let best = { loss: Infinity };
+        for (let i = 0; best.loss > 25 && i < 3; i++) {
+            const initial = [50, 20, 3750, 50, 100, 100];
+            const result = this.spsa(A, a, c, initial, 1000);
+            if (result.loss < best.loss) {
+                best = result;
+            }
+        }
+        return best;
+    }
+    solveNarrow(wide) {
+        const A = wide.loss;
+        const c = 2;
+        const A1 = A + 1;
+        const a = [0.25 * A1, 0.25 * A1, A1, 0.25 * A1, 0.2 * A1, 0.2 * A1];
+        return this.spsa(A, a, c, wide.values, 500);
+    }
+    spsa(A, a, c, values, iters) {
+        const alpha = 1;
+        const gamma = 0.16666666666666666;
+        let best = null;
+        let bestLoss = Infinity;
+        const deltas = new Array(6);
+        const highArgs = new Array(6);
+        const lowArgs = new Array(6);
+        for (let k = 0; k < iters; k++) {
+            const ck = c / Math.pow(k + 1, gamma);
+            for (let i = 0; i < 6; i++) {
+                deltas[i] = Math.random() > 0.5 ? 1 : -1;
+                highArgs[i] = values[i] + ck * deltas[i];
+                lowArgs[i] = values[i] - ck * deltas[i];
+            }
+            const lossDiff = this.loss(highArgs) - this.loss(lowArgs);
+            for (let i = 0; i < 6; i++) {
+                const g = lossDiff / (2 * ck) * deltas[i];
+                const ak = a[i] / Math.pow(A + k + 1, alpha);
+                values[i] = fix(values[i] - ak * g, i);
+            }
+            const loss = this.loss(values);
+            if (loss < bestLoss) {
+                best = values.slice(0);
+                bestLoss = loss;
+            }
+        }
+        return { values: best, loss: bestLoss };
+        function fix(value, idx) {
+            let max = 100;
+            if (idx === 2 ) {
+                max = 7500;
+            } else if (idx === 4  || idx === 5 ) {
+                max = 200;
+            }
+            if (idx === 3 ) {
+                if (value > max) {
+                    value %= max;
+                } else if (value < 0) {
+                    value = max + value % max;
+                }
+            } else if (value < 0) {
+                value = 0;
+            } else if (value > max) {
+                value = max;
+            }
+            return value;
+        }
+    }
+    loss(filters) {
+        const color = this.reusedColor;
+        color.set(0, 0, 0);
+        color.invert(filters[0] / 100);
+        color.sepia(filters[1] / 100);
+        color.saturate(filters[2] / 100);
+        color.hueRotate(filters[3] * 3.6);
+        color.brightness(filters[4] / 100);
+        color.contrast(filters[5] / 100);
+        const colorHSL = color.hsl();
+        return (
+            Math.abs(color.r - this.target.r) +
+            Math.abs(color.g - this.target.g) +
+            Math.abs(color.b - this.target.b) +
+            Math.abs(colorHSL.h - this.targetHSL.h) +
+            Math.abs(colorHSL.s - this.targetHSL.s) +
+            Math.abs(colorHSL.l - this.targetHSL.l)
+        );
+    }
+    css(filters, toBlack = true) {
+        function fmt(idx, multiplier = 1) {
+            return Math.round(filters[idx] * multiplier);
+        }
+        const convertToBlack = toBlack ? 'brightness(0) saturate(100%)' : '';
+        return `${convertToBlack} invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(2)}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(5)}%)`;
+    }
+}
+const _color$3 = new Iris();
+const _solver = new Solver();
+class ColorizeFilter {
+    static fromColor(...colorData) {
+        if (arguments.length === 1 && typeof arguments[0] === 'string' && Object.values(TRAIT).includes(arguments[0])) {
+            _color$3.set(ColorScheme.color(arguments[0]));
+        } else {
+            _color$3.set(...colorData);
+        }
+        _solver.setTarget(_color$3.red(), _color$3.green(), _color$3.blue());
+        const result = _solver.solve(true );
+        return result.filter;
+    }
+}
 
 class Dom {
     static findElementAt(className, centerX, centerY) {
@@ -1757,7 +1992,8 @@ class ShadowBox extends Div {
     firstImage() {
         for (const child of this.contents().children) {
             if (!child || !child.isElement) continue;
-            if (child.hasClass('suey-image') || child.hasClass('suey-vector-box')) return child;
+            if (child.hasClass('suey-image')) return child;
+            if (child.hasClass('suey-vector-box')) return child.firstImage();
         }
     }
     fullSize() {
@@ -2531,7 +2767,7 @@ class MenuSeparator extends Div {
 }
 
 const TRIANGLE_SIZE = 3.0;
-const _clr$1 = new Iris();
+const _clr$2 = new Iris();
 class Menu extends Div {
     #addedTo = false;
     constructor() {
@@ -2542,7 +2778,7 @@ class Menu extends Div {
         this.mouseSvg.setAttribute('pointer-events', 'none');
         this.mouseSvg.setAttribute('version', '1.1');
         this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        this.mouseArea.setAttribute('fill', _clr$1.setRandom().hexString());
+        this.mouseArea.setAttribute('fill', _clr$2.setRandom().hexString());
         this.mouseArea.setAttribute('opacity', '0.0');
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
@@ -3294,7 +3530,7 @@ class TextBox extends Element {
     }
 }
 
-const _clr = new Iris();
+const _clr$1 = new Iris();
 class Gooey extends Resizeable {
     constructor(title, opacity) {
         super({
@@ -3400,12 +3636,12 @@ class Folder extends Shrinkable {
         const prop = new Property();
         const colorButton = new Color();
         function setVariable(newValue) {
-            _clr.set(newValue);
+            _clr$1.set(newValue);
             switch (type) {
-                case 'string': params[variable] = _clr.hexString(); break;
-                case 'array': _clr.toArray(params[variable]); break;
-                case 'object': _clr.getRGB(params[variable]); break;
-                case 'number': params[variable] = _clr.hex(); break;
+                case 'string': params[variable] = _clr$1.hexString(); break;
+                case 'array': _clr$1.toArray(params[variable]); break;
+                case 'object': _clr$1.getRGB(params[variable]); break;
+                case 'number': params[variable] = _clr$1.hex(); break;
                 default:
             }
         }
@@ -3420,7 +3656,7 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(Strings.prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setValue(_clr.set(params[variable]).hex()); return prop; };
+        prop.updateDisplay = function() { colorButton.setValue(_clr$1.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
         return prop;
     }
@@ -4808,7 +5044,7 @@ class Docker extends Panel {
                         bottomDock.setStyle('left', '20%', 'width', '60%');
                         const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
                         const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
-                        imageBox.addClass('suey-complement-colorize');
+                        imageBox.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(TRAIT.COMPLEMENT));
                         imageBox.setStyle('width', '20%', 'height', '20%');
                         centerDock.add(imageBox);
                         dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
@@ -5251,6 +5487,7 @@ class MainWindow extends Panel {
     }
 }
 
+const _clr = new Iris();
 class Question extends Panel {
     static buttonByValue(value) {
         for (const key in BUTTON_TYPES) {
@@ -5283,25 +5520,23 @@ class Question extends Panel {
         const divTop = new Div().addClass('suey-question-top');
         const divBottom = new Div().addClass('suey-question-bottom');
         divRight.add(divTop, divBottom);
-        if (!color) {
+        if (color == null) {
             if (icon === QUESTION_ICONS.INFO) color = 'icon';
             if (icon === QUESTION_ICONS.QUESTION) color = 'triadic2';
             if (icon === QUESTION_ICONS.WARNING) color = 'complement';
             if (icon === QUESTION_ICONS.ERROR) color = 'triadic1';
         }
-        let colorClass = '', buttonClass = '';
-        if (color && typeof color === 'string' && color != '') {
-            this.addClass(`suey-question-color-${color}`);
-            colorClass = `suey-${color}-colorize`;
-            buttonClass = `suey-${color}-button`;
-        }
+        if (Object.values(TRAIT).includes(color)) _clr.set(ColorScheme.color(color));
+        else _clr.set(color);
+        const fancyBorder = Dom.childWithClass(this, 'suey-panel-fancy-border');
+        if (fancyBorder) fancyBorder.setStyle('border-color', _clr.cssString());
         if (icon === QUESTION_ICONS.INFO) icon = IMAGE_INFO;
         else if (icon === QUESTION_ICONS.QUESTION) icon = IMAGE_QUESTION;
         else if (icon === QUESTION_ICONS.WARNING) icon = IMAGE_WARNING;
         else if (icon === QUESTION_ICONS.ERROR) icon = IMAGE_ERROR;
         if (icon) {
             const dialogImage = new ShadowBox(icon);
-            dialogImage.firstImage().firstImage().addClass(colorClass);
+            dialogImage.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(color));
             divLeft.add(dialogImage);
         }
         divTop.add(new Span(text).setStyle('margin', 'auto 0'));
@@ -5311,7 +5546,8 @@ class Question extends Panel {
         let focusedButton = null, lastButton = null;
         for (const buttonInfo of buttons) {
             const value = buttonInfo.value ?? 0;
-            const button = new Button(buttonInfo.text ?? '???').addClass(buttonClass);
+            const button = new Button(buttonInfo.text ?? '???');
+            button.setStyle('background-image', `linear-gradient(to bottom, rgba(${_clr.rgbString()}, 0.9), rgba(${_clr.rgbString()}, 0.65))`);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
             button.onPress(() => { self.answered(value); });
@@ -6535,8 +6771,8 @@ var css_248z$8 = "/********** Panel (simple / fancy) **********/\n\n.suey-panel 
 var stylesheet$8="/********** Panel (simple / fancy) **********/\n\n.suey-panel {\n    pointer-events: auto;\n    position: relative;\n    overflow: visible;\n    outline: none; /* for macos */\n    z-index: 0; /* Panel */\n}\n\n.suey-panel-simple {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    margin: calc(var(--edge-thickness) + var(--pad-x-small));\n}\n\n.suey-panel-fancy-outer {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n    --border-radius-outer:  0.71429em;      /* 10px @ font size 1.4em (14px) */\n\n    height: 100%;\n\n    background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n    border-radius: var(--border-radius-outer);\n    box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);\n    padding: var(--edge-thickness); /* outside of border padding */\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n}\n\n.suey-panel-fancy-border {\n    height: 100%;\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    padding: var(--pad-x-small);\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n.suey-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--button-light));\n}\n.suey-window.suey-active-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.suey-panel-fancy-inside {\n    height: 100%;\n    width: 100%;\n    background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));\n    border-radius: var(--radius-small);\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/********** Scroller ********/\n\n.suey-scroller {\n    overflow: auto;\n}\n\n/********** Shrinkable **********/\n\n.suey-shrinkable {\n    background-color: transparent;\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-large);\n    margin: var(--pad-micro);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    overflow: visible;\n}\n.suey-shrinkable.suey-borderless-panel {\n    border: solid var(--border-small) transparent;\n    margin-bottom: 0;\n    box-shadow: none;\n}\n.suey-shrinkable.suey-borderless-panel.suey-expanded {\n    border-bottom: none;\n}\n\n/* Shrinkable Title Div */\n.suey-shrink-title {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    min-height: calc(var(--row-height));\n    overflow: hidden;\n\n    cursor: default;\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--icon), 0.35);\n\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n\n    border-bottom: solid var(--border-micro) transparent;\n    border-top: solid var(--border-micro) transparent;\n    border-top-left-radius: var(--radius-small);\n    border-top-right-radius: var(--radius-small);\n    padding: 0 var(--pad-medium); /* vertical horizontal */\n}\n.suey-shrink-title:hover {\n    color: rgba(var(--highlight), 1.0)\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-title {\n    border-radius: var(--radius-small);\n}\n.suey-shrinkable.suey-borderless-panel .suey-shrink-title {\n    outline: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n\n/* Title Icon */\n.suey-shrink-icon > * {\n    filter: var(--drop-shadow);\n}\n.suey-shrink-icon {\n    flex-grow: 0;\n    flex-shrink: 0;\n\n    position: relative;\n    display: flex;\n    margin: 0.15em;\n    height: calc(var(--arrow-size) * 3.5);\n    min-height: calc(var(--arrow-size) * 3.5);\n}\n.suey-shrink-icon.suey-has-icon {\n    width: calc(var(--arrow-size) * 3.5);\n    min-width: calc(var(--arrow-size) * 3.5);\n}\n\n/* Title Text */\n.suey-shrink-text {\n    flex-grow: 1;\n    flex-shrink: 2;\n\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n\n    padding-left: 0.2em;\n}\n\n/* Title Arrow */\n.suey-shrink-arrow {\n    flex-grow: 0;\n    flex-shrink: 1;\n\n    position: relative;\n    content: '';\n    margin: 0 0.35em; /* vertical horizontal */\n    width: 0;\n    height: 0;\n    transform: translateX(25%);\n    z-index: 101; /* Shrink Arrow */\n    border: var(--arrow-size) solid transparent;\n    border-color: transparent transparent transparent rgba(var(--text));\n    transition: transform var(--menu-timing);\n}\n.suey-shrink-arrow-clicker {\n    position: absolute;\n    content: '';\n    width: 1.7em;\n    height: 1.7em;\n    left: calc(1.7em * -0.5);\n    top: calc(1.7em * -0.5);\n    cursor: pointer;\n}\n.suey-shrinkable.suey-expanded .suey-shrink-title .suey-shrink-arrow {\n    transform: rotate(90deg) translateX(25%);\n}\n.suey-shrink-title:hover .suey-shrink-arrow {\n    border-color: transparent transparent transparent rgba(var(--highlight));\n}\n\n/* Shrinkable Body Div */\n.suey-shrink-body {\n    position: relative;\n    display: flex;\n    flex-wrap: wrap;\n    border-bottom-left-radius: var(--radius-small);\n    border-bottom-right-radius: var(--radius-small);\n    padding: var(--pad-small) 0;\n    overflow: hidden;\n    pointer-events: auto;\n}\n.suey-shrinkable.suey-borderless-panel .suey-shrink-body {\n    padding-bottom: 0;\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-body {\n    pointer-events: none;\n    display: none;\n}\n.suey-shrinkable.suey-expanded:not(.suey-borderless-panel) .suey-shrink-body {\n    border-top: solid var(--border-small) rgba(var(--shadow), 0.25);\n}\n\n/********** Titled **********/\n\n.suey-titled {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n}\n\n.suey-title-arrow {\n    position: absolute;\n    content: '';\n    font-size: var(--font-size);\n    pointer-events: none;\n    width: 0;\n    height: 0;\n    top: 0;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: auto;\n    transform: translateY(-25%) scale(1.0, -1.0);\n    border: 0.5em solid transparent;\n    border-color: rgba(var(--text)) transparent transparent transparent;\n    transition: transform var(--menu-timing);\n}\n.suey-title-arrow-click {\n    position: absolute;\n    cursor: pointer;\n    content: '';\n    pointer-events: all;\n    width: 2em;\n    height: 2em;\n    top: 0;\n    bottom: 0;\n    margin-top: auto;\n    margin-bottom: auto;\n    right: 0.25em;\n    z-index: 101; /* Title Arrow */\n}\n.suey-title-arrow-click:hover .suey-title-arrow {\n    border-color: rgba(var(--highlight)) transparent transparent transparent;\n}\n.suey-titled.suey-expanded .suey-tab-title .suey-title-arrow {\n    transform: translateY(25%);\n}\n\n/* Title Bar Class for top of Title Panel */\n.suey-tab-title {\n    --font-size-increase:   1.3;\n\n    position: relative;\n    display: flex;\n    flex-shrink: 0; /* don't allow title to shrink */\n    color: rgba(var(--text-light), 1);\n    background-color: transparent;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border: 0;\n    border-radius: calc(var(--radius-small) / var(--font-size-increase));\n    outline: solid calc(var(--border-small) / var(--font-size-increase)) rgba(var(--shadow), 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);\n    text-align: center;\n    overflow: hidden;\n\n    font-size: calc(100% * var(--font-size-increase));\n    margin: var(--pad-x-small);\n    justify-content: center;\n    align-items: center;\n    min-height: 1.867em;\n}\n.suey-tab-title-text {\n    user-select: none;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    font-size: 100%;\n}\n.suey-tab-title-text::selection {\n    color: rgba(var(--icon), 1);\n    background-color: rgba(var(--blacklight), 1);\n}\n";
 styleInject(css_248z$8);
 
-var css_248z$7 = "/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n\n/* Question Panel Colors */\n\n.suey-question-color-icon .suey-panel-fancy-border { border-color: rgb(var(--icon)); }\n.suey-question-color-complement .suey-panel-fancy-border { border-color: rgb(var(--complement)); }\n.suey-question-color-triadic1 .suey-panel-fancy-border { border-color: rgb(var(--triadic1)); }\n.suey-question-color-triadic2 .suey-panel-fancy-border { border-color: rgb(var(--triadic2)); }\n.suey-question-color-triadic3 .suey-panel-fancy-border { border-color: rgb(var(--triadic3)); }\n.suey-question-color-triadic4 .suey-panel-fancy-border { border-color: rgb(var(--triadic4)); }\n.suey-question-color-blue .suey-panel-fancy-border { border-color: rgb(var(--info)); }\n.suey-question-color-red .suey-panel-fancy-border { border-color: rgb(var(--invalid)); }\n.suey-question-color-green .suey-panel-fancy-border { border-color: rgb(var(--valid)); }\n.suey-question-color-yellow .suey-panel-fancy-border { border-color: rgb(var(--warning)); }\n\n";
-var stylesheet$7="/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n\n/* Question Panel Colors */\n\n.suey-question-color-icon .suey-panel-fancy-border { border-color: rgb(var(--icon)); }\n.suey-question-color-complement .suey-panel-fancy-border { border-color: rgb(var(--complement)); }\n.suey-question-color-triadic1 .suey-panel-fancy-border { border-color: rgb(var(--triadic1)); }\n.suey-question-color-triadic2 .suey-panel-fancy-border { border-color: rgb(var(--triadic2)); }\n.suey-question-color-triadic3 .suey-panel-fancy-border { border-color: rgb(var(--triadic3)); }\n.suey-question-color-triadic4 .suey-panel-fancy-border { border-color: rgb(var(--triadic4)); }\n.suey-question-color-blue .suey-panel-fancy-border { border-color: rgb(var(--info)); }\n.suey-question-color-red .suey-panel-fancy-border { border-color: rgb(var(--invalid)); }\n.suey-question-color-green .suey-panel-fancy-border { border-color: rgb(var(--valid)); }\n.suey-question-color-yellow .suey-panel-fancy-border { border-color: rgb(var(--warning)); }\n\n";
+var css_248z$7 = "/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n";
+var stylesheet$7="/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n";
 styleInject(css_248z$7);
 
 var css_248z$6 = "/********** Main Window **********/\n\n.suey-main-window {\n    user-select: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n}\n\n.suey-window-holder {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    pointer-events: none;\n}\n\n/********** Abstract Dock **********/\n\n.suey-dock {\n    position: relative;\n}\n\n/********** Docker **********/\n\n.suey-docker {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    min-width: 8em;\n    min-height: 8em;\n    max-width: 100%;\n    max-height: 100%;\n    pointer-events: none;\n}\n\n.suey-docker.suey-docker-primary {\n    width: 100vw;\n    height: 100vh;\n    top: 0;\n    left: 0;\n    overflow: visible;\n}\n\n.suey-docker-vertical {\n    height: 100%;\n}\n\n.suey-docker-horizontal {\n    width: 100%;\n}\n\n.suey-dock-drag .suey-docker {\n    pointer-events: all !important;\n}\n\n/***** Collapsed Docks */\n\n.suey-docker.suey-collapsed {\n    min-width: calc(var(--tab-size) * 1) !important;\n    min-height: calc(var(--tab-size) * 1) !important;\n}\n\n.suey-collapsed .suey-corner-button {\n    display: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-panel-simple,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {\n    background-color: transparent !important;\n    border-color: transparent !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-floaters * {\n    opacity: 0 !important;\n    user-select: none !important;\n    pointer-events: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-button {\n    margin: 0 !important;\n}\n\n.suey-collapsed .suey-tabbed .suey-resizer {\n    pointer-events: none !important;\n    display: none !important;\n}\n\n/***** Dock Locations */\n\n.suey-dock-locations {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n\n.suey-dock-location {\n    --size: 2em;\n    position: absolute;\n    opacity: 0.0;\n}\n.suey-dock-left   { left:  0; top:    0; width:  20%; height: 100%; }\n.suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }\n.suey-dock-top    { left:  0; top:    0; width: 100%; height:  25%; }\n.suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  25%; }\n.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }\n\n.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }\n.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }\n.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }\n.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }\n\n.suey-dock-location.suey-dock-drop {\n    background-color: transparent;\n    opacity: 1.0;\n}\n.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {\n    --shrink: 0.57143em;\n    content: '';\n    position: absolute;\n    left: var(--shrink);\n    right: var(--shrink);\n    top: var(--shrink);\n    bottom: var(--shrink);\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--complement));\n    border-radius: var(--radius-large);\n    outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n}\n\n.suey-docker.suey-dock-self .suey-panel-simple,\n.suey-docker.suey-dock-self .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n/********** Floater **********/\n\n.suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: auto;\n}\n\n/********** Tabbed **********/\n\n.suey-tabbed {\n    pointer-events: all;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/***** TabPanels */\n\n/* Child of Tabbed that holds multiple 'Floater' */\n.suey-tab-floaters {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/***** TabButtons */\n\n/* Child of Tabbed that holds multiple 'TabButton' */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n    margin: 0;\n}\n\n.suey-tab-buttons.suey-left-side,\n.suey-tab-buttons.suey-right-side {\n    flex-direction: column;\n    top: 1em;\n}\n\n.suey-tab-buttons.suey-top-side,\n.suey-tab-buttons.suey-bottom-side {\n    flex-direction: row;\n    left: 1em;\n}\n\n.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {\n    margin-left: calc(-1 * var(--pad-x-small));\n    margin-right: calc(-1 * var(--pad-x-small));\n}\n\n.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {\n    margin-top: calc(-1 * var(--pad-x-small));\n    margin-bottom: calc(-1 * var(--pad-x-small));\n}\n\n.suey-drag-tab-button {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n.suey-drag-tab-button .suey-tab-icon-border {\n    border-width: var(--border-small);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, var(--pixel));\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: var(--pad-small) solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transform: scale(1.05);\n}\n\n.suey-tab-button.suey-drop-target .suey-tab-icon-border {\n    border-color: rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/********** Window **********/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: absolute;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window.suey-drop-target .suey-panel-simple,\n.suey-window.suey-drop-target .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    --title-width: 0;\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: var(--radius-large);\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n    overflow: visible;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n/* Window Tab Buttons */\n\n.suey-tab-buttons.suey-window-side {\n    flex-direction: row;\n    top: calc((var(--tab-size) / -2.0) + 0.4em);\n    transition: transform 0.15s;\n}\n.suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: var(--border-small) solid rgba(var(--icon));\n    transition: border 0.15s;\n}\n\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side {\n    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/\n    transform: scale(65%);\n}\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: 0.24em solid rgba(var(--icon));\n}\n\n.suey-panel-button.suey-title-bar .suey-tab-buttons {\n    left: 110%;\n    margin-left: 0.5em;\n}\n\n.suey-window:not(.suey-active-window) .suey-tab-icon-border {\n    border-color: rgba(var(--button-light)) !important;\n}\n\n/* Window Floaters */\n.suey-window .suey-panel-fancy-outer,\n.suey-window .suey-panel-fancy-border,\n.suey-window .suey-panel-fancy-inside,\n.suey-window .suey-tab-floaters,\n.suey-window .suey-floater,\n.suey-window .suey-titled {\n    overflow: visible;\n}\n\n.suey-window .suey-floater {\n    z-index: 101; /* window floater */\n}\n\n.suey-window .suey-tab-floaters {\n    margin-top: 1em;\n    height: calc(100% - 1em);\n}\n\n/* Window Tab Title Buttons */\n.suey-window .suey-tab-title {\n    pointer-events: none;\n    position: absolute;\n    top: -1.8em;\n    left: 0;\n    right: 0;\n    width: 75%;\n    margin: auto;\n    min-height: 1.9em;\n    background: transparent;\n    background-image: none;\n    box-shadow: none;\n    outline: none;\n    color: transparent;\n    text-shadow: none;\n    overflow: visible;\n}\n.suey-window .suey-tab-title .suey-borderless-button {\n    pointer-events: all;\n    position: relative;\n    pointer-events: all;\n    background: rgb(var(--button-dark)) !important;\n    border: solid var(--border-small) rgb(var(--icon));\n    overflow: visible;\n}\n.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {\n    border: solid var(--border-small) rgb(var(--button-light));\n}\n";
@@ -6563,8 +6799,8 @@ var css_248z$1 = ".suey-tooltip, .suey-info-box {\n    display: inline-block;\n 
 var stylesheet$1=".suey-tooltip, .suey-info-box {\n    display: inline-block;\n    color: rgba(var(--highlight), 1);\n\n    /* NEW: Dark, Flat Box */\n    background-color: rgba(var(--background-dark), 1.0);\n    border: solid var(--border-small) rgba(var(--icon), 1);\n\n    /* OLD: Raised Icon Color Button\n    background-color: transparent;\n    background-image: linear-gradient(to top, rgba(var(--icon-dark), 1.0), rgba(var(--icon-light), 1.0));\n    border-radius: var(--radius-large);\n    */\n\n    border-radius: var(--radius-large);\n    box-shadow:\n        0px 0px 3px 2px rgba(var(--shadow), 0.75),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n    padding: 0.3em 1.1em;\n    pointer-events: none;\n\n    white-space: nowrap;\n    z-index: 1001; /* Tooltip, InfoBox */\n}\n\n.suey-tooltip {\n    position: absolute;\n    opacity: 0;\n    transform: scale(0.25);\n    transform-origin: center;\n    transition: opacity 0.2s, transform 0.2s;\n    transition-delay: 0ms;\n}\n\n.suey-tooltip.suey-updated {\n    opacity: 1.0;\n    transform: scale(1.0);\n    transition-delay: var(--tooltip-delay);\n}\n\n.suey-info-box {\n    margin: 0;\n    position: absolute;\n    opacity: 0;\n    transition: opacity 1.0s ease-in;\n}\n\n.suey-info-box.suey-updated {\n    opacity: 1.0;\n    transition: opacity 0.0s ease-in;\n}\n";
 styleInject(css_248z$1);
 
-var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-rotate-colorize /* purple */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));\n}\n\n.suey-triadic1-colorize /* red */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 310deg));\n}\n\n.suey-triadic2-colorize /* green */ {\n    filter: brightness(75%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 40deg));\n}\n\n.suey-triadic3-colorize /* pink */ {\n    filter: brightness(65%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 250deg));\n}\n\n.suey-triadic4-colorize /* yellow */ {\n    filter: brightness(85%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 25deg));\n}\n\n.suey-blue-colorize {\n    filter: brightness(0) saturate(100%) invert(13%) sepia(100%) saturate(5373%) hue-rotate(236deg) brightness(83%) contrast(105%);\n}\n\n.suey-green-colorize {\n    filter: brightness(0) saturate(100%) invert(77%) sepia(38%) saturate(1031%) hue-rotate(36deg) brightness(103%) contrast(94%);\n}\n\n.suey-yellow-colorize {\n    filter: brightness(0) saturate(100%) invert(73%) sepia(75%) saturate(519%) hue-rotate(2deg) brightness(97%) contrast(100%);\n}\n\n.suey-red-colorize {\n    filter: brightness(0) saturate(100%) invert(33%) sepia(84%) saturate(3946%) hue-rotate(356deg) brightness(97%) contrast(100%);\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
-var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-rotate-colorize /* purple */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));\n}\n\n.suey-triadic1-colorize /* red */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 310deg));\n}\n\n.suey-triadic2-colorize /* green */ {\n    filter: brightness(75%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 40deg));\n}\n\n.suey-triadic3-colorize /* pink */ {\n    filter: brightness(65%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 250deg));\n}\n\n.suey-triadic4-colorize /* yellow */ {\n    filter: brightness(85%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 25deg));\n}\n\n.suey-blue-colorize {\n    filter: brightness(0) saturate(100%) invert(13%) sepia(100%) saturate(5373%) hue-rotate(236deg) brightness(83%) contrast(105%);\n}\n\n.suey-green-colorize {\n    filter: brightness(0) saturate(100%) invert(77%) sepia(38%) saturate(1031%) hue-rotate(36deg) brightness(103%) contrast(94%);\n}\n\n.suey-yellow-colorize {\n    filter: brightness(0) saturate(100%) invert(73%) sepia(75%) saturate(519%) hue-rotate(2deg) brightness(97%) contrast(100%);\n}\n\n.suey-red-colorize {\n    filter: brightness(0) saturate(100%) invert(33%) sepia(84%) saturate(3946%) hue-rotate(356deg) brightness(97%) contrast(100%);\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
+var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
+var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

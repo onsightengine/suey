@@ -48,17 +48,3 @@
     height: 2em;
     margin: 0.5em;
 }
-
-/* Question Panel Colors */
-
-.suey-question-color-icon .suey-panel-fancy-border { border-color: rgb(var(--icon)); }
-.suey-question-color-complement .suey-panel-fancy-border { border-color: rgb(var(--complement)); }
-.suey-question-color-triadic1 .suey-panel-fancy-border { border-color: rgb(var(--triadic1)); }
-.suey-question-color-triadic2 .suey-panel-fancy-border { border-color: rgb(var(--triadic2)); }
-.suey-question-color-triadic3 .suey-panel-fancy-border { border-color: rgb(var(--triadic3)); }
-.suey-question-color-triadic4 .suey-panel-fancy-border { border-color: rgb(var(--triadic4)); }
-.suey-question-color-blue .suey-panel-fancy-border { border-color: rgb(var(--info)); }
-.suey-question-color-red .suey-panel-fancy-border { border-color: rgb(var(--invalid)); }
-.suey-question-color-green .suey-panel-fancy-border { border-color: rgb(var(--valid)); }
-.suey-question-color-yellow .suey-panel-fancy-border { border-color: rgb(var(--warning)); }
-

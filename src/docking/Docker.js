@@ -1,3 +1,4 @@
+import { ColorizeFilter } from '../utils/ColorizeFilter.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
@@ -11,6 +12,7 @@ import { DOCK_SIDES } from '../constants.js';
 import { IMAGE_ADD } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { RESIZERS } from '../constants.js';
+import { TRAIT } from '../constants.js';
 
 const MINIMUM_NORMAL = 100;
 
@@ -544,7 +546,7 @@ class Docker extends Panel {
                         bottomDock.setStyle('left', '20%', 'width', '60%');
                         const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
                         const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
-                        imageBox.addClass('suey-complement-colorize');
+                        imageBox.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(TRAIT.COMPLEMENT));
                         imageBox.setStyle('width', '20%', 'height', '20%');
                         centerDock.add(imageBox);
                         dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);

@@ -82,6 +82,7 @@ export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
 
 /***** UTILS *****/
 
+export { ColorizeFilter } from './utils/ColorizeFilter.js';
 export { ColorScheme } from './utils/ColorScheme.js';
 export { Css } from './utils/Css.js';
 export { Dom } from './utils/Dom.js';

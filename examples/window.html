@@ -166,22 +166,26 @@
 
         button2.onPress(() => {
             let text = 'This is a info box.';
-            const question = new Question({ color: 'triadic3', icon: QUESTION_ICONS.INFO, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
+            let color = null; // 'blue';
+            const question = new Question({ icon: QUESTION_ICONS.INFO, color, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
         });
 
         button3.onPress(() => {
             let text = 'This is a question box?';
-            const question = new Question({ color: 'triadic4', icon: QUESTION_ICONS.QUESTION, text, buttons: [ BUTTON_TYPES.NO, BUTTON_TYPES.YES ], defaultButton: BUTTON_TYPES.NO }).alert(alerted);
+            let color = null; // 'green';
+            const question = new Question({ icon: QUESTION_ICONS.QUESTION, color, text, buttons: [ BUTTON_TYPES.NO, BUTTON_TYPES.YES ], defaultButton: BUTTON_TYPES.NO }).alert(alerted);
         });
 
         button4.onPress(() => {
             let text = 'This is a warning box!';
-            const question = new Question({ icon: QUESTION_ICONS.WARNING, text, buttons: [ BUTTON_TYPES.CANCEL, BUTTON_TYPES.NO, BUTTON_TYPES.YES], defaultButton: BUTTON_TYPES.CANCEL }).alert(alerted);
+            let color = null; // 'yellow';
+            const question = new Question({ icon: QUESTION_ICONS.WARNING, color, text, buttons: [ BUTTON_TYPES.CANCEL, BUTTON_TYPES.NO, BUTTON_TYPES.YES], defaultButton: BUTTON_TYPES.CANCEL }).alert(alerted);
         });
 
         button5.onPress(() => {
             let text = 'This is an error box!';
-            const question = new Question({ icon: QUESTION_ICONS.ERROR, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
+            let color = null; // 'red';
+            const question = new Question({ icon: QUESTION_ICONS.ERROR, color, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
         });
 
         button6.onPress(() => {

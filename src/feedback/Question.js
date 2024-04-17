@@ -1,6 +1,10 @@
 import { Button } from '../input/Button.js';
+import { ColorizeFilter } from '../utils/ColorizeFilter.js';
+import { ColorScheme } from '../utils/ColorScheme.js';
 import { Div } from '../core/Div.js';
+import { Dom } from '../utils/Dom.js';
 import { FlexSpacer } from '../layout/FlexSpacer.js';
+import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Span } from '../core/Span.js';
@@ -9,6 +13,9 @@ import { BUTTON_TYPES } from '../constants.js';
 import { IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, IMAGE_ERROR } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
 import { QUESTION_ICONS } from '../constants.js';
+import { TRAIT } from '../constants.js';
+
+const _clr = new Iris();
 
 class Question extends Panel {
 
@@ -53,18 +60,16 @@ class Question extends Panel {
         divRight.add(divTop, divBottom);
 
         // Color Window Border
-        if (!color) {
+        if (color == null) {
             if (icon === QUESTION_ICONS.INFO) color = 'icon';
             if (icon === QUESTION_ICONS.QUESTION) color = 'triadic2';
             if (icon === QUESTION_ICONS.WARNING) color = 'complement';
             if (icon === QUESTION_ICONS.ERROR) color = 'triadic1';
         }
-        let colorClass = '', buttonClass = '';
-        if (color && typeof color === 'string' && color != '') {
-            this.addClass(`suey-question-color-${color}`);
-            colorClass = `suey-${color}-colorize`;
-            buttonClass = `suey-${color}-button`;
-        }
+        if (Object.values(TRAIT).includes(color)) _clr.set(ColorScheme.color(color));
+        else _clr.set(color);
+        const fancyBorder = Dom.childWithClass(this, 'suey-panel-fancy-border');
+        if (fancyBorder) fancyBorder.setStyle('border-color', _clr.cssString());
 
         // Dialog Image
         if (icon === QUESTION_ICONS.INFO) icon = IMAGE_INFO;
@@ -73,7 +78,7 @@ class Question extends Panel {
         else if (icon === QUESTION_ICONS.ERROR) icon = IMAGE_ERROR;
         if (icon) {
             const dialogImage = new ShadowBox(icon);
-            dialogImage.firstImage().firstImage().addClass(colorClass);
+            dialogImage.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(color));
             divLeft.add(dialogImage);
         }
 
@@ -87,7 +92,8 @@ class Question extends Panel {
         let focusedButton = null, lastButton = null;
         for (const buttonInfo of buttons) {
             const value = buttonInfo.value ?? 0;
-            const button = new Button(buttonInfo.text ?? '???').addClass(buttonClass);
+            const button = new Button(buttonInfo.text ?? '???');
+            button.setStyle('background-image', `linear-gradient(to bottom, rgba(${_clr.rgbString()}, 0.9), rgba(${_clr.rgbString()}, 0.65))`);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
             button.onPress(() => { self.answered(value); });
