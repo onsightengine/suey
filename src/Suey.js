@@ -29,6 +29,9 @@
 //      Tabbed                  div                     .suey-dock.suey-tabbed
 //      Window                  div                     .suey-dock.suey-window
 //
+//  FEEDBACK
+//      Question                div                     .suey-question
+//
 //  INPUT
 //      Button                  button                  .suey-button
 //      Checkbox                input['checkbox']       .suey-checkbox
@@ -115,6 +118,9 @@ export { MainWindow } from './docking/MainWindow.js';
 export { Tabbed } from './docking/Tabbed.js';
 export { Window } from './docking/Window.js';
 
+// Feedback
+export { Question } from './feedback/Question.js';
+
 // Inputs
 export { Button } from './input/Button.js';
 export { Checkbox } from './input/Checkbox.js';
@@ -163,6 +169,7 @@ import '../files/css/inputs.css';
 import '../files/css/layout.css';
 import '../files/css/menu.css';
 import '../files/css/panels.css';
+import '../files/css/feedback.css';
 import '../files/css/docking.css';
 import '../files/css/gooey.css';
 import '../files/css/data.css';

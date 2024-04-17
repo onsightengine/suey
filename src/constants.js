@@ -9,6 +9,15 @@ export const IMAGE_CLOSE = imageClose;
 export const IMAGE_EMPTY = imageEmpty;
 export const IMAGE_EXPAND = imageExpand;
 
+import imageQuestion from '../files/images/question/question.svg';
+import imageInfo from '../files/images/question/info.svg';
+import imageError from '../files/images/question/error.svg';
+import imageWarning from '../files/images/question/warning.svg';
+export const IMAGE_QUESTION = imageQuestion;
+export const IMAGE_INFO = imageInfo;
+export const IMAGE_ERROR = imageError;
+export const IMAGE_WARNING = imageWarning;
+
 export const GRID_SIZE = 25;
 
 export const MOUSE_CLICK = 500;         // milliseconds for "click" event
@@ -124,6 +133,22 @@ export const TAB_SIDES = {
     RIGHT:          'right',
     TOP:            'top',
     BOTTOM:         'bottom',
+};
+
+/********** FEEDBACK */
+
+export const QUESTION_TYPES = {
+    QUESTION:       'question',
+    INFO:           'info',
+    ERROR:          'error',
+    WARNING:        'warning',
+};
+
+export const BUTTON_TYPES = {
+    OKAY:           'Okay',
+    YES:            'Yes',
+    NO:             'No',
+    CANCEL:         'Cancel',
 };
 
 /********** NODES */

@@ -212,7 +212,9 @@ class Element {
      */
     addClass(...classNames) {
         for (const className of classNames) {
-            this.dom.classList.add(className);
+            if (className && typeof className === 'string' && className != '') {
+                this.dom.classList.add(className);
+            }
         }
         return this;
     }
