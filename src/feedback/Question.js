@@ -75,18 +75,6 @@ class Question extends Panel {
         // Content
         divTop.add(new Span(content).setStyle('margin', 'auto 0'));
 
-        // Button Clicked
-        function answered(buttonText) {
-            document.body.removeChild(self.dom);
-            document.body.removeChild(self.blackout.dom);
-            if (self.callback && typeof self.callback === 'function') {
-                self.callback(buttonText);
-            }
-            document.removeEventListener('keydown', self.handleKeyDown.bind(self));
-            self.callback = null;
-            self.removeSelf();
-        }
-
         // Buttons
         buttons = Array.isArray(buttons) ? buttons : [];
         if (buttons.length === 0) buttons.push(BUTTON_TYPES.OKAY);
@@ -96,7 +84,7 @@ class Question extends Panel {
             const button = new Button(buttonText).addClass(buttonClass);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
-            button.onPress(() => { answered(buttonText); });
+            button.onPress(() => { self.answered(buttonText); });
             divBottom.add(button);
             if (defaultButton === buttonText) focusedButton = button;
             lastButton = button;
@@ -120,16 +108,33 @@ class Question extends Panel {
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
+    answered(buttonText) {
+        document.body.removeChild(this.dom);
+        document.body.removeChild(this.blackout.dom);
+        if (this.callback && typeof this.callback === 'function') {
+            this.callback(buttonText);
+        }
+        document.removeEventListener('keydown', this.handleKeyDown.bind(this));
+        this.callback = null;
+        this.removeSelf();
+    }
+
     handleKeyDown(event) {
         if (event.key === 'Tab') {
             event.preventDefault();
             const buttons = Array.from(this.contents().dom.querySelectorAll('button'));
             if (buttons.length > 0) {
                 const currentIndex = buttons.findIndex(button => button === document.activeElement);
-                if (currentIndex !== -1) {
-                    const nextIndex = (currentIndex + 1) % buttons.length;
-                    buttons[nextIndex].focus();
-                }
+                const nextIndex = (currentIndex + 1) % buttons.length;
+                buttons[nextIndex].focus();
+            }
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            const buttons = Array.from(this.contents().dom.querySelectorAll('button'));
+            if (buttons.length > 0) {
+                for (const button of buttons) if (button.textContent === 'Cancel') return this.answered('Cancel');
+                for (const button of buttons) if (button.textContent === 'No') return this.answered('No');
             }
         }
     }
