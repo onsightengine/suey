@@ -8,7 +8,7 @@ import { Span } from '../core/Span.js';
 import { BUTTON_TYPES } from '../constants.js';
 import { IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, IMAGE_ERROR } from '../constants.js';
 import { PANEL_STYLES } from '../constants.js';
-import { QUESTION_TYPES } from '../constants.js';
+import { QUESTION_ICONS } from '../constants.js';
 
 class Question extends Panel {
 
@@ -19,20 +19,24 @@ class Question extends Panel {
         return 'unknown';
     }
 
-    constructor(type = QUESTION_TYPES.INFO, content = '', buttons = [ BUTTON_TYPES.OKAY ], defaultButton = BUTTON_TYPES.OKAY) {
+    constructor({
+        icon = QUESTION_ICONS.INFO,
+        color,
+        text = '',
+        buttons = [ BUTTON_TYPES.OKAY ],
+        defaultButton = BUTTON_TYPES.OKAY,
+    } = {}) {
         super({ style: PANEL_STYLES.FANCY });
         const self = this;
         this.addClass('suey-question');
         this.allowFocus();
 
-        // Color Window Border
-        switch (type) {
-            case QUESTION_TYPES.INFO:       this.addClass('suey-question-info');        break;
-            case QUESTION_TYPES.QUESTION:   this.addClass('suey-question-question');    break;
-            case QUESTION_TYPES.WARNING:    this.addClass('suey-question-warning');     break;
-            case QUESTION_TYPES.ERROR:      this.addClass('suey-question-error');       break;
+        // Single argument, text content only
+        if (arguments.length > 0 && typeof arguments[0] === 'string') {
+            text = arguments[0];
         }
 
+        // Blackout
         this.blackout = new Div().addClass('suey-screen-blackout');
 
         // Build Inside Frames
@@ -48,39 +52,33 @@ class Question extends Panel {
         const divBottom = new Div().addClass('suey-question-bottom');
         divRight.add(divTop, divBottom);
 
-        // Dialog Image
-        let dialogImage = undefined;
-        let colorClass = '', buttonClass = '';
-        switch (type) {
-            case QUESTION_TYPES.INFO:
-                dialogImage = new ShadowBox(IMAGE_INFO);
-                colorClass = 'suey-blue-colorize';
-                buttonClass = 'suey-blue-button';
-                break;
-            case QUESTION_TYPES.QUESTION:
-                dialogImage = new ShadowBox(IMAGE_QUESTION);
-                colorClass = 'suey-green-colorize';
-                buttonClass = 'suey-green-button';
-                break;
-            case QUESTION_TYPES.WARNING:
-                dialogImage = new ShadowBox(IMAGE_WARNING);
-                colorClass = 'suey-yellow-colorize';
-                buttonClass = 'suey-yellow-button';
-                break;
-            case QUESTION_TYPES.ERROR:
-                dialogImage = new ShadowBox(IMAGE_ERROR);
-                colorClass = 'suey-red-colorize';
-                buttonClass = 'suey-red-button';
-                break;
-            default:
-                dialogImage = new ShadowBox(IMAGE_INFO);
-                colorClass = 'suey-icon-colorize';
+        // Color Window Border
+        if (!color) {
+            if (icon === QUESTION_ICONS.INFO) color = 'icon';
+            if (icon === QUESTION_ICONS.QUESTION) color = 'triadic2';
+            if (icon === QUESTION_ICONS.WARNING) color = 'complement';
+            if (icon === QUESTION_ICONS.ERROR) color = 'triadic1';
         }
-        dialogImage.firstImage().firstImage().addClass(colorClass);
-        divLeft.add(dialogImage);
+        let colorClass = '', buttonClass = '';
+        if (color && typeof color === 'string' && color != '') {
+            this.addClass(`suey-question-color-${color}`);
+            colorClass = `suey-${color}-colorize`;
+            buttonClass = `suey-${color}-button`;
+        }
+
+        // Dialog Image
+        if (icon === QUESTION_ICONS.INFO) icon = IMAGE_INFO;
+        else if (icon === QUESTION_ICONS.QUESTION) icon = IMAGE_QUESTION;
+        else if (icon === QUESTION_ICONS.WARNING) icon = IMAGE_WARNING;
+        else if (icon === QUESTION_ICONS.ERROR) icon = IMAGE_ERROR;
+        if (icon) {
+            const dialogImage = new ShadowBox(icon);
+            dialogImage.firstImage().firstImage().addClass(colorClass);
+            divLeft.add(dialogImage);
+        }
 
         // Content
-        divTop.add(new Span(content).setStyle('margin', 'auto 0'));
+        divTop.add(new Span(text).setStyle('margin', 'auto 0'));
 
         // Buttons
         buttons = Array.isArray(buttons) ? buttons : [];
@@ -88,9 +86,8 @@ class Question extends Panel {
         divBottom.add(new FlexSpacer());
         let focusedButton = null, lastButton = null;
         for (const buttonInfo of buttons) {
-            const text = buttonInfo.text ?? '???';
             const value = buttonInfo.value ?? 0;
-            const button = new Button(text).addClass(buttonClass);
+            const button = new Button(buttonInfo.text ?? '???').addClass(buttonClass);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
             button.onPress(() => { self.answered(value); });

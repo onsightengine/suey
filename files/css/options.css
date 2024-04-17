@@ -32,8 +32,20 @@
     filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 230deg));
 }
 
-.suey-triadic-colorize /* red */ {
-    filter: brightness(50%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 300deg));
+.suey-triadic1-colorize /* red */ {
+    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 310deg));
+}
+
+.suey-triadic2-colorize /* green */ {
+    filter: brightness(75%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 40deg));
+}
+
+.suey-triadic3-colorize /* pink */ {
+    filter: brightness(65%) sepia(50%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 250deg));
+}
+
+.suey-triadic4-colorize /* yellow */ {
+    filter: brightness(85%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 25deg));
 }
 
 .suey-blue-colorize {

@@ -37,7 +37,7 @@
             BUTTON_TYPES,
             DOCK_SIDES,
             IMAGE_ADD,
-            QUESTION_TYPES,
+            QUESTION_ICONS,
             RESIZERS,
             TAB_SIDES
         } from 'suey';
@@ -145,14 +145,15 @@
         /***** Toolbar *****/
 
         const button1 = new ToolbarButton().add(new ShadowBox(IMAGE_ADD).evenShadow());
-        const button2 = new ToolbarButton();
-        const button3 = new ToolbarButton().addClass('suey-blue-button');
-        const button4 = new ToolbarButton().addClass('suey-green-button');
-        const button5 = new ToolbarButton().addClass('suey-yellow-button');
-        const button6 = new ToolbarButton().addClass('suey-red-button');
-        const button7 = new ToolbarButton(null, 'left');
-        const button8 = new ToolbarButton(null, 'middle');
-        const button9 = new ToolbarButton(null, 'right');
+
+        const button2 = new ToolbarButton().addClass('suey-blue-button');
+        const button3 = new ToolbarButton().addClass('suey-green-button');
+        const button4 = new ToolbarButton().addClass('suey-yellow-button');
+        const button5 = new ToolbarButton().addClass('suey-red-button');
+
+        const button6 = new ToolbarButton(null, 'left');
+        const button7 = new ToolbarButton(null, 'middle');
+        const button8 = new ToolbarButton(null, 'right');
 
         button1.setAttribute('tooltip', 'Add Window');
         button1.onPress(() => {
@@ -164,30 +165,29 @@
         }
 
         button2.onPress(() => {
-            let text = 'This is a icon colored info box.';
-            const question = new Question(null, text, [ BUTTON_TYPES.OKAY ]).alert(alerted);
+            let text = 'This is a info box.';
+            const question = new Question({ color: 'triadic3', icon: QUESTION_ICONS.INFO, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
         });
 
         button3.onPress(() => {
-            let text = 'This is a info box.';
-            const question = new Question(QUESTION_TYPES.INFO, text, [ BUTTON_TYPES.OKAY ]).alert(alerted);
+            let text = 'This is a question box?';
+            const question = new Question({ color: 'triadic4', icon: QUESTION_ICONS.QUESTION, text, buttons: [ BUTTON_TYPES.NO, BUTTON_TYPES.YES ], defaultButton: BUTTON_TYPES.NO }).alert(alerted);
         });
 
         button4.onPress(() => {
-            let text = 'This is a question box?';
-            const question = new Question(QUESTION_TYPES.QUESTION, text, [ BUTTON_TYPES.NO, BUTTON_TYPES.YES ], BUTTON_TYPES.NO).alert(alerted);
+            let text = 'This is a warning box!';
+            const question = new Question({ icon: QUESTION_ICONS.WARNING, text, buttons: [ BUTTON_TYPES.CANCEL, BUTTON_TYPES.NO, BUTTON_TYPES.YES], defaultButton: BUTTON_TYPES.CANCEL }).alert(alerted);
         });
 
         button5.onPress(() => {
-            let text = 'This is a warning box!';
-            const question = new Question(QUESTION_TYPES.WARNING, text, [ BUTTON_TYPES.CANCEL, BUTTON_TYPES.NO, BUTTON_TYPES.YES], BUTTON_TYPES.CANCEL).alert(alerted);
+            let text = 'This is an error box!';
+            const question = new Question({ icon: QUESTION_ICONS.ERROR, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
         });
 
         button6.onPress(() => {
-            let text = 'This is an error box!';
-            const question = new Question(QUESTION_TYPES.ERROR, text, [ BUTTON_TYPES.OKAY ]).alert(alerted);
-        });
-
+            if (button6.hasClass('suey-selected')) button6.removeClass('suey-selected');
+            else button6.addClass('suey-selected');
+        })
         button7.onPress(() => {
             if (button7.hasClass('suey-selected')) button7.removeClass('suey-selected');
             else button7.addClass('suey-selected');
@@ -196,13 +196,9 @@
             if (button8.hasClass('suey-selected')) button8.removeClass('suey-selected');
             else button8.addClass('suey-selected');
         })
-        button9.onPress(() => {
-            if (button9.hasClass('suey-selected')) button9.removeClass('suey-selected');
-            else button9.addClass('suey-selected');
-        })
 
         const toolbar = new FlexBox().setStyle('flex', '0 0 auto', 'pointerEvents', 'none');
-        toolbar.add(button1, new FlexSpacer(), button2, button3, button4, button5, button6, new FlexSpacer(), button7, button8, button9);
+        toolbar.add(button1, new FlexSpacer(), button2, button3, button4, button5, new FlexSpacer(), button6, button7, button8);
         mainWindow.addToSelf(toolbar);
 
         toolbar.setStyle('padding', 'var(--pad-small)', 'padding-bottom', '0');

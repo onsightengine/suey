@@ -137,11 +137,24 @@ export const TAB_SIDES = {
 
 /********** FEEDBACK */
 
-export const QUESTION_TYPES = {
+export const QUESTION_ICONS = {
     QUESTION:       'question',
     INFO:           'info',
     ERROR:          'error',
     WARNING:        'warning',
+};
+
+export const QUESTION_COLORS = {
+    ICON:           'icon',
+    COMPLEMENT:     'complement',
+    TRIADIC1:       'triadic1',
+    TRIADIC2:       'triadic2',
+    TRIADIC3:       'triadic3',
+    TRIADIC4:       'triadic4',
+    BLUE:           'blue',
+    RED:            'red',
+    GREEN:          'green',
+    YELLOW:         'yellow',
 };
 
 export const BUTTON_TYPES = {
