@@ -258,6 +258,18 @@ class Element {
         return this;
     }
 
+    /**
+     * If the Element has the CSS class name, it is removed, otherwise it is added.
+     * @param {*} className - The CSS class name to toggle.
+     */
+    toggleClass(className) {
+        if (className != null && typeof className === 'string' && className !== '') {
+            if (this.hasClass(className)) this.removeClass(className);
+            else this.addClass(className);
+        }
+        return this;
+    }
+
     /******************** HTML */
 
     /**
@@ -479,6 +491,14 @@ class Element {
             const value = arguments[i + 1];
             this.contents().dom.style[style] = value;
         }
+        return this;
+    }
+
+    /**
+     * To be implemented in child classes.
+     */
+    setColor() {
+        console.error(`${this.constructor.name}.setColor(): Method must be reimplemented from Element`);
         return this;
     }
 

@@ -6,9 +6,7 @@
  * @source      https://stackoverflow.com/questions/42966641/how-to-transform-black-into-any-given-color-using-only-css-filters/43960991#43960991
  */
 
-import { ColorScheme } from './ColorScheme.js';
 import { Iris } from './Iris.js';
-import { TRAIT } from '../constants.js';
 
 class Color {
 
@@ -271,11 +269,7 @@ const _solver = new Solver();
 class ColorizeFilter {
 
     static fromColor(...colorData) {
-        if (arguments.length === 1 && typeof arguments[0] === 'string' && Object.values(TRAIT).includes(arguments[0])) {
-            _color.set(ColorScheme.color(arguments[0]));
-        } else {
-            _color.set(...colorData);
-        }
+        _color.set(...colorData);
         _solver.setTarget(_color.red(), _color.green(), _color.blue());
         const result = _solver.solve(true /* toBlack? */);
         return result.filter;

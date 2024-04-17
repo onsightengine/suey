@@ -1,5 +1,8 @@
+import { ColorizeFilter } from '../utils/ColorizeFilter.js';
 import { Css } from '../utils/Css.js';
 import { Element } from './Element.js';
+
+import { TRAIT } from '../constants.js';
 
 class Image extends Element {
 
@@ -30,6 +33,15 @@ class Image extends Element {
         // Filename / Image
         } else {
             this.dom.src = image;
+        }
+        return this;
+    }
+
+    setColor(color) {
+        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) {
+            this.setStyle('filter', `var(--tint-${color})`);
+        } else {
+            this.setStyle('filter', ColorizeFilter.fromColor(color));
         }
         return this;
     }

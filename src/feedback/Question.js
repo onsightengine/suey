@@ -76,11 +76,7 @@ class Question extends Panel {
         else if (icon === QUESTION_ICONS.QUESTION) icon = IMAGE_QUESTION;
         else if (icon === QUESTION_ICONS.WARNING) icon = IMAGE_WARNING;
         else if (icon === QUESTION_ICONS.ERROR) icon = IMAGE_ERROR;
-        if (icon) {
-            const dialogImage = new ShadowBox(icon);
-            dialogImage.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(color));
-            divLeft.add(dialogImage);
-        }
+        if (icon) divLeft.add(new ShadowBox(icon).setColor(color));
 
         // Content
         divTop.add(new Span(text).setStyle('margin', 'auto 0'));
@@ -93,7 +89,7 @@ class Question extends Panel {
         for (const buttonInfo of buttons) {
             const value = buttonInfo.value ?? 0;
             const button = new Button(buttonInfo.text ?? '???');
-            button.setStyle('background-image', `linear-gradient(to bottom, rgba(${_clr.rgbString()}, 0.9), rgba(${_clr.rgbString()}, 0.65))`);
+            button.setColor(color);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
             button.onPress(() => { self.answered(value); });

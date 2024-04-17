@@ -17,6 +17,7 @@
     <script type="module">
 
         import {
+            ColorizeFilter,
             ColorScheme,
             Css,
             Div,
@@ -31,6 +32,7 @@
             Tabbed,
             Titled,
             ToolbarButton,
+            VectorBox,
         } from 'suey';
 
         import {
@@ -144,12 +146,14 @@
 
         /***** Toolbar *****/
 
-        const button1 = new ToolbarButton().add(new ShadowBox(IMAGE_ADD).evenShadow());
+        const button1 = new ToolbarButton().add(new VectorBox(IMAGE_ADD));
+        button1.contents().evenShadow();
+        button1.contents().setColor('complement');
 
-        const button2 = new ToolbarButton().addClass('suey-blue-button');
-        const button3 = new ToolbarButton().addClass('suey-green-button');
-        const button4 = new ToolbarButton().addClass('suey-yellow-button');
-        const button5 = new ToolbarButton().addClass('suey-red-button');
+        const button2 = new ToolbarButton().setColor('blue');
+        const button3 = new ToolbarButton().setColor('green');
+        const button4 = new ToolbarButton().setColor('yellow');
+        const button5 = new ToolbarButton().setColor('red');
 
         const button6 = new ToolbarButton(null, 'left');
         const button7 = new ToolbarButton(null, 'middle');
@@ -164,41 +168,42 @@
             console.log(`Pressed: ${button} ('${Question.buttonByValue(button)}')`);
         }
 
+        let color = null;
+
         button2.onPress(() => {
             let text = 'This is a info box.';
-            let color = null; // 'blue';
+            // let color = 'blue';
+            // let color = 'cadetblue';
+            let color = '#005678';
             const question = new Question({ icon: QUESTION_ICONS.INFO, color, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
         });
 
         button3.onPress(() => {
             let text = 'This is a question box?';
-            let color = null; // 'green';
+            let color = 'green';
             const question = new Question({ icon: QUESTION_ICONS.QUESTION, color, text, buttons: [ BUTTON_TYPES.NO, BUTTON_TYPES.YES ], defaultButton: BUTTON_TYPES.NO }).alert(alerted);
         });
 
         button4.onPress(() => {
             let text = 'This is a warning box!';
-            let color = null; // 'yellow';
+            // let color = 'yellow';
             const question = new Question({ icon: QUESTION_ICONS.WARNING, color, text, buttons: [ BUTTON_TYPES.CANCEL, BUTTON_TYPES.NO, BUTTON_TYPES.YES], defaultButton: BUTTON_TYPES.CANCEL }).alert(alerted);
         });
 
         button5.onPress(() => {
             let text = 'This is an error box!';
-            let color = null; // 'red';
+            // let color = 'red';
             const question = new Question({ icon: QUESTION_ICONS.ERROR, color, text, buttons: [ BUTTON_TYPES.OKAY ] }).alert(alerted);
         });
 
         button6.onPress(() => {
-            if (button6.hasClass('suey-selected')) button6.removeClass('suey-selected');
-            else button6.addClass('suey-selected');
+            button6.toggleClass('suey-selected');
         })
         button7.onPress(() => {
-            if (button7.hasClass('suey-selected')) button7.removeClass('suey-selected');
-            else button7.addClass('suey-selected');
+            button7.toggleClass('suey-selected');
         })
         button8.onPress(() => {
-            if (button8.hasClass('suey-selected')) button8.removeClass('suey-selected');
-            else button8.addClass('suey-selected');
+            button8.toggleClass('suey-selected');
         })
 
         const toolbar = new FlexBox().setStyle('flex', '0 0 auto', 'pointerEvents', 'none');

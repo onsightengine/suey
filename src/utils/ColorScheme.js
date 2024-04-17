@@ -4,10 +4,11 @@
  * Material Palette     https://material.io/design/color/the-color-system.html
  */
 
-import { BACKGROUNDS, THEMES, TRAIT } from '../constants.js';
-
+import { ColorizeFilter } from './ColorizeFilter.js';
 import { Css } from './Css.js';
 import { Iris } from './Iris.js';
+
+import { BACKGROUNDS, THEMES, TRAIT } from '../constants.js';
 
 const _clr = new Iris();
 
@@ -73,6 +74,17 @@ class ColorScheme {
             Css.setVariable(`--${guiColor}`, _clr.set(ColorScheme.color(guiColor)).rgbString());
         }
 
+        // Update Tints
+        Css.setVariable('--tint-icon', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.ICON)));
+        Css.setVariable('--tint-complement', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.COMPLEMENT)));
+        Css.setVariable('--tint-triadic1', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC1)));
+        Css.setVariable('--tint-triadic2', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC2)));
+        Css.setVariable('--tint-triadic3', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC3)));
+        Css.setVariable('--tint-triadic4', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC4)));
+        Css.setVariable('--tint-triadic5', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC5)));
+        Css.setVariable('--tint-triadic6', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC6)));
+        Css.setVariable('--tint-text', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TEXT)));
+
         // Update Light/Dark Value
         Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
 
@@ -102,6 +114,10 @@ class ColorScheme {
     static color(guiColor, ignoreSaturation = false) {
         // Reset temp color
         _clr.set(0);
+
+        // No Valid Scheme Color
+        if (guiColor == null) return _clr.hex();
+        if (Object.values(TRAIT).includes(guiColor) === false) return _clr.set(guiColor).hex();
 
         // Set starting tint, lightness amounts
         let tint = _tint;

@@ -351,7 +351,8 @@ class Popper {
 }
 
 class Iris {
-    static get NAMES() { return COLOR_KEYWORDS; }
+    static get NAMES() { return HTML_COLORS; }
+    static get EXTENDED_NAMES() { return EXTENDED_COLORS; }
     constructor(r = 0xffffff, g, b, format = '') {
         this.isColor = true;
         this.isIris = true;
@@ -400,7 +401,10 @@ class Iris {
         return this;
     }
     setColorName(style) {
-        const hex = COLOR_KEYWORDS[style.toLowerCase()];
+        if (style == null || typeof style !== 'string' || style === '') return this;
+        style = style.replace(/\s/g, '');
+        style = style.toLowerCase();
+        const hex = HTML_COLORS[style] ?? EXTENDED_COLORS[style];
         if (hex) return this.setHex(hex);
         console.warn(`Iris.setColorName(): Unknown color ${style}`);
         return this;
@@ -822,195 +826,123 @@ const RYB_OFFSET = [
     337, 338, 339, 340, 341, 342, 343, 344, 345, 347, 348, 349, 350, 352, 353, 354, 355, 356, 358, 359,
     999
 ];
-const COLOR_KEYWORDS = {
-    'aliceblue': 0xF0F8FF, 'antiquewhite': 0xFAEBD7, 'aqua': 0x00FFFF, 'aquamarine': 0x7FFFD4,
-    'azure': 0xF0FFFF, 'beige': 0xF5F5DC, 'bisque': 0xFFE4C4, 'black': 0x000000, 'blanchedalmond': 0xFFEBCD,
-    'blue': 0x0000FF, 'blueviolet': 0x8A2BE2, 'brown': 0xA52A2A, 'burlywood': 0xDEB887, 'cadetblue': 0x5F9EA0,
-    'chartreuse': 0x7FFF00, 'chocolate': 0xD2691E, 'coral': 0xFF7F50, 'cornflowerblue': 0x6495ED,
-    'cornsilk': 0xFFF8DC, 'crimson': 0xDC143C, 'cyan': 0x00FFFF, 'darkblue': 0x00008B, 'darkcyan': 0x008B8B,
-    'darkgoldenrod': 0xB8860B, 'darkgray': 0xA9A9A9, 'darkgreen': 0x006400, 'darkgrey': 0xA9A9A9,
-    'darkkhaki': 0xBDB76B, 'darkmagenta': 0x8B008B, 'darkolivegreen': 0x556B2F, 'darkorange': 0xFF8C00,
-    'darkorchid': 0x9932CC, 'darkred': 0x8B0000, 'darksalmon': 0xE9967A, 'darkseagreen': 0x8FBC8F,
-    'darkslateblue': 0x483D8B, 'darkslategray': 0x2F4F4F, 'darkslategrey': 0x2F4F4F, 'darkturquoise': 0x00CED1,
-    'darkviolet': 0x9400D3, 'deeppink': 0xFF1493, 'deepskyblue': 0x00BFFF, 'dimgray': 0x696969,
-    'dimgrey': 0x696969, 'dodgerblue': 0x1E90FF, 'firebrick': 0xB22222, 'floralwhite': 0xFFFAF0,
-    'forestgreen': 0x228B22, 'fuchsia': 0xFF00FF, 'gainsboro': 0xDCDCDC, 'ghostwhite': 0xF8F8FF,
-    'gold': 0xFFD700, 'goldenrod': 0xDAA520, 'gray': 0x808080, 'green': 0x008000, 'greenyellow': 0xADFF2F,
-    'grey': 0x808080, 'honeydew': 0xF0FFF0, 'hotpink': 0xFF69B4, 'indianred': 0xCD5C5C, 'indigo': 0x4B0082,
-    'ivory': 0xFFFFF0, 'khaki': 0xF0E68C, 'lavender': 0xE6E6FA, 'lavenderblush': 0xFFF0F5, 'lawngreen': 0x7CFC00,
-    'lemonchiffon': 0xFFFACD, 'lightblue': 0xADD8E6, 'lightcoral': 0xF08080, 'lightcyan': 0xE0FFFF,
-    'lightgoldenrodyellow': 0xFAFAD2, 'lightgray': 0xD3D3D3, 'lightgreen': 0x90EE90, 'lightgrey': 0xD3D3D3,
-    'lightpink': 0xFFB6C1, 'lightsalmon': 0xFFA07A, 'lightseagreen': 0x20B2AA, 'lightskyblue': 0x87CEFA,
-    'lightslategray': 0x778899, 'lightslategrey': 0x778899, 'lightsteelblue': 0xB0C4DE, 'lightyellow': 0xFFFFE0,
-    'lime': 0x00FF00, 'limegreen': 0x32CD32, 'linen': 0xFAF0E6, 'magenta': 0xFF00FF, 'maroon': 0x800000,
-    'mediumaquamarine': 0x66CDAA, 'mediumblue': 0x0000CD, 'mediumorchid': 0xBA55D3, 'mediumpurple': 0x9370DB,
-    'mediumseagreen': 0x3CB371, 'mediumslateblue': 0x7B68EE, 'mediumspringgreen': 0x00FA9A,
-    'mediumturquoise': 0x48D1CC, 'mediumvioletred': 0xC71585, 'midnightblue': 0x191970, 'mintcream': 0xF5FFFA,
-    'mistyrose': 0xFFE4E1, 'moccasin': 0xFFE4B5, 'navajowhite': 0xFFDEAD, 'navy': 0x000080, 'oldlace': 0xFDF5E6,
-    'olive': 0x808000, 'olivedrab': 0x6B8E23, 'orange': 0xFFA500, 'orangered': 0xFF4500, 'orchid': 0xDA70D6,
-    'palegoldenrod': 0xEEE8AA, 'palegreen': 0x98FB98, 'paleturquoise': 0xAFEEEE, 'palevioletred': 0xDB7093,
-    'papayawhip': 0xFFEFD5, 'peachpuff': 0xFFDAB9, 'peru': 0xCD853F, 'pink': 0xFFC0CB, 'plum': 0xDDA0DD,
-    'powderblue': 0xB0E0E6, 'purple': 0x800080, 'rebeccapurple': 0x663399, 'red': 0xFF0000,
-    'rosybrown': 0xBC8F8F, 'royalblue': 0x4169E1, 'saddlebrown': 0x8B4513, 'salmon': 0xFA8072,
-    'sandybrown': 0xF4A460, 'seagreen': 0x2E8B57, 'seashell': 0xFFF5EE, 'sienna': 0xA0522D, 'silver': 0xC0C0C0,
-    'skyblue': 0x87CEEB, 'slateblue': 0x6A5ACD, 'slategray': 0x708090, 'slategrey': 0x708090, 'snow': 0xFFFAFA,
-    'springgreen': 0x00FF7F, 'steelblue': 0x4682B4, 'tan': 0xD2B48C, 'teal': 0x008080, 'thistle': 0xD8BFD8,
-    'tomato': 0xFF6347, 'turquoise': 0x40E0D0, 'transparent': 0x000000, 'violet': 0xEE82EE, 'wheat': 0xF5DEB3,
-    'white': 0xFFFFFF, 'whitesmoke': 0xF5F5F5, 'yellow': 0xFFFF00, 'yellowgreen': 0x9ACD32
+const HTML_COLORS = {
+    'aliceblue': 0xf0f8ff, 'antiquewhite': 0xfaebd7, 'aqua': 0x00ffff, 'aquamarine': 0x7fffd4,
+    'azure': 0xf0ffff, 'beige': 0xf5f5dc, 'bisque': 0xffe4c4, 'black': 0x000000, 'blanchedalmond': 0xffebcd,
+    'blue': 0x0000ff, 'blueviolet': 0x8a2be2, 'brown': 0xa52a2a, 'burlywood': 0xdeb887, 'cadetblue': 0x5f9ea0,
+    'chartreuse': 0x7fff00, 'chocolate': 0xd2691e, 'coral': 0xff7f50, 'cornflowerblue': 0x6495ed,
+    'cornsilk': 0xfff8dc, 'crimson': 0xdc143c, 'cyan': 0x00ffff, 'darkblue': 0x00008b, 'darkcyan': 0x008b8b,
+    'darkgoldenrod': 0xb8860b, 'darkgray': 0xa9a9a9, 'darkgreen': 0x006400, 'darkgrey': 0xa9a9a9,
+    'darkkhaki': 0xbdb76b, 'darkmagenta': 0x8b008b, 'darkolivegreen': 0x556b2f, 'darkorange': 0xff8c00,
+    'darkorchid': 0x9932cc, 'darkred': 0x8b0000, 'darksalmon': 0xe9967a, 'darkseagreen': 0x8fbc8f,
+    'darkslateblue': 0x483d8b, 'darkslategray': 0x2f4f4f, 'darkslategrey': 0x2f4f4f, 'darkturquoise': 0x00ced1,
+    'darkviolet': 0x9400d3, 'deeppink': 0xff1493, 'deepskyblue': 0x00bfff, 'dimgray': 0x696969,
+    'dimgrey': 0x696969, 'dodgerblue': 0x1e90ff, 'firebrick': 0xb22222, 'floralwhite': 0xfffaf0,
+    'forestgreen': 0x228b22, 'fuchsia': 0xff00ff, 'gainsboro': 0xdcdcdc, 'ghostwhite': 0xf8f8ff,
+    'gold': 0xffd700, 'goldenrod': 0xdaa520, 'gray': 0x808080, 'green': 0x008000, 'greenyellow': 0xadff2f,
+    'grey': 0x808080, 'honeydew': 0xf0fff0, 'hotpink': 0xff69b4, 'indianred': 0xcd5c5c, 'indigo': 0x4b0082,
+    'ivory': 0xfffff0, 'khaki': 0xf0e68c, 'lavender': 0xe6e6fa, 'lavenderblush': 0xfff0f5, 'lawngreen': 0x7cfc00,
+    'lemonchiffon': 0xfffacd, 'lightblue': 0xadd8e6, 'lightcoral': 0xf08080, 'lightcyan': 0xe0ffff,
+    'lightgoldenrodyellow': 0xfafad2, 'lightgray': 0xd3d3d3, 'lightgreen': 0x90ee90, 'lightgrey': 0xd3d3d3,
+    'lightpink': 0xffb6c1, 'lightsalmon': 0xffa07a, 'lightseagreen': 0x20b2aa, 'lightskyblue': 0x87cefa,
+    'lightslategray': 0x778899, 'lightslategrey': 0x778899, 'lightsteelblue': 0xb0c4de, 'lightyellow': 0xffffe0,
+    'lime': 0x00ff00, 'limegreen': 0x32cd32, 'linen': 0xfaf0e6, 'magenta': 0xff00ff, 'maroon': 0x800000,
+    'mediumaquamarine': 0x66cdaa, 'mediumblue': 0x0000cd, 'mediumorchid': 0xba55d3, 'mediumpurple': 0x9370db,
+    'mediumseagreen': 0x3cb371, 'mediumslateblue': 0x7b68ee, 'mediumspringgreen': 0x00fa9a,
+    'mediumturquoise': 0x48d1cc, 'mediumvioletred': 0xc71585, 'midnightblue': 0x191970, 'mintcream': 0xf5fffa,
+    'mistyrose': 0xffe4e1, 'moccasin': 0xffe4b5, 'navajowhite': 0xffdead, 'navy': 0x000080, 'oldlace': 0xfdf5e6,
+    'olive': 0x808000, 'olivedrab': 0x6b8e23, 'orange': 0xffa500, 'orangered': 0xff4500, 'orchid': 0xda70d6,
+    'palegoldenrod': 0xeee8aa, 'palegreen': 0x98fb98, 'paleturquoise': 0xafeeee, 'palevioletred': 0xdb7093,
+    'papayawhip': 0xffefd5, 'peachpuff': 0xffdab9, 'peru': 0xcd853f, 'pink': 0xffc0cb, 'plum': 0xdda0dd,
+    'powderblue': 0xb0e0e6, 'purple': 0x800080, 'rebeccapurple': 0x663399, 'red': 0xff0000,
+    'rosybrown': 0xbc8f8f, 'royalblue': 0x4169e1, 'saddlebrown': 0x8b4513, 'salmon': 0xfa8072,
+    'sandybrown': 0xf4a460, 'seagreen': 0x2e8b57, 'seashell': 0xfff5ee, 'sienna': 0xa0522d, 'silver': 0xc0c0c0,
+    'skyblue': 0x87ceeb, 'slateblue': 0x6a5acd, 'slategray': 0x708090, 'slategrey': 0x708090, 'snow': 0xfffafa,
+    'springgreen': 0x00ff7f, 'steelblue': 0x4682b4, 'tan': 0xd2b48c, 'teal': 0x008080, 'thistle': 0xd8bfd8,
+    'tomato': 0xff6347, 'turquoise': 0x40e0d0, 'transparent': 0x000000, 'violet': 0xee82ee, 'wheat': 0xf5deb3,
+    'white': 0xffffff, 'whitesmoke': 0xf5f5f5, 'yellow': 0xffff00, 'yellowgreen': 0x9acd32
 };
-
-const _clr$3 = new Iris();
-const _icon = new Iris();
-const _icon_light = new Iris();
-const _icon_dark = new Iris();
-const _complement = new Iris();
-const _triadic1 = new Iris();
-const _triadic2 = new Iris();
-const _triadic3 = new Iris();
-const _triadic4 = new Iris();
-const _triadic5 = new Iris();
-const _triadic6 = new Iris();
-const DEFAULT_CLR = 0x00b4af;
-let _background = BACKGROUNDS.DARK;
-let _color$4 = DEFAULT_CLR;
-let _tint = 0.0;
-let _saturation = 0.0;
-class ColorScheme {
-    static changeBackground(background) {
-        if (background === undefined || background === null) return;
-        _background = background;
-        ColorScheme.updateCSS();
-    }
-    static changeColor(color, tint, saturation) {
-        if (color === undefined || color === null) return;
-        _color$4 = _clr$3.set(color).hex();
-        _tint = (tint !== undefined) ? tint : _tint;
-        _saturation = (saturation !== undefined) ? saturation : _saturation;
-        _icon.set(color);
-        _icon_light.copy(_icon).brighten();
-        _icon_dark.copy(_icon).darken();
-        _complement.copy(_icon).rybRotateHue(180).brighten(0.2);
-        _triadic1.copy(_icon).rybRotateHue(120).brighten(0.2);
-        _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
-        _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
-        _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
-        _triadic5.copy(_icon).rybRotateHue(60).brighten(0.2);
-        _triadic6.copy(_complement).rybRotateHue(60).brighten(0.2);
-        ColorScheme.updateCSS();
-    }
-    static updateCSS() {
-        for (const key in TRAIT) {
-            const guiColor = TRAIT[key];
-            Css.setVariable(`--${guiColor}`, _clr$3.set(ColorScheme.color(guiColor)).rgbString());
-        }
-        Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$3.set(DEFAULT_CLR).hue();
-        const newHue = _clr$3.set(ColorScheme.color(TRAIT.ICON, true )).hue();
-        const diffHue = `${newHue - startHue}deg`;
-        Css.setVariable('--rotate-hue', diffHue);
-    }
-    static toString() {
-        const COLUMN_LENGTH = 20;
-        let output = '';
-        for (const key in TRAIT) {
-            const guiColor = TRAIT[key];
-            _clr$3.set(ColorScheme.color(guiColor));
-            output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$3.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$3.hexString()}\n`;
-        }
-        return output;
-    }
-    static color(guiColor, ignoreSaturation = false) {
-        _clr$3.set(0);
-        let tint = _tint;
-        let saturation = _saturation;
-        let darkness = 0;
-        let lightness = 0;
-        switch (_background) {
-            case BACKGROUNDS.DARK:      break;
-            case BACKGROUNDS.MID:       tint *= 0.2;    lightness = 0.2;    break;
-            case BACKGROUNDS.LIGHT:     break;
-            case BACKGROUNDS.FADED:     tint *= 0.1;    lightness = 0.4;    break;
-        }
-        if (_background == BACKGROUNDS.LIGHT) {
-            switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$3.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$3.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$3.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$3.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$3.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$3.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$3.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$3.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$3.set(255, 255, 255, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$3.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$3.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$3.set(  0,   0,   0, 'rgb'); break;
-            }
-        } else {
-            switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$3.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$3.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$3.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$3.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$3.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$3.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$3.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$3.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$3.set(  0,   0,   0, 'rgb'); lightness = 0; break;
-                case TRAIT.DARKLIGHT:           _clr$3.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$3.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$3.set(255, 255, 255, 'rgb'); break;
-            }
-            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$3.set( 64,  64,  64, 'rgb');
-            }
-        }
-        if (guiColor === TRAIT.DARKNESS) {
-            switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$3.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$3.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$3.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$3.set(  0,   0,   0, 'rgb');     break;
-            }
-        }
-        switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$3.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$3.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$3.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$3.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$3.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$3.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$3.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$3.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr$3.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr$3.copy(_triadic6);   break;
-        }
-        switch (guiColor) {
-            case TRAIT.COMPLEMENT:
-            case TRAIT.TRIADIC1:
-            case TRAIT.TRIADIC2:
-            case TRAIT.TRIADIC3:
-            case TRAIT.TRIADIC4:
-            case TRAIT.TRIADIC5:
-            case TRAIT.TRIADIC6:
-                saturation = 0.0;
-            case TRAIT.ICON_DARK:
-            case TRAIT.ICON:
-            case TRAIT.ICON_LIGHT:
-                tint = 0;
-                lightness = 0;
-                break;
-        }
-        if (tint !== 0) _clr$3.mix(_icon, tint);
-        if (lightness !== 0) _clr$3.brighten(lightness);
-        if (darkness !== 0) _clr$3.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$3.hslOffset(0, saturation, 0);
-        return _clr$3.hex();
-    }
-}
-ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
+const EXTENDED_COLORS = {
+    'black': 0x000000, 'charcoal': 0x36454f, 'darkgreen': 0x023020, 'darkpurple': 0x301934, 'jetblack': 0x343434,
+    'licorice': 0x1b1212, 'matteblack': 0x28282b, 'midnightblue': 0x191970, 'onyx': 0x353935,
+    'aqua': 0x00ffff, 'azure': 0xf0ffff, 'babyblue': 0x89cff0, 'blue': 0x0000ff, 'bluegray': 0x7393b3,
+    'bluegreen': 0x088f8f, 'brightblue': 0x0096ff, 'cadetblue': 0x5f9ea0, 'cobaltblue': 0x0047ab,
+    'cornflowerblue': 0x6495ed, 'cyan': 0x00ffff, 'darkblue': 0x00008b, 'denim': 0x6f8faf, 'egyptianblue': 0x1434a4,
+    'electricblue': 0x7df9ff, 'glaucous': 0x6082b6, 'jade': 0x00a36c, 'indigo': 0x3f00ff, 'iris': 0x5d3fd3,
+    'lightblue': 0xadd8e6, 'midnightblue': 0x191970, 'navyblue': 0x000080, 'neonblue': 0x1f51ff,
+    'pastelblue': 0xa7c7e7, 'periwinkle': 0xccccff, 'powderblue': 0xb6d0e2, 'robineggblue': 0x96ded1,
+    'royalblue': 0x4169e1, 'sapphireblue': 0x0f52ba, 'seafoamgreen': 0x9fe2bf, 'skyblue': 0x87ceeb,
+    'steelblue': 0x4682b4, 'teal': 0x008080, 'turquoise': 0x40e0d0, 'ultramarine': 0x0437f2, 'verdigris': 0x40b5ad,
+    'zaffre': 0x0818a8,
+    'almond': 0xeaddca, 'brass': 0xe1c16e, 'bronze': 0xcd7f32, 'brown': 0xa52a2a, 'buff': 0xdaa06d,
+    'burgundy': 0x800020, 'burntsienna': 0xe97451, 'burntumber': 0x6e260e, 'camel': 0xc19a6b, 'chestnut': 0x954535,
+    'chocolate': 0x7b3f00, 'cinnamon': 0xd27d2d, 'coffee': 0x6f4e37, 'cognac': 0x834333, 'copper': 0xb87333,
+    'cordovan': 0x814141, 'darkbrown': 0x5c4033, 'darkred': 0x8b0000, 'darktan': 0x988558, 'ecru': 0xc2b280,
+    'fallow': 0xc19a6b, 'fawn': 0xe5aa70, 'garnet': 0x9a2a2a, 'goldenbrown': 0x966919, 'khaki': 0xf0e68c,
+    'lightbrown': 0xc4a484, 'mahogany': 0xc04000, 'maroon': 0x800000, 'mocha': 0x967969, 'nude': 0xf2d2bd,
+    'ochre': 0xcc7722, 'olivegreen': 0x808000, 'oxblood': 0x4a0404, 'puce': 0xa95c68, 'redbrown': 0xa52a2a,
+    'redochre': 0x913831, 'russet': 0x80461b, 'saddlebrown': 0x8b4513, 'sand': 0xc2b280, 'sienna': 0xa0522d,
+    'tan': 0xd2b48c, 'taupe': 0x483c32, 'tuscanred': 0x7c3030, 'wheat': 0xf5deb3, 'wine': 0x722f37,
+    'ashgray': 0xb2beb5, 'bluegray': 0x7393b3, 'charcoal': 0x36454f, 'darkgray': 0xa9a9a9, 'glaucous': 0x6082b6,
+    'gray': 0x808080, 'gunmetalgray': 0x818589, 'lightgray': 0xd3d3d3, 'pewter': 0x899499, 'platinum': 0xe5e4e2,
+    'sagegreen': 0x8a9a5b, 'silver': 0xc0c0c0, 'slategray': 0x708090, 'smoke': 0x848884, 'steelgray': 0x71797e,
+    'aqua': 0x00ffff, 'aquamarine': 0x7fffd4, 'armygreen': 0x454b1b, 'bluegreen': 0x088f8f, 'brightgreen': 0xaaff00,
+    'cadetblue': 0x5f9ea0, 'cadmiumgreen': 0x097969, 'celadon': 0xafe1af, 'chartreuse': 0xdfff00, 'citrine': 0xe4d00a,
+    'cyan': 0x00ffff, 'darkgreen': 0x023020, 'electricblue': 0x7df9ff, 'emeraldgreen': 0x50c878, 'eucalyptus': 0x5f8575,
+    'ferngreen': 0x4f7942, 'forestgreen': 0x228b22, 'grassgreen': 0x7cfc00, 'green': 0x008000, 'huntergreen': 0x355e3b,
+    'jade': 0x00a36c, 'junglegreen': 0x2aaa8a, 'kellygreen': 0x4cbb17, 'lightgreen': 0x90ee90, 'limegreen': 0x32cd32,
+    'lincolngreen': 0x478778, 'malachite': 0x0bda51, 'mintgreen': 0x98fb98, 'mossgreen': 0x8a9a5b,
+    'neongreen': 0x0fff50, 'nyanza': 0xecffdc, 'olivegreen': 0x808000, 'pastelgreen': 0xc1e1c1, 'pear': 0xc9cc3f,
+    'peridot': 0xb4c424, 'pistachio': 0x93c572, 'robineggblue': 0x96ded1, 'sagegreen': 0x8a9a5b,
+    'seagreen': 0x2e8b57, 'seafoamgreen': 0x9fe2bf, 'shamrockgreen': 0x009e60, 'springgreen': 0x00ff7f,
+    'teal': 0x008080, 'turquoise': 0x40e0d0, 'vegasgold': 0xc4b454, 'verdigris': 0x40b5ad, 'viridian': 0x40826d,
+    'amber': 0xffbf00, 'apricot': 0xfbceb1, 'bisque': 0xf2d2bd, 'brightorange': 0xffac1c, 'bronze': 0xcd7f32,
+    'buff': 0xdaa06d, 'burntorange': 0xcc5500, 'burntsienna': 0xe97451, 'butterscotch': 0xe3963e,
+    'cadmiumorange': 0xf28c28, 'cinnamon': 0xd27d2d, 'copper': 0xb87333, 'coral': 0xff7f50, 'coralpink': 0xf88379,
+    'darkorange': 0x8b4000, 'desert': 0xfad5a5, 'gamboge': 0xe49b0f, 'goldenyellow': 0xffc000, 'goldenrod': 0xdaa520,
+    'lightorange': 0xffd580, 'mahogany': 0xc04000, 'mango': 0xf4bb44, 'navajowhite': 0xffdead, 'neonorange': 0xff5f1f,
+    'ochre': 0xcc7722, 'orange': 0xffa500, 'pastelorange': 0xfac898, 'peach': 0xffe5b4, 'persimmon': 0xec5800,
+    'pinkorange': 0xf89880, 'poppy': 0xe35335, 'pumpkinorange': 0xff7518, 'redorange': 0xff4433, 'safetyorange': 0xff5f15,
+    'salmon': 0xfa8072, 'seashell': 0xfff5ee, 'sienna': 0xa0522d, 'sunsetorange': 0xfa5f55, 'tangerine': 0xf08000,
+    'terracotta': 0xe3735e, 'yelloworange': 0xffaa33,
+    'amaranth': 0x9f2b68, 'bisque': 0xf2d2bd, 'cerise': 0xde3163, 'claret': 0x811331, 'coral': 0xff7f50,
+    'coralpink': 0xf88379, 'crimson': 0xdc143c, 'darkpink': 0xaa336a, 'dustyrose': 0xc9a9a6,
+    'fuchsia': 0xff00ff, 'hotpink': 0xff69b4, 'lightpink': 0xffb6c1, 'magenta': 0xff00ff, 'millennialpink': 0xf3cfc6,
+    'mulberry': 0x770737, 'neonpink': 0xff10f0, 'orchid': 0xda70d6, 'pastelpink': 0xf8c8dc, 'pastelred': 0xfaa0a0,
+    'pink': 0xffc0cb, 'pinkorange': 0xf89880, 'plum': 0x673147, 'puce': 0xa95c68, 'purple': 0x800080,
+    'raspberry': 0xe30b5c, 'redpurple': 0x953553, 'rose': 0xf33a6a, 'rosegold': 0xe0bfb8, 'rosered': 0xc21e56,
+    'rubyred': 0xe0115f, 'salmon': 0xfa8072, 'seashell': 0xfff5ee, 'thistle': 0xd8bfd8, 'watermelonpink': 0xe37383,
+    'amaranth': 0x9f2b68, 'brightpurple': 0xbf40bf, 'burgundy': 0x800020, 'byzantium': 0x702963, 'darkpink': 0xaa336a,
+    'darkpurple': 0x301934, 'eggplant': 0x483248, 'iris': 0x5d3fd3, 'lavender': 0xe6e6fa, 'lightpurple': 0xcbc3e3,
+    'lightviolet': 0xcf9fff, 'lilac': 0xaa98a9, 'mauve': 0xe0b0ff, 'mauvetaupe': 0x915f6d, 'mulberry': 0x770737,
+    'orchid': 0xda70d6, 'pastelpurple': 0xc3b1e1, 'periwinkle': 0xccccff, 'plum': 0x673147, 'puce': 0xa95c68,
+    'purple': 0x800080, 'quartz': 0x51414f, 'redpurple': 0x953553, 'thistle': 0xd8bfd8, 'tyrianpurple': 0x630330,
+    'violet': 0x7f00ff, 'wine': 0x722f37, 'wisteria': 0xbdb5d5,
+    'bloodred': 0x880808, 'brickred': 0xaa4a44, 'brightred': 0xee4b2b, 'brown': 0xa52a2a, 'burgundy': 0x800020,
+    'burntumber': 0x6e260e, 'burntorange': 0xcc5500, 'burntsienna': 0xe97451, 'byzantium': 0x702963,
+    'cadmiumred': 0xd22b2b, 'cardinalred': 0xc41e3a, 'carmine': 0xd70040, 'cerise': 0xde3163, 'cherry': 0xd2042d,
+    'chestnut': 0x954535, 'claret': 0x811331, 'coralpink': 0xf88379, 'cordovan': 0x814141, 'crimson': 0xdc143c,
+    'darkred': 0x8b0000, 'falured': 0x7b1818, 'garnet': 0x9a2a2a, 'mahogany': 0xc04000, 'maroon': 0x800000,
+    'marsala': 0x986868, 'mulberry': 0x770737, 'neonred': 0xff3131, 'oxblood': 0x4a0404, 'pastelred': 0xfaa0a0,
+    'persimmon': 0xec5800, 'poppy': 0xe35335, 'puce': 0xa95c68, 'raspberry': 0xe30b5c, 'red': 0xff0000,
+    'redbrown': 0xa52a2a, 'redochre': 0x913831, 'redorange': 0xff4433, 'redpurple': 0x953553, 'rosered': 0xc21e56,
+    'rubyred': 0xe0115f, 'russet': 0x80461b, 'salmon': 0xfa8072, 'scarlet': 0xff2400, 'sunsetorange': 0xfa5f55,
+    'terracotta': 0xe3735e, 'tuscanred': 0x7c3030, 'tyrianpurple': 0x630330, 'venetianred': 0xa42a04,
+    'vermillion': 0xe34234, 'wine': 0x722f37,
+    'alabaster': 0xedeade, 'beige': 0xf5f5dc, 'bonewhite': 0xf9f6ee, 'cornsilk': 0xfff8dc, 'cream': 0xfffdd0,
+    'eggshell': 0xf0ead6, 'ivory': 0xfffff0, 'linen': 0xe9dcc9, 'navajowhite': 0xffdead, 'offwhite': 0xfaf9f6,
+    'parchment': 0xfcf5e5, 'peach': 0xffe5b4, 'pearl': 0xe2dfd2, 'seashell': 0xfff5ee, 'vanilla': 0xf3e5ab,
+    'white': 0xffffff,
+    'almond': 0xeaddca, 'amber': 0xffbf00, 'apricot': 0xfbceb1, 'beige': 0xf5f5dc, 'brass': 0xe1c16e,
+    'brightyellow': 0xffea00, 'cadmiumyellow': 0xfdda0d, 'canaryyellow': 0xffff8f, 'chartreuse': 0xdfff00,
+    'citrine': 0xe4d00a, 'cornsilk': 0xfff8dc, 'cream': 0xfffdd0, 'darkyellow': 0x8b8000, 'desert': 0xfad5a5,
+    'ecru': 0xc2b280, 'flax': 0xeedc82, 'gamboge': 0xe49b0f, 'gold': 0xffd700, 'goldenyellow': 0xffc000,
+    'goldenrod': 0xdaa520, 'icterine': 0xfcf55f, 'ivory': 0xfffff0, 'jasmine': 0xf8de7e, 'khaki': 0xf0e68c,
+    'lemonyellow': 0xfafa33, 'maize': 0xfbec5d, 'mango': 0xf4bb44, 'mustardyellow': 0xffdb58, 'naplesyellow': 0xfada5e,
+    'navajowhite': 0xffdead, 'nyanza': 0xecffdc, 'pastelyellow': 0xfffaa0, 'peach': 0xffe5b4, 'pear': 0xc9cc3f,
+    'peridot': 0xb4c424, 'pistachio': 0x93c572, 'saffron': 0xf4c430, 'vanilla': 0xf3e5ab, 'vegasgold': 0xc4b454,
+    'wheat': 0xf5deb3, 'yellow': 0xffff00, 'yelloworange': 0xffaa33,
+};
 
 class Color$1 {
     constructor(r, g, b) {
@@ -1227,20 +1159,180 @@ class Solver {
         return `${convertToBlack} invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(2)}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(5)}%)`;
     }
 }
-const _color$3 = new Iris();
+const _color$4 = new Iris();
 const _solver = new Solver();
 class ColorizeFilter {
     static fromColor(...colorData) {
-        if (arguments.length === 1 && typeof arguments[0] === 'string' && Object.values(TRAIT).includes(arguments[0])) {
-            _color$3.set(ColorScheme.color(arguments[0]));
-        } else {
-            _color$3.set(...colorData);
-        }
-        _solver.setTarget(_color$3.red(), _color$3.green(), _color$3.blue());
+        _color$4.set(...colorData);
+        _solver.setTarget(_color$4.red(), _color$4.green(), _color$4.blue());
         const result = _solver.solve(true );
         return result.filter;
     }
 }
+
+const _clr$5 = new Iris();
+const _icon = new Iris();
+const _icon_light = new Iris();
+const _icon_dark = new Iris();
+const _complement = new Iris();
+const _triadic1 = new Iris();
+const _triadic2 = new Iris();
+const _triadic3 = new Iris();
+const _triadic4 = new Iris();
+const _triadic5 = new Iris();
+const _triadic6 = new Iris();
+const DEFAULT_CLR = 0x00b4af;
+let _background = BACKGROUNDS.DARK;
+let _color$3 = DEFAULT_CLR;
+let _tint = 0.0;
+let _saturation = 0.0;
+class ColorScheme {
+    static changeBackground(background) {
+        if (background === undefined || background === null) return;
+        _background = background;
+        ColorScheme.updateCSS();
+    }
+    static changeColor(color, tint, saturation) {
+        if (color === undefined || color === null) return;
+        _color$3 = _clr$5.set(color).hex();
+        _tint = (tint !== undefined) ? tint : _tint;
+        _saturation = (saturation !== undefined) ? saturation : _saturation;
+        _icon.set(color);
+        _icon_light.copy(_icon).brighten();
+        _icon_dark.copy(_icon).darken();
+        _complement.copy(_icon).rybRotateHue(180).brighten(0.2);
+        _triadic1.copy(_icon).rybRotateHue(120).brighten(0.2);
+        _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
+        _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
+        _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
+        _triadic5.copy(_icon).rybRotateHue(60).brighten(0.2);
+        _triadic6.copy(_complement).rybRotateHue(60).brighten(0.2);
+        ColorScheme.updateCSS();
+    }
+    static updateCSS() {
+        for (const key in TRAIT) {
+            const guiColor = TRAIT[key];
+            Css.setVariable(`--${guiColor}`, _clr$5.set(ColorScheme.color(guiColor)).rgbString());
+        }
+        Css.setVariable('--tint-icon', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.ICON)));
+        Css.setVariable('--tint-complement', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.COMPLEMENT)));
+        Css.setVariable('--tint-triadic1', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC1)));
+        Css.setVariable('--tint-triadic2', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC2)));
+        Css.setVariable('--tint-triadic3', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC3)));
+        Css.setVariable('--tint-triadic4', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC4)));
+        Css.setVariable('--tint-triadic5', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC5)));
+        Css.setVariable('--tint-triadic6', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC6)));
+        Css.setVariable('--tint-text', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TEXT)));
+        Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
+        const startHue = _clr$5.set(DEFAULT_CLR).hue();
+        const newHue = _clr$5.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const diffHue = `${newHue - startHue}deg`;
+        Css.setVariable('--rotate-hue', diffHue);
+    }
+    static toString() {
+        const COLUMN_LENGTH = 20;
+        let output = '';
+        for (const key in TRAIT) {
+            const guiColor = TRAIT[key];
+            _clr$5.set(ColorScheme.color(guiColor));
+            output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr$5.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr$5.hexString()}\n`;
+        }
+        return output;
+    }
+    static color(guiColor, ignoreSaturation = false) {
+        _clr$5.set(0);
+        if (guiColor == null) return _clr$5.hex();
+        if (Object.values(TRAIT).includes(guiColor) === false) return _clr$5.set(guiColor).hex();
+        let tint = _tint;
+        let saturation = _saturation;
+        let darkness = 0;
+        let lightness = 0;
+        switch (_background) {
+            case BACKGROUNDS.DARK:      break;
+            case BACKGROUNDS.MID:       tint *= 0.2;    lightness = 0.2;    break;
+            case BACKGROUNDS.LIGHT:     break;
+            case BACKGROUNDS.FADED:     tint *= 0.1;    lightness = 0.4;    break;
+        }
+        if (_background == BACKGROUNDS.LIGHT) {
+            switch (guiColor) {
+                case TRAIT.SHADOW:              _clr$5.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$5.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$5.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$5.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$5.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$5.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$5.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$5.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$5.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$5.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$5.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$5.set(  0,   0,   0, 'rgb'); break;
+            }
+        } else {
+            switch (guiColor) {
+                case TRAIT.SHADOW:              _clr$5.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$5.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$5.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$5.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$5.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$5.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$5.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$5.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$5.set(  0,   0,   0, 'rgb'); lightness = 0; break;
+                case TRAIT.DARKLIGHT:           _clr$5.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr$5.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$5.set(255, 255, 255, 'rgb'); break;
+            }
+            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
+                _clr$5.set( 64,  64,  64, 'rgb');
+            }
+        }
+        if (guiColor === TRAIT.DARKNESS) {
+            switch (_background) {
+                case BACKGROUNDS.DARK:      _clr$5.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr$5.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr$5.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr$5.set(  0,   0,   0, 'rgb');     break;
+            }
+        }
+        switch (guiColor) {
+            case TRAIT.ICON_DARK:   _clr$5.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$5.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$5.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$5.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$5.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$5.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$5.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$5.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr$5.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr$5.copy(_triadic6);   break;
+        }
+        switch (guiColor) {
+            case TRAIT.COMPLEMENT:
+            case TRAIT.TRIADIC1:
+            case TRAIT.TRIADIC2:
+            case TRAIT.TRIADIC3:
+            case TRAIT.TRIADIC4:
+            case TRAIT.TRIADIC5:
+            case TRAIT.TRIADIC6:
+                saturation = 0.0;
+            case TRAIT.ICON_DARK:
+            case TRAIT.ICON:
+            case TRAIT.ICON_LIGHT:
+                tint = 0;
+                lightness = 0;
+                break;
+        }
+        if (tint !== 0) _clr$5.mix(_icon, tint);
+        if (lightness !== 0) _clr$5.brighten(lightness);
+        if (darkness !== 0) _clr$5.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr$5.hslOffset(0, saturation, 0);
+        return _clr$5.hex();
+    }
+}
+ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
 
 class Dom {
     static findElementAt(className, centerX, centerY) {
@@ -1611,6 +1703,13 @@ class Element {
         }
         return this;
     }
+    toggleClass(className) {
+        if (className != null && typeof className === 'string' && className !== '') {
+            if (this.hasClass(className)) this.removeClass(className);
+            else this.addClass(className);
+        }
+        return this;
+    }
     setAttribute(attrib, value) {
         this.dom.setAttribute(attrib, value);
     }
@@ -1695,6 +1794,10 @@ class Element {
             const value = arguments[i + 1];
             this.contents().dom.style[style] = value;
         }
+        return this;
+    }
+    setColor() {
+        console.error(`${this.constructor.name}.setColor(): Method must be reimplemented from Element`);
         return this;
     }
     getLeft() {
@@ -1814,6 +1917,7 @@ function removeFromParent(parent, element, destroy = true) {
     } catch (error) {  }
 }
 
+const _clr$4 = new Iris();
 class Button extends Element {
     constructor(buttonText, closesMenus = true) {
         super(document.createElement('button'));
@@ -1840,6 +1944,12 @@ class Button extends Element {
         this.on('destroy', () => {
             if (self.attachedMenu) self.detachMenu();
         });
+    }
+    setColor(color) {
+        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) color = `var(--${color})`;
+        else color = _clr$4.set(color).rgbString();
+        this.setStyle('background-image', `linear-gradient(to bottom, rgba(${color}, 0.9), rgba(${color}, 0.65))`);
+        return this;
     }
     attachMenu(menuElement, popupStyle = false) {
         const self = this;
@@ -1939,6 +2049,14 @@ class Image extends Element {
         }
         return this;
     }
+    setColor(color) {
+        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) {
+            this.setStyle('filter', `var(--tint-${color})`);
+        } else {
+            this.setStyle('filter', ColorizeFilter.fromColor(color));
+        }
+        return this;
+    }
 }
 
 class VectorBox extends Div {
@@ -1951,6 +2069,10 @@ class VectorBox extends Div {
         for (const image of images) {
             this.addImage(image);
         }
+    }
+    setColor(color) {
+        this.firstImage()?.setColor(color);
+        return this;
     }
     firstImage() {
         for (const child of this.contents().children) {
@@ -1988,6 +2110,10 @@ class ShadowBox extends Div {
         for (const element of elements) {
             this.add((element && element.isElement) ? element : new VectorBox(element));
         }
+    }
+    setColor(color) {
+        this.firstImage()?.setColor(color);
+        return this;
     }
     firstImage() {
         for (const child of this.contents().children) {
@@ -2767,7 +2893,7 @@ class MenuSeparator extends Div {
 }
 
 const TRIANGLE_SIZE = 3.0;
-const _clr$2 = new Iris();
+const _clr$3 = new Iris();
 class Menu extends Div {
     #addedTo = false;
     constructor() {
@@ -2778,7 +2904,7 @@ class Menu extends Div {
         this.mouseSvg.setAttribute('pointer-events', 'none');
         this.mouseSvg.setAttribute('version', '1.1');
         this.mouseArea = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        this.mouseArea.setAttribute('fill', _clr$2.setRandom().hexString());
+        this.mouseArea.setAttribute('fill', _clr$3.setRandom().hexString());
         this.mouseArea.setAttribute('opacity', '0.0');
         this.mouseArea.setAttribute('pointer-events', 'fill');
         this.mouseSvg.appendChild(this.mouseArea);
@@ -3530,7 +3656,7 @@ class TextBox extends Element {
     }
 }
 
-const _clr$1 = new Iris();
+const _clr$2 = new Iris();
 class Gooey extends Resizeable {
     constructor(title, opacity) {
         super({
@@ -3636,12 +3762,12 @@ class Folder extends Shrinkable {
         const prop = new Property();
         const colorButton = new Color();
         function setVariable(newValue) {
-            _clr$1.set(newValue);
+            _clr$2.set(newValue);
             switch (type) {
-                case 'string': params[variable] = _clr$1.hexString(); break;
-                case 'array': _clr$1.toArray(params[variable]); break;
-                case 'object': _clr$1.getRGB(params[variable]); break;
-                case 'number': params[variable] = _clr$1.hex(); break;
+                case 'string': params[variable] = _clr$2.hexString(); break;
+                case 'array': _clr$2.toArray(params[variable]); break;
+                case 'object': _clr$2.getRGB(params[variable]); break;
+                case 'number': params[variable] = _clr$2.hex(); break;
                 default:
             }
         }
@@ -3656,7 +3782,7 @@ class Folder extends Shrinkable {
         });
         const row = this.props.addRow(Strings.prettyTitle(variable), colorButton);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setValue(_clr$1.set(params[variable]).hex()); return prop; };
+        prop.updateDisplay = function() { colorButton.setValue(_clr$2.set(params[variable]).hex()); return prop; };
         prop.updateDisplay();
         return prop;
     }
@@ -5487,7 +5613,7 @@ class MainWindow extends Panel {
     }
 }
 
-const _clr = new Iris();
+const _clr$1 = new Iris();
 class Question extends Panel {
     static buttonByValue(value) {
         for (const key in BUTTON_TYPES) {
@@ -5526,19 +5652,15 @@ class Question extends Panel {
             if (icon === QUESTION_ICONS.WARNING) color = 'complement';
             if (icon === QUESTION_ICONS.ERROR) color = 'triadic1';
         }
-        if (Object.values(TRAIT).includes(color)) _clr.set(ColorScheme.color(color));
-        else _clr.set(color);
+        if (Object.values(TRAIT).includes(color)) _clr$1.set(ColorScheme.color(color));
+        else _clr$1.set(color);
         const fancyBorder = Dom.childWithClass(this, 'suey-panel-fancy-border');
-        if (fancyBorder) fancyBorder.setStyle('border-color', _clr.cssString());
+        if (fancyBorder) fancyBorder.setStyle('border-color', _clr$1.cssString());
         if (icon === QUESTION_ICONS.INFO) icon = IMAGE_INFO;
         else if (icon === QUESTION_ICONS.QUESTION) icon = IMAGE_QUESTION;
         else if (icon === QUESTION_ICONS.WARNING) icon = IMAGE_WARNING;
         else if (icon === QUESTION_ICONS.ERROR) icon = IMAGE_ERROR;
-        if (icon) {
-            const dialogImage = new ShadowBox(icon);
-            dialogImage.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(color));
-            divLeft.add(dialogImage);
-        }
+        if (icon) divLeft.add(new ShadowBox(icon).setColor(color));
         divTop.add(new Span(text).setStyle('margin', 'auto 0'));
         buttons = Array.isArray(buttons) ? buttons : [];
         if (buttons.length === 0) buttons.push(BUTTON_TYPES.OKAY);
@@ -5547,7 +5669,7 @@ class Question extends Panel {
         for (const buttonInfo of buttons) {
             const value = buttonInfo.value ?? 0;
             const button = new Button(buttonInfo.text ?? '???');
-            button.setStyle('background-image', `linear-gradient(to bottom, rgba(${_clr.rgbString()}, 0.9), rgba(${_clr.rgbString()}, 0.65))`);
+            button.setColor(color);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
             button.onPress(() => { self.answered(value); });
@@ -5686,9 +5808,10 @@ class FlexBox extends Element {
     }
 }
 
+const _clr = new Iris();
 class ToolbarButton extends Button {
-    constructor(buttonText, position , addBackground = true, closesMenus = true) {
-        super(buttonText, closesMenus);
+    constructor(buttonText, position = 'none' ) {
+        super(buttonText, true );
         this.setClass('suey-toolbar-button');
         this.setStyle('pointerEvents', 'all');
         switch (position) {
@@ -5697,12 +5820,19 @@ class ToolbarButton extends Button {
             case 'right': this.addClass('suey-button-right'); break;
         }
         const buttonBackground = new Div().addClass('suey-button-background');
-        if (addBackground) this.add(buttonBackground);
+        this.add(buttonBackground);
+        this.buttonBackground = buttonBackground;
         const buttonImageHolder = new ShadowBox().setStyle('pointer-events', 'none');
         this.add(buttonImageHolder);
         this.contents = function() { return buttonImageHolder };
         this.on('pointerdown', (event) => { event.stopPropagation(); });
         this.on('pointerup', (event) => { event.stopPropagation(); });
+    }
+    setColor(color) {
+        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) color = `var(--${color})`;
+        else color = _clr.set(color).rgbString();
+        this.buttonBackground.setStyle('background-image', `linear-gradient(to bottom, rgba(${color}, 0.9), rgba(${color}, 0.65))`);
+        return this;
     }
 }
 
@@ -6747,8 +6877,8 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z$d = "/**\n * Units\n *  px      Pixels\n *  %       Percentage relative to the parent element\n *  em      Relative to the font-size of the element (2em means 2 times the size of the current font)\n *  rem     Relative to the font-size of the root element\n *  ch      Relative to the width of the character '0' of the current font\n *  ex      Relative to the height of a lowercase letter ('x') of the current font\n *  cap     Relative to the height of a capital letter of the current font\n *  vw      Relative to 1% of the width of the viewport (browser window)\n *  vh      Relative to 1% of the width of the viewport (browser window)\n *  vmin    Relative to 1% of viewport's (browser window's) smaller dimension\n *  vmax    Relative to 1% of viewport's (browser window's) larger dimension\n */\n\n:root {\n    color-scheme: light dark;\n\n    /* Scheme Colors */\n    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */\n    --darkness:               0,   0,   0;      /* lightens as theme lightens */\n\n    --background-dark:       24,  24,  24;\n    --background-light:      32,  32,  32;\n    --button-dark:           40,  40,  40;\n    --button-light:          60,  60,  60;\n\n    --text-dark:            100, 100, 100;\n    --text:                 190, 190, 190;\n    --text-light:           225, 225, 225;\n\n    --blacklight:             0,   0,   0;\n    --darklight:              8,   8,   8;\n    --midlight:              85,  85,  85;\n    --highlight:            255, 255, 255;\n\n    --icon-dark:              0,  85, 102;      /* icon darkened            dark classic aqua   #005566 */\n    --icon:                   0, 170, 204;      /* icon color               classic aqua        #00aacc */\n    --icon-light:           101, 229, 255;      /* icon brightened          light clasic aqua   #65e5ff */\n\n    --complement:           255, 132,  10;      /* icon shifted 180°        orange              #ff840a */\n    --triadic1:             255,  10,  67;      /* icon shifted 120°        red                 #ff0a43 */\n    --triadic2:             157, 255,  59;      /* complement shifted 120°  lime green          #9dff3b */\n    --triadic3:             255,  10, 238;      /* icon shifted 90°         pink                #ff0aee */\n    --triadic4:             232, 255,  59;      /* complement shifted 90°   pale yellow         #e8ff3b */\n    --triadic5:             116,  10, 255;      /* icon shifted 60°         purple              #740aff */\n    --triadic6:             255, 228,  59;      /* complement shifted 60°   yellow              #ffe43b */\n\n    /* Theme Multiplier */\n    --bright:               1;                  /* 1: Mid/Dark, 0: Light */\n\n    /* Basic Colors */\n    --white:                255, 255, 255;\n    --gray:                 128, 128, 128;\n    --black:                  0,   0,   0;\n\n    /* Input Colors */\n    --valid:                131, 242,  13;      /* green */\n    --invalid:              242,  51,  13;      /* red */\n    --warning:              242, 204,  13;      /* yellow */\n    --info:                  13,  51, 242;      /* blue */\n\n    /* Hue Rotation for Icon Color */\n    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */\n\n    /* Transparency */\n    --panel-transparency:   0.85;\n\n    /* Font */\n    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px) */\n    --base-size:            10px;               /* Gui designed to scale from this original font size */\n    --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */\n    --font-family:          'Roboto', Helvetica, Arial, sans-serif;\n\n    /* Sizes */\n    --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */\n\n    --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */\n\n    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */\n    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */\n\n    --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */\n    --pad-x-small:          0.14286em;          /*  2px; */\n    --pad-small:            0.21429em;          /*  3px; */\n    --pad-smallish:         0.28571em;          /*  4px; */\n    --pad-medium:           0.35714em;          /*  5px; */\n    --pad-large:            0.71429em;          /* 10px; */\n\n    --arrow-size:           0.4em;              /* Dropdown arrow */\n    --asset-size:           3.45em;             /* AssetBox size */\n    --button-size:          2.65em;             /* Toolbar button size */\n    --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */\n    --resize-size:          1.0em;              /* 14px, panel resizer thickness */\n    --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */\n    --tab-size:             2.25em;             /* Tab button diameter */\n    --tab-timing:           200ms;              /* Tab animation time */\n\n    /* Timing */\n    --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */\n    --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */\n\n    /* Box Shadows:         'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */\n\n    /* Filters */\n    --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);\n\n}\n";
-var stylesheet$d="/**\n * Units\n *  px      Pixels\n *  %       Percentage relative to the parent element\n *  em      Relative to the font-size of the element (2em means 2 times the size of the current font)\n *  rem     Relative to the font-size of the root element\n *  ch      Relative to the width of the character '0' of the current font\n *  ex      Relative to the height of a lowercase letter ('x') of the current font\n *  cap     Relative to the height of a capital letter of the current font\n *  vw      Relative to 1% of the width of the viewport (browser window)\n *  vh      Relative to 1% of the width of the viewport (browser window)\n *  vmin    Relative to 1% of viewport's (browser window's) smaller dimension\n *  vmax    Relative to 1% of viewport's (browser window's) larger dimension\n */\n\n:root {\n    color-scheme: light dark;\n\n    /* Scheme Colors */\n    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */\n    --darkness:               0,   0,   0;      /* lightens as theme lightens */\n\n    --background-dark:       24,  24,  24;\n    --background-light:      32,  32,  32;\n    --button-dark:           40,  40,  40;\n    --button-light:          60,  60,  60;\n\n    --text-dark:            100, 100, 100;\n    --text:                 190, 190, 190;\n    --text-light:           225, 225, 225;\n\n    --blacklight:             0,   0,   0;\n    --darklight:              8,   8,   8;\n    --midlight:              85,  85,  85;\n    --highlight:            255, 255, 255;\n\n    --icon-dark:              0,  85, 102;      /* icon darkened            dark classic aqua   #005566 */\n    --icon:                   0, 170, 204;      /* icon color               classic aqua        #00aacc */\n    --icon-light:           101, 229, 255;      /* icon brightened          light clasic aqua   #65e5ff */\n\n    --complement:           255, 132,  10;      /* icon shifted 180°        orange              #ff840a */\n    --triadic1:             255,  10,  67;      /* icon shifted 120°        red                 #ff0a43 */\n    --triadic2:             157, 255,  59;      /* complement shifted 120°  lime green          #9dff3b */\n    --triadic3:             255,  10, 238;      /* icon shifted 90°         pink                #ff0aee */\n    --triadic4:             232, 255,  59;      /* complement shifted 90°   pale yellow         #e8ff3b */\n    --triadic5:             116,  10, 255;      /* icon shifted 60°         purple              #740aff */\n    --triadic6:             255, 228,  59;      /* complement shifted 60°   yellow              #ffe43b */\n\n    /* Theme Multiplier */\n    --bright:               1;                  /* 1: Mid/Dark, 0: Light */\n\n    /* Basic Colors */\n    --white:                255, 255, 255;\n    --gray:                 128, 128, 128;\n    --black:                  0,   0,   0;\n\n    /* Input Colors */\n    --valid:                131, 242,  13;      /* green */\n    --invalid:              242,  51,  13;      /* red */\n    --warning:              242, 204,  13;      /* yellow */\n    --info:                  13,  51, 242;      /* blue */\n\n    /* Hue Rotation for Icon Color */\n    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */\n\n    /* Transparency */\n    --panel-transparency:   0.85;\n\n    /* Font */\n    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px) */\n    --base-size:            10px;               /* Gui designed to scale from this original font size */\n    --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */\n    --font-family:          'Roboto', Helvetica, Arial, sans-serif;\n\n    /* Sizes */\n    --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */\n\n    --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */\n\n    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */\n    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */\n\n    --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */\n    --pad-x-small:          0.14286em;          /*  2px; */\n    --pad-small:            0.21429em;          /*  3px; */\n    --pad-smallish:         0.28571em;          /*  4px; */\n    --pad-medium:           0.35714em;          /*  5px; */\n    --pad-large:            0.71429em;          /* 10px; */\n\n    --arrow-size:           0.4em;              /* Dropdown arrow */\n    --asset-size:           3.45em;             /* AssetBox size */\n    --button-size:          2.65em;             /* Toolbar button size */\n    --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */\n    --resize-size:          1.0em;              /* 14px, panel resizer thickness */\n    --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */\n    --tab-size:             2.25em;             /* Tab button diameter */\n    --tab-timing:           200ms;              /* Tab animation time */\n\n    /* Timing */\n    --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */\n    --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */\n\n    /* Box Shadows:         'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */\n\n    /* Filters */\n    --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);\n\n}\n";
+var css_248z$d = "/**\n * Units\n *  px      Pixels\n *  %       Percentage relative to the parent element\n *  em      Relative to the font-size of the element (2em means 2 times the size of the current font)\n *  rem     Relative to the font-size of the root element\n *  ch      Relative to the width of the character '0' of the current font\n *  ex      Relative to the height of a lowercase letter ('x') of the current font\n *  cap     Relative to the height of a capital letter of the current font\n *  vw      Relative to 1% of the width of the viewport (browser window)\n *  vh      Relative to 1% of the width of the viewport (browser window)\n *  vmin    Relative to 1% of viewport's (browser window's) smaller dimension\n *  vmax    Relative to 1% of viewport's (browser window's) larger dimension\n */\n\n:root {\n    color-scheme: light dark;\n\n    /* Scheme Colors */\n    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */\n    --darkness:               0,   0,   0;      /* lightens as theme lightens */\n\n    --background-dark:       24,  24,  24;\n    --background-light:      32,  32,  32;\n    --button-dark:           40,  40,  40;\n    --button-light:          60,  60,  60;\n\n    --text-dark:            100, 100, 100;\n    --text:                 190, 190, 190;\n    --text-light:           225, 225, 225;\n\n    --blacklight:             0,   0,   0;\n    --darklight:              8,   8,   8;\n    --midlight:              85,  85,  85;\n    --highlight:            255, 255, 255;\n\n    --icon-dark:              0,  85, 102;      /* icon darkened            dark classic aqua   #005566 */\n    --icon:                   0, 170, 204;      /* icon color               classic aqua        #00aacc */\n    --icon-light:           101, 229, 255;      /* icon brightened          light clasic aqua   #65e5ff */\n\n    --complement:           255, 132,  10;      /* icon shifted 180°        orange              #ff840a */\n    --triadic1:             255,  10,  67;      /* icon shifted 120°        red                 #ff0a43 */\n    --triadic2:             157, 255,  59;      /* complement shifted 120°  lime green          #9dff3b */\n    --triadic3:             255,  10, 238;      /* icon shifted 90°         pink                #ff0aee */\n    --triadic4:             232, 255,  59;      /* complement shifted 90°   pale yellow         #e8ff3b */\n    --triadic5:             116,  10, 255;      /* icon shifted 60°         purple              #740aff */\n    --triadic6:             255, 228,  59;      /* complement shifted 60°   yellow              #ffe43b */\n\n    /* Theme Multiplier */\n    --bright:               1;                  /* 1: Mid/Dark, 0: Light */\n\n    /* Basic Colors */\n    --white:                255, 255, 255;\n    --gray:                 128, 128, 128;\n    --black:                  0,   0,   0;\n\n    /* Input Colors */\n    --valid:                131, 242,  13;      /* green */\n    --invalid:              242,  51,  13;      /* red */\n    --warning:              242, 204,  13;      /* yellow */\n    --info:                  13,  51, 242;      /* blue */\n\n    /* Hue Rotation for Icon Color */\n    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */\n\n    /* Transparency */\n    --panel-transparency:   0.85;\n\n    /* Font */\n    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px) */\n    --base-size:            10px;               /* Gui designed to scale from this original font size */\n    --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */\n    --font-family:          'Roboto', Helvetica, Arial, sans-serif;\n\n    /* Sizes */\n    --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */\n\n    --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */\n\n    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */\n    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */\n\n    --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */\n    --pad-x-small:          0.14286em;          /*  2px; */\n    --pad-small:            0.21429em;          /*  3px; */\n    --pad-smallish:         0.28571em;          /*  4px; */\n    --pad-medium:           0.35714em;          /*  5px; */\n    --pad-large:            0.71429em;          /* 10px; */\n\n    --arrow-size:           0.4em;              /* Dropdown arrow */\n    --asset-size:           3.45em;             /* AssetBox size */\n    --button-size:          2.65em;             /* Toolbar button size */\n    --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */\n    --resize-size:          1.0em;              /* 14px, panel resizer thickness */\n    --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */\n    --tab-size:             2.25em;             /* Tab button diameter */\n    --tab-timing:           200ms;              /* Tab animation time */\n\n    /* Timing */\n    --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */\n    --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */\n\n    /* Box Shadows:         'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */\n\n    /* Filters */\n    --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);\n    --tint-icon:            none;\n    --tint-complement:      none;\n    --tint-triadic1:        none;\n    --tint-triadic2:        none;\n    --tint-triadic3:        none;\n    --tint-triadic4:        none;\n    --tint-triadic5:        none;\n    --tint-triadic6:        none;\n    --tint-text:            none;\n\n}\n";
+var stylesheet$d="/**\n * Units\n *  px      Pixels\n *  %       Percentage relative to the parent element\n *  em      Relative to the font-size of the element (2em means 2 times the size of the current font)\n *  rem     Relative to the font-size of the root element\n *  ch      Relative to the width of the character '0' of the current font\n *  ex      Relative to the height of a lowercase letter ('x') of the current font\n *  cap     Relative to the height of a capital letter of the current font\n *  vw      Relative to 1% of the width of the viewport (browser window)\n *  vh      Relative to 1% of the width of the viewport (browser window)\n *  vmin    Relative to 1% of viewport's (browser window's) smaller dimension\n *  vmax    Relative to 1% of viewport's (browser window's) larger dimension\n */\n\n:root {\n    color-scheme: light dark;\n\n    /* Scheme Colors */\n    --shadow:                 0,   0,   0;      /* black for dark theme, white for light theme */\n    --darkness:               0,   0,   0;      /* lightens as theme lightens */\n\n    --background-dark:       24,  24,  24;\n    --background-light:      32,  32,  32;\n    --button-dark:           40,  40,  40;\n    --button-light:          60,  60,  60;\n\n    --text-dark:            100, 100, 100;\n    --text:                 190, 190, 190;\n    --text-light:           225, 225, 225;\n\n    --blacklight:             0,   0,   0;\n    --darklight:              8,   8,   8;\n    --midlight:              85,  85,  85;\n    --highlight:            255, 255, 255;\n\n    --icon-dark:              0,  85, 102;      /* icon darkened            dark classic aqua   #005566 */\n    --icon:                   0, 170, 204;      /* icon color               classic aqua        #00aacc */\n    --icon-light:           101, 229, 255;      /* icon brightened          light clasic aqua   #65e5ff */\n\n    --complement:           255, 132,  10;      /* icon shifted 180°        orange              #ff840a */\n    --triadic1:             255,  10,  67;      /* icon shifted 120°        red                 #ff0a43 */\n    --triadic2:             157, 255,  59;      /* complement shifted 120°  lime green          #9dff3b */\n    --triadic3:             255,  10, 238;      /* icon shifted 90°         pink                #ff0aee */\n    --triadic4:             232, 255,  59;      /* complement shifted 90°   pale yellow         #e8ff3b */\n    --triadic5:             116,  10, 255;      /* icon shifted 60°         purple              #740aff */\n    --triadic6:             255, 228,  59;      /* complement shifted 60°   yellow              #ffe43b */\n\n    /* Theme Multiplier */\n    --bright:               1;                  /* 1: Mid/Dark, 0: Light */\n\n    /* Basic Colors */\n    --white:                255, 255, 255;\n    --gray:                 128, 128, 128;\n    --black:                  0,   0,   0;\n\n    /* Input Colors */\n    --valid:                131, 242,  13;      /* green */\n    --invalid:              242,  51,  13;      /* red */\n    --warning:              242, 204,  13;      /* yellow */\n    --info:                  13,  51, 242;      /* blue */\n\n    /* Hue Rotation for Icon Color */\n    --rotate-hue:           0deg;               /* Programatically changes to degree offset icon color is from Aqua */\n\n    /* Transparency */\n    --panel-transparency:   0.85;\n\n    /* Font */\n    font-size:              10px;               /* 10px or 62.5% (62% of 16px (browser root default) === 10px) */\n    --base-size:            10px;               /* Gui designed to scale from this original font size */\n    --font-size:            14px;               /* Current font size, NOTE: 1em = 14px (i.e. 10px * 1.4)  */\n    --font-family:          'Roboto', Helvetica, Arial, sans-serif;\n\n    /* Sizes */\n    --pixel:                0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --minus:               -0.07143em;          /*  1px @ font size 1.4em (14px) */\n\n    --border-micro:         0.07143em;          /*  1px @ font size 1.4em (14px) */\n    --border-small:         0.14286em;          /*  2px @ font size 1.4em (14px) */\n\n    --radius-small:         0.28571em;          /*  4px @ font size 1.4em (14px) */\n    --radius-large:         0.42857em;          /*  6px @ font size 1.4em (14px) */\n\n    --pad-micro:            0.07143em;          /*  1px @ font size 1.4em (14px), i.e. 1px = 1 / 14 */\n    --pad-x-small:          0.14286em;          /*  2px; */\n    --pad-small:            0.21429em;          /*  3px; */\n    --pad-smallish:         0.28571em;          /*  4px; */\n    --pad-medium:           0.35714em;          /*  5px; */\n    --pad-large:            0.71429em;          /* 10px; */\n\n    --arrow-size:           0.4em;              /* Dropdown arrow */\n    --asset-size:           3.45em;             /* AssetBox size */\n    --button-size:          2.65em;             /* Toolbar button size */\n    --scroll-size:          0.57143em;          /* 8px, scrollbar thickness */\n    --resize-size:          1.0em;              /* 14px, panel resizer thickness */\n    --row-height:           1.7em;              /* min row height (Asset Box, Property List, Tree List, etc.) */\n    --tab-size:             2.25em;             /* Tab button diameter */\n    --tab-timing:           200ms;              /* Tab animation time */\n\n    /* Timing */\n    --menu-timing:          0.2s;               /* Various gui related time delays (in seconds) */\n    --tooltip-delay:        500ms;              /* Time that passes before tooltips are shown */\n\n    /* Box Shadows:         'inner-glow', 'pop-out-shadow', 'sunk-in-shadow' */\n\n    /* Filters */\n    --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);\n    --tint-icon:            none;\n    --tint-complement:      none;\n    --tint-triadic1:        none;\n    --tint-triadic2:        none;\n    --tint-triadic3:        none;\n    --tint-triadic4:        none;\n    --tint-triadic5:        none;\n    --tint-triadic6:        none;\n    --tint-text:            none;\n\n}\n";
 styleInject(css_248z$d);
 
 var css_248z$c = "/********** Base Styling **********/\n\n*:not(.suey-custom-font *) {\n    font-family: var(--font-family);\n    font-size: var(--font-size);\n}\n\nhtml {\n    box-sizing: border-box;\n}\n\nhtml *, html *::before, html *::after {\n    box-sizing: inherit;\n}\n\nbody {\n    margin: 0;\n    padding: 0;\n\n    /* Color main text and background */\n    color: rgba(var(--text-light), 0.75);\n    background-color: rgb(var(--background-dark));\n}\n\nimage {\n    image-rendering: smooth;\n}\n\n.suey-text {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    padding: var(--pad-micro);\n}\n\n/********** Scrollbars **********/\n\ndiv::-webkit-scrollbar {\n    height: var(--scroll-size);\n    width: var(--scroll-size);\n    background: rgba(var(--shadow), 0.35);\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\ndiv::-webkit-scrollbar-corner {\n    background: rgba(var(--background-dark), 1);\n}\n\n/********** SVG **********/\n\n@media all {\n    svg {\n        shape-rendering: auto;\n    }\n}\n";
@@ -6763,16 +6893,16 @@ var css_248z$a = "/********** Absolute Box **********/\n\n.suey-absolute-box {\n
 var stylesheet$a="/********** Absolute Box **********/\n\n.suey-absolute-box {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    left: 0;\n    top: 0;\n    padding: 0;\n    margin: 0;\n    display: flex;\n    align-items: center;\n    vertical-align: middle;\n    justify-content: center;\n    text-align: center;\n}\n\n/********** Asset Box / Asset Box Icon Only **********/\n\n.suey-asset-box {\n    position: relative;\n    display: flex;\n    cursor: pointer;\n\n    border: var(--border-small) solid transparent;\n    border-radius: var(--radius-large);\n    margin: var(--pad-x-small);\n    vertical-align: middle;\n\n    outline: none; /* for macos */\n}\n\n.suey-asset-box-selectable:hover {\n    background-color: rgba(var(--highlight), 0.15);\n    border: var(--border-small) solid rgba(var(--shadow), 0.5);\n    border-radius: var(--radius-large);\n}\n\n.suey-asset-box-selectable:active, .suey-asset-box-selectable:focus {\n    background-color: rgba(var(--shadow), 1.0);\n    border: var(--border-small) solid rgba(var(--icon-light), 1);\n    border-radius: 0;\n}\n\n.suey-asset-box-selectable:focus > *, .suey-asset-box-selectable:active > * {\n    filter: brightness(100%);\n}\n\n.suey-asset-box-selectable:hover > * {\n    filter: brightness(150%);\n}\n\n.suey-asset-box-mini {\n    /* Minimum Icon Size: */\n    min-width: var(--asset-size);\n    min-height: var(--asset-size);\n}\n\n.suey-asset-box-row {\n    width: 100%;\n    min-height: 2em;\n    padding: var(--pad-x-small);\n}\n\n.suey-asset-box-icon {\n    position: relative;\n    min-width: var(--row-height);\n    height: 100%;\n}\n\n.suey-asset-box-text {\n    position: relative;\n    width: calc(100% - var(--row-height));\n    margin: auto;\n    margin-left: 0.25em;\n    white-space: nowrap;\n}\n\n.suey-asset-box-combo {\n    overflow: hidden;\n    position: relative;\n}\n.suey-asset-box-combo:hover {\n    overflow: visible;\n}\n.suey-asset-box-label {\n    position: absolute;\n    bottom: 0;\n    left: 50%;\n    transform: translateX(-50%) scale(75%);\n}\n\n/********** Flex Box **********/\n\n.suey-flex-box {\n    display: flex;\n    align-items: center;\n    vertical-align: middle;\n}\n\n/********** Row **********/\n\n.suey-row {\n    padding: var(--pad-micro) var(--border-small);\n    margin: 0;\n    position: relative;\n    display: flex;\n    align-items: center;\n    justify-content: left;\n    vertical-align: middle;\n}\n\n/********** Shadow Box **********/\n\n.suey-shadow-box { /* affects Toolbar icons! */\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    width: 80%;\n    height: 80%;\n    margin: 0;\n    padding: 0;\n    overflow: visible;\n}\n\n.suey-shadow-box.suey-full-size {\n    width: 100%;\n    height: 100%;\n}\n\n.suey-shadow-box.suey-drop-shadow > * {\n    filter: var(--drop-shadow);\n}\n\n.suey-shadow-box.suey-even-shadow > * {\n    filter: var(--drop-shadow);\n}\n\n/********** Vector Box **********/\n\n.suey-vector-box {\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n    overflow: visible;\n}\n";
 styleInject(css_248z$a);
 
-var css_248z$9 = "/********** Menu Show (Show menu that was previously hidden) **********/\n\n.suey-menu.suey-menu-show {\n    pointer-events: auto;\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n}\n\n.suey-menu.suey-menu-show.suey-menu-under {\n    left: 50%;\n    top: 100%;\n    transform: translate(-50%, 0) scale(1.0, 1.0);\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.suey-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    /* border: 1px solid rgba(var(--shadow), 1.0); */\n    border: 2px solid rgba(var(--icon), 1.0);\n    border-radius: var(--radius-large);\n    /* outline: 1px solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5)); */\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.suey-border-icon {\n    border: 2px solid rgba(var(--complement), 1.0);\n}\n\n.suey-menu-under {\n    transition: opacity 0.2s ease-in-out;\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n/* Dropdown Menu Styling */\n.suey-select-menu, .suey-popup-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.suey-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.suey-menu:not(.suey-invisible-menu) .suey-menu-item:not(.suey-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.suey-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    flex: 0 0 auto;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    filter: var(--drop-shadow);\n    overflow: hidden;\n}\n\n/* Text */\n.suey-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.suey-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.suey-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.suey-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.suey-menu-item .suey-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.suey-menu-mouse-triangle {\n    position: absolute;\n}\n\n/***** Invisible Hover Menu *****/\n\n.suey-invisible-menu, .suey-invisible-menu-item {\n    color: transparent;\n    background-color: transparent;\n    box-shadow: none;\n    border: none;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n    padding: 0;\n}\n\n.suey-invisible-menu-item {\n    margin: 0;\n}\n\n/************ Toolbar Button **********/\n\n.suey-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent !important;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none;\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.suey-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n    z-index: -1;\n}\n\n/* Hover */\n.suey-toolbar-button:not(.suey-selected):enabled:hover > .suey-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.suey-toolbar-button:not(.suey-selected):enabled:active,\n.suey-toolbar-button.suey-selected:enabled {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.suey-toolbar-button:not(.suey-selected):enabled:active > .suey-button-background,\n.suey-toolbar-button.suey-selected:enabled > .suey-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Hover Active */\n.suey-hover-active {\n    overflow: visible;\n}\n.suey-hover-active:hover, .suey-hover-active:active {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */\n}\n.suey-hover-active:hover > .suey-button-background,\n.suey-hover-active:active > .suey-button-background {\n    filter: brightness(50%) grayscale(20%) !important;\n}\n\n/* Gray Background */\n.suey-gray-button:enabled > .suey-button-background,\n.suey-button.suey-gray-button {\n    background-image: linear-gradient(to bottom, rgba(var(--gray), 0.9), rgba(var(--gray), 0.65));\n}\n\n/* Dark Background */\n.suey-dark-button:enabled > .suey-button-background,\n.suey-button.suey-dark-button {\n    background-image: linear-gradient(to bottom, rgba(var(--button-light), 0.9), rgba(var(--button-light), 0.65));\n}\n\n/* Brown Background */\n.suey-brown-button:enabled > .suey-button-background,\n.suey-button.suey-brown-button {\n    background-image: linear-gradient(to bottom, rgba(150, 100, 50, 0.9), rgba(150, 100, 50, 0.65));\n}\n\n/* Red Background */\n.suey-red-button:enabled > .suey-button-background,\n.suey-button.suey-red-button {\n    background-image: linear-gradient(to bottom, rgba(242, 51, 13, 0.9), rgba(242, 51, 13, 0.65));\n}\n\n/* Green Background */\n.suey-green-button:enabled > .suey-button-background,\n.suey-button.suey-green-button {\n    background-image: linear-gradient(to bottom, rgba(131, 242, 13, 0.9), rgba(131, 242, 13, 0.65));\n}\n\n/* Yellow Background */\n.suey-yellow-button:enabled > .suey-button-background,\n.suey-button.suey-yellow-button {\n    background-image: linear-gradient(to bottom, rgba(242, 204, 13, 0.9), rgba(242, 204, 13, 0.65));\n}\n\n/* Blue Background */\n.suey-blue-button:enabled > .suey-button-background,\n.suey-button.suey-blue-button {\n    background-image: linear-gradient(to bottom, rgba(13, 51, 242, 0.9), rgba(13, 51, 242, 0.65));\n}\n\n/* Complement Background */\n.suey-complement-button:enabled > .suey-button-background,\n.suey-button.suey-complement-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));\n}\n\n/* Triadic1 Background */\n.suey-triadic1-button:enabled > .suey-button-background,\n.suey-button.suey-triadic1-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic1), 0.75), rgba(var(--triadic1), 0.50));\n}\n\n/* Triadic2 Background */\n.suey-triadic2-button:enabled > .suey-button-background,\n.suey-button.suey-triadic2-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic2), 0.9), rgba(var(--triadic2), 0.65));\n}\n\n/* Triadic3 Background */\n.suey-triadic3-button:enabled > .suey-button-background,\n.suey-button.suey-triadic3-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic3), 0.9), rgba(var(--triadic3), 0.65));\n}\n\n/* Triadic4 Background */\n.suey-triadic4-button:enabled > .suey-button-background,\n.suey-button.suey-triadic4-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic4), 0.9), rgba(var(--triadic4), 0.65));\n}\n\n/* Disabled Button */\n.suey-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    box-shadow: none;\n}\n.suey-toolbar-button:disabled {\n    filter: none;\n}\n.suey-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.suey-button-left, .suey-button-left > .suey-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n}\n.suey-button-middle, .suey-button-middle > .suey-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n}\n.suey-button-right, .suey-button-right > .suey-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n}\n\n.suey-button-left > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n}\n.suey-button-middle > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n.suey-button-right > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.suey-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.suey-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
-var stylesheet$9="/********** Menu Show (Show menu that was previously hidden) **********/\n\n.suey-menu.suey-menu-show {\n    pointer-events: auto;\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n}\n\n.suey-menu.suey-menu-show.suey-menu-under {\n    left: 50%;\n    top: 100%;\n    transform: translate(-50%, 0) scale(1.0, 1.0);\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.suey-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    /* border: 1px solid rgba(var(--shadow), 1.0); */\n    border: 2px solid rgba(var(--icon), 1.0);\n    border-radius: var(--radius-large);\n    /* outline: 1px solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5)); */\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.suey-border-icon {\n    border: 2px solid rgba(var(--complement), 1.0);\n}\n\n.suey-menu-under {\n    transition: opacity 0.2s ease-in-out;\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n/* Dropdown Menu Styling */\n.suey-select-menu, .suey-popup-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.suey-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.suey-menu:not(.suey-invisible-menu) .suey-menu-item:not(.suey-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.suey-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    flex: 0 0 auto;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    filter: var(--drop-shadow);\n    overflow: hidden;\n}\n\n/* Text */\n.suey-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.suey-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.suey-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.suey-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.suey-menu-item .suey-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.suey-menu-mouse-triangle {\n    position: absolute;\n}\n\n/***** Invisible Hover Menu *****/\n\n.suey-invisible-menu, .suey-invisible-menu-item {\n    color: transparent;\n    background-color: transparent;\n    box-shadow: none;\n    border: none;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n    padding: 0;\n}\n\n.suey-invisible-menu-item {\n    margin: 0;\n}\n\n/************ Toolbar Button **********/\n\n.suey-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent !important;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none;\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.suey-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n    z-index: -1;\n}\n\n/* Hover */\n.suey-toolbar-button:not(.suey-selected):enabled:hover > .suey-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.suey-toolbar-button:not(.suey-selected):enabled:active,\n.suey-toolbar-button.suey-selected:enabled {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.suey-toolbar-button:not(.suey-selected):enabled:active > .suey-button-background,\n.suey-toolbar-button.suey-selected:enabled > .suey-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Hover Active */\n.suey-hover-active {\n    overflow: visible;\n}\n.suey-hover-active:hover, .suey-hover-active:active {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */\n}\n.suey-hover-active:hover > .suey-button-background,\n.suey-hover-active:active > .suey-button-background {\n    filter: brightness(50%) grayscale(20%) !important;\n}\n\n/* Gray Background */\n.suey-gray-button:enabled > .suey-button-background,\n.suey-button.suey-gray-button {\n    background-image: linear-gradient(to bottom, rgba(var(--gray), 0.9), rgba(var(--gray), 0.65));\n}\n\n/* Dark Background */\n.suey-dark-button:enabled > .suey-button-background,\n.suey-button.suey-dark-button {\n    background-image: linear-gradient(to bottom, rgba(var(--button-light), 0.9), rgba(var(--button-light), 0.65));\n}\n\n/* Brown Background */\n.suey-brown-button:enabled > .suey-button-background,\n.suey-button.suey-brown-button {\n    background-image: linear-gradient(to bottom, rgba(150, 100, 50, 0.9), rgba(150, 100, 50, 0.65));\n}\n\n/* Red Background */\n.suey-red-button:enabled > .suey-button-background,\n.suey-button.suey-red-button {\n    background-image: linear-gradient(to bottom, rgba(242, 51, 13, 0.9), rgba(242, 51, 13, 0.65));\n}\n\n/* Green Background */\n.suey-green-button:enabled > .suey-button-background,\n.suey-button.suey-green-button {\n    background-image: linear-gradient(to bottom, rgba(131, 242, 13, 0.9), rgba(131, 242, 13, 0.65));\n}\n\n/* Yellow Background */\n.suey-yellow-button:enabled > .suey-button-background,\n.suey-button.suey-yellow-button {\n    background-image: linear-gradient(to bottom, rgba(242, 204, 13, 0.9), rgba(242, 204, 13, 0.65));\n}\n\n/* Blue Background */\n.suey-blue-button:enabled > .suey-button-background,\n.suey-button.suey-blue-button {\n    background-image: linear-gradient(to bottom, rgba(13, 51, 242, 0.9), rgba(13, 51, 242, 0.65));\n}\n\n/* Complement Background */\n.suey-complement-button:enabled > .suey-button-background,\n.suey-button.suey-complement-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--complement), 0.9), rgba(var(--complement), 0.65));\n}\n\n/* Triadic1 Background */\n.suey-triadic1-button:enabled > .suey-button-background,\n.suey-button.suey-triadic1-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic1), 0.75), rgba(var(--triadic1), 0.50));\n}\n\n/* Triadic2 Background */\n.suey-triadic2-button:enabled > .suey-button-background,\n.suey-button.suey-triadic2-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic2), 0.9), rgba(var(--triadic2), 0.65));\n}\n\n/* Triadic3 Background */\n.suey-triadic3-button:enabled > .suey-button-background,\n.suey-button.suey-triadic3-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic3), 0.9), rgba(var(--triadic3), 0.65));\n}\n\n/* Triadic4 Background */\n.suey-triadic4-button:enabled > .suey-button-background,\n.suey-button.suey-triadic4-button {\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--triadic4), 0.9), rgba(var(--triadic4), 0.65));\n}\n\n/* Disabled Button */\n.suey-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    box-shadow: none;\n}\n.suey-toolbar-button:disabled {\n    filter: none;\n}\n.suey-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.suey-button-left, .suey-button-left > .suey-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n}\n.suey-button-middle, .suey-button-middle > .suey-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n}\n.suey-button-right, .suey-button-right > .suey-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n}\n\n.suey-button-left > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n}\n.suey-button-middle > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n.suey-button-right > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.suey-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.suey-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
+var css_248z$9 = "/********** Menu Show (Show menu that was previously hidden) **********/\n\n.suey-menu.suey-menu-show {\n    pointer-events: auto;\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n}\n\n.suey-menu.suey-menu-show.suey-menu-under {\n    left: 50%;\n    top: 100%;\n    transform: translate(-50%, 0) scale(1.0, 1.0);\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.suey-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    /* border: 1px solid rgba(var(--shadow), 1.0); */\n    border: 2px solid rgba(var(--icon), 1.0);\n    border-radius: var(--radius-large);\n    /* outline: 1px solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5)); */\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.suey-border-icon {\n    border: 2px solid rgba(var(--complement), 1.0);\n}\n\n.suey-menu-under {\n    transition: opacity 0.2s ease-in-out;\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n/* Dropdown Menu Styling */\n.suey-select-menu, .suey-popup-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.suey-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.suey-menu:not(.suey-invisible-menu) .suey-menu-item:not(.suey-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.suey-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    flex: 0 0 auto;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    filter: var(--drop-shadow);\n    overflow: hidden;\n}\n\n/* Text */\n.suey-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.suey-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.suey-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.suey-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.suey-menu-item .suey-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.suey-menu-mouse-triangle {\n    position: absolute;\n}\n\n/***** Invisible Hover Menu *****/\n\n.suey-invisible-menu, .suey-invisible-menu-item {\n    color: transparent;\n    background-color: transparent;\n    box-shadow: none;\n    border: none;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n    padding: 0;\n}\n\n.suey-invisible-menu-item {\n    margin: 0;\n}\n\n/************ Toolbar Button **********/\n\n.suey-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent !important;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none;\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.suey-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n    z-index: -1;\n}\n\n/* Hover */\n.suey-toolbar-button:not(.suey-selected):enabled:hover > .suey-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.suey-toolbar-button:not(.suey-selected):enabled:active,\n.suey-toolbar-button.suey-selected:enabled {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.suey-toolbar-button:not(.suey-selected):enabled:active > .suey-button-background,\n.suey-toolbar-button.suey-selected:enabled > .suey-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Hover Active */\n.suey-hover-active {\n    overflow: visible;\n}\n.suey-hover-active:hover, .suey-hover-active:active {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */\n}\n.suey-hover-active:hover > .suey-button-background,\n.suey-hover-active:active > .suey-button-background {\n    filter: brightness(50%) grayscale(20%) !important;\n}\n\n/* Disabled Button */\n.suey-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    box-shadow: none;\n}\n.suey-toolbar-button:disabled {\n    filter: none;\n}\n.suey-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.suey-button-left, .suey-button-left > .suey-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n}\n.suey-button-middle, .suey-button-middle > .suey-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n}\n.suey-button-right, .suey-button-right > .suey-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n}\n\n.suey-button-left > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n}\n.suey-button-middle > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n.suey-button-right > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.suey-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.suey-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
+var stylesheet$9="/********** Menu Show (Show menu that was previously hidden) **********/\n\n.suey-menu.suey-menu-show {\n    pointer-events: auto;\n    opacity: 1.0;\n    transform: translate(0, 0) scale(1.0, 1.0);\n}\n\n.suey-menu.suey-menu-show.suey-menu-under {\n    left: 50%;\n    top: 100%;\n    transform: translate(-50%, 0) scale(1.0, 1.0);\n}\n\n/********** Menu **********/\n\n/* Normal Menu Styling */\n.suey-menu {\n    position: absolute;\n    display: block;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: rgba(var(--background-light), 1);\n    box-shadow:\n        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),\n             -2px 2px 2px 0px rgba(var(--shadow), 0.5),\n              2px 0px 2px 0px rgba(var(--shadow), 0.5);\n    /* border: 1px solid rgba(var(--shadow), 1.0); */\n    border: 2px solid rgba(var(--icon), 1.0);\n    border-radius: var(--radius-large);\n    /* outline: 1px solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5)); */\n    outline: none;\n\n    min-width: 1.0em;\n    z-index: 1000; /* Menu */\n    opacity: 0;\n    padding: var(--pad-x-small);\n    margin: 0;\n    pointer-events: none;\n\n    transform: translate(0, 0) scale(1.0, 0.0);\n\n    /* To enable menu transitions use menu timing variable */\n    transition: all 0s; /* var(--menu-timing) */\n}\n\n.suey-border-icon {\n    border: 2px solid rgba(var(--complement), 1.0);\n}\n\n.suey-menu-under {\n    transition: opacity 0.2s ease-in-out;\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-down {\n    transform: translate(0, -50%) scale(1.0, 0.0);\n}\n\n.suey-menu:not(.suey-menu-show).suey-slide-up {\n    transform: translate(0, 50%) scale(1.0, 0.0);\n}\n\n/* Dropdown Menu Styling */\n.suey-select-menu, .suey-popup-menu {\n    box-shadow: none;\n    color: rgba(var(--highlight), 1);\n    background: rgba(var(--darklight), 1);\n    border: 1px solid rgb(var(--icon));\n    border-radius: 0px;\n    outline: 2px solid rgb(var(--darklight));\n    z-index: 1000; /* Select Menu */\n}\n\n/* Menu Item */\n.suey-menu-item {\n    position: relative;\n    display: block;\n\n    color: rgba(var(--text), 1);\n    cursor: pointer;\n\n    border: 1px solid transparent;\n    border-radius: calc(var(--radius-small) * 0.75);\n\n    margin: var(--pad-x-small);\n    white-space: nowrap;\n}\n\n/* Hover Item */\n.suey-menu:not(.suey-invisible-menu) .suey-menu-item:not(.suey-disabled):hover {\n    color: rgba(var(--highlight), 1);\n    background-color: rgba(var(--icon-light), 0.1);\n    border: 1px solid rgba(var(--icon-light), 0.3);\n    border-radius: calc(var(--radius-small) * 0.75);\n}\n\n/* Image */\n.suey-menu-icon {\n    --menu-icon-size:   1.45em;\n\n    position: relative;\n    flex: 0 0 auto;\n    height: var(--menu-icon-size);\n    width: var(--menu-icon-size);\n    filter: var(--drop-shadow);\n    overflow: hidden;\n}\n\n/* Text */\n.suey-menu-text {\n    user-select: none;\n    margin-left: 7px;\n    overflow: hidden;\n    text-overflow: ellipsis;\n}\n\n/* Shortcut Key */\n.suey-menu-shortcut {\n    /*\n    System Font Info:\n    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage\n    https://furbo.org/2018/03/28/system-fonts-in-css/\n    https://css-tricks.com/snippets/css/system-font-stack/\n    */\n    display: flex;\n    filter: contrast(75%) grayscale(100%);\n    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;\n    opacity: 0.5;\n    padding-left: 2.0em;\n}\n\n.suey-menu-shortcut-character {\n    /* background-color: blueviolet; */\n    /* border: solid 1px; */\n    text-align: center;\n    margin: auto;\n}\n\n/* Separator */\n.suey-menu-separator {\n    pointer-events: none;\n    border-top: 1px solid rgba(var(--midlight), 0.5);\n    border-radius: 1px;\n    height: 1px;\n    margin: var(--pad-medium) var(--pad-large);\n}\n\n/* Little Arrow */\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item::after {\n    content: '';\n    position: absolute;\n    right: 0.50em;\n    top: 50%;\n    transform: translateY(-50%);\n    border: var(--arrow-size) solid transparent;\n    border-left-color: rgba(var(--text), 1.0);\n}\n\n.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item:hover::after {\n    border-left-color: rgba(var(--highlight), 1.0);\n}\n\n/* Sub Menu */\n.suey-menu-item .suey-menu {\n    top:  0px;\n    left: 101%;\n}\n\n/* Sub Menu Mouse Triangle */\n.suey-menu-mouse-triangle {\n    position: absolute;\n}\n\n/***** Invisible Hover Menu *****/\n\n.suey-invisible-menu, .suey-invisible-menu-item {\n    color: transparent;\n    background-color: transparent;\n    box-shadow: none;\n    border: none;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n    padding: 0;\n}\n\n.suey-invisible-menu-item {\n    margin: 0;\n}\n\n/************ Toolbar Button **********/\n\n.suey-toolbar-button {\n    display: flex;\n    cursor: pointer;\n    background-color: transparent !important;\n    border: none;\n    border-radius: var(--radius-large);\n    outline: none;\n    position: relative;\n    height: var(--button-size);\n    width: var(--button-size);\n    min-height: var(--button-size);\n    min-width: var(--button-size);\n    margin-left: var(--pad-x-small);\n    margin-right: var(--pad-x-small);\n    opacity: 1.0;\n    overflow: hidden;\n}\n\n/* Background */\n.suey-button-background {\n    pointer-events: none;\n    position: absolute;\n    left: 0; right: 0; top: 0; bottom: 0;\n    margin: 0;\n    background-color: rgb(var(--darkness));\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));\n    border-radius: var(--radius-large);\n    border: none;\n    outline: none;\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n    z-index: -1;\n}\n\n/* Hover */\n.suey-toolbar-button:not(.suey-selected):enabled:hover > .suey-button-background {\n    filter: brightness(125%);\n    box-shadow: /* pop-out-shadow */\n        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);\n}\n\n/* Active / Selected */\n.suey-toolbar-button:not(.suey-selected):enabled:active,\n.suey-toolbar-button.suey-selected:enabled {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */\n}\n.suey-toolbar-button:not(.suey-selected):enabled:active > .suey-button-background,\n.suey-toolbar-button.suey-selected:enabled > .suey-button-background {\n    filter: brightness(50%) grayscale(20%);\n}\n\n/* Hover Active */\n.suey-hover-active {\n    overflow: visible;\n}\n.suey-hover-active:hover, .suey-hover-active:active {\n    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */\n}\n.suey-hover-active:hover > .suey-button-background,\n.suey-hover-active:active > .suey-button-background {\n    filter: brightness(50%) grayscale(20%) !important;\n}\n\n/* Disabled Button */\n.suey-toolbar-button:disabled {\n    background-color: rgba(var(--button-dark), var(--panel-transparency));\n    box-shadow: none;\n}\n.suey-toolbar-button:disabled {\n    filter: none;\n}\n.suey-toolbar-button:disabled > * {\n    filter: contrast(75%) grayscale(100%) brightness(50%);\n}\n\n/* Left / Middle / Right */\n.suey-button-left, .suey-button-left > .suey-button-background {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    margin-right: 0;\n}\n.suey-button-middle, .suey-button-middle > .suey-button-background {\n    border-radius: 0;\n    margin-right: 0;\n    margin-left: 0;\n}\n.suey-button-right, .suey-button-right > .suey-button-background {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0;\n    margin-left: 0;\n}\n\n.suey-button-left > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);\n}\n.suey-button-middle > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset            0 var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n.suey-button-right > .suey-button-background {\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),\n        inset            0 var(--minus) rgba(var(--black), 0.25);\n}\n\n/********** Toolbar Separator / Toolbar Spacer **********/\n\n.suey-toolbar-separator {\n    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);\n    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);\n    border-top: 0;\n    border-bottom: 0;\n    width: var(--pad-micro);\n    height: calc(var(--button-size) - 1.25ch);\n    margin-left: var(--pad-medium);\n    margin-right: var(--pad-medium);\n    margin-top: var(--pad-small);\n}\n\n.suey-toolbar-spacer {\n    pointer-events: none;\n    border: none;\n    margin: none;\n    width: 1em;\n    height: var(--button-size);\n}\n";
 styleInject(css_248z$9);
 
 var css_248z$8 = "/********** Panel (simple / fancy) **********/\n\n.suey-panel {\n    pointer-events: auto;\n    position: relative;\n    overflow: visible;\n    outline: none; /* for macos */\n    z-index: 0; /* Panel */\n}\n\n.suey-panel-simple {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    margin: calc(var(--edge-thickness) + var(--pad-x-small));\n}\n\n.suey-panel-fancy-outer {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n    --border-radius-outer:  0.71429em;      /* 10px @ font size 1.4em (14px) */\n\n    height: 100%;\n\n    background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n    border-radius: var(--border-radius-outer);\n    box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);\n    padding: var(--edge-thickness); /* outside of border padding */\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n}\n\n.suey-panel-fancy-border {\n    height: 100%;\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    padding: var(--pad-x-small);\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n.suey-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--button-light));\n}\n.suey-window.suey-active-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.suey-panel-fancy-inside {\n    height: 100%;\n    width: 100%;\n    background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));\n    border-radius: var(--radius-small);\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/********** Scroller ********/\n\n.suey-scroller {\n    overflow: auto;\n}\n\n/********** Shrinkable **********/\n\n.suey-shrinkable {\n    background-color: transparent;\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-large);\n    margin: var(--pad-micro);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    overflow: visible;\n}\n.suey-shrinkable.suey-borderless-panel {\n    border: solid var(--border-small) transparent;\n    margin-bottom: 0;\n    box-shadow: none;\n}\n.suey-shrinkable.suey-borderless-panel.suey-expanded {\n    border-bottom: none;\n}\n\n/* Shrinkable Title Div */\n.suey-shrink-title {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    min-height: calc(var(--row-height));\n    overflow: hidden;\n\n    cursor: default;\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--icon), 0.35);\n\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n\n    border-bottom: solid var(--border-micro) transparent;\n    border-top: solid var(--border-micro) transparent;\n    border-top-left-radius: var(--radius-small);\n    border-top-right-radius: var(--radius-small);\n    padding: 0 var(--pad-medium); /* vertical horizontal */\n}\n.suey-shrink-title:hover {\n    color: rgba(var(--highlight), 1.0)\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-title {\n    border-radius: var(--radius-small);\n}\n.suey-shrinkable.suey-borderless-panel .suey-shrink-title {\n    outline: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n\n/* Title Icon */\n.suey-shrink-icon > * {\n    filter: var(--drop-shadow);\n}\n.suey-shrink-icon {\n    flex-grow: 0;\n    flex-shrink: 0;\n\n    position: relative;\n    display: flex;\n    margin: 0.15em;\n    height: calc(var(--arrow-size) * 3.5);\n    min-height: calc(var(--arrow-size) * 3.5);\n}\n.suey-shrink-icon.suey-has-icon {\n    width: calc(var(--arrow-size) * 3.5);\n    min-width: calc(var(--arrow-size) * 3.5);\n}\n\n/* Title Text */\n.suey-shrink-text {\n    flex-grow: 1;\n    flex-shrink: 2;\n\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n\n    padding-left: 0.2em;\n}\n\n/* Title Arrow */\n.suey-shrink-arrow {\n    flex-grow: 0;\n    flex-shrink: 1;\n\n    position: relative;\n    content: '';\n    margin: 0 0.35em; /* vertical horizontal */\n    width: 0;\n    height: 0;\n    transform: translateX(25%);\n    z-index: 101; /* Shrink Arrow */\n    border: var(--arrow-size) solid transparent;\n    border-color: transparent transparent transparent rgba(var(--text));\n    transition: transform var(--menu-timing);\n}\n.suey-shrink-arrow-clicker {\n    position: absolute;\n    content: '';\n    width: 1.7em;\n    height: 1.7em;\n    left: calc(1.7em * -0.5);\n    top: calc(1.7em * -0.5);\n    cursor: pointer;\n}\n.suey-shrinkable.suey-expanded .suey-shrink-title .suey-shrink-arrow {\n    transform: rotate(90deg) translateX(25%);\n}\n.suey-shrink-title:hover .suey-shrink-arrow {\n    border-color: transparent transparent transparent rgba(var(--highlight));\n}\n\n/* Shrinkable Body Div */\n.suey-shrink-body {\n    position: relative;\n    display: flex;\n    flex-wrap: wrap;\n    border-bottom-left-radius: var(--radius-small);\n    border-bottom-right-radius: var(--radius-small);\n    padding: var(--pad-small) 0;\n    overflow: hidden;\n    pointer-events: auto;\n}\n.suey-shrinkable.suey-borderless-panel .suey-shrink-body {\n    padding-bottom: 0;\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-body {\n    pointer-events: none;\n    display: none;\n}\n.suey-shrinkable.suey-expanded:not(.suey-borderless-panel) .suey-shrink-body {\n    border-top: solid var(--border-small) rgba(var(--shadow), 0.25);\n}\n\n/********** Titled **********/\n\n.suey-titled {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n}\n\n.suey-title-arrow {\n    position: absolute;\n    content: '';\n    font-size: var(--font-size);\n    pointer-events: none;\n    width: 0;\n    height: 0;\n    top: 0;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: auto;\n    transform: translateY(-25%) scale(1.0, -1.0);\n    border: 0.5em solid transparent;\n    border-color: rgba(var(--text)) transparent transparent transparent;\n    transition: transform var(--menu-timing);\n}\n.suey-title-arrow-click {\n    position: absolute;\n    cursor: pointer;\n    content: '';\n    pointer-events: all;\n    width: 2em;\n    height: 2em;\n    top: 0;\n    bottom: 0;\n    margin-top: auto;\n    margin-bottom: auto;\n    right: 0.25em;\n    z-index: 101; /* Title Arrow */\n}\n.suey-title-arrow-click:hover .suey-title-arrow {\n    border-color: rgba(var(--highlight)) transparent transparent transparent;\n}\n.suey-titled.suey-expanded .suey-tab-title .suey-title-arrow {\n    transform: translateY(25%);\n}\n\n/* Title Bar Class for top of Title Panel */\n.suey-tab-title {\n    --font-size-increase:   1.3;\n\n    position: relative;\n    display: flex;\n    flex-shrink: 0; /* don't allow title to shrink */\n    color: rgba(var(--text-light), 1);\n    background-color: transparent;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border: 0;\n    border-radius: calc(var(--radius-small) / var(--font-size-increase));\n    outline: solid calc(var(--border-small) / var(--font-size-increase)) rgba(var(--shadow), 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);\n    text-align: center;\n    overflow: hidden;\n\n    font-size: calc(100% * var(--font-size-increase));\n    margin: var(--pad-x-small);\n    justify-content: center;\n    align-items: center;\n    min-height: 1.867em;\n}\n.suey-tab-title-text {\n    user-select: none;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    font-size: 100%;\n}\n.suey-tab-title-text::selection {\n    color: rgba(var(--icon), 1);\n    background-color: rgba(var(--blacklight), 1);\n}\n";
 var stylesheet$8="/********** Panel (simple / fancy) **********/\n\n.suey-panel {\n    pointer-events: auto;\n    position: relative;\n    overflow: visible;\n    outline: none; /* for macos */\n    z-index: 0; /* Panel */\n}\n\n.suey-panel-simple {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    margin: calc(var(--edge-thickness) + var(--pad-x-small));\n}\n\n.suey-panel-fancy-outer {\n    --edge-thickness:       0.35714em;      /* 5px @ font size 1.4em (14px) */\n    --border-radius-outer:  0.71429em;      /* 10px @ font size 1.4em (14px) */\n\n    height: 100%;\n\n    background-color: rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n    border-radius: var(--border-radius-outer);\n    box-shadow: 0px 0px 5px 1px rgba(var(--shadow), 0.25);\n    padding: var(--edge-thickness); /* outside of border padding */\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n}\n\n.suey-panel-fancy-border {\n    height: 100%;\n\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--icon));\n    border-radius: var(--radius-large);\n    padding: var(--pad-x-small);\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n.suey-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--button-light));\n}\n.suey-window.suey-active-window .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--icon));\n}\n\n.suey-panel-fancy-inside {\n    height: 100%;\n    width: 100%;\n    background-color: rgba(var(--icon-light), calc(var(--panel-transparency) * 0.05));\n    border-radius: var(--radius-small);\n    margin: 0;\n    padding: 0;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/********** Scroller ********/\n\n.suey-scroller {\n    overflow: auto;\n}\n\n/********** Shrinkable **********/\n\n.suey-shrinkable {\n    background-color: transparent;\n    border: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-large);\n    margin: var(--pad-micro);\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    overflow: visible;\n}\n.suey-shrinkable.suey-borderless-panel {\n    border: solid var(--border-small) transparent;\n    margin-bottom: 0;\n    box-shadow: none;\n}\n.suey-shrinkable.suey-borderless-panel.suey-expanded {\n    border-bottom: none;\n}\n\n/* Shrinkable Title Div */\n.suey-shrink-title {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    width: 100%;\n    min-height: calc(var(--row-height));\n    overflow: hidden;\n\n    cursor: default;\n    color: rgba(var(--text-light), 1.0);\n    background-color: rgba(var(--icon), 0.35);\n\n    box-shadow: inset 0 0 var(--pad-small) 0 rgba(var(--midlight), 0.5); /* inner-glow */\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n\n    border-bottom: solid var(--border-micro) transparent;\n    border-top: solid var(--border-micro) transparent;\n    border-top-left-radius: var(--radius-small);\n    border-top-right-radius: var(--radius-small);\n    padding: 0 var(--pad-medium); /* vertical horizontal */\n}\n.suey-shrink-title:hover {\n    color: rgba(var(--highlight), 1.0)\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-title {\n    border-radius: var(--radius-small);\n}\n.suey-shrinkable.suey-borderless-panel .suey-shrink-title {\n    outline: solid var(--border-small) rgba(var(--shadow), 0.25);\n    border-radius: var(--radius-small);\n}\n\n/* Title Icon */\n.suey-shrink-icon > * {\n    filter: var(--drop-shadow);\n}\n.suey-shrink-icon {\n    flex-grow: 0;\n    flex-shrink: 0;\n\n    position: relative;\n    display: flex;\n    margin: 0.15em;\n    height: calc(var(--arrow-size) * 3.5);\n    min-height: calc(var(--arrow-size) * 3.5);\n}\n.suey-shrink-icon.suey-has-icon {\n    width: calc(var(--arrow-size) * 3.5);\n    min-width: calc(var(--arrow-size) * 3.5);\n}\n\n/* Title Text */\n.suey-shrink-text {\n    flex-grow: 1;\n    flex-shrink: 2;\n\n    overflow: hidden;\n    text-align: left;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n\n    padding-left: 0.2em;\n}\n\n/* Title Arrow */\n.suey-shrink-arrow {\n    flex-grow: 0;\n    flex-shrink: 1;\n\n    position: relative;\n    content: '';\n    margin: 0 0.35em; /* vertical horizontal */\n    width: 0;\n    height: 0;\n    transform: translateX(25%);\n    z-index: 101; /* Shrink Arrow */\n    border: var(--arrow-size) solid transparent;\n    border-color: transparent transparent transparent rgba(var(--text));\n    transition: transform var(--menu-timing);\n}\n.suey-shrink-arrow-clicker {\n    position: absolute;\n    content: '';\n    width: 1.7em;\n    height: 1.7em;\n    left: calc(1.7em * -0.5);\n    top: calc(1.7em * -0.5);\n    cursor: pointer;\n}\n.suey-shrinkable.suey-expanded .suey-shrink-title .suey-shrink-arrow {\n    transform: rotate(90deg) translateX(25%);\n}\n.suey-shrink-title:hover .suey-shrink-arrow {\n    border-color: transparent transparent transparent rgba(var(--highlight));\n}\n\n/* Shrinkable Body Div */\n.suey-shrink-body {\n    position: relative;\n    display: flex;\n    flex-wrap: wrap;\n    border-bottom-left-radius: var(--radius-small);\n    border-bottom-right-radius: var(--radius-small);\n    padding: var(--pad-small) 0;\n    overflow: hidden;\n    pointer-events: auto;\n}\n.suey-shrinkable.suey-borderless-panel .suey-shrink-body {\n    padding-bottom: 0;\n}\n.suey-shrinkable:not(.suey-expanded) .suey-shrink-body {\n    pointer-events: none;\n    display: none;\n}\n.suey-shrinkable.suey-expanded:not(.suey-borderless-panel) .suey-shrink-body {\n    border-top: solid var(--border-small) rgba(var(--shadow), 0.25);\n}\n\n/********** Titled **********/\n\n.suey-titled {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n}\n\n.suey-title-arrow {\n    position: absolute;\n    content: '';\n    font-size: var(--font-size);\n    pointer-events: none;\n    width: 0;\n    height: 0;\n    top: 0;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    margin: auto;\n    transform: translateY(-25%) scale(1.0, -1.0);\n    border: 0.5em solid transparent;\n    border-color: rgba(var(--text)) transparent transparent transparent;\n    transition: transform var(--menu-timing);\n}\n.suey-title-arrow-click {\n    position: absolute;\n    cursor: pointer;\n    content: '';\n    pointer-events: all;\n    width: 2em;\n    height: 2em;\n    top: 0;\n    bottom: 0;\n    margin-top: auto;\n    margin-bottom: auto;\n    right: 0.25em;\n    z-index: 101; /* Title Arrow */\n}\n.suey-title-arrow-click:hover .suey-title-arrow {\n    border-color: rgba(var(--highlight)) transparent transparent transparent;\n}\n.suey-titled.suey-expanded .suey-tab-title .suey-title-arrow {\n    transform: translateY(25%);\n}\n\n/* Title Bar Class for top of Title Panel */\n.suey-tab-title {\n    --font-size-increase:   1.3;\n\n    position: relative;\n    display: flex;\n    flex-shrink: 0; /* don't allow title to shrink */\n    color: rgba(var(--text-light), 1);\n    background-color: transparent;\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon-dark), 0.5));\n    border: 0;\n    border-radius: calc(var(--radius-small) / var(--font-size-increase));\n    outline: solid calc(var(--border-small) / var(--font-size-increase)) rgba(var(--shadow), 0.25);\n    box-shadow: /* pop-out-shadow */\n        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),\n        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);\n    text-shadow: calc(var(--minus) * var(--font-size-increase)) calc(var(--pixel) * var(--font-size-increase)) rgba(var(--shadow), 0.5);\n    text-align: center;\n    overflow: hidden;\n\n    font-size: calc(100% * var(--font-size-increase));\n    margin: var(--pad-x-small);\n    justify-content: center;\n    align-items: center;\n    min-height: 1.867em;\n}\n.suey-tab-title-text {\n    user-select: none;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    font-size: 100%;\n}\n.suey-tab-title-text::selection {\n    color: rgba(var(--icon), 1);\n    background-color: rgba(var(--blacklight), 1);\n}\n";
 styleInject(css_248z$8);
 
-var css_248z$7 = "/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n";
-var stylesheet$7="/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n";
+var css_248z$7 = "/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n    z-index: 100001; /* question */\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n    z-index: 100000; /* blackout */\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n";
+var stylesheet$7="/***** Question *****/\n\n.suey-question {\n    position: fixed;\n    display: flex;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n    z-index: 100001; /* question */\n}\n\n.suey-screen-blackout {\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: rgba(var(--background-dark), 0.75);\n    z-index: 100000; /* blackout */\n}\n\n.suey-question-left {\n    user-select: none;\n    position: relative;\n    width: 5em;\n    min-height: 5em;\n    margin: 1.5em;\n}\n\n.suey-question-right {\n    position: relative;\n    flex-direction: column;\n    display: flex;\n    min-width: 16em;\n    min-height: 5em;\n}\n\n.suey-question-top {\n    position: relative;\n    display: flex;\n    flex: 1 1 auto;\n    min-height: 3em;\n    margin-top: 0.5em;\n    text-align: center;\n}\n\n.suey-question-bottom {\n    position: relative;\n    display: flex;\n    height: 2em;\n    margin: 0.5em;\n}\n";
 styleInject(css_248z$7);
 
 var css_248z$6 = "/********** Main Window **********/\n\n.suey-main-window {\n    user-select: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n}\n\n.suey-window-holder {\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    margin: auto;\n    pointer-events: none;\n}\n\n/********** Abstract Dock **********/\n\n.suey-dock {\n    position: relative;\n}\n\n/********** Docker **********/\n\n.suey-docker {\n    position: absolute;\n    display: flex;\n    flex-direction: column;\n    min-width: 8em;\n    min-height: 8em;\n    max-width: 100%;\n    max-height: 100%;\n    pointer-events: none;\n}\n\n.suey-docker.suey-docker-primary {\n    width: 100vw;\n    height: 100vh;\n    top: 0;\n    left: 0;\n    overflow: visible;\n}\n\n.suey-docker-vertical {\n    height: 100%;\n}\n\n.suey-docker-horizontal {\n    width: 100%;\n}\n\n.suey-dock-drag .suey-docker {\n    pointer-events: all !important;\n}\n\n/***** Collapsed Docks */\n\n.suey-docker.suey-collapsed {\n    min-width: calc(var(--tab-size) * 1) !important;\n    min-height: calc(var(--tab-size) * 1) !important;\n}\n\n.suey-collapsed .suey-corner-button {\n    display: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-panel-simple,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-outer,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-border,\n.suey-collapsed > .suey-tabbed .suey-panel-fancy-inside {\n    background-color: transparent !important;\n    border-color: transparent !important;\n    outline: none !important;\n    box-shadow: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-floaters * {\n    opacity: 0 !important;\n    user-select: none !important;\n    pointer-events: none !important;\n}\n\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-left-side { top: 0; right: 0; left: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-right-side { top: 0; left: 0; right: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-top-side { left: 0; bottom: 0; top: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-buttons.suey-bottom-side { left: 0; top: 0; bottom: auto; }\n.suey-collapsed > .suey-tabbed .suey-tab-button {\n    margin: 0 !important;\n}\n\n.suey-collapsed .suey-tabbed .suey-resizer {\n    pointer-events: none !important;\n    display: none !important;\n}\n\n/***** Dock Locations */\n\n.suey-dock-locations {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n\n.suey-dock-location {\n    --size: 2em;\n    position: absolute;\n    opacity: 0.0;\n}\n.suey-dock-left   { left:  0; top:    0; width:  20%; height: 100%; }\n.suey-dock-right  { right: 0; top:    0; width:  20%; height: 100%; }\n.suey-dock-top    { left:  0; top:    0; width: 100%; height:  25%; }\n.suey-dock-bottom { left:  0; bottom: 0; width: 100%; height:  25%; }\n.suey-dock-center { left: 20%; top: 20%; width:  60%; height:  60%; }\n\n.suey-dock-middle-vertical   { left: var(--size); top:   0; height: 100%; width:  calc(100% - (var(--size) * 2)); }\n.suey-dock-middle-horizontal { left:   0; top: var(--size); width:  100%; height: calc(100% - (var(--size) * 2)); }\n.suey-dock-split-left   { left:  0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-right  { right: 0; top:    0; width:  var(--size); height: 100%; }\n.suey-dock-split-top    { left:  0; top:    0; width: 100%; height:  var(--size); }\n.suey-dock-split-bottom { left:  0; bottom: 0; width: 100%; height:  var(--size); }\n\n.suey-dock-location.suey-dock-drop {\n    background-color: transparent;\n    opacity: 1.0;\n}\n.suey-dock-location.suey-dock-drop:not(.suey-dock-self)::before {\n    --shrink: 0.57143em;\n    content: '';\n    position: absolute;\n    left: var(--shrink);\n    right: var(--shrink);\n    top: var(--shrink);\n    bottom: var(--shrink);\n    background-color: rgba(var(--background-light), var(--panel-transparency));\n    border: var(--border-small) solid rgb(var(--complement));\n    border-radius: var(--radius-large);\n    outline: var(--radius-large) solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5));\n}\n\n.suey-docker.suey-dock-self .suey-panel-simple,\n.suey-docker.suey-dock-self .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n/********** Floater **********/\n\n.suey-floater {\n    display: flex; /* needed for scroll bars to appear on proper layer */\n    flex-direction: column;\n    pointer-events: auto;\n    height: 100%;\n    width: 100%;\n    overflow: auto;\n}\n\n/********** Tabbed **********/\n\n.suey-tabbed {\n    pointer-events: all;\n    max-height: 100%;\n    padding: var(--pad-small);\n}\n\n/***** TabPanels */\n\n/* Child of Tabbed that holds multiple 'Floater' */\n.suey-tab-floaters {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n\n    /* Need for scroll bars to appear on proper layer */\n    display: flex;\n    flex-direction: column;\n}\n\n/***** TabButtons */\n\n/* Child of Tabbed that holds multiple 'TabButton' */\n.suey-tab-buttons {\n    position: absolute;\n    display: flex;\n    z-index: 101; /* Tabs */\n    min-width: var(--tab-size);\n    min-height: var(--tab-size);\n    margin: 0;\n}\n\n.suey-tab-buttons.suey-left-side,\n.suey-tab-buttons.suey-right-side {\n    flex-direction: column;\n    top: 1em;\n}\n\n.suey-tab-buttons.suey-top-side,\n.suey-tab-buttons.suey-bottom-side {\n    flex-direction: row;\n    left: 1em;\n}\n\n.suey-tab-buttons.suey-top-side { top: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-bottom-side { bottom: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n.suey-tab-buttons.suey-left-side { left: calc((var(--tab-size) / -2.0) + 0.52em); }\n.suey-tab-buttons.suey-right-side { right: calc((var(--tab-size) / -2.0) + 0.52em); }\n\n/***** TabButton *****/\n\n.suey-tab-button {\n    width: var(--tab-size);\n    height: var(--tab-size);\n    display: flex;\n    align-items: center;\n    justify-content: center;\n\n    color: rgba(var(--text), 1.0);\n    background-color: transparent;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    margin: var(--pad-x-small);\n    transform: scale(70%);\n    transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;\n}\n\n.suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {\n    margin-left: calc(-1 * var(--pad-x-small));\n    margin-right: calc(-1 * var(--pad-x-small));\n}\n\n.suey-tab-buttons.suey-left-side .suey-tab-button:not(.suey-selected),\n.suey-tab-buttons.suey-right-side .suey-tab-button:not(.suey-selected) {\n    margin-top: calc(-1 * var(--pad-x-small));\n    margin-bottom: calc(-1 * var(--pad-x-small));\n}\n\n.suey-drag-tab-button {\n    position: absolute;\n    z-index: 10000;\n    pointer-events: none;\n    opacity: 0.8;\n    transform: scale(100%);\n}\n.suey-drag-tab-button .suey-tab-icon-border {\n    border-width: var(--border-small);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected {\n    color: rgba(var(--highlight), 1.0);\n    margin-top: var(--pad-x-small);\n    margin-bottom: var(--pad-x-small);\n    transform: scale(100%);\n}\n\n/* Tab Image */\n.suey-tab-button .suey-vector-box {\n    position: absolute;\n    border: none;\n    border-radius: var(--tab-size);\n    outline: none;\n    width: 100%;\n    height: 100%;\n    overflow: hidden;\n    filter: contrast(75%) grayscale(100%) brightness(75%);\n}\n\n:not(.suey-collapsed) > .suey-dock .suey-tab-button.suey-selected .suey-vector-box {\n    filter: none;\n}\n\n.suey-tab-button:hover .suey-vector-box,\n.suey-tab-button:active .suey-vector-box {\n    filter: brightness(120%) !important;\n}\n\n.suey-tab-button:active .suey-vector-box .suey-image {\n    transform: translate(0, var(--pixel));\n}\n\n/* Tab Image Border / Shadow */\n.suey-tab-icon-border {\n    cursor: pointer;\n    position: absolute;\n    width: 100%;\n    height: 100%;\n    border: var(--pad-small) solid rgba(var(--icon));\n    border-radius: calc(var(--tab-size) * 0.7);\n    outline: none;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transform: scale(1.05);\n}\n\n.suey-tab-button.suey-drop-target .suey-tab-icon-border {\n    border-color: rgba(var(--complement)) !important;\n}\n\n.suey-tab-button:hover .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.50),\n        inset 0 var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n.suey-tab-button:active .suey-tab-icon-border {\n    box-shadow:\n        inset 0 var(--pixel) var(--pixel) var(--pixel) rgba(var(--black), 0.35);\n}\n\n:not(.suey-collapsed) > .suey-tabbed .suey-tab-button.suey-selected .suey-tab-icon-border {\n    border: 0.15em solid rgb(var(--icon));\n}\n\n/********** Window **********/\n\n.suey-window {\n    --window-z-index: 200;\n\n    position: absolute;\n    padding: var(--pad-small);\n    opacity: calc(90% + (10% * var(--panel-transparency)));\n    z-index: var(--window-z-index); /* Window */\n}\n\n.suey-window.suey-drop-target .suey-panel-simple,\n.suey-window.suey-drop-target .suey-panel-fancy-border {\n    border: var(--border-small) solid rgb(var(--complement)) !important;\n}\n\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:horizontal {\n    background: linear-gradient(to left, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n.suey-window:not(.suey-active-window) div::-webkit-scrollbar-thumb:vertical {\n    background: linear-gradient(to bottom, rgba(var(--button-light), 1), rgba(var(--button-dark), 1));\n    border-radius: calc(var(--scroll-size) / 2.0);\n}\n\n.suey-panel-button.suey-title-bar {\n    --title-width: 0;\n    color: rgba(var(--highlight), 0.5);\n    border: var(--border-small) solid rgb(var(--button-light));\n    border-radius: var(--radius-large);\n    background-color: rgba(var(--background-dark), 1.0);\n    background-image: linear-gradient(to bottom, rgba(var(--background-light), 0.5), rgba(var(--background-dark), 0.5));\n    box-shadow: none;\n    text-shadow: none;\n    text-align: center;\n    left: 0;\n    right: 0;\n    min-width: 6em;\n    min-height: 1.6em;\n    margin-left: auto;\n    margin-right: auto;\n    overflow: visible;\n}\n\n.suey-active-window .suey-panel-button.suey-title-bar {\n    color: rgba(var(--highlight), 1);\n    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.5), rgba(var(--icon), 0.5));\n    border: var(--border-small) solid rgb(var(--icon));\n    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);\n}\n\n/* Window Tab Buttons */\n\n.suey-tab-buttons.suey-window-side {\n    flex-direction: row;\n    top: calc((var(--tab-size) / -2.0) + 0.4em);\n    transition: transform 0.15s;\n}\n.suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: var(--border-small) solid rgba(var(--icon));\n    transition: border 0.15s;\n}\n\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side {\n    top: calc((var(--tab-size) / -2.0) + 0.5em); /* 42857em);*/\n    transform: scale(65%);\n}\n.suey-shrink-tab-button .suey-tab-buttons.suey-window-side .suey-tab-icon-border {\n    border: 0.24em solid rgba(var(--icon));\n}\n\n.suey-panel-button.suey-title-bar .suey-tab-buttons {\n    left: 110%;\n    margin-left: 0.5em;\n}\n\n.suey-window:not(.suey-active-window) .suey-tab-icon-border {\n    border-color: rgba(var(--button-light)) !important;\n}\n\n/* Window Floaters */\n.suey-window .suey-panel-fancy-outer,\n.suey-window .suey-panel-fancy-border,\n.suey-window .suey-panel-fancy-inside,\n.suey-window .suey-tab-floaters,\n.suey-window .suey-floater,\n.suey-window .suey-titled {\n    overflow: visible;\n}\n\n.suey-window .suey-floater {\n    z-index: 101; /* window floater */\n}\n\n.suey-window .suey-tab-floaters {\n    margin-top: 1em;\n    height: calc(100% - 1em);\n}\n\n/* Window Tab Title Buttons */\n.suey-window .suey-tab-title {\n    pointer-events: none;\n    position: absolute;\n    top: -1.8em;\n    left: 0;\n    right: 0;\n    width: 75%;\n    margin: auto;\n    min-height: 1.9em;\n    background: transparent;\n    background-image: none;\n    box-shadow: none;\n    outline: none;\n    color: transparent;\n    text-shadow: none;\n    overflow: visible;\n}\n.suey-window .suey-tab-title .suey-borderless-button {\n    pointer-events: all;\n    position: relative;\n    pointer-events: all;\n    background: rgb(var(--button-dark)) !important;\n    border: solid var(--border-small) rgb(var(--icon));\n    overflow: visible;\n}\n.suey-window:not(.suey-active-window) .suey-tab-title .suey-borderless-button {\n    border: solid var(--border-small) rgb(var(--button-light));\n}\n";

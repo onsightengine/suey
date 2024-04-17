@@ -1,7 +1,11 @@
 import { Element } from '../core/Element.js';
+import { Iris } from '../utils/Iris.js';
 import { Popper } from '../utils/Popper.js';
 
 import { ALIGN, OVERFLOW, POSITION } from '../utils/Popper.js';
+import { TRAIT } from '../constants.js';
+
+const _clr = new Iris();
 
 class Button extends Element {
 
@@ -41,6 +45,13 @@ class Button extends Element {
         this.on('destroy', () => {
             if (self.attachedMenu) self.detachMenu();
         });
+    }
+
+    setColor(color) {
+        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) color = `var(--${color})`;
+        else color = _clr.set(color).rgbString();
+        this.setStyle('background-image', `linear-gradient(to bottom, rgba(${color}, 0.9), rgba(${color}, 0.65))`);
+        return this;
     }
 
     /******************** MENU ********************/

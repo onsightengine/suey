@@ -19,6 +19,11 @@ class ShadowBox extends Div {
         }
     }
 
+    setColor(color) {
+        this.firstImage()?.setColor(color);
+        return this;
+    }
+
     firstImage() {
         for (const child of this.contents().children) {
             if (!child || !child.isElement) continue;

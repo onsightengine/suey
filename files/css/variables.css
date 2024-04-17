@@ -106,5 +106,14 @@
 
     /* Filters */
     --drop-shadow:          drop-shadow(0 0 var(--pad-x-small) black);
+    --tint-icon:            none;
+    --tint-complement:      none;
+    --tint-triadic1:        none;
+    --tint-triadic2:        none;
+    --tint-triadic3:        none;
+    --tint-triadic4:        none;
+    --tint-triadic5:        none;
+    --tint-triadic6:        none;
+    --tint-text:            none;
 
 }

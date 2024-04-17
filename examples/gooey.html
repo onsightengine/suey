@@ -16,7 +16,10 @@
 
     <script type="module">
 
-        import { Gooey } from 'suey';
+        import {
+            Gooey,
+            Question,
+        } from 'suey';
 
         const params = {
             color: '#00b4af',
@@ -25,7 +28,7 @@
             width: 200,
 
             boolean: false,
-            function: () => alert('Clicked!'),
+            function: () => { new Question('Clicked!').alert(); },
             list: 0,
             array: [ 0, 0, 0, 0 ],
             string: 'Suey is great!',
