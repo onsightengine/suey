@@ -130,10 +130,10 @@ const QUESTION_TYPES = {
     WARNING:        'warning',
 };
 const BUTTON_TYPES = {
-    OKAY:           'Okay',
-    YES:            'Yes',
-    NO:             'No',
-    CANCEL:         'Cancel',
+    OKAY:           { text: 'Okay',     value: 0 },
+    YES:            { text: 'Yes',      value: 1 },
+    NO:             { text: 'No',       value: 2 },
+    CANCEL:         { text: 'Cancel',   value: 3 },
 };
 const GRAPH_LINE_TYPES = {
     STRAIGHT:       'straight',
@@ -5240,6 +5240,12 @@ class MainWindow extends Panel {
 }
 
 class Question extends Panel {
+    static buttonByValue(value) {
+        for (const key in BUTTON_TYPES) {
+            if (BUTTON_TYPES[key].value === value) return key;
+        }
+        return 'unknown';
+    }
     constructor(type = QUESTION_TYPES.INFO, content = '', buttons = [ BUTTON_TYPES.OKAY ], defaultButton = BUTTON_TYPES.OKAY) {
         super({ style: PANEL_STYLES$1.FANCY });
         const self = this;
@@ -5296,13 +5302,16 @@ class Question extends Panel {
         if (buttons.length === 0) buttons.push(BUTTON_TYPES.OKAY);
         divBottom.add(new FlexSpacer());
         let focusedButton = null, lastButton = null;
-        for (const buttonText of buttons) {
-            const button = new Button(buttonText).addClass(buttonClass);
+        for (const buttonInfo of buttons) {
+            const text = buttonInfo.text ?? '???';
+            const value = buttonInfo.value ?? 0;
+            const button = new Button(text).addClass(buttonClass);
             button.setStyle('margin', '0.1em');
             button.allowFocus();
-            button.onPress(() => { self.answered(buttonText); });
+            button.onPress(() => { self.answered(value); });
+            button.dom.buttonValue = value;
             divBottom.add(button);
-            if (defaultButton === buttonText) focusedButton = button;
+            if (defaultButton && defaultButton.value === value) focusedButton = button;
             lastButton = button;
         }
         if (!focusedButton) focusedButton = lastButton;
@@ -5312,7 +5321,7 @@ class Question extends Panel {
         this.blackout.destroy();
         super.destroy();
     }
-    alert(callback = (button) => {}) {
+    alert(callback = (value) => {}) {
         this.callback = callback;
         document.body.appendChild(this.blackout.dom);
         document.body.appendChild(this.dom);
@@ -5321,11 +5330,11 @@ class Question extends Panel {
         this.focusedButton.focus();
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
-    answered(buttonText) {
+    answered(value) {
         document.body.removeChild(this.dom);
         document.body.removeChild(this.blackout.dom);
         if (this.callback && typeof this.callback === 'function') {
-            this.callback(buttonText);
+            this.callback(value);
         }
         document.removeEventListener('keydown', this.handleKeyDown.bind(this));
         this.callback = null;
@@ -5345,8 +5354,9 @@ class Question extends Panel {
             event.preventDefault();
             const buttons = Array.from(this.contents().dom.querySelectorAll('button'));
             if (buttons.length > 0) {
-                for (const button of buttons) if (button.textContent === 'Cancel') return this.answered('Cancel');
-                for (const button of buttons) if (button.textContent === 'No') return this.answered('No');
+                for (const button of buttons) if (button.buttonValue === BUTTON_TYPES.CANCEL.value) return this.answered(BUTTON_TYPES.CANCEL.value);
+                for (const button of buttons) if (button.buttonValue === BUTTON_TYPES.NO.value) return this.answered(BUTTON_TYPES.NO.value);
+                for (const button of buttons) if (button.buttonValue === BUTTON_TYPES.OKAY.value) return this.answered(BUTTON_TYPES.OKAY.value);
             }
         }
     }

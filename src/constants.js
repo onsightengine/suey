@@ -145,10 +145,10 @@ export const QUESTION_TYPES = {
 };
 
 export const BUTTON_TYPES = {
-    OKAY:           'Okay',
-    YES:            'Yes',
-    NO:             'No',
-    CANCEL:         'Cancel',
+    OKAY:           { text: 'Okay',     value: 0 },
+    YES:            { text: 'Yes',      value: 1 },
+    NO:             { text: 'No',       value: 2 },
+    CANCEL:         { text: 'Cancel',   value: 3 },
 };
 
 /********** NODES */
