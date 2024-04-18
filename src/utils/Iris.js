@@ -215,9 +215,9 @@ class Iris {
         let m;
         if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(style)) {
             let color;
-            const name = m[1];
+            const format = m[1];
             const components = m[2];
-            switch (name) {
+            switch (format) {
                 case 'rgb':
                 case 'rgba':
                     if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
@@ -415,7 +415,6 @@ class Iris {
 
     /**
      * Darkens color by amount
-     * @name darken
      * @param {Number} [amount] Percentage to darken (default = 0.5), 0 = fully dark, 1 = no change, 2 = twice as bright
      */
     darken(amount = 0.5 /* percentage from 0 to 1 */ ) {
@@ -751,7 +750,7 @@ const HTML_COLORS = {
     'white': 0xffffff, 'whitesmoke': 0xf5f5f5, 'yellow': 0xffff00, 'yellowgreen': 0x9acd32
 };
 
-// Extended HTML color names (https://htmlcolorcodes.com/colors)
+// Extended HTML colors (https://htmlcolorcodes.com/colors)
 const EXTENDED_COLORS = {
     // black
     'black': 0x000000, 'charcoal': 0x36454f, 'darkgreen': 0x023020, 'darkpurple': 0x301934, 'jetblack': 0x343434,

@@ -10,9 +10,9 @@ class TextBox extends Element {
         this.dom.type = 'text';
         this.dom.name = 'TextBox';
 
-        // // NOTE: For chrome, this doesn't always turn off autocomplete.
-        // Try inserting a zero-width non-joiner into the input name to trick chrome.
-        // So 'Name' -> 'N&zwnj;ame', 'Street' -> 'S&zwnj;treet'
+        // NOTE: For chrome, this doesn't always turn off autocomplete.
+        //       Try inserting a zero-width non-joiner into the input name to trick chrome.
+        //       So 'Name' -> 'N&zwnj;ame', 'Street' -> 'S&zwnj;treet'
         this.setAttribute('autocomplete', 'off');
         this.setAttribute('spellcheck', 'false');
 
@@ -23,11 +23,6 @@ class TextBox extends Element {
             event.stopPropagation();
             if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
-                // if (event.shiftKey) {
-                //     editor.redo();
-                // } else {
-                //     editor.undo();
-                // }
             }
         }
 

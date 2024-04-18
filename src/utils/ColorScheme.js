@@ -95,7 +95,7 @@ class ColorScheme {
         Css.setVariable('--rotate-hue', diffHue);
     }
 
-    /** Returns string of color names and current values */
+    /** Returns string of color keys and values */
     static toString() {
         const COLUMN_LENGTH = 20;
         let output = '';

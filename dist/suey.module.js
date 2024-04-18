@@ -463,9 +463,9 @@ class Iris {
         let m;
         if (m = /^((?:rgb|hsl)a?)\(([^\)]*)\)/.exec(style)) {
             let color;
-            const name = m[1];
+            const format = m[1];
             const components = m[2];
-            switch (name) {
+            switch (format) {
                 case 'rgb':
                 case 'rgba':
                     if (color = /^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec(components)) {
@@ -1575,7 +1575,6 @@ class Element {
         }
         this.isElement = true;
         let dom = domElement;
-        let name = '';
         let suey = this;
         this.parent = undefined;
         this.children = [];
@@ -1589,15 +1588,12 @@ class Element {
             id: {
                 configurable: true,
                 get: function() { return dom.id; },
-                set: function(value) {
-                    dom.id = value;
-                    if (!name || name == '') name = value;
-                },
+                set: function(value) { dom.id = value; },
             },
             name: {
-                get: function() { return (name && name !== '') ? name : 'No name'; },
-                set: function(value) { name = String(value); } ,
-            }
+                get: function() { return dom.name ?? '???'; },
+                set: function(value) { dom.name = String(value); } ,
+            },
         });
         Object.defineProperties(dom, {
             suey: {
@@ -1620,7 +1616,7 @@ class Element {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
         } else {
-            console.warn(`Element.addSlot(): '${this.name}' failed to add slot`, slot);
+            console.warn(`Element.addSlot(): ID: '${this.id}' / NAME: '${this.name}' failed to add slot`, slot);
         }
     }
     add(...elements) {
@@ -1919,7 +1915,7 @@ function removeFromParent(parent, element, destroy = true) {
 
 const _clr$4 = new Iris();
 class Button extends Element {
-    constructor(buttonText, closesMenus = true) {
+    constructor(buttonText = ' ', closesMenus = true) {
         super(document.createElement('button'));
         const self = this;
         this.setClass('suey-button');
@@ -2741,8 +2737,10 @@ class Shrinkable extends Panel {
     sort() {
         const items = this.contents().children;
         items.sort((a, b) => {
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return  1;
+            const nameA = String(a.name).toLowerCase();
+            const nameB = String(b.name).toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return  1;
             return 0;
         });
         for (let i = 0; i < items.length; i++) {
@@ -5768,9 +5766,9 @@ class AssetBox extends Div {
         super();
         this.setClass('suey-asset-box');
         this.allowFocus();
-        if (title !== '') this.setAttribute('tooltip', title);
-        if (typeof title !== 'string' || title === '') title = 'Unknown';
-        this.name = title.toLowerCase();
+        if (!title || typeof title !== 'string' || title === '') title = 'No Name';
+        this.setAttribute('tooltip', title);
+        this.name = title;
         const assetImageHolder = new ShadowBox();
         assetImageHolder.dom.draggable = true;
         if (view == 'icon') {
@@ -5810,7 +5808,7 @@ class FlexBox extends Element {
 
 const _clr = new Iris();
 class ToolbarButton extends Button {
-    constructor(buttonText, position = 'none' ) {
+    constructor(buttonText = '', position = 'none' ) {
         super(buttonText, true );
         this.setClass('suey-toolbar-button');
         this.setStyle('pointerEvents', 'all');

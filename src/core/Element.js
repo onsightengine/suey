@@ -23,7 +23,6 @@ class Element {
 
         // Properties
         let dom = domElement;                           // 'HTMLElement'
-        let name = '';                                  // Object Name
         let suey = this;                                // dom.suey
 
         this.parent = undefined;                        // Parent 'Element'
@@ -40,15 +39,12 @@ class Element {
             id: {
                 configurable: true,
                 get: function() { return dom.id; },
-                set: function(value) {
-                    dom.id = value;
-                    if (!name || name == '') name = value;
-                },
+                set: function(value) { dom.id = value; },
             },
             name: {
-                get: function() { return (name && name !== '') ? name : 'No name'; },
-                set: function(value) { name = String(value); } ,
-            }
+                get: function() { return dom.name ?? '???'; },
+                set: function(value) { dom.name = String(value); } ,
+            },
         });
 
         Object.defineProperties(dom, {
@@ -89,7 +85,7 @@ class Element {
         if (slot instanceof SignalBinding) {
             this.slots.push(slot);
         } else {
-            console.warn(`Element.addSlot(): '${this.name}' failed to add slot`, slot);
+            console.warn(`Element.addSlot(): ID: '${this.id}' / NAME: '${this.name}' failed to add slot`, slot);
         }
     }
 
@@ -206,7 +202,7 @@ class Element {
 
     /**
      * Adds CSS classes to the Element.
-     * @param {...string} classNames - The CSS class names to add.
+     * @param {...string} classNames - The CSS class name(s) to add.
      * @returns {Element} The Element instance.
      * @memberof Element
      */
@@ -274,7 +270,7 @@ class Element {
 
     /**
      * Sets an attribute on the Element.
-     * @param {string} attribute - The name of the attribute.
+     * @param {string} attribute - Attribute key.
      * @param {string} value - The value of the attribute.
      * @memberof Element
      */
@@ -623,7 +619,7 @@ class Element {
 
     /**
      * Attaches an event listener to the Element.
-     * @param {string} event - The event name.
+     * @param {string} event - The event type string.
      * @param {function} callback - The callback function to execute when the event is triggered.
      * @param {boolean} [once=false] - Whether the event should be triggered only once.
      * @returns {Element} The Element instance.

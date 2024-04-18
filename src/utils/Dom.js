@@ -1,5 +1,5 @@
 // SEARCH
-//  findElementAt()                 Finds an Element at pointer position with class name
+//  findElementAt()                 Finds an Element at pointer position with designated class
 // PARENT / CHILD
 //  childWithClass()                Finds and returns first child of 'element' with class 'className'
 //  childrenWithClass()             Finds and returns all children of 'element' with class 'className'
@@ -18,7 +18,7 @@ class Dom {
 
     /********** SEARCH **********/
 
-    /** Finds an Element at pointer position with class name */
+    /** Finds an Element at pointer position with designated class */
     static findElementAt(className, centerX, centerY) {
         const domElements = document.elementsFromPoint(centerX, centerY);
         for (const dom of domElements) {

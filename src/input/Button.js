@@ -9,7 +9,7 @@ const _clr = new Iris();
 
 class Button extends Element {
 
-    constructor(buttonText, closesMenus = true) {
+    constructor(buttonText = ' ', closesMenus = true) {
         super(document.createElement('button'));
         const self = this;
         this.setClass('suey-button');

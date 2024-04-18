@@ -19,7 +19,7 @@ class Css {
 
     /******************** VARIABLES ********************/
 
-    /** Gets a CSS variable by name, hyphens optional */
+    /** Gets a CSS variable by name (hyphens optional) */
     static getVariable(variable, element) {
         variable = String(variable);
         if (!variable.startsWith('--')) variable = '--' + variable;
@@ -31,11 +31,11 @@ class Css {
     }
 
     /**
-     * Sets a CSS variable by name
+     * Sets a CSS variable by name (hyphens optional)
      *
-     * @param {*} variable variable name, first two hypens optional
-     * @param {*} valueAsString new css variable value as string
-     * @param {*} element Optional, will apply to 'root' element if not defined
+     * @param {*} variable Variable name (hyphens optional).
+     * @param {*} valueAsString New CSS variable value as string.
+     * @param {*} element Optional, will apply to 'root' element if not defined.
      */
     static setVariable(variable, valueAsString, element) {
         variable = String(variable);

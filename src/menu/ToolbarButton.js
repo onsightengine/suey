@@ -8,7 +8,7 @@ const _clr = new Iris();
 
 class ToolbarButton extends Button {
 
-    constructor(buttonText, position = 'none' /* OR: 'left', 'middle', 'right' */) {
+    constructor(buttonText = '', position = 'none' /* OR: 'left', 'middle', 'right' */) {
         super(buttonText, true /* closesMenus */);
         this.setClass('suey-toolbar-button');
         this.setStyle('pointerEvents', 'all');

@@ -81,8 +81,10 @@ class Shrinkable extends Panel {
     sort() {
         const items = this.contents().children;
         items.sort((a, b) => {
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return  1;
+            const nameA = String(a.name).toLowerCase();
+            const nameB = String(b.name).toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return  1;
             return 0;
         });
 

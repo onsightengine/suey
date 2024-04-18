@@ -9,12 +9,10 @@ class AssetBox extends Div {
         this.setClass('suey-asset-box');
         this.allowFocus();
 
-        // Tooltip
-        if (title !== '') this.setAttribute('tooltip', title);
-
-        // Set Name
-        if (typeof title !== 'string' || title === '') title = 'Unknown';
-        this.name = title.toLowerCase();
+        // Ensure Moniker
+        if (!title || typeof title !== 'string' || title === '') title = 'No Name';
+        this.setAttribute('tooltip', title);
+        this.name = title;
 
         // Image
         const assetImageHolder = new ShadowBox();

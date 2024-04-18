@@ -429,7 +429,7 @@ class Graph extends Panel {
             } else if (connect.type === NODE_TYPES.OUTPUT) {
                 connect.connect(active);
             }
-            // // DEBUG: Node names
+            // // DEBUG: Node Names
             // console.log(`${active.node.name}:${active.type} to ${connect.node.name}:${connect.type}`);
         }
         this.activeItem = undefined;
