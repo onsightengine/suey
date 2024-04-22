@@ -266,6 +266,19 @@ class Element {
         return this;
     }
 
+    /**
+     * Convenience function that ensures Element has class name if wants === true, or removes it if wants === false.
+     * @param {*} className
+     * @param {*} wants
+     */
+    wantsClass(className, wants = true) {
+        if (className && className != '') {
+            if (wants) this.addClass(className);
+            else this.removeClass(className);
+        }
+        return this;
+    }
+
     /******************** HTML */
 
     /**

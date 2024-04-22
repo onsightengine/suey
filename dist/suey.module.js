@@ -1706,6 +1706,13 @@ class Element {
         }
         return this;
     }
+    wantsClass(className, wants = true) {
+        if (className && className != '') {
+            if (wants) this.addClass(className);
+            else this.removeClass(className);
+        }
+        return this;
+    }
     setAttribute(attrib, value) {
         this.dom.setAttribute(attrib, value);
     }
