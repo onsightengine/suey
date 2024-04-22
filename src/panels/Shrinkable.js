@@ -73,8 +73,7 @@ class Shrinkable extends Panel {
     setExpanded(expand = true, dispatchEvent = true) {
         expand = Boolean(expand);
         this.isExpanded = expand;
-        if (expand) this.addClass('suey-expanded');
-        else this.removeClass('suey-expanded');
+        this.wantsClass('suey-expanded', expand);
         if (dispatchEvent) this.dom.dispatchEvent(new Event('expand'));
     }
 

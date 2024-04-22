@@ -2737,8 +2737,7 @@ class Shrinkable extends Panel {
     setExpanded(expand = true, dispatchEvent = true) {
         expand = Boolean(expand);
         this.isExpanded = expand;
-        if (expand) this.addClass('suey-expanded');
-        else this.removeClass('suey-expanded');
+        this.wantsClass('suey-expanded', expand);
         if (dispatchEvent) this.dom.dispatchEvent(new Event('expand'));
     }
     sort() {
@@ -3172,15 +3171,13 @@ class MenuItem extends Div {
     }
     setChecked(checked) {
         const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
-        if (checked) this.divIcon.addClass('suey-icon-colorize');
-        else this.divIcon.removeClass('suey-icon-colorize');
+        this.divIcon.wantsClass('suey-icon-colorize', checked);
         this.setImage(imageUrl);
         this.checked = checked;
         return this;
     }
     setDisabled(disabled) {
-        if (disabled) this.addClass('suey-disabled');
-        else this.removeClass('suey-disabled');
+        this.wantsClass('suey-disabled', disabled);
         this.disabled = disabled;
         return this;
     }
@@ -4425,7 +4422,7 @@ class TabButton extends Div {
                 if (tabPanel) {
                     tabPanel.id = value;
                 } else {
-                    console.warn(`TabButton.constructor(): TabPanel not found`);
+                    console.warn(`TabButton: TabPanel not found`);
                 }
             },
         });
@@ -5531,7 +5528,7 @@ class Window extends AbstractDock {
 }
 class TitleBar extends Div {
     constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (!parent || !parent.isElement) return console.warn(`TitleBar.constructor(): Missing parent element`);
+        if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
         super();
         const self = this;
         this.setClass('suey-title-bar', 'suey-panel-button');
@@ -6009,10 +6006,7 @@ class Graph extends Panel {
             const selected = [];
             const nodes = self.getNodes();
             nodes.forEach((node) => { if (rubberbandIntersect(node)) selected.push(node); });
-            nodes.forEach((node) => {
-                if (selected.includes(node)) node.addClass('suey-node-selected');
-                else node.removeClass('suey-node-selected');
-            });
+            nodes.forEach((node) => { node.wantsClass('suey-node-selected', selected.includes(node)); });
         }
         this.input.on('pointerdown', inputPointerDown);
         let rect = {};
@@ -6819,11 +6813,7 @@ class NodeItem extends Div {
                 this.connections.push(item);
             }
         }
-        if (this.connections.length > 0) {
-            this.addClass('suey-item-connected');
-        } else {
-            this.removeClass('suey-item-connected');
-        }
+        this.wantsClass('suey-item-connected', this.connections.length > 0);
     }
     disconnect() {
         switch (this.type) {

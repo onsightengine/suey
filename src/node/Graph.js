@@ -185,10 +185,7 @@ class Graph extends Panel {
             const selected = [];
             const nodes = self.getNodes();
             nodes.forEach((node) => { if (rubberbandIntersect(node)) selected.push(node); });
-            nodes.forEach((node) => {
-                if (selected.includes(node)) node.addClass('suey-node-selected');
-                else node.removeClass('suey-node-selected');
-            });
+            nodes.forEach((node) => { node.wantsClass('suey-node-selected', selected.includes(node)); });
         }
         this.input.on('pointerdown', inputPointerDown);
 

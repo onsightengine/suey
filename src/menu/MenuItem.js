@@ -142,16 +142,14 @@ class MenuItem extends Div {
 
     setChecked(checked) {
         const imageUrl = (checked) ? IMAGE_CHECK : IMAGE_EMPTY;
-        if (checked) this.divIcon.addClass('suey-icon-colorize');
-        else this.divIcon.removeClass('suey-icon-colorize');
+        this.divIcon.wantsClass('suey-icon-colorize', checked);
         this.setImage(imageUrl);
         this.checked = checked;
         return this;
     }
 
     setDisabled(disabled) {
-        if (disabled) this.addClass('suey-disabled');
-        else this.removeClass('suey-disabled');
+        this.wantsClass('suey-disabled', disabled);
         this.disabled = disabled;
         return this;
     }

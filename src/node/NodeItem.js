@@ -114,11 +114,7 @@ class NodeItem extends Div {
                 this.connections.push(item);
             }
         }
-        if (this.connections.length > 0) {
-            this.addClass('suey-item-connected');
-        } else {
-            this.removeClass('suey-item-connected');
-        }
+        this.wantsClass('suey-item-connected', this.connections.length > 0);
     }
 
     disconnect() {

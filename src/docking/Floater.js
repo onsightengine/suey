@@ -103,7 +103,7 @@ class TabButton extends Div {
                 if (tabPanel) {
                     tabPanel.id = value;
                 } else {
-                    console.warn(`TabButton.constructor(): TabPanel not found`);
+                    console.warn(`TabButton: TabPanel not found`);
                 }
             },
         });
