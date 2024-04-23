@@ -5974,7 +5974,7 @@ class Graph extends Panel {
                 const diffY = (event.clientY - startPoint.y) * (1 / self.#scale);
                 self.#offset.x = (offset.x + diffX);
                 self.#offset.y = (offset.y + diffY);
-                self.zoomTo();
+                self.zoomTo(null, null, null, false );
             } else if (selecting) {
                 updateRubberbandBox(event.clientX, event.clientY);
             }
@@ -6059,7 +6059,7 @@ class Graph extends Panel {
                 self.#offset.x = ((nodesRect.width / 2) / self.#scale) - x;
                 self.#offset.y = ((nodesRect.height / 2) / self.#scale) - y;
             }
-            self.zoomTo();
+            self.zoomTo(null, null, null, false );
         }
         function mapPointerDown(event) {
             self.stopAnimation();
@@ -6453,8 +6453,8 @@ class Graph extends Panel {
             this.zoomTo(this.#targetZoom / 1000);
         }
     }
-    zoomTo(zoom, clientX, clientY) {
-        if (zoom === undefined) zoom = this.#scale;
+    zoomTo(zoom, clientX, clientY, drawLines = true) {
+        if (zoom == undefined) zoom = this.#scale;
         zoom = Math.round(Math.min(Math.max(zoom, ZOOM_MIN), ZOOM_MAX) * 100) / 100;
         const nodes = this.nodes;
         const grid = this.grid;
@@ -6489,7 +6489,7 @@ class Graph extends Panel {
             else el.classList.remove('suey-too-small');
         });
         this.drawMiniMap();
-        this.drawLines();
+        if (drawLines) this.drawLines();
     }
 }
 
