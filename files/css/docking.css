@@ -376,10 +376,14 @@
 .suey-tab-buttons.suey-window-side {
     flex-direction: row;
     top: calc((var(--tab-size) / -2.0) + 0.4em);
-    transition: transform 0.15s;
 }
 .suey-tab-buttons.suey-window-side .suey-tab-icon-border {
     border: var(--border-small) solid rgba(var(--icon));
+}
+.suey-window-moving .suey-tab-buttons.suey-window-side {
+    transition: transform 0.15s;
+}
+.suey-window-moving .suey-tab-buttons.suey-window-side .suey-tab-icon-border {
     transition: border 0.15s;
 }
 

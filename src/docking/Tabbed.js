@@ -20,6 +20,7 @@ class Tabbed extends AbstractDock {
         closeButton = false,
     } = {}) {
         super({ style });
+        const self = this;
         this.addClass('suey-tabbed');
 
         // Children Elements
@@ -36,6 +37,17 @@ class Tabbed extends AbstractDock {
             const buttonSide = (tabSide === 'right') ? CLOSE_SIDES.LEFT : CLOSE_SIDES.RIGHT;
             const offset = (tabSide === 'right' || tabSide === 'left') ? 0 : 1.7;
             Interaction.addCloseButton(this, buttonSide, offset, 1.3 /* scale */);
+        }
+
+    }
+
+    focus() {
+        super.focus();
+
+        // Floater wants Focus if no descendant has focus
+        if (document.activeElement === this.dom || this.dom.contains(document.activeElement) === false) {
+            const floater = this.findFloater(this.selectedID);
+            if (floater) floater.dom.dispatchEvent(new Event('activate-window'));
         }
     }
 

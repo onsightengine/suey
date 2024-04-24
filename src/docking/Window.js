@@ -65,12 +65,10 @@ class Window extends AbstractDock {
 
         // Z-Index Stacking
         function activeWindow() {
-            // Floater wants Focus if no Window descendant has focus
+            // Floater wants Focus if no descendant has focus
             if (document.activeElement === self.dom || self.dom.contains(document.activeElement) === false) {
-                if (self.floaters && self.floaters.children.length > 0) {
-                    const floater = self.floaters.children[0];
-                    floater.dom.dispatchEvent(new Event('activate-window'));
-                }
+                const floater = self.findFloater(self.selectedID);
+                if (floater) floater.dom.dispatchEvent(new Event('activate-window'));
             }
             // Apply Class, Sort Windows
             if (self.hasClass('suey-active-window')) return;
@@ -97,7 +95,6 @@ class Window extends AbstractDock {
                 });
             }
         }
-        this.on('displayed', () => activeWindow());
         this.on('focusin', () => activeWindow());
         this.on('focusout', () => self.removeClass('suey-active-window'));
 
@@ -107,6 +104,7 @@ class Window extends AbstractDock {
             self.focus();
             rect = self.dom.getBoundingClientRect();
             parentRect = self.parentRect();
+            self.addClass('suey-window-moving');
         }
         function resizerMove(resizer, diffX, diffY) {
             if (resizer.hasClassWithString('left')) {
@@ -135,6 +133,7 @@ class Window extends AbstractDock {
         }
         function resizerUp() {
             keepInWindow();
+            self.removeClass('suey-window-moving');
         }
         Interaction.makeResizeable(this, resizerDown, resizerMove, resizerUp);
         this.addResizers(resizers);
@@ -432,9 +431,6 @@ class Window extends AbstractDock {
 
             // Verify Visible
             this.setStyle('display', '');
-
-            // Focus In, set as Active Window
-            this.focus()
         }
         return this;
     }
@@ -451,11 +447,10 @@ export { Window };
 
 class TitleBar extends Div {
 
-    constructor(parent, title = '', draggable = false, scale = 1.3) {
-        if (!parent || !parent.isElement) return console.warn(`TitleBar: Missing parent element`);
+    constructor(window, title = '', draggable = false, scale = 1.3) {
+        if (!window || !window.isElement) return console.warn(`TitleBar: Missing window element`);
 
         super();
-        const self = this;
         this.setClass('suey-title-bar', 'suey-panel-button');
         this.setStyle('height', `${scale}em`, 'width', `${scale * 6}em`);
         this.setStyle('top', `${0.8 - ((scale + 0.28571 + 0.071) / 2)}em`);
@@ -465,21 +460,27 @@ class TitleBar extends Div {
 
         // Events
         function titleDown() {
-            if (parent && typeof parent.focus === 'function') parent.focus();
+            if (window) {
+                if (typeof window.focus === 'function') window.focus();
+                window.addClass('suey-window-moving');
+            }
+        }
+        function titleUp() {
+            if (window) window.removeClass('suey-dragging-window');
         }
         function titleDoubleClick() {
-            if (self.parent && self.parent.isElement) {
-                if (typeof self.parent.setInitialSize === 'function') self.parent.setInitialSize();
-                if (typeof self.parent.center === 'function') self.parent.center();
-                self.parent.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
-                self.parent.removeClass('suey-maximized');
-                self.parent.maximized = false;
-                parent.dom.dispatchEvent(new Event('resize'));
+            if (window && window.isElement) {
+                if (typeof window.setInitialSize === 'function') window.setInitialSize();
+                if (typeof window.center === 'function') window.center();
+                window.removeClass('suey-docked-left', 'suey-docked-right', 'suey-docked-top', 'suey-docked-bottom');
+                window.removeClass('suey-maximized');
+                window.maximized = false;
+                window.dom.dispatchEvent(new Event('resize'));
             }
         }
 
         // Add Listeners
-        if (draggable) Interaction.makeDraggable(this, parent, true /* limitToWindow */, titleDown);
+        if (draggable) Interaction.makeDraggable(this, window, true /* limitToWindow */, titleDown, null, titleUp);
         this.on('dblclick', titleDoubleClick);
     }
 

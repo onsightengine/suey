@@ -1,4 +1,5 @@
 import { ColorizeFilter } from '../utils/ColorizeFilter.js';
+import { ColorScheme } from '../utils/ColorScheme.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
@@ -546,7 +547,7 @@ class Docker extends Panel {
                         bottomDock.setStyle('left', '20%', 'width', '60%');
                         const centerDock = new Div().addClass('suey-dock-location', 'suey-dock-center');
                         const imageBox = new ShadowBox(IMAGE_ADD).evenShadow();
-                        imageBox.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(TRAIT.COMPLEMENT));
+                        imageBox.firstImage()?.setStyle('filter', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.COMPLEMENT)));
                         imageBox.setStyle('width', '20%', 'height', '20%');
                         centerDock.add(imageBox);
                         dockLocations.add(leftDock, rightDock, topDock, bottomDock, centerDock);
