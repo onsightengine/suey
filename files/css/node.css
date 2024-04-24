@@ -100,10 +100,6 @@
     filter: brightness(120%);
 }
 
-.suey-node.suey-node-selected, .suey-node.suey-node-displayed {
-    outline: solid var(--pad-small) rgb(var(--black), 0.5);
-}
-
 .suey-node.suey-too-small .suey-resizer {
     pointer-events: none;
 }
@@ -144,6 +140,20 @@
     border: var(--border-small) solid rgba(var(--icon), 1);
 }
 
+.suey-node.suey-node-selected,
+.suey-node.suey-node-displayed {
+    outline: solid var(--pad-small) rgb(var(--black), 0.5);
+}
+.suey-node.suey-node-selected .suey-node-border {
+    border: var(--border-small) solid rgba(var(--icon), 1);
+}
+/* .suey-node.suey-node-selected.suey-node.suey-node-displayed {
+    outline: solid var(--pad-small) rgb(var(--icon), 1);
+} */
+/* .suey-node.suey-node-selected.suey-node.suey-node-displayed .suey-node-border {
+    border: var(--border-small) solid rgba(var(--complement), 1);
+} */
+
 .suey-node-resizers {
     pointer-events: all;
     position: absolute;
@@ -168,7 +178,6 @@
     height: 1.82em;
     margin: 0;
     padding: var(--pad-x-small) 0.5em; /* vertical | horizontal */
-    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.2);
@@ -185,6 +194,10 @@
 
 .suey-node-header-icon .suey-image {
     filter: brightness(calc(10 * var(--bright))) opacity(0.9);
+}
+
+.suey-node-displayed .suey-node-header-icon .suey-image {
+    filter: var(--tint-complement);
 }
 
 .suey-node-header-icon {
@@ -205,12 +218,18 @@
     flex-grow: 1;
     flex-shrink: 2;
     color: rgba(var(--text-light), 1.0);
+    text-shadow: var(--minus) var(--pixel) rgba(var(--shadow), 0.5);
     font-size: 100%;
     overflow: hidden;
     text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
     padding-left: 0.5em;
+}
+
+.suey-node-displayed .suey-node-header-text {
+    color: rgba(var(--complement), 1);
+    text-shadow: 0 0 0.15em rgba(var(--shadow), 1);
 }
 
 /***** Node Item */
@@ -248,6 +267,10 @@
     margin-top: var(--pad-x-small);
     margin-bottom: var(--pad-x-small);
     vertical-align: middle;
+}
+
+.suey-node-displayed .suey-node-item {
+    color: rgba(var(--complement), 1);
 }
 
 .suey-node-left {
