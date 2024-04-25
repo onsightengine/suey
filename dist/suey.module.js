@@ -1756,7 +1756,7 @@ class Element {
         this.setStyle('display', 'none');
     }
     display(dispatchEvent = true) {
-        if (this.isDisplayed()) return;
+        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
         this.removeClass('suey-hidden');
         this.setStyle('display', '');
         if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
@@ -4618,6 +4618,7 @@ class TabButton extends Div {
                             }
                             droppedOnDock.addFloater(self.tabPanel);
                             droppedOnDock.selectFloater(self.tabPanel.id);
+                            droppedOnDock.focus();
                         }
                     }
                     lastUnder.hideDockLocations();
@@ -5531,10 +5532,7 @@ class Window extends AbstractDock {
     selectFloater(selectID, wasClicked = false) {
         if (selectID && selectID.isElement) selectID = selectID.id;
         if (typeof selectID !== 'string') return this;
-        if (this.selectedID === selectID) {
-            this.focus();
-            return this;
-        }
+        if (this.selectedID === selectID) return this;
         const panel = this.findFloater(selectID);
         if (panel && panel.button) {
             this.floaters.children.forEach((element) => element.hide());
@@ -5621,7 +5619,7 @@ class MainWindow extends Panel {
     clearDocks() {
         this.docker.clearDocks();
     }
-    addWindow(options, focus = true) {
+    addWindow(options) {
         let window = undefined;
         if (options && options.isElement && options.hasClass('suey-window')) {
             window = options;
@@ -5630,7 +5628,6 @@ class MainWindow extends Panel {
         }
         this.windows.addToSelf(window);
         window.display();
-        if (focus) window.focus();
         return window;
     }
     clearWindows() {

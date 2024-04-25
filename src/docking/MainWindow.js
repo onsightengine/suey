@@ -39,7 +39,7 @@ class MainWindow extends Panel {
 
     /******************** WINDOWS */
 
-    addWindow(options, focus = true) {
+    addWindow(options) {
         let window = undefined;
         if (options && options.isElement && options.hasClass('suey-window')) {
             window = options;
@@ -48,7 +48,6 @@ class MainWindow extends Panel {
         }
         this.windows.addToSelf(window);
         window.display();
-        if (focus) window.focus();
         return window;
     }
 

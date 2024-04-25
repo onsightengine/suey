@@ -334,7 +334,7 @@ class Element {
      * @memberof Element
      */
     display(dispatchEvent = true) {
-        if (this.isDisplayed()) return;
+        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
         this.removeClass('suey-hidden');
         this.setStyle('display', '');
         if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));

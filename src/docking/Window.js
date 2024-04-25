@@ -404,10 +404,7 @@ class Window extends AbstractDock {
         if (typeof selectID !== 'string') return this;
 
         // Already Selected
-        if (this.selectedID === selectID) {
-            this.focus();
-            return this;
-        }
+        if (this.selectedID === selectID) return this;
 
         // Find button / panel with selectID
         const panel = this.findFloater(selectID);

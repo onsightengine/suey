@@ -326,6 +326,7 @@ class TabButton extends Div {
                             // Add to New Tabbed
                             droppedOnDock.addFloater(self.tabPanel);
                             droppedOnDock.selectFloater(self.tabPanel.id);
+                            droppedOnDock.focus();
                         }
                     }
                     // Clear Dock Locations
