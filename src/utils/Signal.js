@@ -93,7 +93,7 @@ class SignalBinding {
 
 }
 
-let _enabled = true;
+const _enabled = [];
 const _missed = {};
 let _time = 0;
 
@@ -109,20 +109,18 @@ class Signal {
     /********** STATIC */
 
     static disableSignals() {
-        _enabled = false;
-        // Clear Missed Signals
-        for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
-        // Reset Time Counter
-        _time = 0;
+        // Reset missed Signals first time disable is called
+        if (_enabled.length === 0) {
+            for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
+            _time = 0;
+        }
+        // Increase Disabled Stack
+        _enabled.push('false');
     }
 
     static enableSignals() {
-        _enabled = true;
-    }
-
-    static missedSignals() {
-        const missedByTime = Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
-        return missedByTime;
+        _enabled.pop();
+        return (_enabled.length > 0) ? {} : Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
     }
 
     /********** INSTANCE */
@@ -226,7 +224,7 @@ class Signal {
         if (!this.active) return;
 
         // All Signals Disabled? Keep track of arguments and time (order) dispatched.
-        if (!_enabled) {
+        if (_enabled.length > 0) {
             if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
             _missed[this.moniker].args.push([ ...arguments ]);
             _missed[this.moniker].time = _time++;
