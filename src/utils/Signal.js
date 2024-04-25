@@ -93,6 +93,10 @@ class SignalBinding {
 
 }
 
+let _enabled = true;
+const _missed = {};
+let _time = 0;
+
 /** Custom event broadcaster */
 class Signal {
 
@@ -102,9 +106,31 @@ class Signal {
     memorize = false;       // Keep record of previously dispatched parameters and auto execute listener during `add()`/`addOnce()` if Signal was already dispatched before?
     shouldPropagate = true; // Internal, used for halting
 
-    constructor() {
+    /********** STATIC */
+
+    static disableSignals() {
+        _enabled = false;
+        // Clear Missed Signals
+        for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
+        // Reset Time Counter
+        _time = 0;
+    }
+
+    static enableSignals() {
+        _enabled = true;
+    }
+
+    static missedSignals() {
+        const missedByTime = Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
+        return missedByTime;
+    }
+
+    /********** INSTANCE */
+
+    constructor(moniker) {
         this._bindings = []; /* Array of 'SignalBinding's */
         this._prevParams = null;
+        this.moniker = moniker;
     }
 
     #registerListener(listener, onceOnly, priority) {
@@ -196,18 +222,27 @@ class Signal {
 
     /** Broadcast Signal to all listeners added to the queue */
     dispatch(/* any number of comma separated arguments */) {
+        // Active?
         if (!this.active) return;
 
-        let paramsArr = [...arguments];
+        // All Signals Disabled? Keep track of arguments and time (order) dispatched.
+        if (!_enabled) {
+            if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
+            _missed[this.moniker].args.push([ ...arguments ]);
+            _missed[this.moniker].time = _time++;
+            return;
+        }
+
+        // Signal Setup
+        let paramsArr = [ ...arguments ];
         let n = this._bindings.length;
         if (this.memorize) this._prevParams = paramsArr;
         if (!n) return;
+        const bindings = [ ...this._bindings ];     // clone array in case add/remove items during dispatch
+        this.shouldPropagate = true;                // in case `halt` called during dispatching
 
-        const bindings = [...this._bindings];   // clone array in case add/remove items during dispatch
-        this.shouldPropagate = true;            // in case `halt` called during dispatching
-
-        // execute all callbacks until end of the list or until a callback returns `false` or stops propagation
-        // reverse loop since listeners with higher priority will be added at the end of the list
+        // Execute all callbacks until end of the list or until a callback returns `false` or stops propagation
+        // Also, reverse loop since listeners with higher priority will be added at the end of the list
         do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
     }
 

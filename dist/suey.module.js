@@ -1471,14 +1471,30 @@ class SignalBinding {
         return '[SignalBinding onceOnly:' + this.onceOnly +', isBound:'+ this.isBound() +', active:' + this.active + ']';
     }
 }
+let _enabled = true;
+const _missed = {};
+let _time = 0;
 class Signal {
     VERSION = '1.0.2';
     active = true;
     memorize = false;
     shouldPropagate = true;
-    constructor() {
+    static disableSignals() {
+        _enabled = false;
+        for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
+        _time = 0;
+    }
+    static enableSignals() {
+        _enabled = true;
+    }
+    static missedSignals() {
+        const missedByTime = Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
+        return missedByTime;
+    }
+    constructor(moniker) {
         this._bindings = [];
         this._prevParams = null;
+        this.moniker = moniker;
     }
     #registerListener(listener, onceOnly, priority) {
         let prevIndex = this.#indexOfListener(listener);
@@ -1541,11 +1557,17 @@ class Signal {
     }
     dispatch() {
         if (!this.active) return;
-        let paramsArr = [...arguments];
+        if (!_enabled) {
+            if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
+            _missed[this.moniker].args.push([ ...arguments ]);
+            _missed[this.moniker].time = _time++;
+            return;
+        }
+        let paramsArr = [ ...arguments ];
         let n = this._bindings.length;
         if (this.memorize) this._prevParams = paramsArr;
         if (!n) return;
-        const bindings = [...this._bindings];
+        const bindings = [ ...this._bindings ];
         this.shouldPropagate = true;
         do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
     }
