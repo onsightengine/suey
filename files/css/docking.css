@@ -237,6 +237,10 @@
     transition: margin var(--tab-timing) ease-in-out, transform var(--tab-timing) ease-in-out;
 }
 
+.suey-window .suey-tab-button {
+    transition: 0s;
+}
+
 .suey-tab-buttons.suey-top-side .suey-tab-button:not(.suey-selected),
 .suey-tab-buttons.suey-bottom-side .suey-tab-button:not(.suey-selected) {
     margin-left: calc(-1 * var(--pad-x-small));
