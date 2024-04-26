@@ -148,6 +148,7 @@ class TabButton extends Div {
         let locationUnder = undefined;
         let wasSelected = false;
         let lastClickTime = performance.now() - 1000;
+        let lastCheckTime = performance.now();
 
         function tabPointerDown(event) {
             if (event.button !== 0) return;
@@ -159,10 +160,13 @@ class TabButton extends Div {
             downY = event.pageY;
             document.addEventListener('pointermove', tabPointerMove);
             document.addEventListener('pointerup', tabPointerUp);
+            lastCheckTime = performance.now();
         }
         function tabPointerMove(event) {
             event.stopPropagation();
             event.preventDefault();
+            if (performance.now() - lastCheckTime < 30) return; /* limit updates */
+            lastCheckTime = performance.now();
             minDistance = Math.max(minDistance, Math.abs(downX - event.pageX));
             minDistance = Math.max(minDistance, Math.abs(downY - event.pageY));
 

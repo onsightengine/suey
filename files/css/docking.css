@@ -186,12 +186,17 @@
 
 /* Child of Tabbed that holds multiple 'TabButton' */
 .suey-tab-buttons {
+    pointer-events: none;
     position: absolute;
     display: flex;
     z-index: 101; /* Tabs */
     min-width: var(--tab-size);
     min-height: var(--tab-size);
     margin: 0;
+}
+
+.suey-dock-drag .suey-tab-buttons {
+    pointer-events: all;
 }
 
 .suey-tab-buttons.suey-left-side,
@@ -215,6 +220,7 @@
 /***** TabButton *****/
 
 .suey-tab-button {
+    pointer-events: all;
     width: var(--tab-size);
     height: var(--tab-size);
     display: flex;
