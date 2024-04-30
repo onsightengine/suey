@@ -139,6 +139,7 @@
                 const windowName = randomChars(5, 9, true);
                 const floater = new Floater(windowName, { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()).setStyle('overflow', 'auto'));
                 newWindow.addFloater(floater);
+                newWindow.focus();
             }
         }
         addWindow(3);
