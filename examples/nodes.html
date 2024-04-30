@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Suey • Gooey</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+    <link rel="icon" type="image/png" href="../files/logo/suey256.png" />
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+
+    <script src="./imports.js"></script>
+
+    <script type="module">
+
+        import {
+            Graph,
+            Gooey,
+            Node,
+            NodeItem,
+            NODE_TYPES,
+            RESIZERS,
+        } from 'suey';
+
+        /***** NODES */
+
+        const graph = new Graph({
+            snapToGrid: true,
+            //curveType:
+        });
+
+        graph.setStyle('width', '100%', 'height', '100%');
+        document.body.appendChild(graph.dom);
+
+        const node1 = new Node({ x: -200, y: -100, color: '#ff0000', resizers: [], });
+        node1.addItem(new NodeItem({ type: NODE_TYPES.INPUT, title: 'Input' }));
+        node1.addItem(new NodeItem({ type: NODE_TYPES.OUTPUT, title: 'Output' }));
+        node1.createHeader('Test Node', `../files/images/check.svg`);
+        graph.addNode(node1);
+
+        const node2 = new Node({ x: 200, y: 100, color: '#ff00ff', resizers: [ RESIZERS.BOTTOM, RESIZERS.RIGHT ], });
+        node2.addItem(new NodeItem({ type: NODE_TYPES.INPUT, title: 'Input' }));
+        node2.addItem(new NodeItem({ type: NODE_TYPES.OUTPUT, title: 'Output' }));
+        node2.createHeader('Another Node', `../files/images/add.svg`);
+        graph.addNode(node2);
+
+        node1.outputList.children[0].connect(node2.inputList.children[0]);
+
+        graph.centerView(true /* resetZoom */, false /* animate */);
+
+        /***** GOOEY */
+
+        const params = {
+            snapToGrid: true,
+            lineType: 0,
+            gridType: 0,
+        };
+
+        const lineList = [ 'Curved', 'Sharp', 'Straight' ];
+        const gridList = [ 'Lines', 'Dots' ];
+
+        const gui = new Gooey('Node Graph');
+
+        const folder1 = gui.addFolder('Style');
+        folder1.add(params, 'snapToGrid').onChange(() => {
+            graph.snapToGrid = params.snapToGrid;
+        });
+        folder1.add(params, 'lineType', lineList).onChange(() => {
+            switch (params.lineType) {
+                case 0: graph.curveType = 'curve'; break;
+                case 1: graph.curveType = 'zigzag'; break;
+                case 2: graph.curveType = 'straight'; break;
+            }
+            graph.drawLines();
+        });
+        folder1.add(params, 'gridType', gridList).onChange(() => {
+            switch (params.gridType) {
+                case 0: graph.changeGridType('lines'); break;
+                case 1: graph.changeGridType('dots'); break;
+            }
+        });
+
+    </script>
+
+</body>
+</html>

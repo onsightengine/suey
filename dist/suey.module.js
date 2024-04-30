@@ -2382,6 +2382,10 @@ class Interaction {
             return resizer;
         }
         addToElement.addResizers = function(resizers = []) {
+            if (!resizers.includes(RESIZERS.TOP_LEFT) && (resizers.includes(RESIZERS.LEFT) && resizers.includes(RESIZERS.TOP))) resizers.push(RESIZERS.TOP_LEFT);
+            if (!resizers.includes(RESIZERS.TOP_RIGHT) && (resizers.includes(RESIZERS.RIGHT) && resizers.includes(RESIZERS.TOP))) resizers.push(RESIZERS.TOP_RIGHT);
+            if (!resizers.includes(RESIZERS.BOTTOM_LEFT) && (resizers.includes(RESIZERS.LEFT) && resizers.includes(RESIZERS.BOTTOM))) resizers.push(RESIZERS.BOTTOM_LEFT);
+            if (!resizers.includes(RESIZERS.BOTTOM_RIGHT) && (resizers.includes(RESIZERS.RIGHT) && resizers.includes(RESIZERS.BOTTOM))) resizers.push(RESIZERS.BOTTOM_RIGHT);
             for (const key in RESIZERS) {
                 const resizerName = RESIZERS[key];
                 if (resizers === 'all' || (Array.isArray(resizers) && resizers.includes(resizerName))) {
