@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Suey • Gooey</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+    <link rel="icon" type="image/png" href="../files/logo/suey256.png" />
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+
+    <div style="position:absolute; width:100%; height:100%; top:0px; left:0px; overflow: hidden;">
+        <canvas id="canvas" style="position:absolute; width:100%; height:100%; top:0px; left:0px;"></canvas>
+    </div>
+
+    <script src="./imports.js"></script>
+
+    <script type="module">
+
+        import {
+            Scene,
+        } from 'suey';
+
+        // Canvas
+        const canvas = document.getElementById('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Resize canvas on window resize
+        window.onresize = function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        const group = new Scene.Object2D();
+
+        // const text = new Scene.Text();
+        // text.position.set(0, -100);
+        // text.text = "Hello World!"
+        // group.add(text);
+
+        const box = new Scene.Box();
+        box.draggable = true;
+        box.position.set(-100, 0);
+        group.add(box);
+
+        Scene.Helpers.boxResizeTool(box);
+
+        const circle = new Scene.Circle();
+        circle.position.set(100, 0);
+        circle.radius = 50;
+        group.add(circle);
+
+        const viewport = new Scene.Viewport(canvas);
+        const renderer = new Scene.Renderer(canvas);
+        renderer.createRenderLoop(group, viewport);
+
+        // setTimeout(() => {
+        //     let centerWorld = new Scene.Vector2(canvas.width / 2.0, canvas.height / 2.0);
+        //     centerWorld = viewport.inverseMatrix.transformPoint(centerWorld);
+        //     console.log(centerWorld);
+        //     viewport.center.copy(centerWorld);
+        //     viewport.matrixNeedsUpdate = true;
+        // }, 100);
+
+    </script>
+
+</body>
+</html>
