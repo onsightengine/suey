@@ -1,8 +1,9 @@
+import {
+    IMAGE_CLOSE,
+    NODE_TYPES,
+} from '../constants.js';
 import { Div } from '../core/Div.js';
 import { VectorBox } from '../layout/VectorBox.js';
-
-import { IMAGE_CLOSE } from '../constants.js';
-import { NODE_TYPES } from '../constants.js';
 
 class NodeItem extends Div {
 

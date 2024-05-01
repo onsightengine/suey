@@ -61,8 +61,8 @@ class Viewport {
                 return;
             }
             // Rotate
-            const point = pointer.position.clone().sub(this.rotationPoint)
-            this.rotation = this.rotationInitial + (point.manhattanLength() * 0.01);
+            const point = pointer.position.clone().sub(this.rotationPoint);
+            this.rotation = this.rotationInitial + (point.x * 0.01);
             this.matrixNeedsUpdate = true;
             return;
         } else {

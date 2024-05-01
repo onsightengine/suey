@@ -77,8 +77,11 @@
 /***** CONSTANTS *****/
 
 export * from './constants.js';
-
-export { ALIGN, OVERFLOW, POSITION } from './utils/Popper.js';
+export {
+    ALIGN,
+    OVERFLOW,
+    POSITION,
+} from './utils/Popper.js';
 
 /***** UTILS *****/
 

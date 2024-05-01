@@ -1,3 +1,9 @@
+
+import {
+    CLOSE_SIDES,
+    PANEL_STYLES,
+    RESIZERS,
+} from '../constants.js';
 import { AbstractDock } from './AbstractDock.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
@@ -5,10 +11,6 @@ import { Dom } from '../utils/Dom.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Span } from '../core/Span.js';
 import { Strings } from '../utils/Strings.js';
-
-import { CLOSE_SIDES } from '../constants.js';
-import { PANEL_STYLES } from '../constants.js';
-import { RESIZERS } from '../constants.js';
 
 const MIN_W = 300;
 const MIN_H = 150;

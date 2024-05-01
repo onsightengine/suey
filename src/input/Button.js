@@ -1,9 +1,14 @@
+import {
+    TRAIT,
+} from '../constants.js';
+import {
+    ALIGN,
+    OVERFLOW,
+    POSITION,
+} from '../utils/Popper.js';
 import { Element } from '../core/Element.js';
 import { Iris } from '../utils/Iris.js';
 import { Popper } from '../utils/Popper.js';
-
-import { ALIGN, OVERFLOW, POSITION } from '../utils/Popper.js';
-import { TRAIT } from '../constants.js';
 
 const _clr = new Iris();
 

@@ -1,3 +1,10 @@
+import {
+    DOCK_SIDES,
+    IMAGE_ADD,
+    PANEL_STYLES,
+    RESIZERS,
+    TRAIT,
+} from '../constants.js';
 import { ColorizeFilter } from '../utils/ColorizeFilter.js';
 import { ColorScheme } from '../utils/ColorScheme.js';
 import { Css } from '../utils/Css.js';
@@ -8,12 +15,6 @@ import { Interaction } from '../utils/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Tabbed } from './Tabbed.js';
-
-import { DOCK_SIDES } from '../constants.js';
-import { IMAGE_ADD } from '../constants.js';
-import { PANEL_STYLES } from '../constants.js';
-import { RESIZERS } from '../constants.js';
-import { TRAIT } from '../constants.js';
 
 const MINIMUM_NORMAL = 100;
 

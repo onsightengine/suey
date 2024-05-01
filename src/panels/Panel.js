@@ -1,5 +1,7 @@
+import {
+    PANEL_STYLES,
+} from '../constants.js';
 import { Div } from '../core/Div.js';
-import { PANEL_STYLES } from '../constants.js';
 
 class Panel extends Div {
 

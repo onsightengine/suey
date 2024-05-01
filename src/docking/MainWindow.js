@@ -1,10 +1,11 @@
+import {
+    PANEL_STYLES,
+} from '../constants.js';
 import { Div } from '../core/Div.js';
 import { Docker } from './Docker.js';
 import { Dom } from '../utils/Dom.js';
 import { Panel } from '../panels/Panel.js';
 import { Window } from './Window.js';
-
-import { PANEL_STYLES } from '../constants.js';
 
 class MainWindow extends Panel {
 

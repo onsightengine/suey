@@ -1,8 +1,10 @@
+import {
+    TRAIT,
+} from '../constants.js';
 import { Button } from '../input/Button.js';
 import { Div } from '../core/Div.js';
 import { Iris } from '../utils/Iris.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
-import { TRAIT } from '../constants.js';
 
 const _clr = new Iris();
 

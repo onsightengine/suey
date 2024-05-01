@@ -1,3 +1,13 @@
+import {
+    BUTTON_TYPES,
+    IMAGE_INFO,
+    IMAGE_QUESTION,
+    IMAGE_WARNING,
+    IMAGE_ERROR,
+    PANEL_STYLES,
+    QUESTION_ICONS,
+    TRAIT,
+} from '../constants.js';
 import { Button } from '../input/Button.js';
 import { ColorizeFilter } from '../utils/ColorizeFilter.js';
 import { ColorScheme } from '../utils/ColorScheme.js';
@@ -8,12 +18,6 @@ import { Iris } from '../utils/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Span } from '../core/Span.js';
-
-import { BUTTON_TYPES } from '../constants.js';
-import { IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, IMAGE_ERROR } from '../constants.js';
-import { PANEL_STYLES } from '../constants.js';
-import { QUESTION_ICONS } from '../constants.js';
-import { TRAIT } from '../constants.js';
 
 const _clr = new Iris();
 

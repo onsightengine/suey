@@ -1,8 +1,9 @@
+import {
+    TRAIT,
+} from '../constants.js';
 import { ColorizeFilter } from '../utils/ColorizeFilter.js';
 import { Css } from '../utils/Css.js';
 import { Element } from './Element.js';
-
-import { TRAIT } from '../constants.js';
 
 class Image extends Element {
 

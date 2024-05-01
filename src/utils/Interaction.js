@@ -4,17 +4,19 @@
 //  makeDraggable()
 //  makeResizeable()
 
+import {
+    CLOSE_SIDES,
+    CORNER_BUTTONS,
+    GRID_SIZE,
+    IMAGE_CLOSE,
+    IMAGE_EXPAND,
+    MOUSE_SLOP_SMALL,
+    RESIZERS,
+} from '../constants.js';
 import { Button } from '../input/Button.js';
 import { Css } from './Css.js';
 import { Div } from '../core/Div.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
-
-import { CLOSE_SIDES } from '../constants.js';
-import { CORNER_BUTTONS } from '../constants.js';
-import { GRID_SIZE } from '../constants.js';
-import { IMAGE_CLOSE, IMAGE_EXPAND } from '../constants.js';
-import { MOUSE_SLOP_SMALL } from '../constants.js';
-import { RESIZERS } from '../constants.js';
 
 class Interaction {
 

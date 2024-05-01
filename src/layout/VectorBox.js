@@ -1,7 +1,8 @@
+import {
+    IMAGE_EMPTY,
+} from '../constants.js';
 import { Div } from '../core/Div.js';
 import { Image } from '../core/Image.js';
-
-import { IMAGE_EMPTY } from '../constants.js';
 
 /** Holds a SVG vector image stretched to fit */
 class VectorBox extends Div {

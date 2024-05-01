@@ -1,9 +1,10 @@
+import {
+    TOOLTIP_Y_OFFSET,
+} from '../constants.js';
+import { ALIGN } from './Popper.js';
 import { Div } from '../core/Div.js';
 import { Css } from './Css.js';
 import { Popper } from './Popper.js';
-
-import { ALIGN } from './Popper.js';
-import { TOOLTIP_Y_OFFSET } from '../constants.js';
 
 const DEVICE_TYPE = {
     POINTER: 1,

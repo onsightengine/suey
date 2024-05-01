@@ -1,9 +1,11 @@
+import {
+    IMAGE_CHECK,
+    IMAGE_EMPTY,
+} from '../constants.js';
 import { Div } from '../core/Div.js';
 import { MenuShortcut } from './MenuShortcut.js';
 import { Row } from '../layout/Row.js';
 import { VectorBox } from '../layout/VectorBox.js';
-
-import { IMAGE_CHECK, IMAGE_EMPTY } from '../constants.js';
 
 /** Menu item, hook into 'click' event (dispatched by SUEY.Menu) to process menu item user interaction */
 class MenuItem extends Div {

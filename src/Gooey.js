@@ -41,6 +41,13 @@
 // params.myNumber += 2.0;
 // controller.updateDisplay();
 
+import {
+    LEFT_SPACING,
+    PANEL_STYLES,
+    RESIZERS,
+} from './constants.js';
+import { OVERFLOW } from './utils/Popper.js';
+
 import { ColorScheme } from './utils/ColorScheme.js';
 import { Css } from './utils/Css.js';
 import { Iris } from './utils/Iris.js';
@@ -60,11 +67,6 @@ import { Dropdown } from './input/Dropdown.js';
 import { NumberBox } from './input/Number.js';
 import { Slider } from './input/Slider.js';
 import { TextBox } from './input/TextBox.js';
-
-import { LEFT_SPACING } from './constants.js';
-import { OVERFLOW } from './utils/Popper.js';
-import { PANEL_STYLES } from './constants.js';
-import { RESIZERS } from './constants.js';
 
 const _clr = new Iris();
 

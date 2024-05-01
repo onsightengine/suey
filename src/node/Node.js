@@ -1,12 +1,14 @@
+import {
+    GRID_SIZE,
+    NODE_TYPES,
+    RESIZERS,
+} from '../constants.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Iris } from '../utils/Iris.js';
 import { Span } from '../core/Span.js';
 import { VectorBox } from '../layout/VectorBox.js';
-
-import { GRID_SIZE, NODE_TYPES } from '../constants.js';
-import { RESIZERS } from '../constants.js';
 
 const MIN_W = 200;
 const MIN_H = 100;

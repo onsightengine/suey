@@ -1,13 +1,14 @@
+import {
+    CLOSE_SIDES,
+    PANEL_STYLES,
+    TAB_SIDES,
+} from '../constants.js';
 import { AbstractDock } from './AbstractDock.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { Floater } from './Floater.js';
 import { Interaction } from '../utils/Interaction.js';
-
-import { CLOSE_SIDES } from '../constants.js';
-import { PANEL_STYLES } from '../constants.js';
-import { TAB_SIDES } from '../constants.js';
 
 const MINIMUM_TABS_TO_SHOW = 1; /* value of 2 will cause tabs to show only when there are 2 or more tabs */
 

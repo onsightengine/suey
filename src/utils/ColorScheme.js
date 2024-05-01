@@ -1,14 +1,15 @@
-/**
- * Color Reference(s)
- * Triadic / RYB        https://paletton.com
- * Material Palette     https://material.io/design/color/the-color-system.html
- */
+// COLOR REFERENCE
+// - Triadic / RYB:     https://paletton.com
+// - Material Palette:  https://material.io/design/color/the-color-system.html
 
+import {
+    BACKGROUNDS,
+    THEMES,
+    TRAIT,
+} from '../constants.js';
 import { ColorizeFilter } from './ColorizeFilter.js';
 import { Css } from './Css.js';
 import { Iris } from './Iris.js';
-
-import { BACKGROUNDS, THEMES, TRAIT } from '../constants.js';
 
 const _clr = new Iris();
 

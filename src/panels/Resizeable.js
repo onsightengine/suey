@@ -1,9 +1,10 @@
+import {
+    PANEL_STYLES,
+} from '../constants.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Interaction } from '../utils/Interaction.js';
 import { Panel } from './Panel.js';
-
-import { PANEL_STYLES } from '../constants.js';
 
 class Resizeable extends Panel {
 

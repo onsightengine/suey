@@ -1,3 +1,11 @@
+
+import {
+    DOCK_SIDES,
+    IMAGE_EMPTY,
+    MOUSE_CLICK,
+    MOUSE_SLOP_LARGE,
+    TRAIT,
+} from '../constants.js';
 import { ColorScheme } from '../utils/ColorScheme.js';
 import { Css } from '../utils/Css.js';
 import { Dom } from '../utils/Dom.js';
@@ -7,11 +15,6 @@ import { Panel } from '../panels/Panel.js';
 import { Strings } from '../utils/Strings.js';
 import { Text } from '../core/Text.js';
 import { VectorBox } from '../layout/VectorBox.js';
-
-import { DOCK_SIDES } from '../constants.js';
-import { IMAGE_EMPTY } from '../constants.js';
-import { MOUSE_CLICK, MOUSE_SLOP_LARGE } from '../constants.js';
-import { TRAIT } from '../constants.js';
 
 const _color = new Iris();
 

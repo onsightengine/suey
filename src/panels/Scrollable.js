@@ -1,5 +1,7 @@
+import {
+    PANEL_STYLES,
+} from '../constants.js';
 import { Panel } from './Panel.js';
-import { PANEL_STYLES } from '../constants.js';
 
 class Scrollable extends Panel {
 

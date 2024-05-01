@@ -1,3 +1,6 @@
+import {
+    LEFT_SPACING,
+} from '../constants.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Element } from '../core/Element.js';
@@ -5,8 +8,6 @@ import { Row } from '../layout/Row.js';
 import { Span } from '../core/Span.js';
 import { Text } from '../core/Text.js';
 import { VectorBox } from '../layout/VectorBox.js';
-
-import { LEFT_SPACING } from '../constants.js';
 
 class PropertyList extends Div {
 
