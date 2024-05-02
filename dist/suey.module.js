@@ -7109,7 +7109,7 @@ class Matrix2 {
         return new Matrix2(this.m.slice(0));
     }
     identity() {
-        this.m = [1, 0, 0, 1, 0, 0];
+        this.m = [ 1, 0, 0, 1, 0, 0 ];
         return this;
     }
     multiply(mat) {
@@ -7136,10 +7136,10 @@ class Matrix2 {
         if (rot !== 0) {
             const c = Math.cos(rot);
             const s = Math.sin(rot);
-            this.multiply(new Matrix2([c, s, -s, c, 0, 0]));
+            this.multiply(new Matrix2([ c, s, -s, c, 0, 0 ]));
         }
         if (sx !== 1 || sy !== 1) this.scale(sx, sy);
-        if (ox !== 0 || oy !== 0) this.multiply(new Matrix2([1, 0, 0, 1, -ox, -oy]));
+        if (ox !== 0 || oy !== 0) this.multiply(new Matrix2([ 1, 0, 0, 1, -ox, -oy ]));
         return this;
     }
     translate(x, y) {
@@ -7179,14 +7179,14 @@ class Matrix2 {
         return new Vector2(this.m[4], this.m[5]);
     }
     skew(radianX, radianY) {
-        return this.multiply(new Matrix2([1, Math.tan(radianY), Math.tan(radianX), 1, 0, 0]));
+        return this.multiply(new Matrix2([ 1, Math.tan(radianY), Math.tan(radianX), 1, 0, 0 ]));
     }
     determinant() {
         return 1 / (this.m[0] * this.m[3] - this.m[1] * this.m[2]);
     }
     getInverse() {
         const d = this.determinant();
-        return new Matrix2([this.m[3] * d, -this.m[1] * d, -this.m[2] * d, this.m[0] * d, d * (this.m[2] * this.m[5] - this.m[3] * this.m[4]), d * (this.m[1] * this.m[4] - this.m[0] * this.m[5])]);
+        return new Matrix2([ this.m[3] * d, -this.m[1] * d, -this.m[2] * d, this.m[0] * d, d * (this.m[2] * this.m[5] - this.m[3] * this.m[4]), d * (this.m[1] * this.m[4] - this.m[0] * this.m[5]) ]);
     }
     transformPoint(p) {
         const px = p.x * this.m[0] + p.y * this.m[2] + this.m[4];
@@ -7546,7 +7546,7 @@ class Renderer {
         return this.container ?? this.canvas.parentElement;
     }
     createRenderLoop(group, viewport, onUpdate) {
-        viewport.offsetCanvas();
+        viewport.offsetCanvas(this.canvas);
         const self = this;
         const timer = new AnimationTimer(function() {
             if (typeof onUpdate === 'function') onUpdate();
@@ -7643,7 +7643,6 @@ class Viewport {
         this.uuid = UUID.generate();
         this.canvas = canvas;
         this.position = new Vector2(0, 0);
-        this.center = new Vector2(0, 0);
         this.scale = 1.0;
         this.rotation = 0.0;
         this.matrix = new Matrix2();
@@ -7654,46 +7653,46 @@ class Viewport {
         this.allowDrag = true;
         this.allowScale = true;
         this.allowRotation = true;
-        this.rotationPoint = null;
+        this.rotationPoint = new Vector2(0, 0);
         this.rotationInitial = 0;
     }
     update(pointer) {
         if (this.allowScale && pointer.wheel !== 0) {
             const scaleFactor = pointer.wheel * 0.001 * this.scale;
-            this.scale -= scaleFactor;
-            const c = Math.cos(this.rotation);
-            const s = Math.sin(this.rotation);
-            const rotateMatrix = new Matrix2([ c, s, -s, c, 0, 0 ]);
             const pointerPos = this.inverseMatrix.transformPoint(pointer.position);
-            const rotatedPos = rotateMatrix.transformPoint(pointerPos.multiplyScalar(scaleFactor));
-            this.position.add(rotatedPos);
+            this.scale -= scaleFactor;
+            this.position.add(pointerPos.multiplyScalar(scaleFactor));
             this.matrixNeedsUpdate = true;
         }
-        if (this.allowRotation && pointer.buttonPressed(this.rotateButton)) {
-            if (!this.rotationPoint) {
-                this.rotationPoint = pointer.position.clone();
+        if (this.allowRotation) {
+            if (pointer.buttonJustPressed(this.rotateButton)) {
+                this.rotationPoint.copy(pointer.position);
                 this.rotationInitial = this.rotation;
-                return;
+            } else if (pointer.buttonPressed(this.rotateButton)) {
+                const point = pointer.position.clone().sub(this.rotationPoint);
+                this.rotation = this.rotationInitial + (point.x * 0.01);
+                this.matrixNeedsUpdate = true;
             }
-            const point = pointer.position.clone().sub(this.rotationPoint);
-            this.rotation = this.rotationInitial + (point.x * 0.01);
-            this.matrixNeedsUpdate = true;
-            return;
-        } else {
-            this.rotationPoint = null;
         }
         if (this.allowDrag && pointer.buttonPressed(this.dragButton)) {
-            this.position.add(pointer.delta);
+            const currentPointerPos = this.inverseMatrix.transformPoint(pointer.position.clone());
+            const lastPointerPos = this.inverseMatrix.transformPoint(pointer.position.clone().sub(pointer.delta));
+            const delta = currentPointerPos.clone().sub(lastPointerPos).multiplyScalar(this.scale);
+            this.position.add(delta);
             this.matrixNeedsUpdate = true;
         }
     }
     updateMatrix() {
         if (!this.matrixNeedsUpdate) return;
         this.matrix.identity();
-        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, this.position.x, this.position.y ]));
+        const centerX = this.canvas ? this.canvas.width / 2.0 : 0;
+        const centerY = this.canvas ? this.canvas.height / 2.0 : 0;
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, centerX, centerY ]));
         const c = Math.cos(this.rotation);
         const s = Math.sin(this.rotation);
         this.matrix.multiply(new Matrix2([ c, s, -s, c, 0, 0 ]));
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, -centerX, -centerY ]));
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, this.position.x, this.position.y ]));
         this.matrix.multiply(new Matrix2([ this.scale, 0, 0, this.scale, 0, 0 ]));
         this.inverseMatrix = this.matrix.getInverse();
         this.matrixNeedsUpdate = false;
@@ -7706,9 +7705,9 @@ class Viewport {
         this.position.copy(position);
         this.matrixNeedsUpdate = true;
     }
-    offsetCanvas() {
-        const centerCanvas = new Vector2(this.canvas.width / 2.0, this.canvas.height / 2.0);
-        this.position.copy(centerCanvas);
+    offsetCanvas(canvas) {
+        const position = new Vector2(canvas.width / 2.0, canvas.height / 2.0);
+        this.position.copy(position);
     }
 }
 

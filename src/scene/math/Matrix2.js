@@ -23,7 +23,7 @@ class Matrix2 {
 
     /** Reset this matrix to identity */
     identity() {
-        this.m = [1, 0, 0, 1, 0, 0];
+        this.m = [ 1, 0, 0, 1, 0, 0 ];
         return this;
     }
 
@@ -68,14 +68,14 @@ class Matrix2 {
         if (rot !== 0) {
             const c = Math.cos(rot);
             const s = Math.sin(rot);
-            this.multiply(new Matrix2([c, s, -s, c, 0, 0]));
+            this.multiply(new Matrix2([ c, s, -s, c, 0, 0 ]));
         }
 
         // Scale
         if (sx !== 1 || sy !== 1) this.scale(sx, sy);
 
         // Origin
-        if (ox !== 0 || oy !== 0) this.multiply(new Matrix2([1, 0, 0, 1, -ox, -oy]));
+        if (ox !== 0 || oy !== 0) this.multiply(new Matrix2([ 1, 0, 0, 1, -ox, -oy ]));
 
         return this;
     }
@@ -130,7 +130,7 @@ class Matrix2 {
 
     /** Apply skew to this matrix */
     skew(radianX, radianY) {
-        return this.multiply(new Matrix2([1, Math.tan(radianY), Math.tan(radianX), 1, 0, 0]));
+        return this.multiply(new Matrix2([ 1, Math.tan(radianY), Math.tan(radianX), 1, 0, 0 ]));
     }
 
     /** Get the matrix determinant */
@@ -141,7 +141,7 @@ class Matrix2 {
     /** Get the inverse matrix */
     getInverse() {
         const d = this.determinant();
-        return new Matrix2([this.m[3] * d, -this.m[1] * d, -this.m[2] * d, this.m[0] * d, d * (this.m[2] * this.m[5] - this.m[3] * this.m[4]), d * (this.m[1] * this.m[4] - this.m[0] * this.m[5])]);
+        return new Matrix2([ this.m[3] * d, -this.m[1] * d, -this.m[2] * d, this.m[0] * d, d * (this.m[2] * this.m[5] - this.m[3] * this.m[4]), d * (this.m[1] * this.m[4] - this.m[0] * this.m[5]) ]);
     }
 
     /** Transform a point using this matrix, returns new transformed point */

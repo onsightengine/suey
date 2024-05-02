@@ -67,7 +67,7 @@ class Renderer {
      * @return {AnimationTimer} Animation timer created for this render loop. Should be stopped when no longer necessary.
      */
     createRenderLoop(group, viewport, onUpdate) {
-        viewport.offsetCanvas();
+        viewport.offsetCanvas(this.canvas);
         const self = this;
         const timer = new AnimationTimer(function() {
             if (typeof onUpdate === 'function') onUpdate();

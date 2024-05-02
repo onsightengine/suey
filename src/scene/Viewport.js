@@ -3,11 +3,6 @@ import { Pointer } from './input/Pointer.js';
 import { UUID } from './math/UUID.js';
 import { Vector2 } from './math/Vector2.js';
 
-/**
- * Viewport defines the user view into the content being rendered.
- * Similar to a camera it defines the size of the content, rotation and position of the content.
- * The viewport can be moved, rotated and scaled to navigate the virtual canvas.
- */
 class Viewport {
 
     constructor(canvas) {
@@ -15,7 +10,6 @@ class Viewport {
         this.canvas = canvas;
 
         this.position = new Vector2(0, 0);
-        this.center = new Vector2(0, 0);
         this.scale = 1.0;
         this.rotation = 0.0;
 
@@ -31,7 +25,7 @@ class Viewport {
         this.allowRotation = true;                  // viewport allowed to be rotated?
 
         // INTERNAL
-        this.rotationPoint = null;                  // pointer position when the rotation starts
+        this.rotationPoint = new Vector2(0, 0);     // pointer position when the rotation starts
         this.rotationInitial = 0;                   // initial rotation of the viewport when the rotation starts
     }
 
@@ -39,52 +33,56 @@ class Viewport {
     update(pointer) {
         // Scale
         if (this.allowScale && pointer.wheel !== 0) {
-            // Adjust Scale
             const scaleFactor = pointer.wheel * 0.001 * this.scale;
-            this.scale -= scaleFactor;
-            // Adjust Position
-            const c = Math.cos(this.rotation);
-            const s = Math.sin(this.rotation);
-            const rotateMatrix = new Matrix2([ c, s, -s, c, 0, 0 ]);
             const pointerPos = this.inverseMatrix.transformPoint(pointer.position);
-            const rotatedPos = rotateMatrix.transformPoint(pointerPos.multiplyScalar(scaleFactor));
-            this.position.add(rotatedPos);
+            this.scale -= scaleFactor;
+            this.position.add(pointerPos.multiplyScalar(scaleFactor));
             this.matrixNeedsUpdate = true;
         }
 
         // Rotation
-        if (this.allowRotation && pointer.buttonPressed(this.rotateButton)) {
-            // Pivot Point
-            if (!this.rotationPoint) {
-                this.rotationPoint = pointer.position.clone();
+        if (this.allowRotation) {
+            if (pointer.buttonJustPressed(this.rotateButton)) {
+                this.rotationPoint.copy(pointer.position);
                 this.rotationInitial = this.rotation;
-                return;
+            } else if (pointer.buttonPressed(this.rotateButton)) {
+                const point = pointer.position.clone().sub(this.rotationPoint);
+                this.rotation = this.rotationInitial + (point.x * 0.01);
+                this.matrixNeedsUpdate = true;
             }
-            // Rotate
-            const point = pointer.position.clone().sub(this.rotationPoint);
-            this.rotation = this.rotationInitial + (point.x * 0.01);
-            this.matrixNeedsUpdate = true;
-            return;
-        } else {
-            this.rotationPoint = null;
         }
 
         // Drag
         if (this.allowDrag && pointer.buttonPressed(this.dragButton)) {
-            this.position.add(pointer.delta);
+            const currentPointerPos = this.inverseMatrix.transformPoint(pointer.position.clone());
+            const lastPointerPos = this.inverseMatrix.transformPoint(pointer.position.clone().sub(pointer.delta));
+            const delta = currentPointerPos.clone().sub(lastPointerPos).multiplyScalar(this.scale);
+            this.position.add(delta);
             this.matrixNeedsUpdate = true;
         }
+
     }
 
     /** Calculate and update the viewport transformation matrix */
     updateMatrix() {
         if (!this.matrixNeedsUpdate) return;
         this.matrix.identity();
-        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, this.position.x, this.position.y ]));
+
+        // Rotate
+        const centerX = this.canvas ? this.canvas.width / 2.0 : 0;
+        const centerY = this.canvas ? this.canvas.height / 2.0 : 0;
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, centerX, centerY ]));
         const c = Math.cos(this.rotation);
         const s = Math.sin(this.rotation);
         this.matrix.multiply(new Matrix2([ c, s, -s, c, 0, 0 ]));
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, -centerX, -centerY ]));
+
+        // Translate
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, this.position.x, this.position.y ]));
+
+        // Scale
         this.matrix.multiply(new Matrix2([ this.scale, 0, 0, this.scale, 0, 0 ]));
+
         this.inverseMatrix = this.matrix.getInverse();
         this.matrixNeedsUpdate = false;
     }
@@ -106,9 +104,9 @@ class Viewport {
     }
 
     /** Offsets position to canvas center */
-    offsetCanvas() {
-        const centerCanvas = new Vector2(this.canvas.width / 2.0, this.canvas.height / 2.0);
-        this.position.copy(centerCanvas);
+    offsetCanvas(canvas) {
+        const position = new Vector2(canvas.width / 2.0, canvas.height / 2.0);
+        this.position.copy(position);
     }
 
 }
