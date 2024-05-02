@@ -1,7 +1,7 @@
 import {
     TRAIT,
 } from '../constants.js';
-import { ColorizeFilter } from '../utils/ColorizeFilter.js';
+import { ColorizeFilter } from '../utils/color/ColorizeFilter.js';
 import { Css } from '../utils/Css.js';
 import { Element } from './Element.js';
 

@@ -9,12 +9,12 @@ import {
     TRAIT,
 } from '../constants.js';
 import { Button } from '../input/Button.js';
-import { ColorizeFilter } from '../utils/ColorizeFilter.js';
-import { ColorScheme } from '../utils/ColorScheme.js';
+import { ColorizeFilter } from '../utils/color/ColorizeFilter.js';
+import { ColorScheme } from '../utils/color/ColorScheme.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { FlexSpacer } from '../layout/FlexSpacer.js';
-import { Iris } from '../utils/Iris.js';
+import { Iris } from '../utils/color/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Span } from '../core/Span.js';

@@ -48,9 +48,9 @@ import {
 } from './constants.js';
 import { OVERFLOW } from './utils/Popper.js';
 
-import { ColorScheme } from './utils/ColorScheme.js';
+import { ColorScheme } from './utils/color/ColorScheme.js';
 import { Css } from './utils/Css.js';
-import { Iris } from './utils/Iris.js';
+import { Iris } from './utils/color/Iris.js';
 import { Strings } from './utils/Strings.js';
 
 import { Div } from './core/Div.js';

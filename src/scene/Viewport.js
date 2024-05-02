@@ -1,13 +1,12 @@
 import { Matrix2 } from './math/Matrix2.js';
-import { Pointer } from './input/Pointer.js';
+import { Pointer } from '../utils/input/Pointer.js';
 import { UUID } from './math/UUID.js';
 import { Vector2 } from './math/Vector2.js';
 
 class Viewport {
 
-    constructor(canvas) {
+    constructor() {
         this.uuid = UUID.generate();
-        this.canvas = canvas;
 
         this.position = new Vector2(0, 0);
         this.scale = 1.0;
@@ -64,13 +63,11 @@ class Viewport {
     }
 
     /** Calculate and update the viewport transformation matrix */
-    updateMatrix() {
+    updateMatrix(centerX, centerY) {
         if (!this.matrixNeedsUpdate) return;
         this.matrix.identity();
 
         // Rotate
-        const centerX = this.canvas ? this.canvas.width / 2.0 : 0;
-        const centerY = this.canvas ? this.canvas.height / 2.0 : 0;
         this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, centerX, centerY ]));
         const c = Math.cos(this.rotation);
         const s = Math.sin(this.rotation);
@@ -85,28 +82,6 @@ class Viewport {
 
         this.inverseMatrix = this.matrix.getInverse();
         this.matrixNeedsUpdate = false;
-    }
-
-    /**
-     * Center the viewport relative to a object.
-     * The position of the object is used a central point, this method does not consider 'box' attributes or other strucures in the object.
-     * Uses the object's local transformation matrix and the canvas size to calculate the new position of the viewport.
-     * @param {Object2D} object Object to be centered on the viewport.
-     * @param {Element} canvas Canvas element where the image is drawn.
-     */
-    centerObject(object, canvas) {
-        const position = object.globalMatrix.transformPoint(new Vector2());
-        position.multiplyScalar(-this.scale);
-        position.x += canvas.width / 2;
-        position.y += canvas.height / 2;
-        this.position.copy(position);
-        this.matrixNeedsUpdate = true;
-    }
-
-    /** Offsets position to canvas center */
-    offsetCanvas(canvas) {
-        const position = new Vector2(canvas.width / 2.0, canvas.height / 2.0);
-        this.position.copy(position);
     }
 
 }

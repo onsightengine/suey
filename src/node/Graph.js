@@ -7,11 +7,11 @@ import {
     TRAIT,
 } from '../constants.js';
 import { Canvas } from '../core/Canvas.js';
-import { ColorScheme } from '../utils/ColorScheme.js';
+import { ColorScheme } from '../utils/color/ColorScheme.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { Interaction } from '../utils/Interaction.js';
-import { Iris } from '../utils/Iris.js';
+import { Interaction } from '../utils/input/Interaction.js';
+import { Iris } from '../utils/color/Iris.js';
 import { Panel } from '../panels/Panel.js';
 
 const MIN_W = 100;

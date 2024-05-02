@@ -12,11 +12,11 @@ import {
     IMAGE_EXPAND,
     MOUSE_SLOP_SMALL,
     RESIZERS,
-} from '../constants.js';
-import { Button } from '../input/Button.js';
-import { Css } from './Css.js';
-import { Div } from '../core/Div.js';
-import { ShadowBox } from '../layout/ShadowBox.js';
+} from '../../constants.js';
+import { Button } from '../../input/Button.js';
+import { Css } from '../Css.js';
+import { Div } from '../../core/Div.js';
+import { ShadowBox } from '../../layout/ShadowBox.js';
 
 class Interaction {
 

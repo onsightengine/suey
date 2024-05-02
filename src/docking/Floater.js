@@ -6,11 +6,11 @@ import {
     MOUSE_SLOP_LARGE,
     TRAIT,
 } from '../constants.js';
-import { ColorScheme } from '../utils/ColorScheme.js';
+import { ColorScheme } from '../utils/color/ColorScheme.js';
 import { Css } from '../utils/Css.js';
 import { Dom } from '../utils/Dom.js';
 import { Div } from '../core/Div.js';
-import { Iris } from '../utils/Iris.js';
+import { Iris } from '../utils/color/Iris.js';
 import { Panel } from '../panels/Panel.js';
 import { Strings } from '../utils/Strings.js';
 import { Text } from '../core/Text.js';

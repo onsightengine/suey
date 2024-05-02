@@ -6,9 +6,9 @@ import {
     BACKGROUNDS,
     THEMES,
     TRAIT,
-} from '../constants.js';
+} from '../../constants.js';
 import { ColorizeFilter } from './ColorizeFilter.js';
-import { Css } from './Css.js';
+import { Css } from '../Css.js';
 import { Iris } from './Iris.js';
 
 const _clr = new Iris();

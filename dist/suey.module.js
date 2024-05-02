@@ -350,6 +350,704 @@ class Popper {
     }
 }
 
+class Dom {
+    static findElementAt(className, centerX, centerY) {
+        const domElements = document.elementsFromPoint(centerX, centerY);
+        for (const dom of domElements) {
+            if (dom.classList.contains(className)) return dom.suey ?? dom;
+        }
+        return null;
+    }
+    static childWithClass(element, className, recursive = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        const queue = [ element ];
+        while (queue.length > 0) {
+            const currentElement = queue.shift();
+            for (const child of currentElement.children) {
+                if (child.classList.contains(className)) return child.suey ?? child;
+                if (recursive) queue.push(child);
+            }
+        }
+        return null;
+    }
+    static childrenWithClass(element, className, recursive = true, searchChildenOfTarget = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        const children = [];
+        const queue = [ element ];
+        while (queue.length > 0) {
+            const currentElement = queue.shift();
+            for (const child of currentElement.children) {
+                if (child.classList.contains(className)) {
+                    children.push(child.suey ?? child);
+                    if (recursive && searchChildenOfTarget) queue.push(child);
+                } else {
+                    if (recursive) queue.push(child);
+                }
+            }
+        }
+        return children;
+    }
+    static isChildOf(element, possibleParent) {
+        if (element.isElement && element.dom) element = element.dom;
+        if (possibleParent.isElement && possibleParent.dom) possibleParent = possibleParent.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.isSameNode(possibleParent)) return true;
+            parent = parent.parentElement;
+        }
+        return false;
+    }
+    static isChildOfElementWithClass(element, className) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.classList.contains(className)) return true;
+            parent = parent.parentElement;
+        }
+        return false;
+    }
+    static parentElementWithClass(element, className) {
+        if (element.isElement && element.dom) element = element.dom;
+        let parent = element.parentElement;
+        while (parent) {
+            if (parent.classList.contains(className)) return parent.suey ?? parent;
+            parent = parent.parentElement;
+        }
+        return null;
+    }
+    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
+        if (element.isElement && element.dom) element = element.dom;
+        if (applyToSelf) applyFunction(element);
+        for (let i = 0; i < element.children.length; i++) {
+            Dom.traverse(element.children[i], applyFunction, true);
+        }
+    }
+    static parentScroller(element) {
+        if (!element) return null;
+        if (element.isElement && element.dom) element = element.dom;
+        if (element.scrollHeight > element.clientHeight) {
+            return element;
+        } else {
+            return Dom.parentScroller(element.parentElement);
+        }
+    }
+    static scrollIntoView(element) {
+        const parent = Dom.parentScroller(element);
+        if (parent) {
+            const onePixel = parseInt(Css.toPx('0.2em'));
+            if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
+                parent.scrollTop = element.offsetTop - parent.offsetTop - onePixel;
+            } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
+                parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
+            }
+        }
+    }
+}
+
+class SignalBinding {
+    active = true;
+    params = null;
+    onceOnly = false;
+    constructor(signal, listener, onceOnly, priority = 0) {
+        this.listener = listener;
+        this.onceOnly = onceOnly;
+        this.signal = signal;
+        this.priority = priority;
+    }
+    execute(paramsArr) {
+        let handlerReturn;
+        let params;
+        if (this.active && !!this.listener) {
+            params = this.params ? this.params.concat(paramsArr) : paramsArr;
+            handlerReturn = this.listener.apply(null, params);
+            if (this.onceOnly) this.detach();
+        }
+        return handlerReturn;
+    }
+    detach() {
+        return this.isBound() ? this.signal.remove(this.listener) : null;
+    }
+    isBound() {
+        return (!!this.signal && !!this.listener);
+    }
+    isOnce() {
+        return this.onceOnly;
+    }
+    getListener() {
+        return this.listener;
+    }
+    getSignal() {
+        return this.signal;
+    }
+    destroy() {
+        delete this.signal;
+        delete this.listener;
+    }
+    toString() {
+        return '[SignalBinding onceOnly:' + this.onceOnly +', isBound:'+ this.isBound() +', active:' + this.active + ']';
+    }
+}
+const _enabled = [];
+const _missed = {};
+let _time = 0;
+class Signal {
+    VERSION = '1.0.2';
+    active = true;
+    memorize = false;
+    shouldPropagate = true;
+    static disableSignals() {
+        if (_enabled.length === 0) {
+            for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
+            _time = 0;
+        }
+        _enabled.push('false');
+    }
+    static enableSignals() {
+        _enabled.pop();
+        return (_enabled.length > 0) ? {} : Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
+    }
+    constructor(moniker) {
+        this._bindings = [];
+        this._prevParams = null;
+        this.moniker = moniker;
+    }
+    #registerListener(listener, onceOnly, priority) {
+        let prevIndex = this.#indexOfListener(listener);
+        let binding;
+        if (prevIndex !== -1) {
+            binding = this._bindings[prevIndex];
+            if (binding.isOnce() !== onceOnly) {
+                throw new Error('You cannot add' + (onceOnly ? '' : 'Once') +'() then add'+ (!onceOnly ? '' : 'Once') +'() the same listener without removing the relationship first');
+            }
+        } else {
+            binding = new SignalBinding(this, listener, onceOnly, priority);
+            let n = this._bindings.length;
+            do { --n; } while (this._bindings[n] && binding.priority <= this._bindings[n].priority);
+            this._bindings.splice(n + 1, 0, binding);
+        }
+        if (this.memorize && this._prevParams){
+            binding.execute(this._prevParams);
+        }
+        return binding;
+    }
+    #indexOfListener(listener) {
+        let n = this._bindings.length;
+        let cur;
+        while (n--) {
+            cur = this._bindings[n];
+            if (cur.listener === listener) return n;
+        }
+        return -1;
+    }
+    has(listener) {
+        return this.#indexOfListener(listener) !== -1;
+    }
+    add(listener, priority) {
+        validateListener(listener, 'add');
+        return this.#registerListener(listener, false, priority);
+    }
+    addOnce(listener, priority) {
+        validateListener(listener, 'addOnce');
+        return this.#registerListener(listener, true, priority);
+    }
+    remove(listener) {
+        validateListener(listener, 'remove');
+        const index = this.#indexOfListener(listener);
+        if (index !== -1) {
+            this._bindings[index].destroy();
+            this._bindings.splice(index, 1);
+        }
+        return listener;
+    }
+    removeAll() {
+        let n = this._bindings.length;
+        while (n--) this._bindings[n].destroy();
+        this._bindings.length = 0;
+    }
+    getNumListeners() {
+        return this._bindings.length;
+    }
+    halt() {
+        this.shouldPropagate = false;
+    }
+    dispatch() {
+        if (!this.active) return;
+        if (_enabled.length > 0) {
+            if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
+            _missed[this.moniker].args.push([ ...arguments ]);
+            _missed[this.moniker].time = _time++;
+            return;
+        }
+        let paramsArr = [ ...arguments ];
+        let n = this._bindings.length;
+        if (this.memorize) this._prevParams = paramsArr;
+        if (!n) return;
+        const bindings = [ ...this._bindings ];
+        this.shouldPropagate = true;
+        do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
+    }
+    forget() {
+        this._prevParams = null;
+    }
+    dispose() {
+        this.removeAll();
+        delete this._bindings;
+        delete this._prevParams;
+    }
+    toString() {
+        return '[Signal active:'+ this.active +' numListeners:'+ this.getNumListeners() +']';
+    }
+}
+function validateListener(listener, fnName) {
+    if (typeof listener !== 'function') {
+        throw new Error(`'listener' is a required param of ${fnName}() and should be a Function!`);
+    }
+}
+
+class Strings {
+    static addSpaces(string) {
+        if (typeof string !== 'string') string = String(string);
+        string = string.replace(/([a-z])([A-Z])/g, '$1 $2');
+        string = string.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+        return string.trim();
+    }
+    static capitalize(string) {
+        const words = String(string).split(' ');
+        for (let i = 0; i < words.length; i++) {
+            words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+        }
+        return words.join(' ');
+    }
+    static countDigits(number) {
+        return parseFloat(number).toString().length;
+    }
+    static escapeHTML(html) {
+        if (html == undefined) return html;
+        return html
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+    static nameFromUrl(url, capitalize = true) {
+        let imageName = new String(url.replace(/^.*[\\\/]/, ''));
+        imageName = imageName.replace(/\.[^/.]+$/, "");
+        if (capitalize) imageName = Strings.capitalize(imageName);
+        return imageName;
+    }
+    static prettyTitle(string) {
+        return Strings.addSpaces(Strings.capitalize(string));
+    }
+}
+
+class Element {
+    constructor(domElement) {
+        if (domElement == null) {
+            console.trace('Element.constructor: No HTMLElement provided!');
+            domElement = document.createElement('div');
+        }
+        this.isElement = true;
+        let dom = domElement;
+        let suey = this;
+        this.parent = undefined;
+        this.children = [];
+        this.slots = [];
+        this.contents = function() { return suey; };
+        Object.defineProperties(this, {
+            dom: {
+                get: function() { return dom; },
+                set: function(value) { dom = value; },
+            },
+            id: {
+                configurable: true,
+                get: function() { return dom.id; },
+                set: function(value) { dom.id = value; },
+            },
+            name: {
+                get: function() { return dom.name ?? '???'; },
+                set: function(value) { dom.name = String(value); } ,
+            },
+        });
+        Object.defineProperties(dom, {
+            suey: {
+                get: function() { return suey; },
+            },
+        });
+        this.on('destroy', function() {
+            for (const slot of suey.slots) {
+                if (typeof slot.detach === 'function') slot.detach();
+                if (typeof slot.destroy === 'function') slot.destroy();
+            }
+            suey.slots.length = 0;
+        });
+    }
+    setID(id) {
+        this.id = id;
+        return this;
+    }
+    addSlot(slot) {
+        if (slot instanceof SignalBinding) {
+            this.slots.push(slot);
+        } else {
+            console.warn(`Element.addSlot(): ID: '${this.id}' / NAME: '${this.name}' failed to add slot`, slot);
+        }
+    }
+    add(...elements) {
+        for (const element of elements) {
+            addToParent(this.contents(), element);
+        }
+        return this;
+    }
+    addToSelf(...elements) {
+        for (const element of elements) {
+            addToParent(this, element);
+        }
+        return this;
+    }
+    clearContents() {
+        destroyChildren(this.contents(), false );
+        return this;
+    }
+    destroy() {
+        destroyChildren(this, true );
+        return this;
+    }
+    detach(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
+            let removed = removeFromParent(this.contents(), element, false );
+            if (!removed) removed = removeFromParent(this, element, false );
+            if (!removed) {  }
+            removedElements.push(removed);
+        }
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
+    }
+    remove(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
+            let removed = removeFromParent(this.contents(), element, true );
+            if (!removed) removed = removeFromParent(this, element, true );
+            if (!removed) {  }
+            removedElements.push(removed);
+        }
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
+    }
+    removeSelf() {
+        this.destroy();
+        const parent = this.parent ?? this.dom?.parentElement;
+        removeFromParent(parent, this, false );
+        return this;
+    }
+    setClass(...classNames) {
+        this.dom.className = '';
+        return this.addClass(...classNames);
+    }
+    addClass(...classNames) {
+        for (const className of classNames) {
+            if (className && typeof className === 'string' && className != '') {
+                this.dom.classList.add(className);
+            }
+        }
+        return this;
+    }
+    hasClass(className) {
+        return this.dom.classList.contains(className);
+    }
+    hasClassWithString(substring) {
+        substring = String(substring).toLowerCase();
+        const classArray = [ ...this.dom.classList ];
+        for (let i = 0; i < classArray.length; i++) {
+            const className = classArray[i];
+            if (className.toLowerCase().includes(substring)) return true;
+        }
+        return false;
+    }
+    removeClass(...classNames) {
+        for (const className of classNames) {
+            this.dom.classList.remove(className);
+        }
+        return this;
+    }
+    toggleClass(className) {
+        if (className != null && typeof className === 'string' && className !== '') {
+            if (this.hasClass(className)) this.removeClass(className);
+            else this.addClass(className);
+        }
+        return this;
+    }
+    wantsClass(className, wants = true) {
+        if (className && className != '') {
+            if (wants) this.addClass(className);
+            else this.removeClass(className);
+        }
+        return this;
+    }
+    setAttribute(attrib, value) {
+        this.dom.setAttribute(attrib, value);
+    }
+    setDisabled(value = true) {
+        if (value) this.addClass('suey-disabled');
+        else this.removeClass('suey-disabled');
+        this.dom.disabled = value;
+        return this;
+    }
+    selectable(allowSelection) {
+        if (allowSelection) this.removeClass('suey-unselectable');
+        else this.addClass('suey-unselectable');
+        return this;
+    }
+    hide(dispatchEvent = true) {
+        if (this.isHidden()) return;
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
+        this.addClass('suey-hidden');
+        this.setStyle('display', 'none');
+    }
+    display(dispatchEvent = true) {
+        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
+        this.removeClass('suey-hidden');
+        this.setStyle('display', '');
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
+    }
+    isDisplayed() {
+        return getComputedStyle(this.dom).display != 'none';
+    }
+    isHidden() {
+        return getComputedStyle(this.dom).display == 'none';
+    }
+    allowFocus() {
+        this.dom.tabIndex = 0;
+    }
+    allowMouseFocus() {
+        this.dom.tabIndex = -1;
+    }
+    focus() {
+        this.dom.focus();
+    }
+    blur() {
+        this.dom.blur();
+    }
+    setTextContent(value) {
+        if (value != undefined) this.contents().dom.textContent = value;
+        return this;
+    }
+    getTextContent() {
+        return this.contents().dom.textContent;
+    }
+    setInnerText(value) {
+        if (value != undefined) this.contents().dom.innerText = value;
+        return this;
+    }
+    getInnerText() {
+        return this.contents().dom.innerText;
+    }
+    setInnerHtml(value) {
+        if (value === undefined || value === null) value = '';
+        if (typeof this.contents().dom.setHTML === 'function') {
+            this.contents().dom.setHTML(value);
+        } else {
+            this.contents().dom.innerHTML = value;
+        }
+        return this;
+    }
+    getInnerHtml() {
+        return this.contents().dom.innerHTML;
+    }
+    setStyle() {
+        for (let i = 0, l = arguments.length; i < l; i += 2) {
+            const style = arguments[i];
+            const value = arguments[i + 1];
+            this.dom.style[style] = value;
+        }
+        return this;
+    }
+    setContentsStyle() {
+        for (let i = 0, l = arguments.length; i < l; i += 2) {
+            const style = arguments[i];
+            const value = arguments[i + 1];
+            this.contents().dom.style[style] = value;
+        }
+        return this;
+    }
+    setColor() {
+        console.error(`${this.constructor.name}.setColor(): Method must be reimplemented from Element`);
+        return this;
+    }
+    getLeft() {
+        return this.dom.getBoundingClientRect().left;
+    }
+    getTop() {
+        return this.dom.getBoundingClientRect().top;
+    }
+    getWidth() {
+        return this.dom.getBoundingClientRect().width;
+    }
+    getHeight() {
+        return this.dom.getBoundingClientRect().height;
+    }
+    getRelativePosition() {
+        const rect = this.dom.getBoundingClientRect();
+        let offsetParent = this.dom.offsetParent;
+        while (offsetParent && getComputedStyle(offsetParent).position === 'static') {
+            offsetParent = offsetParent.offsetParent;
+        }
+        if (!offsetParent) {
+            return { left: rect.left, top: rect.top };
+        }
+        const parentRect = offsetParent.getBoundingClientRect();
+        const relativeLeft = rect.left - parentRect.left;
+        const relativeTop = rect.top - parentRect.top;
+        return { left: relativeLeft, top: relativeTop };
+    }
+    traverse(callback, applyToSelf = true) {
+        if (applyToSelf) callback(this);
+        if (this.children) {
+            for (const child of this.children) {
+                child.traverse(callback, true);
+            }
+        }
+    }
+    traverseAncestors(callback, applyToSelf = true) {
+        if (applyToSelf) callback(this);
+        if (this.parent) this.parent.traverseAncestors(callback, true);
+    }
+    on(event, callback, once = false) {
+        if (typeof callback !== 'function') {
+            console.warn(`Element.on(): No callback function provided for '${event}'`);
+        } else {
+            const eventName = event.toLowerCase();
+            const eventHandler = callback.bind(this);
+            const dom = this.dom;
+            if (once || eventName === 'destroy') {
+                dom.addEventListener(eventName, eventHandler, { once: true });
+            } else {
+                dom.addEventListener(eventName, eventHandler);
+                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+            }
+        }
+        return this;
+    }
+}
+function addToParent(parent, element) {
+    if (!parent || !element) return;
+    if (element.isElement) {
+        if (parent.isElement && element.parent === parent) return;
+        if (element.parent && element.parent.isElement) {
+            removeFromParent(element.parent, element, false);
+        }
+    }
+    const parentDom = parent.isElement ? parent.dom : parent;
+    const elementDom = element.isElement ? element.dom : element;
+    try { if (parentDom) parentDom.appendChild(elementDom); }
+    catch (error) {  }
+    if (element.isElement) {
+        let hasIt = false;
+        for (const child of parent.children) {
+            if (child.dom.isSameNode(element.dom)) { hasIt = true; break; }
+        }
+        if (!hasIt) parent.children.push(element);
+        element.parent = parent;
+    }
+    if (elementDom instanceof HTMLElement) {
+        elementDom.dispatchEvent(new Event('parent-changed'));
+    }
+}
+function destroyChildren(element, destroySelf = true) {
+    if (!element) return;
+    const dom = element.isElement ? element.dom : element;
+    if (!(dom instanceof HTMLElement)) return;
+    if (destroySelf) {
+        if (!dom.wasDestroyed) {
+            dom.dispatchEvent(new Event('destroy'));
+            dom.wasDestroyed = true;
+        }
+    }
+    for (let i = dom.children.length - 1; i >= 0; i--) {
+        const child = dom.children[i];
+        destroyChildren(child, true );
+        try { dom.removeChild(child); } catch (error) {  }
+    }
+    if (dom.suey && dom.suey.isElement) dom.suey.children.length = 0;
+}
+function removeFromParent(parent, element, destroy = true) {
+    if (!parent || !element) return undefined;
+    if (destroy) destroyChildren(element, true );
+    if (element.isElement && parent.isElement) {
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i];
+            if (child.dom.isSameNode(element.dom)) {
+                parent.children.splice(i, 1);
+                element.parent = undefined;
+            }
+        }
+    }
+    try {
+        if (parent.isElement) parent = parent.dom;
+        if (parent instanceof HTMLElement) {
+            const removed = parent.removeChild(element.isElement ? element.dom : element);
+            return (removed && removed.suey) ? removed.suey : removed;
+        }
+    } catch (error) {  }
+}
+
+class Div extends Element {
+    constructor(innerHtml) {
+        super(document.createElement('div'));
+        this.setInnerHtml(innerHtml);
+    }
+}
+
+const DEVICE_TYPE = {
+    POINTER: 1,
+    TOUCH: 2,
+};
+let _showTimer;
+class Tooltipper {
+    constructor() {
+        const tooltip = new Div().setClass('suey-tooltip');
+        tooltip.setInnerHtml('');
+        document.body.appendChild(tooltip.dom);
+        let deviceType = DEVICE_TYPE.POINTER;
+        document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
+        document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
+        document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
+        document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
+        function showTooltip(event) {
+            const element = event.target;
+            if (!element || !(element instanceof HTMLElement)) return;
+            if (!element.getAttribute('tooltip')) return;
+            if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
+            if (('TouchEvent' in window) && event instanceof TouchEvent) return;
+            let text = element.getAttribute('tooltip');
+            if (!text.length) return;
+            clearTimeout(_showTimer);
+            tooltip.removeClass('suey-updated');
+            _showTimer = setTimeout(() => {
+                tooltip.setInnerHtml(text);
+                Popper.popUnder(tooltip.dom, element, ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
+                tooltip.addClass('suey-updated');
+            }, parseInt(Css.getVariable('--tooltip-delay')));
+        }
+        function hideTooltip(event) {
+            if (event) {
+                const element = event.target;
+                if (!element || !(element instanceof HTMLElement)) return;
+                if (!element.getAttribute('tooltip')) return;
+            }
+            clearTimeout(_showTimer);
+            tooltip.removeClass('suey-updated');
+        }
+    }
+}
+const tooltipper = new Tooltipper();
+
 class Iris {
     static get NAMES() { return HTML_COLORS; }
     static get EXTENDED_NAMES() { return EXTENDED_COLORS; }
@@ -1334,613 +2032,6 @@ class ColorScheme {
 }
 ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
 
-class Dom {
-    static findElementAt(className, centerX, centerY) {
-        const domElements = document.elementsFromPoint(centerX, centerY);
-        for (const dom of domElements) {
-            if (dom.classList.contains(className)) return dom.suey ?? dom;
-        }
-        return null;
-    }
-    static childWithClass(element, className, recursive = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        const queue = [ element ];
-        while (queue.length > 0) {
-            const currentElement = queue.shift();
-            for (const child of currentElement.children) {
-                if (child.classList.contains(className)) return child.suey ?? child;
-                if (recursive) queue.push(child);
-            }
-        }
-        return null;
-    }
-    static childrenWithClass(element, className, recursive = true, searchChildenOfTarget = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        const children = [];
-        const queue = [ element ];
-        while (queue.length > 0) {
-            const currentElement = queue.shift();
-            for (const child of currentElement.children) {
-                if (child.classList.contains(className)) {
-                    children.push(child.suey ?? child);
-                    if (recursive && searchChildenOfTarget) queue.push(child);
-                } else {
-                    if (recursive) queue.push(child);
-                }
-            }
-        }
-        return children;
-    }
-    static isChildOf(element, possibleParent) {
-        if (element.isElement && element.dom) element = element.dom;
-        if (possibleParent.isElement && possibleParent.dom) possibleParent = possibleParent.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.isSameNode(possibleParent)) return true;
-            parent = parent.parentElement;
-        }
-        return false;
-    }
-    static isChildOfElementWithClass(element, className) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.classList.contains(className)) return true;
-            parent = parent.parentElement;
-        }
-        return false;
-    }
-    static parentElementWithClass(element, className) {
-        if (element.isElement && element.dom) element = element.dom;
-        let parent = element.parentElement;
-        while (parent) {
-            if (parent.classList.contains(className)) return parent.suey ?? parent;
-            parent = parent.parentElement;
-        }
-        return null;
-    }
-    static traverse(element, applyFunction = () => {}, applyToSelf = true) {
-        if (element.isElement && element.dom) element = element.dom;
-        if (applyToSelf) applyFunction(element);
-        for (let i = 0; i < element.children.length; i++) {
-            Dom.traverse(element.children[i], applyFunction, true);
-        }
-    }
-    static parentScroller(element) {
-        if (!element) return null;
-        if (element.isElement && element.dom) element = element.dom;
-        if (element.scrollHeight > element.clientHeight) {
-            return element;
-        } else {
-            return Dom.parentScroller(element.parentElement);
-        }
-    }
-    static scrollIntoView(element) {
-        const parent = Dom.parentScroller(element);
-        if (parent) {
-            const onePixel = parseInt(Css.toPx('0.2em'));
-            if ((element.offsetTop - parent.offsetTop - onePixel) < parent.scrollTop) {
-                parent.scrollTop = element.offsetTop - parent.offsetTop - onePixel;
-            } else if (element.offsetTop > (parent.scrollTop + parent.clientHeight + onePixel - parent.offsetTop)) {
-                parent.scrollTop = element.offsetTop - parent.clientHeight + element.offsetHeight + onePixel - parent.offsetTop;
-            }
-        }
-    }
-}
-
-class SignalBinding {
-    active = true;
-    params = null;
-    onceOnly = false;
-    constructor(signal, listener, onceOnly, priority = 0) {
-        this.listener = listener;
-        this.onceOnly = onceOnly;
-        this.signal = signal;
-        this.priority = priority;
-    }
-    execute(paramsArr) {
-        let handlerReturn;
-        let params;
-        if (this.active && !!this.listener) {
-            params = this.params ? this.params.concat(paramsArr) : paramsArr;
-            handlerReturn = this.listener.apply(null, params);
-            if (this.onceOnly) this.detach();
-        }
-        return handlerReturn;
-    }
-    detach() {
-        return this.isBound() ? this.signal.remove(this.listener) : null;
-    }
-    isBound() {
-        return (!!this.signal && !!this.listener);
-    }
-    isOnce() {
-        return this.onceOnly;
-    }
-    getListener() {
-        return this.listener;
-    }
-    getSignal() {
-        return this.signal;
-    }
-    destroy() {
-        delete this.signal;
-        delete this.listener;
-    }
-    toString() {
-        return '[SignalBinding onceOnly:' + this.onceOnly +', isBound:'+ this.isBound() +', active:' + this.active + ']';
-    }
-}
-const _enabled = [];
-const _missed = {};
-let _time = 0;
-class Signal {
-    VERSION = '1.0.2';
-    active = true;
-    memorize = false;
-    shouldPropagate = true;
-    static disableSignals() {
-        if (_enabled.length === 0) {
-            for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
-            _time = 0;
-        }
-        _enabled.push('false');
-    }
-    static enableSignals() {
-        _enabled.pop();
-        return (_enabled.length > 0) ? {} : Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
-    }
-    constructor(moniker) {
-        this._bindings = [];
-        this._prevParams = null;
-        this.moniker = moniker;
-    }
-    #registerListener(listener, onceOnly, priority) {
-        let prevIndex = this.#indexOfListener(listener);
-        let binding;
-        if (prevIndex !== -1) {
-            binding = this._bindings[prevIndex];
-            if (binding.isOnce() !== onceOnly) {
-                throw new Error('You cannot add' + (onceOnly ? '' : 'Once') +'() then add'+ (!onceOnly ? '' : 'Once') +'() the same listener without removing the relationship first');
-            }
-        } else {
-            binding = new SignalBinding(this, listener, onceOnly, priority);
-            let n = this._bindings.length;
-            do { --n; } while (this._bindings[n] && binding.priority <= this._bindings[n].priority);
-            this._bindings.splice(n + 1, 0, binding);
-        }
-        if (this.memorize && this._prevParams){
-            binding.execute(this._prevParams);
-        }
-        return binding;
-    }
-    #indexOfListener(listener) {
-        let n = this._bindings.length;
-        let cur;
-        while (n--) {
-            cur = this._bindings[n];
-            if (cur.listener === listener) return n;
-        }
-        return -1;
-    }
-    has(listener) {
-        return this.#indexOfListener(listener) !== -1;
-    }
-    add(listener, priority) {
-        validateListener(listener, 'add');
-        return this.#registerListener(listener, false, priority);
-    }
-    addOnce(listener, priority) {
-        validateListener(listener, 'addOnce');
-        return this.#registerListener(listener, true, priority);
-    }
-    remove(listener) {
-        validateListener(listener, 'remove');
-        const index = this.#indexOfListener(listener);
-        if (index !== -1) {
-            this._bindings[index].destroy();
-            this._bindings.splice(index, 1);
-        }
-        return listener;
-    }
-    removeAll() {
-        let n = this._bindings.length;
-        while (n--) this._bindings[n].destroy();
-        this._bindings.length = 0;
-    }
-    getNumListeners() {
-        return this._bindings.length;
-    }
-    halt() {
-        this.shouldPropagate = false;
-    }
-    dispatch() {
-        if (!this.active) return;
-        if (_enabled.length > 0) {
-            if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
-            _missed[this.moniker].args.push([ ...arguments ]);
-            _missed[this.moniker].time = _time++;
-            return;
-        }
-        let paramsArr = [ ...arguments ];
-        let n = this._bindings.length;
-        if (this.memorize) this._prevParams = paramsArr;
-        if (!n) return;
-        const bindings = [ ...this._bindings ];
-        this.shouldPropagate = true;
-        do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
-    }
-    forget() {
-        this._prevParams = null;
-    }
-    dispose() {
-        this.removeAll();
-        delete this._bindings;
-        delete this._prevParams;
-    }
-    toString() {
-        return '[Signal active:'+ this.active +' numListeners:'+ this.getNumListeners() +']';
-    }
-}
-function validateListener(listener, fnName) {
-    if (typeof listener !== 'function') {
-        throw new Error(`'listener' is a required param of ${fnName}() and should be a Function!`);
-    }
-}
-
-class Element {
-    constructor(domElement) {
-        if (domElement == null) {
-            console.trace('Element.constructor: No HTMLElement provided!');
-            domElement = document.createElement('div');
-        }
-        this.isElement = true;
-        let dom = domElement;
-        let suey = this;
-        this.parent = undefined;
-        this.children = [];
-        this.slots = [];
-        this.contents = function() { return suey; };
-        Object.defineProperties(this, {
-            dom: {
-                get: function() { return dom; },
-                set: function(value) { dom = value; },
-            },
-            id: {
-                configurable: true,
-                get: function() { return dom.id; },
-                set: function(value) { dom.id = value; },
-            },
-            name: {
-                get: function() { return dom.name ?? '???'; },
-                set: function(value) { dom.name = String(value); } ,
-            },
-        });
-        Object.defineProperties(dom, {
-            suey: {
-                get: function() { return suey; },
-            },
-        });
-        this.on('destroy', function() {
-            for (const slot of suey.slots) {
-                if (typeof slot.detach === 'function') slot.detach();
-                if (typeof slot.destroy === 'function') slot.destroy();
-            }
-            suey.slots.length = 0;
-        });
-    }
-    setID(id) {
-        this.id = id;
-        return this;
-    }
-    addSlot(slot) {
-        if (slot instanceof SignalBinding) {
-            this.slots.push(slot);
-        } else {
-            console.warn(`Element.addSlot(): ID: '${this.id}' / NAME: '${this.name}' failed to add slot`, slot);
-        }
-    }
-    add(...elements) {
-        for (const element of elements) {
-            addToParent(this.contents(), element);
-        }
-        return this;
-    }
-    addToSelf(...elements) {
-        for (const element of elements) {
-            addToParent(this, element);
-        }
-        return this;
-    }
-    clearContents() {
-        destroyChildren(this.contents(), false );
-        return this;
-    }
-    destroy() {
-        destroyChildren(this, true );
-        return this;
-    }
-    detach(...elements) {
-        const removedElements = [];
-        for (const element of elements) {
-            let removed = removeFromParent(this.contents(), element, false );
-            if (!removed) removed = removeFromParent(this, element, false );
-            if (!removed) {  }
-            removedElements.push(removed);
-        }
-        if (removedElements.length === 0) return undefined;
-        if (removedElements.length === 1) return removedElements[0];
-        return removedElements;
-    }
-    remove(...elements) {
-        const removedElements = [];
-        for (const element of elements) {
-            let removed = removeFromParent(this.contents(), element, true );
-            if (!removed) removed = removeFromParent(this, element, true );
-            if (!removed) {  }
-            removedElements.push(removed);
-        }
-        if (removedElements.length === 0) return undefined;
-        if (removedElements.length === 1) return removedElements[0];
-        return removedElements;
-    }
-    removeSelf() {
-        this.destroy();
-        const parent = this.parent ?? this.dom?.parentElement;
-        removeFromParent(parent, this, false );
-        return this;
-    }
-    setClass(...classNames) {
-        this.dom.className = '';
-        return this.addClass(...classNames);
-    }
-    addClass(...classNames) {
-        for (const className of classNames) {
-            if (className && typeof className === 'string' && className != '') {
-                this.dom.classList.add(className);
-            }
-        }
-        return this;
-    }
-    hasClass(className) {
-        return this.dom.classList.contains(className);
-    }
-    hasClassWithString(substring) {
-        substring = String(substring).toLowerCase();
-        const classArray = [ ...this.dom.classList ];
-        for (let i = 0; i < classArray.length; i++) {
-            const className = classArray[i];
-            if (className.toLowerCase().includes(substring)) return true;
-        }
-        return false;
-    }
-    removeClass(...classNames) {
-        for (const className of classNames) {
-            this.dom.classList.remove(className);
-        }
-        return this;
-    }
-    toggleClass(className) {
-        if (className != null && typeof className === 'string' && className !== '') {
-            if (this.hasClass(className)) this.removeClass(className);
-            else this.addClass(className);
-        }
-        return this;
-    }
-    wantsClass(className, wants = true) {
-        if (className && className != '') {
-            if (wants) this.addClass(className);
-            else this.removeClass(className);
-        }
-        return this;
-    }
-    setAttribute(attrib, value) {
-        this.dom.setAttribute(attrib, value);
-    }
-    setDisabled(value = true) {
-        if (value) this.addClass('suey-disabled');
-        else this.removeClass('suey-disabled');
-        this.dom.disabled = value;
-        return this;
-    }
-    selectable(allowSelection) {
-        if (allowSelection) this.removeClass('suey-unselectable');
-        else this.addClass('suey-unselectable');
-        return this;
-    }
-    hide(dispatchEvent = true) {
-        if (this.isHidden()) return;
-        if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
-        this.addClass('suey-hidden');
-        this.setStyle('display', 'none');
-    }
-    display(dispatchEvent = true) {
-        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
-        this.removeClass('suey-hidden');
-        this.setStyle('display', '');
-        if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
-    }
-    isDisplayed() {
-        return getComputedStyle(this.dom).display != 'none';
-    }
-    isHidden() {
-        return getComputedStyle(this.dom).display == 'none';
-    }
-    allowFocus() {
-        this.dom.tabIndex = 0;
-    }
-    allowMouseFocus() {
-        this.dom.tabIndex = -1;
-    }
-    focus() {
-        this.dom.focus();
-    }
-    blur() {
-        this.dom.blur();
-    }
-    setTextContent(value) {
-        if (value != undefined) this.contents().dom.textContent = value;
-        return this;
-    }
-    getTextContent() {
-        return this.contents().dom.textContent;
-    }
-    setInnerText(value) {
-        if (value != undefined) this.contents().dom.innerText = value;
-        return this;
-    }
-    getInnerText() {
-        return this.contents().dom.innerText;
-    }
-    setInnerHtml(value) {
-        if (value === undefined || value === null) value = '';
-        if (typeof this.contents().dom.setHTML === 'function') {
-            this.contents().dom.setHTML(value);
-        } else {
-            this.contents().dom.innerHTML = value;
-        }
-        return this;
-    }
-    getInnerHtml() {
-        return this.contents().dom.innerHTML;
-    }
-    setStyle() {
-        for (let i = 0, l = arguments.length; i < l; i += 2) {
-            const style = arguments[i];
-            const value = arguments[i + 1];
-            this.dom.style[style] = value;
-        }
-        return this;
-    }
-    setContentsStyle() {
-        for (let i = 0, l = arguments.length; i < l; i += 2) {
-            const style = arguments[i];
-            const value = arguments[i + 1];
-            this.contents().dom.style[style] = value;
-        }
-        return this;
-    }
-    setColor() {
-        console.error(`${this.constructor.name}.setColor(): Method must be reimplemented from Element`);
-        return this;
-    }
-    getLeft() {
-        return this.dom.getBoundingClientRect().left;
-    }
-    getTop() {
-        return this.dom.getBoundingClientRect().top;
-    }
-    getWidth() {
-        return this.dom.getBoundingClientRect().width;
-    }
-    getHeight() {
-        return this.dom.getBoundingClientRect().height;
-    }
-    getRelativePosition() {
-        const rect = this.dom.getBoundingClientRect();
-        let offsetParent = this.dom.offsetParent;
-        while (offsetParent && getComputedStyle(offsetParent).position === 'static') {
-            offsetParent = offsetParent.offsetParent;
-        }
-        if (!offsetParent) {
-            return { left: rect.left, top: rect.top };
-        }
-        const parentRect = offsetParent.getBoundingClientRect();
-        const relativeLeft = rect.left - parentRect.left;
-        const relativeTop = rect.top - parentRect.top;
-        return { left: relativeLeft, top: relativeTop };
-    }
-    traverse(callback, applyToSelf = true) {
-        if (applyToSelf) callback(this);
-        if (this.children) {
-            for (const child of this.children) {
-                child.traverse(callback, true);
-            }
-        }
-    }
-    traverseAncestors(callback, applyToSelf = true) {
-        if (applyToSelf) callback(this);
-        if (this.parent) this.parent.traverseAncestors(callback, true);
-    }
-    on(event, callback, once = false) {
-        if (typeof callback !== 'function') {
-            console.warn(`Element.on(): No callback function provided for '${event}'`);
-        } else {
-            const eventName = event.toLowerCase();
-            const eventHandler = callback.bind(this);
-            const dom = this.dom;
-            if (once || eventName === 'destroy') {
-                dom.addEventListener(eventName, eventHandler, { once: true });
-            } else {
-                dom.addEventListener(eventName, eventHandler);
-                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
-            }
-        }
-        return this;
-    }
-}
-function addToParent(parent, element) {
-    if (!parent || !element) return;
-    if (element.isElement) {
-        if (parent.isElement && element.parent === parent) return;
-        if (element.parent && element.parent.isElement) {
-            removeFromParent(element.parent, element, false);
-        }
-    }
-    const parentDom = parent.isElement ? parent.dom : parent;
-    const elementDom = element.isElement ? element.dom : element;
-    try { if (parentDom) parentDom.appendChild(elementDom); }
-    catch (error) {  }
-    if (element.isElement) {
-        let hasIt = false;
-        for (const child of parent.children) {
-            if (child.dom.isSameNode(element.dom)) { hasIt = true; break; }
-        }
-        if (!hasIt) parent.children.push(element);
-        element.parent = parent;
-    }
-    if (elementDom instanceof HTMLElement) {
-        elementDom.dispatchEvent(new Event('parent-changed'));
-    }
-}
-function destroyChildren(element, destroySelf = true) {
-    if (!element) return;
-    const dom = element.isElement ? element.dom : element;
-    if (!(dom instanceof HTMLElement)) return;
-    if (destroySelf) {
-        if (!dom.wasDestroyed) {
-            dom.dispatchEvent(new Event('destroy'));
-            dom.wasDestroyed = true;
-        }
-    }
-    for (let i = dom.children.length - 1; i >= 0; i--) {
-        const child = dom.children[i];
-        destroyChildren(child, true );
-        try { dom.removeChild(child); } catch (error) {  }
-    }
-    if (dom.suey && dom.suey.isElement) dom.suey.children.length = 0;
-}
-function removeFromParent(parent, element, destroy = true) {
-    if (!parent || !element) return undefined;
-    if (destroy) destroyChildren(element, true );
-    if (element.isElement && parent.isElement) {
-        for (let i = 0; i < parent.children.length; i++) {
-            const child = parent.children[i];
-            if (child.dom.isSameNode(element.dom)) {
-                parent.children.splice(i, 1);
-                element.parent = undefined;
-            }
-        }
-    }
-    try {
-        if (parent.isElement) parent = parent.dom;
-        if (parent instanceof HTMLElement) {
-            const removed = parent.removeChild(element.isElement ? element.dom : element);
-            return (removed && removed.suey) ? removed.suey : removed;
-        }
-    } catch (error) {  }
-}
-
 const _clr$4 = new Iris();
 class Button extends Element {
     constructor(buttonText = ' ', closesMenus = true) {
@@ -2041,13 +2132,6 @@ class Button extends Element {
         };
         super.on('click', eventHandler);
         return self;
-    }
-}
-
-class Div extends Element {
-    constructor(innerHtml) {
-        super(document.createElement('div'));
-        this.setInnerHtml(innerHtml);
     }
 }
 
@@ -2406,89 +2490,330 @@ class Interaction {
     }
 }
 
-class Strings {
-    static addSpaces(string) {
-        if (typeof string !== 'string') string = String(string);
-        string = string.replace(/([a-z])([A-Z])/g, '$1 $2');
-        string = string.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
-        return string.trim();
+class Key {
+    static DOWN = -1;
+    static UP = 1;
+    static RESET = 0;
+    constructor() {
+        this.pressed = false;
+        this.justPressed = false;
+        this.justReleased = false;
     }
-    static capitalize(string) {
-        const words = String(string).split(' ');
-        for (let i = 0; i < words.length; i++) {
-            words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+    update(action) {
+        this.justPressed = false;
+        this.justReleased = false;
+        if (action === Key.DOWN) {
+            if (this.pressed === false) this.justPressed = true;
+            this.pressed = true;
+        } else if(action === Key.UP) {
+            if (this.pressed) this.justReleased = true;
+            this.pressed = false;
+        } else if(action === Key.RESET) {
+            this.justReleased = false;
+            this.justPressed = false;
         }
-        return words.join(' ');
     }
-    static countDigits(number) {
-        return parseFloat(number).toString().length;
+    set(justPressed, pressed, justReleased) {
+        this.justPressed = justPressed;
+        this.pressed = pressed;
+        this.justReleased = justReleased;
     }
-    static escapeHTML(html) {
-        if (html == undefined) return html;
-        return html
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-    }
-    static nameFromUrl(url, capitalize = true) {
-        let imageName = new String(url.replace(/^.*[\\\/]/, ''));
-        imageName = imageName.replace(/\.[^/.]+$/, "");
-        if (capitalize) imageName = Strings.capitalize(imageName);
-        return imageName;
-    }
-    static prettyTitle(string) {
-        return Strings.addSpaces(Strings.capitalize(string));
+    reset() {
+        this.justPressed = false;
+        this.pressed = false;
+        this.justReleased = false;
     }
 }
 
-const DEVICE_TYPE = {
-    POINTER: 1,
-    TOUCH: 2,
-};
-let _showTimer;
-class Tooltipper {
-    constructor() {
-        const tooltip = new Div().setClass('suey-tooltip');
-        tooltip.setInnerHtml('');
-        document.body.appendChild(tooltip.dom);
-        let deviceType = DEVICE_TYPE.POINTER;
-        document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
-        document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
-        document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
-        document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
-        function showTooltip(event) {
-            const element = event.target;
-            if (!element || !(element instanceof HTMLElement)) return;
-            if (!element.getAttribute('tooltip')) return;
-            if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
-            if (('TouchEvent' in window) && event instanceof TouchEvent) return;
-            let text = element.getAttribute('tooltip');
-            if (!text.length) return;
-            clearTimeout(_showTimer);
-            tooltip.removeClass('suey-updated');
-            _showTimer = setTimeout(() => {
-                tooltip.setInnerHtml(text);
-                Popper.popUnder(tooltip.dom, element, ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
-                tooltip.addClass('suey-updated');
-            }, parseInt(Css.getVariable('--tooltip-delay')));
+class Vector2 {
+    constructor(x, y) {
+        this.x = x || 0;
+        this.y = y || 0;
+    }
+    set(x, y) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+    setScalar(scalar) {
+        this.x = scalar;
+        this.y = scalar;
+        return this;
+    }
+    clone() {
+        return new Vector2(this.x, this.y);
+    }
+    copy(v) {
+        this.x = v.x;
+        this.y = v.y;
+        return this;
+    }
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+    }
+    addScalar(scalar) {
+        this.x += scalar;
+        this.y += scalar;
+        return this;
+    }
+    addVectors(a, b) {
+        this.x = a.x + b.x;
+        this.y = a.y + b.y;
+        return this;
+    }
+    addScaledVector(v, scale) {
+        this.x += v.x * scale;
+        this.y += v.y * scale;
+        return this;
+    }
+    sub(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+    }
+    subScalar(scalar) {
+        this.x -= scalar;
+        this.y -= scalar;
+        return this;
+    }
+    subVectors(a, b) {
+        this.x = a.x - b.x;
+        this.y = a.y - b.y;
+        return this;
+    }
+    multiply(v) {
+        this.x *= v.x;
+        this.y *= v.y;
+        return this;
+    }
+    multiplyScalar(scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
+        return this;
+    }
+    divide(v) {
+        this.x /= v.x;
+        this.y /= v.y;
+        return this;
+    }
+    divideScalar(scalar) {
+        return this.multiplyScalar(1 / scalar);
+    }
+    min(v) {
+        this.x = Math.min(this.x, v.x);
+        this.y = Math.min(this.y, v.y);
+        return this;
+    }
+    max(v) {
+        this.x = Math.max(this.x, v.x);
+        this.y = Math.max(this.y, v.y);
+        return this;
+    }
+    clamp(minv, maxv) {
+        this.x = Math.max(minv.x, Math.min(maxv.x, this.x));
+        this.y = Math.max(minv.y, Math.min(maxv.y, this.y));
+        return this;
+    }
+    clampScalar(minVal, maxVal) {
+        this.x = Math.max(minVal, Math.min(maxVal, this.x));
+        this.y = Math.max(minVal, Math.min(maxVal, this.y));
+        return this;
+    }
+    clampLength(min, max) {
+        let length = this.length();
+        return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
+    }
+    floor() {
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        return this;
+    }
+    ceil() {
+        this.x = Math.ceil(this.x);
+        this.y = Math.ceil(this.y);
+        return this;
+    }
+    round() {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        return this;
+    }
+    negate() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }
+    dot(v) {
+        return this.x * v.x + this.y * v.y;
+    }
+    cross(v) {
+        return this.x * v.y - this.y * v.x;
+    }
+    lengthSq() {
+        return this.x * this.x + this.y * this.y;
+    }
+    length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+    manhattanLength() {
+        return Math.abs(this.x) + Math.abs(this.y);
+    }
+    normalize() {
+        return this.divideScalar(this.length() || 1);
+    }
+    angle(forcePositive) {
+        let angle = Math.atan2(this.y, this.x);
+        if (forcePositive && angle < 0) angle += 2 * Math.PI;
+        return angle;
+    }
+    distanceTo(v) {
+        return Math.sqrt(this.distanceToSquared(v));
+    }
+    distanceToSquared(v) {
+        let dx = this.x - v.x;
+        let dy = this.y - v.y;
+        return dx * dx + dy * dy;
+    }
+    manhattanDistanceTo(v) {
+        return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
+    }
+    setLength(length) {
+        return this.normalize().multiplyScalar(length);
+    }
+    lerp(v, alpha) {
+        this.x += (v.x - this.x) * alpha;
+        this.y += (v.y - this.y) * alpha;
+        return this;
+    }
+    equals(v) {
+        return ((v.x === this.x) && (v.y === this.y));
+    }
+    toArray() {
+        return [this.x, this.y];
+    }
+    fromArray(array) {
+        this.set(array[0], array[1]);
+        return this;
+    }
+    rotateAround(center, angle) {
+        let c = Math.cos(angle);
+        let s = Math.sin(angle);
+        let x = this.x - center.x;
+        let y = this.y - center.y;
+        this.x = x * c - y * s + center.x;
+        this.y = x * s + y * c + center.y;
+    }
+}
+
+class Pointer {
+    static LEFT = 0;
+    static MIDDLE = 1;
+    static RIGHT = 2;
+    static BACK = 3;
+    static FORWARD = 4;
+    constructor(element) {
+        if (!element || !element.isElement) {
+            console.error(`Pointer: No Suey Element was provided`);
+            return;
         }
-        function hideTooltip(event) {
-            if (event) {
-                const element = event.target;
-                if (!element || !(element instanceof HTMLElement)) return;
-                if (!element.getAttribute('tooltip')) return;
+        const self = this;
+        this._keys = new Array(5);
+        this._position = new Vector2(0, 0);
+        this._positionUpdated = false;
+        this._delta = new Vector2(0, 0);
+        this._wheel = 0;
+        this._wheelUpdated = false;
+        this._doubleClicked = new Array(5);
+        this.keys = new Array(5);
+        this.position = new Vector2(0, 0);
+        this.delta = new Vector2(0, 0);
+        this.wheel = 0;
+        this.doubleClicked = new Array(5);
+        this.pointerInside = false;
+        for (let i = 0; i < 5; i++) {
+            this._doubleClicked[i] = false;
+            this.doubleClicked[i] = false;
+            this._keys[i] = new Key();
+            this.keys[i] = new Key();
+        }
+        function updatePosition(x, y, xDiff, yDiff) {
+            if (element && element.dom) {
+                const rect = element.dom.getBoundingClientRect();
+                x -= rect.left;
+                y -= rect.top;
             }
-            clearTimeout(_showTimer);
-            tooltip.removeClass('suey-updated');
+            self._position.set(x, y);
+            self._delta.x += xDiff;
+            self._delta.y += yDiff;
+            self._positionUpdated = true;
+        }
+        function updateKey(button, action) {
+            if (button > -1) self._keys[button].update(action);
+        }
+        const lastTouch = new Vector2(0, 0);
+        element.on('touchstart', (event) => {
+            const touch = event.touches[0];
+            updatePosition(touch.clientX, touch.clientY, 0, 0);
+            updateKey(Pointer.LEFT, Key.DOWN);
+            lastTouch.set(touch.clientX, touch.clientY);
+        });
+        element.on('touchend', (event) => { updateKey(Pointer.LEFT, Key.UP); });
+        element.on('touchcancel', (event) => { updateKey(Pointer.LEFT, Key.UP); });
+        element.on('touchmove', (event) => {
+            const touch = event.touches[0];
+            updatePosition(touch.clientX, touch.clientY, touch.clientX - lastTouch.x, touch.clientY - lastTouch.y);
+            lastTouch.set(touch.clientX, touch.clientY);
+        });
+        element.on('pointermove', (event) => { updatePosition(event.clientX, event.clientY, event.movementX, event.movementY); });
+        element.on('pointerdown', (event) => { updateKey(event.which - 1, Key.DOWN); });
+        element.on('pointerup', (event) => { updateKey(event.which - 1, Key.UP); });
+        element.on('pointerenter', () => { self.pointerInside = true; });
+        element.on('pointerleave', () => { self.pointerInside = false; });
+        element.on('wheel', (event) => {
+            self._wheel = event.deltaY;
+            self._wheelUpdated = true;
+        });
+        element.on('dragstart', (event) => { updateKey(event.which - 1, Key.UP); });
+        element.on('dblclick', (event) => { self._doubleClicked[event.which - 1] = true; });
+    }
+    buttonPressed(button)       { return this.keys[button].pressed; }
+    buttonDoubleClicked(button) { return this.doubleClicked[button] }
+    buttonJustPressed(button)   { return this.keys[button].justPressed; }
+    buttonJustReleased(button)  { return this.keys[button].justReleased; }
+    insideDom() {
+        return this.pointerInside;
+    }
+    update() {
+        for (let i = 0; i < 5; i++) {
+            if (this._keys[i].justPressed && this.keys[i].justPressed) this._keys[i].justPressed = false;
+            if (this._keys[i].justReleased && this.keys[i].justReleased) this._keys[i].justReleased = false;
+            this.keys[i].set(this._keys[i].justPressed, this._keys[i].pressed, this._keys[i].justReleased);
+            if (this._doubleClicked[i] === true) {
+                this.doubleClicked[i] = true;
+                this._doubleClicked[i] = false;
+            } else {
+                this.doubleClicked[i] = false;
+            }
+        }
+        if (this._wheelUpdated) {
+            this.wheel = this._wheel;
+            this._wheelUpdated = false;
+        } else {
+            this.wheel = 0;
+        }
+        if (this._positionUpdated) {
+            this.delta.copy(this._delta);
+            this.position.copy(this._position);
+            this._delta.set(0,0);
+            this._positionUpdated = false;
+        } else {
+            this.delta.x = 0;
+            this.delta.y = 0;
         }
     }
 }
-const tooltipper = new Tooltipper();
 
 class Span extends Element {
     constructor(innerHtml) {
@@ -3994,17 +4319,17 @@ class Break extends Element {
 }
 
 class Canvas extends Element {
-    constructor(width = 300, height = 150) {
+    constructor(width = 300, height = 150, createContext = true) {
         const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
         canvas.width = width;
         canvas.height = height;
         super(canvas);
-        this.ctx = this.dom.getContext('2d');
+        if (createContext) this.ctx = this.dom.getContext('2d');
     }
     get width() { return this.dom.width; }
     set width(x) { this.dom.width = x; }
     get height() { return this.dom.height; }
-    set height(x) { this.dom.height = x; }
+    set height(y) { this.dom.height = y; }
     ratio() {
         const rect = this.dom.getBoundingClientRect();
         return ((this.dom.width / this.dom.height) / (rect.width / rect.height));
@@ -6887,212 +7212,21 @@ class Scrollable extends Panel {
     }
 }
 
-class EventManager {
+class Style {
     constructor() {
-        this.events = [];
+        this.cache = null;
+        this.needsUpdate = true;
     }
-    add(target, event, callback) {
-        this.events.push([target, event, callback, false]);
-    }
-    clear() {
-        this.destroy();
-        this.events = [];
-    }
-    create() {
-        for (let i = 0; i < this.events.length; i++) {
-            const event = this.events[i];
-            event[0].addEventListener(event[1], event[2]);
-            event[3] = true;
-        }
-    }
-    destroy() {
-        for (let i = 0; i < this.events.length; i++) {
-            const event = this.events[i];
-            event[0].removeEventListener(event[1], event[2]);
-            event[3] = false;
-        }
-    }
+    get(context) {}
 }
 
-class Vector2 {
-    constructor(x, y) {
-        this.x = x || 0;
-        this.y = y || 0;
+class ColorStyle extends Style {
+    constructor(color = '#000000') {
+        super();
+        this.color = color;
     }
-    set(x, y) {
-        this.x = x;
-        this.y = y;
-        return this;
-    }
-    setScalar(scalar) {
-        this.x = scalar;
-        this.y = scalar;
-        return this;
-    }
-    clone() {
-        return new Vector2(this.x, this.y);
-    }
-    copy(v) {
-        this.x = v.x;
-        this.y = v.y;
-        return this;
-    }
-    add(v) {
-        this.x += v.x;
-        this.y += v.y;
-        return this;
-    }
-    addScalar(scalar) {
-        this.x += scalar;
-        this.y += scalar;
-        return this;
-    }
-    addVectors(a, b) {
-        this.x = a.x + b.x;
-        this.y = a.y + b.y;
-        return this;
-    }
-    addScaledVector(v, scale) {
-        this.x += v.x * scale;
-        this.y += v.y * scale;
-        return this;
-    }
-    sub(v) {
-        this.x -= v.x;
-        this.y -= v.y;
-        return this;
-    }
-    subScalar(scalar) {
-        this.x -= scalar;
-        this.y -= scalar;
-        return this;
-    }
-    subVectors(a, b) {
-        this.x = a.x - b.x;
-        this.y = a.y - b.y;
-        return this;
-    }
-    multiply(v) {
-        this.x *= v.x;
-        this.y *= v.y;
-        return this;
-    }
-    multiplyScalar(scalar) {
-        this.x *= scalar;
-        this.y *= scalar;
-        return this;
-    }
-    divide(v) {
-        this.x /= v.x;
-        this.y /= v.y;
-        return this;
-    }
-    divideScalar(scalar) {
-        return this.multiplyScalar(1 / scalar);
-    }
-    min(v) {
-        this.x = Math.min(this.x, v.x);
-        this.y = Math.min(this.y, v.y);
-        return this;
-    }
-    max(v) {
-        this.x = Math.max(this.x, v.x);
-        this.y = Math.max(this.y, v.y);
-        return this;
-    }
-    clamp(minv, maxv) {
-        this.x = Math.max(minv.x, Math.min(maxv.x, this.x));
-        this.y = Math.max(minv.y, Math.min(maxv.y, this.y));
-        return this;
-    }
-    clampScalar(minVal, maxVal) {
-        this.x = Math.max(minVal, Math.min(maxVal, this.x));
-        this.y = Math.max(minVal, Math.min(maxVal, this.y));
-        return this;
-    }
-    clampLength(min, max) {
-        let length = this.length();
-        return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
-    }
-    floor() {
-        this.x = Math.floor(this.x);
-        this.y = Math.floor(this.y);
-        return this;
-    }
-    ceil() {
-        this.x = Math.ceil(this.x);
-        this.y = Math.ceil(this.y);
-        return this;
-    }
-    round() {
-        this.x = Math.round(this.x);
-        this.y = Math.round(this.y);
-        return this;
-    }
-    negate() {
-        this.x = -this.x;
-        this.y = -this.y;
-        return this;
-    }
-    dot(v) {
-        return this.x * v.x + this.y * v.y;
-    }
-    cross(v) {
-        return this.x * v.y - this.y * v.x;
-    }
-    lengthSq() {
-        return this.x * this.x + this.y * this.y;
-    }
-    length() {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
-    }
-    manhattanLength() {
-        return Math.abs(this.x) + Math.abs(this.y);
-    }
-    normalize() {
-        return this.divideScalar(this.length() || 1);
-    }
-    angle(forcePositive) {
-        let angle = Math.atan2(this.y, this.x);
-        if (forcePositive && angle < 0) angle += 2 * Math.PI;
-        return angle;
-    }
-    distanceTo(v) {
-        return Math.sqrt(this.distanceToSquared(v));
-    }
-    distanceToSquared(v) {
-        let dx = this.x - v.x;
-        let dy = this.y - v.y;
-        return dx * dx + dy * dy;
-    }
-    manhattanDistanceTo(v) {
-        return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
-    }
-    setLength(length) {
-        return this.normalize().multiplyScalar(length);
-    }
-    lerp(v, alpha) {
-        this.x += (v.x - this.x) * alpha;
-        this.y += (v.y - this.y) * alpha;
-        return this;
-    }
-    equals(v) {
-        return ((v.x === this.x) && (v.y === this.y));
-    }
-    toArray() {
-        return [this.x, this.y];
-    }
-    fromArray(array) {
-        this.set(array[0], array[1]);
-        return this;
-    }
-    rotateAround(center, angle) {
-        let c = Math.cos(angle);
-        let s = Math.sin(angle);
-        let x = this.x - center.x;
-        let y = this.y - center.y;
-        this.x = x * c - y * s + center.x;
-        this.y = x * s + y * c + center.y;
+    get(context) {
+        return this.color;
     }
 }
 
@@ -7327,18 +7461,135 @@ class Object2D {
     }
 }
 
-class AnimationTimer {
-    constructor(callback) {
-        this.callback = callback;
+class Circle extends Object2D {
+    type = 'Circle';
+    constructor() {
+        super();
+        this.radius = 10.0;
+        this.strokeStyle = new ColorStyle('#000000');
+        this.lineWidth = 1;
+        this.fillStyle = new ColorStyle('#FFFFFF');
+    }
+    isInside(point) {
+        return point.length() <= this.radius;
+    }
+    draw(context, viewport, canvas) {
+        context.beginPath();
+        context.arc(0, 0, this.radius, 0, 2 * Math.PI);
+        if (this.fillStyle) {
+            context.fillStyle = this.fillStyle.get(context);
+            context.fill();
+        }
+        if (this.strokeStyle) {
+            context.lineWidth = this.lineWidth;
+            context.strokeStyle = this.strokeStyle.get(context);
+            context.stroke();
+        }
+    }
+}
+
+class Helpers {
+    static rotateTool(object) {
+        const tool = new Circle();
+        tool.radius = 4;
+        tool.layer = object.layer + 1;
+        tool.draggable = true;
+        tool.onPointerDrag = function(pointer, viewport, delta) {
+            object.rotation += delta.x * 0.01;
+        };
+        object.add(tool);
+    }
+    static boxResizeTool(object) {
+        if (object.box == undefined) {
+            console.warn('Helpers.boxResizeTool(): Object box property missing');
+            return;
+        }
+        function updateHelpers() {
+            topLeft.position.copy(object.box.min);
+            topRight.position.set(object.box.max.x, object.box.min.y);
+            bottomLeft.position.set(object.box.min.x, object.box.max.y);
+            bottomRight.position.copy(object.box.max);
+        }
+        const topLeft = new Circle();
+        topLeft.fillStyle.color = '#ff0000';
+        topLeft.radius = 4;
+        topLeft.layer = object.layer + 1;
+        topLeft.draggable = true;
+        topLeft.onPointerDrag = function(pointer, viewport, delta) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            object.box.min.copy(topLeft.position);
+            updateHelpers();
+        };
+        object.add(topLeft);
+        const topRight = new Circle();
+        topRight.fillStyle.color = '#00ff00';
+        topRight.radius = 4;
+        topRight.layer = object.layer + 1;
+        topRight.draggable = true;
+        topRight.onPointerDrag = function(pointer, viewport, delta) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            object.box.max.x = topRight.position.x;
+            object.box.min.y = topRight.position.y;
+            updateHelpers();
+        };
+        object.add(topRight);
+        const bottomRight = new Circle();
+        bottomRight.fillStyle.color = '#0000ff';
+        bottomRight.radius = 4;
+        bottomRight.layer = object.layer + 1;
+        bottomRight.draggable = true;
+        bottomRight.onPointerDrag = function(pointer, viewport, delta) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            object.box.max.copy(bottomRight.position);
+            updateHelpers();
+        };
+        object.add(bottomRight);
+        const bottomLeft = new Circle();
+        bottomLeft.radius = 4;
+        bottomLeft.layer = object.layer + 1;
+        bottomLeft.draggable = true;
+        bottomLeft.onPointerDrag = function(pointer, viewport, delta) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            object.box.min.x = bottomLeft.position.x;
+            object.box.max.y = bottomLeft.position.y;
+            updateHelpers();
+        };
+        object.add(bottomLeft);
+        updateHelpers();
+    }
+}
+
+class Renderer extends Canvas {
+    constructor(options = {}) {
+        if (options === undefined) options = {};
+        if (!('alpha' in options)) options.alpha = true;
+        if (!('disableContextMenu' in options)) options.disableContextMenu = true;
+        if (!('imageSmoothingEnabled' in options)) options.imageSmoothingEnabled = true;
+        if (!('imageSmoothingQuality' in options)) options.imageSmoothingQuality = 'low';
+        if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
+        options.width = options.width ?? 1000;
+        options.height = options.height ?? 1000;
+        super(options.width, options.height, false );
+        this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
+        this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
+        this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
+        this.ctx.globalCompositeOperation = options.globalCompositeOperation;
+        this.pointer = new Pointer(this);
+        this.autoClear = true;
         this.running = false;
         this.id = -1;
+        this.on('contextmenu', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+        });
     }
-    start() {
+    start(group, viewport, onUpdate) {
         if (this.running) return;
         this.running = true;
         const self = this;
         function loop() {
-            self.callback();
+            if (typeof onUpdate === 'function') onUpdate();
+            self.update(group, viewport);
             if (self.running) self.id = requestAnimationFrame(loop);
         }
         loop();
@@ -7347,222 +7598,10 @@ class AnimationTimer {
         this.running = false;
         cancelAnimationFrame(this.id);
     }
-}
-
-class Key {
-    static DOWN = -1;
-    static UP = 1;
-    static RESET = 0;
-    constructor() {
-        this.pressed = false;
-        this.justPressed = false;
-        this.justReleased = false;
-    }
-    update(action) {
-        this.justPressed = false;
-        this.justReleased = false;
-        if (action === Key.DOWN) {
-            if (this.pressed === false) this.justPressed = true;
-            this.pressed = true;
-        } else if(action === Key.UP) {
-            if (this.pressed) this.justReleased = true;
-            this.pressed = false;
-        } else if(action === Key.RESET) {
-            this.justReleased = false;
-            this.justPressed = false;
-        }
-    }
-    set(justPressed, pressed, justReleased) {
-        this.justPressed = justPressed;
-        this.pressed = pressed;
-        this.justReleased = justReleased;
-    }
-    reset() {
-        this.justPressed = false;
-        this.pressed = false;
-        this.justReleased = false;
-    }
-}
-
-class Pointer {
-    static LEFT = 0;
-    static MIDDLE = 1;
-    static RIGHT = 2;
-    static BACK = 3;
-    static FORWARD = 4;
-    constructor(domElement, canvas) {
-        const self = this;
-        this._keys = new Array(5);
-        this._position = new Vector2(0, 0);
-        this._positionUpdated = false;
-        this._delta = new Vector2(0, 0);
-        this._wheel = 0;
-        this._wheelUpdated = false;
-        this._doubleClicked = new Array(5);
-        this.keys = new Array(5);
-        this.position = new Vector2(0, 0);
-        this.delta = new Vector2(0, 0);
-        this.wheel = 0;
-        this.doubleClicked = new Array(5);
-        this.domElement = domElement ?? window;
-        this.canvas = null;
-        if (canvas) this.setCanvas(canvas);
-        this.events = new EventManager();
-        for (let i = 0; i < 5; i++) {
-            this._doubleClicked[i] = false;
-            this.doubleClicked[i] = false;
-            this._keys[i] = new Key();
-            this.keys[i] = new Key();
-        }
-        this.events.add(this.domElement, 'wheel', function(event) {
-            self._wheel = event.deltaY;
-            self._wheelUpdated = true;
-        });
-        const lastTouch = new Vector2(0, 0);
-        this.events.add(this.domElement, 'touchstart', function(event) {
-            const touch = event.touches[0];
-            self.updatePosition(touch.clientX, touch.clientY, 0, 0);
-            self.updateKey(Pointer.LEFT, Key.DOWN);
-            lastTouch.set(touch.clientX, touch.clientY);
-        });
-        this.events.add(this.domElement, 'touchend', function(event) {
-            self.updateKey(Pointer.LEFT, Key.UP);
-        });
-        this.events.add(this.domElement, 'touchcancel', function(event) {
-            self.updateKey(Pointer.LEFT, Key.UP);
-        });
-        this.events.add(document.body, 'touchmove', function(event) {
-            const touch = event.touches[0];
-            self.updatePosition(touch.clientX, touch.clientY, touch.clientX - lastTouch.x, touch.clientY - lastTouch.y);
-            lastTouch.set(touch.clientX, touch.clientY);
-        });
-        this.events.add(this.domElement, 'mousemove', function(event) {
-            self.updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
-        });
-        this.events.add(this.domElement, 'mousedown', function(event) {
-            self.updateKey(event.which - 1, Key.DOWN);
-        });
-        this.events.add(this.domElement, 'mouseup', function(event) {
-            self.updateKey(event.which - 1, Key.UP);
-        });
-        this.events.add(this.domElement, 'dragstart', function(event) {
-            self.updateKey(event.which - 1, Key.UP);
-        });
-        this.events.add(this.domElement, 'dblclick', function(event) {
-            self._doubleClicked[event.which - 1] = true;
-        });
-        this.create();
-    }
-    dispose() {
-        this.events.destroy();
-    }
-    create() {
-        this.events.create();
-    }
-    setCanvas(element) {
-        this.canvas = element;
-        element.pointerInside = false;
-        element.addEventListener('mouseenter', function() { this.pointerInside = true; });
-        element.addEventListener('mouseleave', function() { this.pointerInside = false; });
-    }
-    insideCanvas() {
-        if (!this.canvas) return false;
-        return this.canvas.pointerInside;
-    }
-    updatePosition(x, y, xDiff, yDiff) {
-        if (this.canvas) {
-            const rect = this.canvas.getBoundingClientRect();
-            x -= rect.left;
-            y -= rect.top;
-        }
-        this._position.set(x, y);
-        this._delta.x += xDiff;
-        this._delta.y += yDiff;
-        this._positionUpdated = true;
-    }
-    updateKey(button, action) {
-        if (button > -1) this._keys[button].update(action);
-    }
-    buttonPressed(button) { return this.keys[button].pressed; }
-    buttonDoubleClicked(button) { return this.doubleClicked[button] }
-    buttonJustPressed(button) { return this.keys[button].justPressed; }
-    buttonJustReleased(button) { return this.keys[button].justReleased; }
-    update() {
-        for (let i = 0; i < 5; i++) {
-            if (this._keys[i].justPressed && this.keys[i].justPressed) this._keys[i].justPressed = false;
-            if (this._keys[i].justReleased && this.keys[i].justReleased) this._keys[i].justReleased = false;
-            this.keys[i].set(this._keys[i].justPressed, this._keys[i].pressed, this._keys[i].justReleased);
-            if (this._doubleClicked[i] === true) {
-                this.doubleClicked[i] = true;
-                this._doubleClicked[i] = false;
-            } else {
-                this.doubleClicked[i] = false;
-            }
-        }
-        if (this._wheelUpdated) {
-            this.wheel = this._wheel;
-            this._wheelUpdated = false;
-        } else {
-            this.wheel = 0;
-        }
-        if (this._positionUpdated) {
-            this.delta.copy(this._delta);
-            this.position.copy(this._position);
-            this._delta.set(0,0);
-            this._positionUpdated = false;
-        } else {
-            this.delta.x = 0;
-            this.delta.y = 0;
-        }
-    }
-}
-
-class Renderer {
-    constructor(canvas, options = {}) {
-        if (options === undefined) options = {};
-        if (!('alpha' in options)) options.alpha = true;
-        if (!('disableContextMenu' in options)) options.disableContextMenu = true;
-        if (!('imageSmoothingEnabled' in options)) options.imageSmoothingEnabled = true;
-        if (!('imageSmoothingQuality' in options)) options.imageSmoothingQuality = 'low';
-        if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
-        this.manager = new EventManager();
-        if (options.disableContextMenu) {
-            this.manager.add(canvas, 'contextmenu', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        }
-        this.manager.create();
-        this.canvas = canvas;
-        this.container = null;
-        this.context = this.canvas.getContext('2d', { alpha: options.alpha });
-        this.context.imageSmoothingEnabled = options.imageSmoothingEnabled;
-        this.context.imageSmoothingQuality = options.imageSmoothingQuality;
-        this.context.globalCompositeOperation = options.globalCompositeOperation;
-        this.pointer = new Pointer(window, this.canvas);
-        this.autoClear = true;
-    }
-    getDomContainer() {
-        return this.container ?? this.canvas.parentElement;
-    }
-    createRenderLoop(group, viewport, onUpdate) {
-        viewport.offsetCanvas(this.canvas);
-        const self = this;
-        const timer = new AnimationTimer(function() {
-            if (typeof onUpdate === 'function') onUpdate();
-            self.update(group, viewport);
-        });
-        timer.start();
-        return timer;
-    }
-    dispose(group, viewport, onUpdate) {
-        this.manager.destroy();
-        this.pointer.dispose();
-    }
     update(object, viewport) {
         this.pointer.update();
         viewport.update(this.pointer);
-        viewport.updateMatrix();
+        viewport.updateMatrix(this.width / 2.0, this.height / 2.0);
         const pointer = this.pointer;
         const point = pointer.position.clone();
         const viewportPoint = viewport.inverseMatrix.transformPoint(point);
@@ -7572,7 +7611,6 @@ class Renderer {
             if (b.layer === a.layer) return b.level - a.level;
             return b.layer - a.layer;
         });
-        objects.reverse();
         for (const child of objects) {
             if (!child.pointerEvents) continue;
             const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreViewport ? point : viewportPoint);
@@ -7615,33 +7653,33 @@ class Renderer {
         object.traverse(function(child) {
             child.updateMatrix();
         });
-        this.context.setTransform(1, 0, 0, 1, 0, 0);
-        if (this.autoClear) this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
+        objects.reverse();
         for (const object of objects) {
             if (object.isMask) continue;
-            if (object.saveContextState) this.context.save();
+            if (object.saveContextState) this.ctx.save();
             for (const mask of object.masks) {
-                if (!mask.ignoreViewport) viewport.matrix.setContextTransform(this.context);
-                mask.transform(this.context, viewport, this.canvas, this);
-                mask.clip(this.context, viewport, this.canvas);
+                if (!mask.ignoreViewport) viewport.matrix.setContextTransform(this.ctx);
+                mask.transform(this.ctx, viewport, this.dom, this);
+                mask.clip(this.ctx, viewport, this.dom);
             }
             if (!object.ignoreViewport) {
-                viewport.matrix.setContextTransform(this.context);
+                viewport.matrix.setContextTransform(this.ctx);
             } else if (object.masks.length > 0) {
-                this.context.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
-            object.transform(this.context, viewport, this.canvas, this);
-            if (typeof object.style === 'function') object.style(this.context, viewport, this.canvas);
-            if (typeof object.draw === 'function') object.draw(this.context, viewport, this.canvas);
-            if (object.restoreContextState) this.context.restore();
+            object.transform(this.ctx, viewport, this.dom, this);
+            if (typeof object.style === 'function') object.style(this.ctx, viewport, this.dom);
+            if (typeof object.draw === 'function') object.draw(this.ctx, viewport, this.dom);
+            if (object.restoreContextState) this.ctx.restore();
         }
     };
 }
 
 class Viewport {
-    constructor(canvas) {
+    constructor() {
         this.uuid = UUID.generate();
-        this.canvas = canvas;
         this.position = new Vector2(0, 0);
         this.scale = 1.0;
         this.rotation = 0.0;
@@ -7682,11 +7720,9 @@ class Viewport {
             this.matrixNeedsUpdate = true;
         }
     }
-    updateMatrix() {
+    updateMatrix(centerX, centerY) {
         if (!this.matrixNeedsUpdate) return;
         this.matrix.identity();
-        const centerX = this.canvas ? this.canvas.width / 2.0 : 0;
-        const centerY = this.canvas ? this.canvas.height / 2.0 : 0;
         this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, centerX, centerY ]));
         const c = Math.cos(this.rotation);
         const s = Math.sin(this.rotation);
@@ -7696,18 +7732,6 @@ class Viewport {
         this.matrix.multiply(new Matrix2([ this.scale, 0, 0, this.scale, 0, 0 ]));
         this.inverseMatrix = this.matrix.getInverse();
         this.matrixNeedsUpdate = false;
-    }
-    centerObject(object, canvas) {
-        const position = object.globalMatrix.transformPoint(new Vector2());
-        position.multiplyScalar(-this.scale);
-        position.x += canvas.width / 2;
-        position.y += canvas.height / 2;
-        this.position.copy(position);
-        this.matrixNeedsUpdate = true;
-    }
-    offsetCanvas(canvas) {
-        const position = new Vector2(canvas.width / 2.0, canvas.height / 2.0);
-        this.position.copy(position);
     }
 }
 
@@ -7814,24 +7838,6 @@ class Box2 {
     }
 }
 
-class Style {
-    constructor() {
-        this.cache = null;
-        this.needsUpdate = true;
-    }
-    get(context) {}
-}
-
-class ColorStyle extends Style {
-    constructor(color = '#000000') {
-        super();
-        this.color = color;
-    }
-    get(context) {
-        return this.color;
-    }
-}
-
 class Box extends Object2D {
     type = 'Box';
     constructor() {
@@ -7855,33 +7861,6 @@ class Box extends Object2D {
             context.lineWidth = this.lineWidth;
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeRect(this.box.min.x, this.box.min.y, width, height);
-        }
-    }
-}
-
-class Circle extends Object2D {
-    type = 'Circle';
-    constructor() {
-        super();
-        this.radius = 10.0;
-        this.strokeStyle = new ColorStyle('#000000');
-        this.lineWidth = 1;
-        this.fillStyle = new ColorStyle('#FFFFFF');
-    }
-    isInside(point) {
-        return point.length() <= this.radius;
-    }
-    draw(context, viewport, canvas) {
-        context.beginPath();
-        context.arc(0, 0, this.radius, 0, 2 * Math.PI);
-        if (this.fillStyle) {
-            context.fillStyle = this.fillStyle.get(context);
-            context.fill();
-        }
-        if (this.strokeStyle) {
-            context.lineWidth = this.lineWidth;
-            context.strokeStyle = this.strokeStyle.get(context);
-            context.stroke();
         }
     }
 }
@@ -7922,117 +7901,12 @@ class BoxMask extends Mask {
     }
 }
 
-class Helpers {
-    static rotateTool(object) {
-        const tool = new Circle();
-        tool.radius = 4;
-        tool.layer = object.layer + 1;
-        tool.draggable = true;
-        tool.onPointerDrag = function(pointer, viewport, delta) {
-            object.rotation += delta.x * 0.01;
-        };
-        object.add(tool);
-    }
-    static boxResizeTool(object) {
-        if (object.box == undefined) {
-            console.warn('Helpers.boxResizeTool(): Object box property missing');
-            return;
-        }
-        function updateHelpers() {
-            topRight.position.copy(object.box.min);
-            bottomLeft.position.copy(object.box.max);
-            topLeft.position.set(object.box.max.x, object.box.min.y);
-            bottomRight.position.set(object.box.min.x, object.box.max.y);
-        }
-        const topRight = new Circle();
-        topRight.radius = 4;
-        topRight.layer = object.layer + 1;
-        topRight.draggable = true;
-        topRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
-            object.box.min.copy(topRight.position);
-            updateHelpers();
-        };
-        object.add(topRight);
-        const topLeft = new Circle();
-        topLeft.radius = 4;
-        topLeft.layer = object.layer + 1;
-        topLeft.draggable = true;
-        topLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
-            object.box.max.x = topLeft.position.x;
-            object.box.min.y = topLeft.position.y;
-            updateHelpers();
-        };
-        object.add(topLeft);
-        const bottomLeft = new Circle();
-        bottomLeft.radius = 4;
-        bottomLeft.layer = object.layer + 1;
-        bottomLeft.draggable = true;
-        bottomLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
-            object.box.max.copy(bottomLeft.position);
-            updateHelpers();
-        };
-        object.add(bottomLeft);
-        const bottomRight = new Circle();
-        bottomRight.radius = 4;
-        bottomRight.layer = object.layer + 1;
-        bottomRight.draggable = true;
-        bottomRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
-            object.box.min.x = bottomRight.position.x;
-            object.box.max.y = bottomRight.position.y;
-            updateHelpers();
-        };
-        object.add(bottomRight);
-        updateHelpers();
-    }
-}
-
-class FileUtils {
-    read(fname, onLoad, onError) {
-        const file = new XMLHttpRequest();
-        file.overrideMimeType("text/plain");
-        file.open("GET", fname, true);
-        if (typeof onLoad === 'function') file.onload = function() { onLoad(file.response); };
-        if (typeof onError === 'function') file.onerror = onError;
-        file.send(null);
-    }
-    write(fname, data) {
-        const blob = new Blob([data], { type: 'octet/stream' });
-        const download = document.createElement('a');
-        download.download = fname;
-        download.href = window.URL.createObjectURL(blob);
-        download.style.display = 'none';
-        download.onclick = function() {
-            document.body.removeChild(this);
-        };
-        document.body.appendChild(download);
-        download.click();
-    }
-    select(onLoad, filter) {
-        const chooser = document.createElement('input');
-        chooser.type = 'file';
-        chooser.style.display = 'none';
-        document.body.appendChild(chooser);
-        if (filter) chooser.accept = filter;
-        chooser.onchange = function(event) {
-            if (typeof onLoad === 'function') onLoad(chooser.files);
-            document.body.removeChild(chooser);
-        };
-        chooser.click();
-    }
-}
-
 var Scene$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  EventManager: EventManager,
+  Helpers: Helpers,
   Object2D: Object2D,
   Renderer: Renderer,
   Viewport: Viewport,
-  Key: Key,
-  Pointer: Pointer,
   Box2: Box2,
   Matrix2: Matrix2,
   UUID: UUID,
@@ -8042,10 +7916,7 @@ var Scene$1 = /*#__PURE__*/Object.freeze({
   Mask: Mask,
   BoxMask: BoxMask,
   Style: Style,
-  ColorStyle: ColorStyle,
-  AnimationTimer: AnimationTimer,
-  Helpers: Helpers,
-  FileUtils: FileUtils
+  ColorStyle: ColorStyle
 });
 
 function styleInject(css, ref) {
@@ -8127,4 +7998,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scene$1 as Scene, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Pointer, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scene$1 as Scene, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

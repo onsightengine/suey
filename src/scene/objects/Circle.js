@@ -18,7 +18,6 @@ class Circle extends Object2D {
         this.fillStyle = new ColorStyle('#FFFFFF');
     }
 
-
     isInside(point) {
         return point.length() <= this.radius;
     }

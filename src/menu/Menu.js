@@ -1,7 +1,7 @@
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
-import { Iris } from '../utils/Iris.js';
+import { Iris } from '../utils/color/Iris.js';
 import { MenuSeparator } from './MenuSeparator.js';
 
 const TRIANGLE_SIZE = 3.0;                  // Bigger value is smaller triangle (size = width / TRIANGLE_SIZE)

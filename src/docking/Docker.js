@@ -5,13 +5,13 @@ import {
     RESIZERS,
     TRAIT,
 } from '../constants.js';
-import { ColorizeFilter } from '../utils/ColorizeFilter.js';
-import { ColorScheme } from '../utils/ColorScheme.js';
+import { ColorizeFilter } from '../utils/color/ColorizeFilter.js';
+import { ColorScheme } from '../utils/color/ColorScheme.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { FlexSpacer } from '../layout/FlexSpacer.js';
-import { Interaction } from '../utils/Interaction.js';
+import { Interaction } from '../utils/input/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Tabbed } from './Tabbed.js';

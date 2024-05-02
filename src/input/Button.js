@@ -7,7 +7,7 @@ import {
     POSITION,
 } from '../utils/Popper.js';
 import { Element } from '../core/Element.js';
-import { Iris } from '../utils/Iris.js';
+import { Iris } from '../utils/color/Iris.js';
 import { Popper } from '../utils/Popper.js';
 
 const _clr = new Iris();

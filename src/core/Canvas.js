@@ -2,7 +2,7 @@ import { Element } from './Element.js';
 
 class Canvas extends Element {
 
-    constructor(width = 300, height = 150) {
+    constructor(width = 300, height = 150, createContext = true) {
         // const canvas = document.createElement('canvas');
         // // OR
         const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
@@ -13,14 +13,14 @@ class Canvas extends Element {
         super(canvas);
 
         // Context
-        this.ctx = this.dom.getContext('2d');
+        if (createContext) this.ctx = this.dom.getContext('2d');
     }
 
     get width() { return this.dom.width; }
     set width(x) { this.dom.width = x; }
 
     get height() { return this.dom.height; }
-    set height(x) { this.dom.height = x; }
+    set height(y) { this.dom.height = y; }
 
     ratio() {
         const rect = this.dom.getBoundingClientRect();

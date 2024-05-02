@@ -10,9 +10,7 @@
 </head>
 <body>
 
-    <div style="position:absolute; width:100%; height:100%; top:0px; left:0px; overflow: hidden;">
-        <canvas id="canvas" style="position:absolute; width:100%; height:100%; top:0px; left:0px;"></canvas>
-    </div>
+    <div id="container" style="position:absolute; width:100%; height:100%; top:0px; left:0px; overflow: hidden;"></div>
 
     <script src="./imports.js"></script>
 
@@ -22,39 +20,42 @@
             Scene,
         } from 'suey';
 
-        // Canvas
-        const canvas = document.getElementById('canvas');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // Resize canvas on window resize
-        window.onresize = function() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-
-        const group = new Scene.Object2D();
+        const scene = new Scene.Object2D();
 
         // const text = new Scene.Text();
         // text.position.set(0, -100);
         // text.text = "Hello World!"
-        // group.add(text);
+        // scene.add(text);
 
         const box = new Scene.Box();
         box.draggable = true;
         box.position.set(-100, 0);
-        group.add(box);
-
+        scene.add(box);
         Scene.Helpers.boxResizeTool(box);
+        Scene.Helpers.rotateTool(box);
 
         const circle = new Scene.Circle();
         circle.position.set(100, 0);
         circle.radius = 50;
-        group.add(circle);
+        scene.add(circle);
 
-        const viewport = new Scene.Viewport(canvas);
-        const renderer = new Scene.Renderer(canvas);
-        renderer.createRenderLoop(group, viewport);
+        // Renderer
+        const renderer = new Scene.Renderer({ width: window.innerWidth, height: window.innerHeight });
+        const container = document.getElementById('container');
+        container.appendChild(renderer.dom);
+
+        // Camera
+        const viewport = new Scene.Viewport();
+        viewport.position.copy(new Scene.Vector2(renderer.width / 2.0, renderer.height / 2.0));
+
+        // Start
+        renderer.start(scene, viewport);
+
+        // Resize canvas on window resize
+        window.onresize = function() {
+            renderer.width = window.innerWidth;
+            renderer.height = window.innerHeight;
+        };
 
     </script>
 
