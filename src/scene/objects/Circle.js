@@ -1,6 +1,5 @@
 import { ColorStyle } from './style/ColorStyle';
 import { Object2D } from '../Object2D.js';
-import { Style } from './style/Style';
 
 /**
  * Circle object draw a circular object, into the canvas.
@@ -39,7 +38,5 @@ class Circle extends Object2D {
     }
 
 }
-
-Object2D.register(Circle, 'Circle');
 
 export { Circle };

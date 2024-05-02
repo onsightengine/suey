@@ -29,6 +29,4 @@ class Mask extends Object2D {
 
 }
 
-Object2D.register(Mask, 'Mask');
-
 export { Mask };

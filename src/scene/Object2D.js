@@ -283,19 +283,6 @@ class Object2D {
      */
     // OVERLOAD: onButtonUp(pointer, viewport) {}
 
-    /**
-     * Register a object type into the application. Associates the type string to the object constructor.
-     * Should be called for every new object class implemented if you want to be able to serialize and parse data.
-     * @param {Function} constructor Object constructor.
-     * @param {string} type Object type name.
-     */
-    static register(constructor, type) {
-        Object2D.types.set(type, constructor);
-    }
-
 }
-
-Object2D.types = new Map();
-Object2D.register(Object2D, 'Object2D');
 
 export { Object2D };

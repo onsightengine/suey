@@ -105,6 +105,12 @@ class Viewport {
         this.matrixNeedsUpdate = true;
     }
 
+    /** Offsets position to canvas center */
+    offsetCanvas() {
+        const centerCanvas = new Vector2(this.canvas.width / 2.0, this.canvas.height / 2.0);
+        this.position.copy(centerCanvas);
+    }
+
 }
 
 export { Viewport };

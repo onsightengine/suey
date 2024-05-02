@@ -7325,12 +7325,7 @@ class Object2D {
     onPointerDrag(pointer, viewport, delta, positionWorld) {
         this.position.add(delta);
     }
-    static register(constructor, type) {
-        Object2D.types.set(type, constructor);
-    }
 }
-Object2D.types = new Map();
-Object2D.register(Object2D, 'Object2D');
 
 class AnimationTimer {
     constructor(callback) {
@@ -7532,9 +7527,9 @@ class Renderer {
         if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
         this.manager = new EventManager();
         if (options.disableContextMenu) {
-            this.manager.add(canvas, 'contextmenu', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            this.manager.add(canvas, 'contextmenu', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
             });
         }
         this.manager.create();
@@ -7551,10 +7546,10 @@ class Renderer {
         return this.container ?? this.canvas.parentElement;
     }
     createRenderLoop(group, viewport, onUpdate) {
+        viewport.offsetCanvas();
         const self = this;
         const timer = new AnimationTimer(function() {
             if (typeof onUpdate === 'function') onUpdate();
-            viewport.update(self.pointer);
             self.update(group, viewport);
         });
         timer.start();
@@ -7565,6 +7560,12 @@ class Renderer {
         this.pointer.dispose();
     }
     update(object, viewport) {
+        this.pointer.update();
+        viewport.update(this.pointer);
+        viewport.updateMatrix();
+        const pointer = this.pointer;
+        const point = pointer.position.clone();
+        const viewportPoint = viewport.inverseMatrix.transformPoint(point);
         const objects = [];
         object.traverse(function(child) { if (child.visible) objects.push(child); });
         objects.sort(function(a, b) {
@@ -7572,11 +7573,6 @@ class Renderer {
             return b.layer - a.layer;
         });
         objects.reverse();
-        this.pointer.update();
-        viewport.updateMatrix();
-        const pointer = this.pointer;
-        const point = pointer.position.clone();
-        const viewportPoint = viewport.inverseMatrix.transformPoint(point);
         for (const child of objects) {
             if (!child.pointerEvents) continue;
             const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreViewport ? point : viewportPoint);
@@ -7710,6 +7706,10 @@ class Viewport {
         this.position.copy(position);
         this.matrixNeedsUpdate = true;
     }
+    offsetCanvas() {
+        const centerCanvas = new Vector2(this.canvas.width / 2.0, this.canvas.height / 2.0);
+        this.position.copy(centerCanvas);
+    }
 }
 
 class Box2 {
@@ -7821,11 +7821,7 @@ class Style {
         this.needsUpdate = true;
     }
     get(context) {}
-    static register(constructor, type) {
-        Style.types.set(type, constructor);
-    }
 }
-Style.types = new Map();
 
 class ColorStyle extends Style {
     constructor(color = '#000000') {
@@ -7836,7 +7832,6 @@ class ColorStyle extends Style {
         return this.color;
     }
 }
-Style.register(ColorStyle, 'Color');
 
 class Box extends Object2D {
     type = 'Box';
@@ -7864,7 +7859,6 @@ class Box extends Object2D {
         }
     }
 }
-Object2D.register(Box, 'Box');
 
 class Circle extends Object2D {
     type = 'Circle';
@@ -7892,7 +7886,6 @@ class Circle extends Object2D {
         }
     }
 }
-Object2D.register(Circle, 'Circle');
 
 class Mask extends Object2D {
     type = 'Mask';
@@ -7903,7 +7896,6 @@ class Mask extends Object2D {
     clip(context, viewport, canvas) {
     }
 }
-Object2D.register(Mask, 'Mask');
 
 class BoxMask extends Mask {
     type = 'BoxMask';
@@ -7930,7 +7922,6 @@ class BoxMask extends Mask {
         context.clip();
     }
 }
-Object2D.register(BoxMask, 'BoxMask');
 
 class Helpers {
     static rotateTool(object) {

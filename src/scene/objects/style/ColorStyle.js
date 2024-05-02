@@ -17,6 +17,4 @@ class ColorStyle extends Style {
 
 }
 
-Style.register(ColorStyle, 'Color');
-
 export { ColorStyle };

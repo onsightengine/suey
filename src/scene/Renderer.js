@@ -20,9 +20,9 @@ class Renderer {
         // Event Manager
         this.manager = new EventManager();
         if (options.disableContextMenu) {
-            this.manager.add(canvas, 'contextmenu', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            this.manager.add(canvas, 'contextmenu', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
             });
         }
         this.manager.create();
@@ -44,8 +44,7 @@ class Renderer {
         // Pointer input handler object, automatically updated by the renderer
         this.pointer = new Pointer(window, this.canvas);
 
-        // Indicates if the canvas should be automatically cleared before new frame is drawn.
-        // If set to false the user should clear the frame before drawing.
+        // Canvas should to be auto cleared each frame (if false, user must clear the frame)
         this.autoClear = true;
     }
 
@@ -68,10 +67,10 @@ class Renderer {
      * @return {AnimationTimer} Animation timer created for this render loop. Should be stopped when no longer necessary.
      */
     createRenderLoop(group, viewport, onUpdate) {
+        viewport.offsetCanvas();
         const self = this;
         const timer = new AnimationTimer(function() {
             if (typeof onUpdate === 'function') onUpdate();
-            viewport.update(self.pointer);
             self.update(group, viewport);
         });
         timer.start();
@@ -89,17 +88,25 @@ class Renderer {
 
     /**
      * Renders a object using a user defined viewport into a canvas element.
-     *
      * Before rendering automatically updates the input handlers and calculates the objects/viewport transformation matrices.
-     *
      * The canvas state is saved and restored for each individual object, ensuring that the code of one object does not affect another one.
-     *
      * Should be called at a fixed rate preferably using the requestAnimationFrame() method, its also possible to use the createRenderLoop() method, that automatically creates a infinite render loop.
-     *
      * @param object {Object2D} Object to be updated and drawn into the canvas, the Object2D should be used as a group to store all the other objects to be updated and drawn.
      * @param viewport {Viewport} Viewport to be updated (should be the one where the objects will be rendered after).
      */
     update(object, viewport) {
+        // Pointer Update
+        this.pointer.update();
+
+        // Viewport Transform
+        viewport.update(this.pointer);
+        viewport.updateMatrix();
+
+        // Project pointer coordinates
+        const pointer = this.pointer;
+        const point = pointer.position.clone();
+        const viewportPoint = viewport.inverseMatrix.transformPoint(point);
+
         // Gather, Sort Objects
         const objects = [];
         object.traverse(function(child) { if (child.visible) objects.push(child); });
@@ -108,17 +115,6 @@ class Renderer {
             return b.layer - a.layer;
         });
         objects.reverse();
-
-        // Pointer Update
-        this.pointer.update();
-
-        // Viewport Transform
-        viewport.updateMatrix();
-
-        // Project pointer coordinates
-        const pointer = this.pointer;
-        const point = pointer.position.clone();
-        const viewportPoint = viewport.inverseMatrix.transformPoint(point);
 
         // Object Pointer Events
         for (const child of objects) {

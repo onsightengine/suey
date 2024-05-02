@@ -1,7 +1,6 @@
 import { Box2 } from '../math/Box2.js';
 import { ColorStyle } from './style/ColorStyle';
 import { Object2D } from '../Object2D.js';
-import { Style } from './style/Style';
 import { Vector2 } from '../math/Vector2.js';
 
 /**
@@ -40,7 +39,5 @@ class Box extends Object2D {
     }
 
 }
-
-Object2D.register(Box, 'Box');
 
 export { Box };

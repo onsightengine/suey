@@ -28,12 +28,6 @@ class Style {
      */
     get(context) {}
 
-    static register(constructor, type) {
-        Style.types.set(type, constructor);
-    }
-
 }
-
-Style.types = new Map();
 
 export { Style };
