@@ -8,8 +8,8 @@ class Helpers {
         tool.radius = 4;
         tool.layer = object.layer + 1;
         tool.draggable = true;
-        tool.onPointerDrag = function(pointer, viewport, delta) {
-            object.rotation += delta.x * 0.01;
+        tool.onPointerDrag = function(pointer, viewport) {
+            object.rotation += pointer.delta.x * 0.01;
         };
         object.add(tool);
     }
@@ -32,8 +32,8 @@ class Helpers {
         topLeft.radius = 4;
         topLeft.layer = object.layer + 1;
         topLeft.draggable = true;
-        topLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+        topLeft.onPointerDrag = function(pointer, viewport) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.min.copy(topLeft.position);
             updateHelpers();
         };
@@ -44,8 +44,8 @@ class Helpers {
         topRight.radius = 4;
         topRight.layer = object.layer + 1;
         topRight.draggable = true;
-        topRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+        topRight.onPointerDrag = function(pointer, viewport) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.max.x = topRight.position.x;
             object.box.min.y = topRight.position.y;
             updateHelpers();
@@ -58,7 +58,7 @@ class Helpers {
         bottomRight.layer = object.layer + 1;
         bottomRight.draggable = true;
         bottomRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.max.copy(bottomRight.position);
             updateHelpers();
         };
@@ -69,7 +69,7 @@ class Helpers {
         bottomLeft.layer = object.layer + 1;
         bottomLeft.draggable = true;
         bottomLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.min.x = bottomLeft.position.x;
             object.box.max.y = bottomLeft.position.y;
             updateHelpers();

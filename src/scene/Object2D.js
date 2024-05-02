@@ -185,10 +185,21 @@ class Object2D {
      * To detect when the object drag stops the onPointerDragEnd() method can be used.
      * @param {Pointer} pointer Pointer object that receives the user input.
      * @param {Viewport} viewport Viewport where the object is drawn.
-     * @param {Vector2} delta Pointer movement diff in world space since the last frame.
-     * @param {Vector2} positionWorld Position of the dragging pointer in world coordinates.
      */
-    onPointerDrag(pointer, viewport, delta, positionWorld) {
+    onPointerDrag(pointer, viewport) {
+        // Pointer Start / End
+        const pointerStart = pointer.position.clone();
+        const pointerEnd = pointer.position.clone().sub(pointer.delta);
+
+        // Local (Parent Space) Start / End
+        const parent = this.parent ?? this;
+        const worldPositionStart = viewport.inverseMatrix.transformPoint(pointerStart);
+        const localPositionStart = parent.inverseGlobalMatrix.transformPoint(worldPositionStart);
+        const worldPositionEnd = viewport.inverseMatrix.transformPoint(pointerEnd);
+        const localPositionEnd = parent.inverseGlobalMatrix.transformPoint(worldPositionEnd);
+
+        // Adjust Position
+        const delta = localPositionStart.clone().sub(localPositionEnd);
         this.position.add(delta);
     }
 

@@ -7456,7 +7456,15 @@ class Object2D {
     transform(context, viewport, canvas, renderer) {
         this.globalMatrix.tranformContext(context);
     }
-    onPointerDrag(pointer, viewport, delta, positionWorld) {
+    onPointerDrag(pointer, viewport) {
+        const pointerStart = pointer.position.clone();
+        const pointerEnd = pointer.position.clone().sub(pointer.delta);
+        const parent = this.parent ?? this;
+        const worldPositionStart = viewport.inverseMatrix.transformPoint(pointerStart);
+        const localPositionStart = parent.inverseGlobalMatrix.transformPoint(worldPositionStart);
+        const worldPositionEnd = viewport.inverseMatrix.transformPoint(pointerEnd);
+        const localPositionEnd = parent.inverseGlobalMatrix.transformPoint(worldPositionEnd);
+        const delta = localPositionStart.clone().sub(localPositionEnd);
         this.position.add(delta);
     }
 }
@@ -7494,8 +7502,8 @@ class Helpers {
         tool.radius = 4;
         tool.layer = object.layer + 1;
         tool.draggable = true;
-        tool.onPointerDrag = function(pointer, viewport, delta) {
-            object.rotation += delta.x * 0.01;
+        tool.onPointerDrag = function(pointer, viewport) {
+            object.rotation += pointer.delta.x * 0.01;
         };
         object.add(tool);
     }
@@ -7515,8 +7523,8 @@ class Helpers {
         topLeft.radius = 4;
         topLeft.layer = object.layer + 1;
         topLeft.draggable = true;
-        topLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+        topLeft.onPointerDrag = function(pointer, viewport) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.min.copy(topLeft.position);
             updateHelpers();
         };
@@ -7526,8 +7534,8 @@ class Helpers {
         topRight.radius = 4;
         topRight.layer = object.layer + 1;
         topRight.draggable = true;
-        topRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+        topRight.onPointerDrag = function(pointer, viewport) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.max.x = topRight.position.x;
             object.box.min.y = topRight.position.y;
             updateHelpers();
@@ -7539,7 +7547,7 @@ class Helpers {
         bottomRight.layer = object.layer + 1;
         bottomRight.draggable = true;
         bottomRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.max.copy(bottomRight.position);
             updateHelpers();
         };
@@ -7549,7 +7557,7 @@ class Helpers {
         bottomLeft.layer = object.layer + 1;
         bottomLeft.draggable = true;
         bottomLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport, delta);
+            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
             object.box.min.x = bottomLeft.position.x;
             object.box.max.y = bottomLeft.position.y;
             updateHelpers();
@@ -7640,13 +7648,10 @@ class Renderer extends Canvas {
         }
         for (const child of objects) {
             if (child.beingDragged && typeof child.onPointerDrag === 'function') {
-                const lastPosition = pointer.position.clone();
-                lastPosition.sub(pointer.delta);
                 const positionWorld = viewport.inverseMatrix.transformPoint(pointer.position);
-                const lastWorld = viewport.inverseMatrix.transformPoint(lastPosition);
-                const delta = positionWorld.clone();
-                delta.sub(lastWorld);
-                child.onPointerDrag(pointer, viewport, delta, positionWorld);
+                const lastWorld = viewport.inverseMatrix.transformPoint(pointer.position.clone().sub(pointer.delta));
+                const delta = positionWorld.clone().sub(lastWorld).multiplyScalar(viewport.scale);
+                child.onPointerDrag(pointer, viewport);
             }
             if (typeof child.onUpdate === 'function') child.onUpdate();
         }

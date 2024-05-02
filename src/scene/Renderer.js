@@ -96,7 +96,7 @@ class Renderer extends Canvas {
                 if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, viewport);
                 if (pointer.buttonJustPressed(Pointer.LEFT)) {
                     if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, viewport);
-                    // Drag object and break to only start a drag operation on the top element
+                    // Start Object Drag & Break (to only start a drag operation on the top element)
                     if (child.draggable) {
                         child.beingDragged = true;
                         if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, viewport);
@@ -109,7 +109,7 @@ class Renderer extends Canvas {
                 child.pointerInside = false;
             }
 
-            // Stop object drag
+            // Stop Drag
             if (child.beingDragged === true && pointer.buttonJustReleased(Pointer.LEFT)) {
                 if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, viewport);
                 child.beingDragged = false;
@@ -120,18 +120,7 @@ class Renderer extends Canvas {
         for (const child of objects) {
             // Dragging?
             if (child.beingDragged && typeof child.onPointerDrag === 'function') {
-                const lastPosition = pointer.position.clone();
-                lastPosition.sub(pointer.delta);
-
-                // Get position and last position in world space to calculate world pointer movement
-                const positionWorld = viewport.inverseMatrix.transformPoint(pointer.position);
-                const lastWorld = viewport.inverseMatrix.transformPoint(lastPosition);
-
-                // Pointer movement delta in world coordinates
-                const delta = positionWorld.clone();
-                delta.sub(lastWorld);
-
-                child.onPointerDrag(pointer, viewport, delta, positionWorld);
+                child.onPointerDrag(pointer, viewport);
             }
 
             // Update
