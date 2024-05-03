@@ -1,5 +1,6 @@
 import { Circle } from './objects/Circle.js';
 import { Object2D } from './Object2D.js';
+import { Vector2 } from './math/Vector2.js';
 
 class Helpers {
 
@@ -26,59 +27,41 @@ class Helpers {
             bottomRight.position.copy(box.max);
         }
 
-        const topLeft = new Circle();
-        topLeft.fillStyle.color = '#ff0000';
-        topLeft.radius = 4;
-        topLeft.layer = object.layer + 1;
-        topLeft.draggable = true;
-        topLeft.onPointerDrag = function(pointer, camera) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-            object.box.min.copy(topLeft.position);
-            object.computeBoundingBox();
-            updateHelpers();
-        };
-        object.add(topLeft);
+        function localDelta(local, pointer, camera) {
+            const parent = local.parent ?? local;
+            const pointerStart = pointer.position.clone();
+            const pointerEnd = pointer.position.clone().sub(pointer.delta);
+            const worldPositionStart = camera.inverseMatrix.transformPoint(pointerStart);
+            const localPositionStart = local.inverseGlobalMatrix.transformPoint(worldPositionStart);
+            const worldPositionEnd = camera.inverseMatrix.transformPoint(pointerEnd);
+            const localPositionEnd = local.inverseGlobalMatrix.transformPoint(worldPositionEnd);
+            const delta = localPositionStart.clone().sub(localPositionEnd);
+            delta.multiply(parent.scale);
+            return delta;
+        }
 
-        const topRight = new Circle();
-        topRight.fillStyle.color = '#00ff00';
-        topRight.radius = 4;
-        topRight.layer = object.layer + 1;
-        topRight.draggable = true;
-        topRight.onPointerDrag = function(pointer, camera) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-            object.box.max.x = topRight.position.x;
-            object.box.min.y = topRight.position.y;
-            object.computeBoundingBox();
-            updateHelpers();
-        };
-        object.add(topRight);
+        function createCircle(color, x, y) {
+            const circle = new Circle();
+            circle.fillStyle.color = color;
+            circle.radius = 4;
+            circle.layer = object.layer + 1;
+            circle.onPointerDrag = function(pointer, camera) {
+                Object2D.prototype.onPointerDrag.call(this, pointer, camera);
+                const delta = localDelta(this, pointer, camera).multiply(x, y);
+                const size = object.boundingBox.getSize();
+                const scale = new Vector2(0.02 * (100 / size.x), 0.02 * (100 / size.y));
+                object.scale.sub(delta.multiply(scale));
+                updateHelpers();
+            };
+            return circle;
+        }
 
-        const bottomRight = new Circle();
-        bottomRight.fillStyle.color = '#0000ff';
-        bottomRight.radius = 4;
-        bottomRight.layer = object.layer + 1;
-        bottomRight.draggable = true;
-        bottomRight.onPointerDrag = function(pointer, camera, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-            object.box.max.copy(bottomRight.position);
-            object.computeBoundingBox();
-            updateHelpers();
-        };
-        object.add(bottomRight);
+        const topLeft = createCircle('#ff0000', 1, 1);
+        const topRight = createCircle('#00ff00', -1, 1);
+        const bottomRight = createCircle('#0000ff', -1, -1);
+        const bottomLeft = createCircle('#ffff00', 1, -1);
 
-        const bottomLeft = new Circle();
-        bottomLeft.radius = 4;
-        bottomLeft.layer = object.layer + 1;
-        bottomLeft.draggable = true;
-        bottomLeft.onPointerDrag = function(pointer, camera, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-            object.box.min.x = bottomLeft.position.x;
-            object.box.max.y = bottomLeft.position.y;
-            object.computeBoundingBox();
-            updateHelpers();
-        };
-        object.add(bottomLeft);
-
+        object.add(topLeft, topRight, bottomRight, bottomLeft);
         updateHelpers();
     }
 

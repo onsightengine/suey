@@ -7,12 +7,23 @@ class Circle extends Object2D {
         super();
         this.type = 'Circle';
 
-        this.radius = 10.0;
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
         this.fillStyle = new ColorStyle('#FFFFFF');
 
-        this.computeBoundingBox();
+        // Property Definitions
+        let radius = 10.0;
+
+        const self = this;
+        Object.defineProperties(this, {
+            radius: {
+                get: function() { return radius; },
+                set: function(value) {
+                    radius = value;
+                    self.computeBoundingBox();
+                },
+            },
+        });
     }
 
     computeBoundingBox() {

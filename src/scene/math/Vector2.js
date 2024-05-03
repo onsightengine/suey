@@ -79,9 +79,14 @@ class Vector2 {
     }
 
     /** Multiply the content of another vector to this one */
-    multiply(v) {
-        this.x *= v.x;
-        this.y *= v.y;
+    multiply(x, y) {
+        if (typeof x === 'object') {
+            this.x *= x.x;
+            this.y *= x.y;
+        } else {
+            this.x *= x;
+            this.y *= y;
+        }
         return this;
     }
 
@@ -93,9 +98,14 @@ class Vector2 {
     }
 
     /** Divide the content of another vector from this one */
-    divide(v) {
-        this.x /= v.x;
-        this.y /= v.y;
+    divide(x, y) {
+        if (typeof x === 'object') {
+            this.x /= x.x;
+            this.y /= x.y;
+        } else {
+            this.x /= x;
+            this.y /= y;
+        }
         return this;
     }
 

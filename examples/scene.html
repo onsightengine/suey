@@ -35,11 +35,6 @@
         circle.radius = 50;
         scene.add(circle);
 
-        // Helpers
-        Scene.Helpers.rotateTool(box);
-        Scene.Helpers.resizeTool(box);
-        Scene.Helpers.resizeTool(circle);
-
         // Renderer
         const renderer = new Scene.Renderer({ width: window.innerWidth, height: window.innerHeight });
         const container = document.getElementById('container');
@@ -51,6 +46,17 @@
 
         // Start
         renderer.start(scene, camera);
+
+        // Helpers
+        setTimeout(() => {
+            Scene.Helpers.rotateTool(box);
+            Scene.Helpers.rotateTool(circle);
+            Scene.Helpers.rotateTool(text);
+
+            Scene.Helpers.resizeTool(box);
+            Scene.Helpers.resizeTool(circle);
+            Scene.Helpers.resizeTool(text);
+        }, 10);
 
     </script>
 

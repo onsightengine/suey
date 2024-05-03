@@ -50,15 +50,18 @@ class Object2D {
 
     /******************** CHILDREN */
 
-    add(object) {
-        const index = this.children.indexOf(object);
-        if (index === -1) {
-            object.parent = this;
-            object.level = this.level + 1;
-            object.traverse(function(child) {
-                if (typeof child.onAdd === 'function') child.onAdd(this);
-            });
-            this.children.push(object);
+    add(...objects) {
+        if (objects.length > 0 && Array.isArray(objects[0])) objects = objects[0];
+        for (const object of objects) {
+            const index = this.children.indexOf(object);
+            if (index === -1) {
+                object.parent = this;
+                object.level = this.level + 1;
+                object.traverse(function(child) {
+                    if (typeof child.onAdd === 'function') child.onAdd(this);
+                });
+                this.children.push(object);
+            }
         }
         return this;
     }
