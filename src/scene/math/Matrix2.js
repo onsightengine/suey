@@ -13,12 +13,12 @@ class Matrix2 {
     }
 
     copy(mat) {
-        this.m = mat.m.slice(0);
+        this.m = [ ...mat.m ];
         return this;
     }
 
     clone() {
-        return new Matrix2(this.m.slice(0));
+        return new Matrix2([ ...this.m ]);
     }
 
     /** Reset this matrix to identity */
@@ -145,9 +145,15 @@ class Matrix2 {
     }
 
     /** Transform a point using this matrix, returns new transformed point */
-    transformPoint(p) {
-        const px = p.x * this.m[0] + p.y * this.m[2] + this.m[4];
-        const py = p.x * this.m[1] + p.y * this.m[3] + this.m[5];
+    transformPoint(x, y) {
+        let px, py;
+        if (typeof x === 'object') {
+            px = x.x * this.m[0] + x.y * this.m[2] + this.m[4];
+            py = x.x * this.m[1] + x.y * this.m[3] + this.m[5];
+        } else {
+            px = x * this.m[0] + y * this.m[2] + this.m[4];
+            py = x * this.m[1] + y * this.m[3] + this.m[5];
+        }
         return new Vector2(px, py);
     }
 

@@ -38,7 +38,7 @@ class Object2D {
 
         this.masks = [];
 
-        this.draggable = true;
+        this.draggable = false;
         this.pointerEvents = true;                  // better performance if pointer events are not required
 
         this.ignoreCamera = false;                  // FLAG: ignore the camera transformation?

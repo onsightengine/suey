@@ -192,19 +192,14 @@ class Docker extends Panel {
 
     removeDock() {
         // Checks
-        if (this.isPrimary()) {
-            console.warn('Docker.removeDock(): Cannot remove the primary dock');
-            return;
-        }
+        if (this.isPrimary()) return console.warn('Docker.removeDock(): Cannot remove the primary dock');
         const parent = this.parent;
         if (!parent || !parent.isElement || !parent.hasClass('suey-docker')) {
-            console.warn('Docker.removeDock(): Dock does not have a valid parent');
-            return;
+            return console.warn('Docker.removeDock(): Dock does not have a valid parent');
         }
         const twin = this.getTwin();
         if (!twin) {
-            console.warn('Docker.removeDock(): Could not find the twin Docker');
-            return;
+            return console.warn('Docker.removeDock(): Could not find the twin Docker');
         }
 
         // Move contents of the twin to the parent, remove this level docks
@@ -249,10 +244,7 @@ class Docker extends Panel {
     /******************** TABS */
 
     enableTabs(flexBefore = false) {
-        if (this.isPrimary()) {
-            console.warn('Docker.enableTabs(): Cannot enable tabs on the primary dock');
-            return undefined;
-        }
+        if (this.isPrimary()) return console.warn('Docker.enableTabs(): Cannot enable tabs on the primary dock');
 
         // See if Tabbed already exists
         let tabbed = Dom.childWithClass(this.contents(), 'suey-tabbed', false /* recursive? */);

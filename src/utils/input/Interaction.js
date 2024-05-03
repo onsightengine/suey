@@ -29,10 +29,7 @@ class Interaction {
     }
 
     static addCornerButton(type = CORNER_BUTTONS.CLOSE, element, closeSide, offset = 0, scale = 1.3) {
-        if (!element || !element.isElement) {
-            console.warn(`Interaction.addCornerButton: Missing element argument`);
-            return undefined;
-        }
+        if (!element || !element.isElement) return console.warn(`Interaction.addCornerButton(): Missing element argument`);
 
         const button = new Button();
         button.setClass('suey-corner-button');

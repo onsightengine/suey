@@ -26,20 +26,19 @@
         const text = new Scene.Text().setPosition(0, -100);
         text.fillStyle.color = '#D27D2D';
         text.text = 'Hello World!';
+        text.draggable = true;
         scene.add(text);
 
         const box = new Scene.Box().setPosition(-100, 0);
+        box.draggable = true;
         scene.add(box);
 
         const circle = new Scene.Circle().setPosition(100, 0);
         circle.radius = 50;
+        circle.draggable = true;
         scene.add(circle);
 
         // Helpers
-        Scene.Helpers.rotateTool(box, scene);
-        Scene.Helpers.rotateTool(circle, scene);
-        Scene.Helpers.rotateTool(text, scene);
-
         Scene.Helpers.resizeTool(box, scene);
         Scene.Helpers.resizeTool(circle, scene);
         Scene.Helpers.resizeTool(text, scene);

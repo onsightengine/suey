@@ -26,8 +26,7 @@ class Box2 {
 
     /** Set the box minimum and maximum from center point and size */
     setFromCenterAndSize(center, size) {
-        let v1 = new Vector2();
-        let halfSize = v1.copy(size).multiplyScalar(0.5);
+        const halfSize = new Vector2().copy(size).multiplyScalar(0.5);
         this.min.copy(center).sub(halfSize);
         this.max.copy(center).add(halfSize);
         return this;
@@ -132,7 +131,7 @@ class Box2 {
     }
 
     toArray() {
-        return [this.min.x, this.min.y, this.max.x, this.max.y];
+        return [ this.min.x, this.min.y, this.max.x, this.max.y ];
     }
 
     fromArray(array) {

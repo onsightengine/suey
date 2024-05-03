@@ -1,12 +1,18 @@
 class Vector2 {
 
     constructor(x, y) {
-        this.x = x || 0;
-        this.y = y || 0;
+        if (typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+        }
     }
 
     /** Set vector x and y values */
     set(x, y) {
+        if (typeof x === 'object') return this.copy(x);
         this.x = x;
         this.y = y;
         return this;
@@ -23,16 +29,21 @@ class Vector2 {
         return new Vector2(this.x, this.y);
     }
 
-    copy(v) {
-        this.x = v.x;
-        this.y = v.y;
+    copy(vec) {
+        this.x = vec.x;
+        this.y = vec.y;
         return this;
     }
 
     /** Add the content of another vector to this one */
-    add(v) {
-        this.x += v.x;
-        this.y += v.y;
+    add(x, y) {
+        if (typeof x === 'object') {
+            this.x += x.x;
+            this.y += x.y;
+        } else {
+            this.x += x;
+            this.y += y;
+        }
         return this;
     }
 
@@ -51,16 +62,21 @@ class Vector2 {
     }
 
     /** Scale a vector components and add the result to this vector */
-    addScaledVector(v, scale) {
-        this.x += v.x * scale;
-        this.y += v.y * scale;
+    addScaledVector(vec, scale) {
+        this.x += vec.x * scale;
+        this.y += vec.y * scale;
         return this;
     }
 
     /** Subtract the content of another vector to this one */
-    sub(v) {
-        this.x -= v.x;
-        this.y -= v.y;
+    sub(x, y) {
+        if (typeof x === 'object') {
+            this.x -= x.x;
+            this.y -= x.y;
+        } else {
+            this.x -= x;
+            this.y -= y;
+        }
         return this;
     }
 
@@ -144,7 +160,7 @@ class Vector2 {
     }
 
     clampLength(min, max) {
-        let length = this.length();
+        const length = this.length();
         return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
     }
 
@@ -180,7 +196,7 @@ class Vector2 {
         return this.x * v.y - this.y * v.x;
     }
 
-    /** Squared length of the vector, faster for comparions */
+    /** Squared length of the vector (faster for comparions) */
     lengthSq() {
         return this.x * this.x + this.y * this.y;
     }
@@ -206,6 +222,15 @@ class Vector2 {
         return angle;
     }
 
+    /** Compute the angle between two Vector2 objects that share a common point */
+    angleBetween(v) {
+        const dot = this.dot(v);
+        const magnitudes = this.length() * v.length();
+        // Clamp the dot product to the range [-1, 1] to avoid NaN results
+        const clampedDot = Math.min(Math.max(dot / magnitudes, -1), 1);
+        return Math.acos(clampedDot);
+    }
+
     /** Distance between two vector positions */
     distanceTo(v) {
         return Math.sqrt(this.distanceToSquared(v));
@@ -213,8 +238,8 @@ class Vector2 {
 
     /** Distance between two vector positions squared, faster for comparisons */
     distanceToSquared(v) {
-        let dx = this.x - v.x;
-        let dy = this.y - v.y;
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
         return dx * dx + dy * dy;
     }
 
@@ -241,7 +266,7 @@ class Vector2 {
     }
 
     toArray() {
-        return [this.x, this.y];
+        return [ this.x, this.y ];
     }
 
     fromArray(array) {
@@ -251,10 +276,10 @@ class Vector2 {
 
     /** Rotate the vector around a central point, in radians */
     rotateAround(center, angle) {
-        let c = Math.cos(angle);
-        let s = Math.sin(angle);
-        let x = this.x - center.x;
-        let y = this.y - center.y;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        const x = this.x - center.x;
+        const y = this.y - center.y;
         this.x = x * c - y * s + center.x;
         this.y = x * s + y * c + center.y;
     }
