@@ -4329,12 +4329,12 @@ class Break extends Element {
 }
 
 class Canvas extends Element {
-    constructor(width = 300, height = 150, createContext = true) {
+    constructor(width = 300, height = 150) {
         const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
         canvas.width = width;
         canvas.height = height;
         super(canvas);
-        if (createContext) this.ctx = this.dom.getContext('2d');
+        this.ctx = this.dom.getContext('2d');
     }
     get width() { return this.dom.width; }
     set width(x) { this.dom.width = x; }
@@ -7223,7 +7223,7 @@ class Scrollable extends Panel {
 }
 
 class Matrix2 {
-    constructor(values = []) {
+    constructor(values) {
         if (Array.isArray(values)) this.m = [ ...values ];
         else this.identity();
     }
@@ -7239,26 +7239,26 @@ class Matrix2 {
         return this;
     }
     multiply(mat) {
-        let m0 = this.m[0] * mat.m[0] + this.m[2] * mat.m[1];
-        let m1 = this.m[1] * mat.m[0] + this.m[3] * mat.m[1];
-        let m2 = this.m[0] * mat.m[2] + this.m[2] * mat.m[3];
-        let m3 = this.m[1] * mat.m[2] + this.m[3] * mat.m[3];
-        let m4 = this.m[0] * mat.m[4] + this.m[2] * mat.m[5] + this.m[4];
-        let m5 = this.m[1] * mat.m[4] + this.m[3] * mat.m[5] + this.m[5];
-        this.m = [m0, m1, m2, m3, m4, m5];
+        const m0 = this.m[0] * mat.m[0] + this.m[2] * mat.m[1];
+        const m1 = this.m[1] * mat.m[0] + this.m[3] * mat.m[1];
+        const m2 = this.m[0] * mat.m[2] + this.m[2] * mat.m[3];
+        const m3 = this.m[1] * mat.m[2] + this.m[3] * mat.m[3];
+        const m4 = this.m[0] * mat.m[4] + this.m[2] * mat.m[5] + this.m[4];
+        const m5 = this.m[1] * mat.m[4] + this.m[3] * mat.m[5] + this.m[5];
+        this.m = [ m0, m1, m2, m3, m4, m5 ];
         return this;
     }
     premultiply(mat) {
-        let m0 = mat.m[0] * this.m[0] + mat.m[2] * this.m[1];
-        let m1 = mat.m[1] * this.m[0] + mat.m[3] * this.m[1];
-        let m2 = mat.m[0] * this.m[2] + mat.m[2] * this.m[3];
-        let m3 = mat.m[1] * this.m[2] + mat.m[3] * this.m[3];
-        let m4 = mat.m[0] * this.m[4] + mat.m[2] * this.m[5] + mat.m[4];
-        let m5 = mat.m[1] * this.m[4] + mat.m[3] * this.m[5] + mat.m[5];
-        this.m = [m0, m1, m2, m3, m4, m5];
+        const m0 = mat.m[0] * this.m[0] + mat.m[2] * this.m[1];
+        const m1 = mat.m[1] * this.m[0] + mat.m[3] * this.m[1];
+        const m2 = mat.m[0] * this.m[2] + mat.m[2] * this.m[3];
+        const m3 = mat.m[1] * this.m[2] + mat.m[3] * this.m[3];
+        const m4 = mat.m[0] * this.m[4] + mat.m[2] * this.m[5] + mat.m[4];
+        const m5 = mat.m[1] * this.m[4] + mat.m[3] * this.m[5] + mat.m[5];
+        this.m = [ m0, m1, m2, m3, m4, m5 ];
     }
     compose(px, py, sx, sy, ox, oy, rot) {
-        this.m = [1, 0, 0, 1, px, py];
+        this.m = [ 1, 0, 0, 1, px, py ];
         if (rot !== 0) {
             const c = Math.cos(rot);
             const s = Math.sin(rot);
@@ -7274,12 +7274,12 @@ class Matrix2 {
         return this;
     }
     rotate(rad) {
-        let c = Math.cos(rad);
-        let s = Math.sin(rad);
-        let m11 = this.m[0] * c + this.m[2] * s;
-        let m12 = this.m[1] * c + this.m[3] * s;
-        let m21 = this.m[0] * -s + this.m[2] * c;
-        let m22 = this.m[1] * -s + this.m[3] * c;
+        const c = Math.cos(rad);
+        const s = Math.sin(rad);
+        const m11 = this.m[0] * c + this.m[2] * s;
+        const m12 = this.m[1] * c + this.m[3] * s;
+        const m21 = this.m[0] * -s + this.m[2] * c;
+        const m22 = this.m[1] * -s + this.m[3] * c;
         this.m[0] = m11;
         this.m[1] = m12;
         this.m[2] = m21;
@@ -7736,10 +7736,13 @@ class Helpers {
             circle.layer = object.layer + 1;
             circle.onPointerDrag = function(pointer, camera) {
                 Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-                const delta = localDelta(this, pointer, camera).multiply(x, y);
+                const delta = localDelta(this, pointer, camera).multiplyScalar(0.5);
                 const size = object.boundingBox.getSize();
-                const scale = new Vector2(0.02 * (100 / size.x), 0.02 * (100 / size.y));
-                object.scale.sub(delta.multiply(scale));
+                const scale = new Vector2(2 / size.x, 2 / size.y);
+                const rotationMatrix = new Matrix2().rotate(object.rotation);
+                const rotatedDelta = rotationMatrix.transformPoint(delta);
+                object.position.add(rotatedDelta);
+                object.scale.sub(delta.multiply(x, y).multiply(scale));
                 updateHelpers();
             };
             return circle;
@@ -7753,17 +7756,25 @@ class Helpers {
     }
 }
 
-class Renderer extends Canvas {
+class Renderer extends Element {
     constructor(options = {}) {
         if (options === undefined) options = {};
-        if (!('alpha' in options)) options.alpha = true;
-        if (!('disableContextMenu' in options)) options.disableContextMenu = true;
-        if (!('imageSmoothingEnabled' in options)) options.imageSmoothingEnabled = true;
-        if (!('imageSmoothingQuality' in options)) options.imageSmoothingQuality = 'low';
-        if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
-        options.width = options.width ?? 1000;
-        options.height = options.height ?? 1000;
-        super(options.width, options.height, false );
+        function defaultOption(key, value) {
+            if (!(key in options)) options[key] = value;
+        }
+        defaultOption('alpha', true);
+        defaultOption('disableContextMenu', true);
+        defaultOption('imageSmoothingEnabled', true);
+        defaultOption('imageSmoothingQuality', 'low');
+        defaultOption('globalCompositeOperation', 'source-over');
+        defaultOption('width', 1000);
+        defaultOption('height', 1000);
+        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+        canvas.width = options.width;
+        canvas.height = options.height;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        super(canvas);
         this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
         this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
         this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
@@ -7775,9 +7786,6 @@ class Renderer extends Canvas {
         this.scene = null;
         this.camera = null;
         const self = this;
-        const canvas = this.dom;
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
         const resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
                 canvas.width = entry.contentRect.width;
@@ -7792,6 +7800,14 @@ class Renderer extends Canvas {
             resizeObserver.unobserve(canvas);
         });
         this.beingDragged = null;
+    }
+    get width() { return this.dom.width; }
+    set width(x) { this.dom.width = x; }
+    get height() { return this.dom.height; }
+    set height(y) { this.dom.height = y; }
+    ratio() {
+        const rect = this.dom.getBoundingClientRect();
+        return ((this.width / this.height) / (rect.width / rect.height));
     }
     start(scene, camera, onUpdate) {
         if (this.running) return;

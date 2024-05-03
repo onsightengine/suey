@@ -1,23 +1,31 @@
-import { Canvas } from '../core/Canvas.js';
+import { Element } from '../core/Element.js';
 import { Pointer } from '../utils/input/Pointer.js';
 import { Vector2 } from './math/Vector2.js';
 
-class Renderer extends Canvas {
+class Renderer extends Element {
 
     constructor(options = {}) {
         if (options === undefined) options = {};
-        if (!('alpha' in options)) options.alpha = true;
-        if (!('disableContextMenu' in options)) options.disableContextMenu = true;
-        if (!('imageSmoothingEnabled' in options)) options.imageSmoothingEnabled = true;
-        if (!('imageSmoothingQuality' in options)) options.imageSmoothingQuality = 'low';
-        if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
-        options.width = options.width ?? 1000;
-        options.height = options.height ?? 1000;
+        function defaultOption(key, value) {
+            if (!(key in options)) options[key] = value;
+        }
+        defaultOption('alpha', true);
+        defaultOption('disableContextMenu', true);
+        defaultOption('imageSmoothingEnabled', true);
+        defaultOption('imageSmoothingQuality', 'low');
+        defaultOption('globalCompositeOperation', 'source-over');
+        defaultOption('width', 1000);
+        defaultOption('height', 1000);
 
-        // Create Canvas
-        super(options.width, options.height, false /* createContext? */);
+        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+        canvas.width = options.width;
+        canvas.height = options.height;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
 
-        // 2D Rendering Context
+        super(canvas);
+
+        // Rendering Context (2D)
         this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
         this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
         this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
@@ -37,9 +45,6 @@ class Renderer extends Canvas {
 
         // Resize Observer
         const self = this;
-        const canvas = this.dom;
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
         const resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
                 canvas.width = entry.contentRect.width;
@@ -57,6 +62,21 @@ class Renderer extends Canvas {
         // INTERNAL
         this.beingDragged = null;
     }
+
+    /******************** SIZING */
+
+    get width() { return this.dom.width; }
+    set width(x) { this.dom.width = x; }
+
+    get height() { return this.dom.height; }
+    set height(y) { this.dom.height = y; }
+
+    ratio() {
+        const rect = this.dom.getBoundingClientRect();
+        return ((this.width / this.height) / (rect.width / rect.height));
+    }
+
+    /******************** RENDERING */
 
     start(scene, camera, onUpdate) {
         if (this.running) return;

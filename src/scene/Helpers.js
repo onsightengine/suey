@@ -1,4 +1,5 @@
 import { Circle } from './objects/Circle.js';
+import { Matrix2 } from './math/Matrix2.js';
 import { Object2D } from './Object2D.js';
 import { Vector2 } from './math/Vector2.js';
 
@@ -47,10 +48,15 @@ class Helpers {
             circle.layer = object.layer + 1;
             circle.onPointerDrag = function(pointer, camera) {
                 Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-                const delta = localDelta(this, pointer, camera).multiply(x, y);
+                const delta = localDelta(this, pointer, camera).multiplyScalar(0.5);
                 const size = object.boundingBox.getSize();
-                const scale = new Vector2(0.02 * (100 / size.x), 0.02 * (100 / size.y));
-                object.scale.sub(delta.multiply(scale));
+                const scale = new Vector2(2 / size.x, 2 / size.y);
+                // Adjust position (after applying rotation transformation)
+                const rotationMatrix = new Matrix2().rotate(object.rotation);
+                const rotatedDelta = rotationMatrix.transformPoint(delta);
+                object.position.add(rotatedDelta);
+                // Adjust scale
+                object.scale.sub(delta.multiply(x, y).multiply(scale));
                 updateHelpers();
             };
             return circle;

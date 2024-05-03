@@ -7,7 +7,7 @@ import { Vector2 } from './Vector2.js';
 class Matrix2 {
 
     /* Values by row, needs to have exactly 6 values */
-    constructor(values = []) {
+    constructor(values) {
         if (Array.isArray(values)) this.m = [ ...values ];
         else this.identity();
     }
@@ -29,25 +29,25 @@ class Matrix2 {
 
     /** Multiply another matrix by this one and store the result */
     multiply(mat) {
-        let m0 = this.m[0] * mat.m[0] + this.m[2] * mat.m[1];
-        let m1 = this.m[1] * mat.m[0] + this.m[3] * mat.m[1];
-        let m2 = this.m[0] * mat.m[2] + this.m[2] * mat.m[3];
-        let m3 = this.m[1] * mat.m[2] + this.m[3] * mat.m[3];
-        let m4 = this.m[0] * mat.m[4] + this.m[2] * mat.m[5] + this.m[4];
-        let m5 = this.m[1] * mat.m[4] + this.m[3] * mat.m[5] + this.m[5];
-        this.m = [m0, m1, m2, m3, m4, m5];
+        const m0 = this.m[0] * mat.m[0] + this.m[2] * mat.m[1];
+        const m1 = this.m[1] * mat.m[0] + this.m[3] * mat.m[1];
+        const m2 = this.m[0] * mat.m[2] + this.m[2] * mat.m[3];
+        const m3 = this.m[1] * mat.m[2] + this.m[3] * mat.m[3];
+        const m4 = this.m[0] * mat.m[4] + this.m[2] * mat.m[5] + this.m[4];
+        const m5 = this.m[1] * mat.m[4] + this.m[3] * mat.m[5] + this.m[5];
+        this.m = [ m0, m1, m2, m3, m4, m5 ];
         return this;
     }
 
     /** Premultiply another matrix by this one and store the result */
     premultiply(mat) {
-        let m0 = mat.m[0] * this.m[0] + mat.m[2] * this.m[1];
-        let m1 = mat.m[1] * this.m[0] + mat.m[3] * this.m[1];
-        let m2 = mat.m[0] * this.m[2] + mat.m[2] * this.m[3];
-        let m3 = mat.m[1] * this.m[2] + mat.m[3] * this.m[3];
-        let m4 = mat.m[0] * this.m[4] + mat.m[2] * this.m[5] + mat.m[4];
-        let m5 = mat.m[1] * this.m[4] + mat.m[3] * this.m[5] + mat.m[5];
-        this.m = [m0, m1, m2, m3, m4, m5];
+        const m0 = mat.m[0] * this.m[0] + mat.m[2] * this.m[1];
+        const m1 = mat.m[1] * this.m[0] + mat.m[3] * this.m[1];
+        const m2 = mat.m[0] * this.m[2] + mat.m[2] * this.m[3];
+        const m3 = mat.m[1] * this.m[2] + mat.m[3] * this.m[3];
+        const m4 = mat.m[0] * this.m[4] + mat.m[2] * this.m[5] + mat.m[4];
+        const m5 = mat.m[1] * this.m[4] + mat.m[3] * this.m[5] + mat.m[5];
+        this.m = [ m0, m1, m2, m3, m4, m5 ];
     }
 
     /**
@@ -62,7 +62,7 @@ class Matrix2 {
      */
     compose(px, py, sx, sy, ox, oy, rot) {
         // Position
-        this.m = [1, 0, 0, 1, px, py];
+        this.m = [ 1, 0, 0, 1, px, py ];
 
         // Rotation
         if (rot !== 0) {
@@ -89,12 +89,12 @@ class Matrix2 {
 
     /** Apply rotation to this matrix in radians */
     rotate(rad) {
-        let c = Math.cos(rad);
-        let s = Math.sin(rad);
-        let m11 = this.m[0] * c + this.m[2] * s;
-        let m12 = this.m[1] * c + this.m[3] * s;
-        let m21 = this.m[0] * -s + this.m[2] * c;
-        let m22 = this.m[1] * -s + this.m[3] * c;
+        const c = Math.cos(rad);
+        const s = Math.sin(rad);
+        const m11 = this.m[0] * c + this.m[2] * s;
+        const m12 = this.m[1] * c + this.m[3] * s;
+        const m21 = this.m[0] * -s + this.m[2] * c;
+        const m22 = this.m[1] * -s + this.m[3] * c;
         this.m[0] = m11;
         this.m[1] = m12;
         this.m[2] = m21;
