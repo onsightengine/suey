@@ -7697,7 +7697,7 @@ class Circle extends Object2D {
 }
 
 class Helpers {
-    static rotateTool(object) {
+    static rotateTool(object, scene) {
         const tool = new Circle();
         tool.radius = 4;
         tool.layer = object.layer + 1;
@@ -7705,28 +7705,20 @@ class Helpers {
         tool.onPointerDrag = function(pointer, camera) { object.rotation += pointer.delta.x * 0.01; };
         object.add(tool);
     }
-    static resizeTool(object) {
+    static resizeTool(object, scene) {
         if (!object.boundingBox) {
             console.warn('Helpers.boxResizeTool(): Object property missing boundingBox');
             return;
         }
-        function updateHelpers() {
-            const box = object.boundingBox;
-            topLeft.position.copy(box.min);
-            topRight.position.set(box.max.x, box.min.y);
-            bottomLeft.position.set(box.min.x, box.max.y);
-            bottomRight.position.copy(box.max);
-        }
-        function localDelta(local, pointer, camera) {
-            const parent = local.parent ?? local;
+        function localDelta(pointer, camera) {
             const pointerStart = pointer.position.clone();
             const pointerEnd = pointer.position.clone().sub(pointer.delta);
             const worldPositionStart = camera.inverseMatrix.transformPoint(pointerStart);
-            const localPositionStart = local.inverseGlobalMatrix.transformPoint(worldPositionStart);
+            const localPositionStart = object.inverseGlobalMatrix.transformPoint(worldPositionStart);
             const worldPositionEnd = camera.inverseMatrix.transformPoint(pointerEnd);
-            const localPositionEnd = local.inverseGlobalMatrix.transformPoint(worldPositionEnd);
+            const localPositionEnd = object.inverseGlobalMatrix.transformPoint(worldPositionEnd);
             const delta = localPositionStart.clone().sub(localPositionEnd);
-            delta.multiply(parent.scale);
+            delta.multiply(object.scale);
             return delta;
         }
         function createCircle(color, x, y) {
@@ -7734,25 +7726,39 @@ class Helpers {
             circle.fillStyle.color = color;
             circle.radius = 4;
             circle.layer = object.layer + 1;
+            circle.onUpdate = function() {
+                const box = object.boundingBox;
+                const topLeftWorld = object.globalMatrix.transformPoint(box.min);
+                const topRightWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
+                const bottomLeftWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
+                const bottomRightWorld = object.globalMatrix.transformPoint(box.max);
+                topLeft.position.copy(topLeftWorld);
+                topRight.position.copy(topRightWorld);
+                bottomLeft.position.copy(bottomLeftWorld);
+                bottomRight.position.copy(bottomRightWorld);
+                circle.updateMatrix();
+            };
             circle.onPointerDrag = function(pointer, camera) {
                 Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-                const delta = localDelta(this, pointer, camera).multiplyScalar(0.5);
+                const delta = localDelta(pointer, camera).multiplyScalar(0.5);
                 const size = object.boundingBox.getSize();
                 const scale = new Vector2(2 / size.x, 2 / size.y);
                 const rotationMatrix = new Matrix2().rotate(object.rotation);
                 const rotatedDelta = rotationMatrix.transformPoint(delta);
                 object.position.add(rotatedDelta);
                 object.scale.sub(delta.multiply(x, y).multiply(scale));
-                updateHelpers();
             };
+            resizerContainer.add(circle);
             return circle;
         }
+        const resizerContainer = new Object2D();
+        resizerContainer.layer = object.layer + 1;
         const topLeft = createCircle('#ff0000', 1, 1);
         const topRight = createCircle('#00ff00', -1, 1);
         const bottomRight = createCircle('#0000ff', -1, -1);
         const bottomLeft = createCircle('#ffff00', 1, -1);
-        object.add(topLeft, topRight, bottomRight, bottomLeft);
-        updateHelpers();
+        resizerContainer.add(topLeft, topRight, bottomRight, bottomLeft);
+        scene.add(resizerContainer);
     }
 }
 
@@ -7869,10 +7875,12 @@ class Renderer extends Element {
             } else if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDrag === 'function') {
                 child.onPointerDrag(pointer, camera);
             }
-            if (typeof child.onUpdate === 'function') child.onUpdate();
         }
         object.traverse(function(child) {
             child.updateMatrix();
+        });
+        object.traverse(function(child) {
+            if (typeof child.onUpdate === 'function') child.onUpdate();
         });
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
@@ -7950,7 +7958,7 @@ class Text extends Object2D {
         context.textBaseline = this.textBaseline;
         const textMetrics = context.measureText(this.text);
         const textWidth = textMetrics.width;
-        const textHeight = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+        const textHeight = Math.max(textMetrics.actualBoundingBoxAscent, textMetrics.actualBoundingBoxDescent) * 2.0;
         this.boundingBox.set(new Vector2(textWidth / -2, textHeight / -2), new Vector2(textWidth / 2, textHeight / 2));
     }
     isInside(point) {

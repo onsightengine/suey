@@ -29,7 +29,7 @@ class Text extends Object2D {
         context.textBaseline = this.textBaseline;
         const textMetrics = context.measureText(this.text);
         const textWidth = textMetrics.width;
-        const textHeight = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+        const textHeight = Math.max(textMetrics.actualBoundingBoxAscent, textMetrics.actualBoundingBoxDescent) * 2.0;
         this.boundingBox.set(new Vector2(textWidth / -2, textHeight / -2), new Vector2(textWidth / 2, textHeight / 2));
     }
 

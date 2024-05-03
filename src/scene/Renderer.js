@@ -120,9 +120,9 @@ class Renderer extends Element {
             return b.layer - a.layer;
         });
 
-        // Update Objects
+        // Pointer Events
         for (const child of objects) {
-            // Pointer Events?
+            // Process?
             if (child.pointerEvents) {
                 // Local Pointer Position
                 const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
@@ -158,20 +158,22 @@ class Renderer extends Element {
             } else if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDrag === 'function') {
                 child.onPointerDrag(pointer, camera);
             }
-
-            // Update
-            if (typeof child.onUpdate === 'function') child.onUpdate();
         }
 
-        // Update transformation matrices
+        // Update Transformation Matrices
         object.traverse(function(child) {
             child.updateMatrix();
+        });
+
+        // Update Objects
+        object.traverse(function(child) {
+            if (typeof child.onUpdate === 'function') child.onUpdate();
         });
 
         // Identity Transform
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Clear canvas content
+        // Clear Canvas
         if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
 
         // Render Objects Back to Front
@@ -180,7 +182,7 @@ class Renderer extends Element {
             if (object.isMask) continue;
             if (object.saveContextState) this.ctx.save();
 
-            // Apply all masks
+            // Apply Masks
             for (const mask of object.masks) {
                 if (!mask.ignoreCamera) camera.matrix.setContextTransform(this.ctx);
                 mask.transform(this.ctx, camera, this.dom, this);
@@ -194,7 +196,7 @@ class Renderer extends Element {
                 this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
 
-            // Apply the object transform to the canvas context
+            // Apply Object Transform to Canvas
             object.transform(this.ctx, camera, this.dom, this);
 
             // Style and Draw Object
