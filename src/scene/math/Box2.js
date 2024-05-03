@@ -1,6 +1,5 @@
 import { Vector2 } from './Vector2.js';
 
-/** Box is described by a minimum and maximum points */
 class Box2 {
 
     constructor(min, max) {

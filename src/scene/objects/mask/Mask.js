@@ -8,11 +8,10 @@ import { Object2D } from '../../Object2D.js';
  */
 class Mask extends Object2D {
 
-    type = 'Mask';
-
     constructor() {
         super();
         this.isMask = true;
+        this.type = 'Mask';
     }
 
     /**
@@ -20,10 +19,10 @@ class Mask extends Object2D {
      * Ensures that next objects being drawn are clipped to the path stored here.
      * More information about canvas clipping https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/clip.
      * @param {CanvasRenderingContext2D} context Canvas 2d drawing context.
-     * @param {Viewport} viewport Viewport applied to the canvas.
+     * @param {Camera} camera Camera applied to the canvas.
      * @param {DOM} canvas DOM canvas element where the content is being drawn.
      */
-    clip(context, viewport, canvas) {
+    clip(context, camera, canvas) {
 
     }
 

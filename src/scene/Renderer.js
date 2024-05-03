@@ -31,46 +31,63 @@ class Renderer extends Canvas {
 
         // Rendering
         this.running = false;
-        this.id = -1;
+        this.frame = -1;
+        this.scene = null;
+        this.camera = null;
 
-        // Disable Context Menu
-        this.on('contextmenu', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+        // Resize Observer
+        const self = this;
+        const canvas = this.dom;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        const resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                canvas.width = entry.contentRect.width;
+                canvas.height = entry.contentRect.height;
+                if (self.running && self.scene && self.camera) {
+                    self.update(self.scene, self.camera);
+                }
+            }
+        });
+        resizeObserver.observe(canvas);
+        this.on('destroy', () => {
+            resizeObserver.unobserve(canvas);
         });
     }
 
-    start(group, viewport, onUpdate) {
+    start(scene, camera, onUpdate) {
         if (this.running) return;
         this.running = true;
+        this.scene = scene;
+        this.camera = camera;
 
         const self = this;
         function loop() {
             if (typeof onUpdate === 'function') onUpdate();
-            self.update(group, viewport);
-            if (self.running) self.id = requestAnimationFrame(loop);
+            self.update(scene, camera);
+            if (self.running) self.frame = requestAnimationFrame(loop);
         }
         loop();
     }
 
     stop() {
         this.running = false;
-        cancelAnimationFrame(this.id);
+        cancelAnimationFrame(this.frame);
     }
 
-    /** Renders an object using a viewport onto this canvas */
-    update(object, viewport) {
+    /** Renders an object using a camera onto this canvas */
+    update(object, camera) {
         // Pointer Update
         this.pointer.update();
 
-        // Viewport Transform
-        viewport.update(this.pointer);
-        viewport.updateMatrix(this.width / 2.0, this.height / 2.0);
+        // Camera Transform
+        camera.update(this.pointer);
+        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
 
-        // Project pointer coordinates
+        // Project Pointer Coordinates
         const pointer = this.pointer;
         const point = pointer.position.clone();
-        const viewportPoint = viewport.inverseMatrix.transformPoint(point);
+        const cameraPoint = camera.inverseMatrix.transformPoint(point);
 
         // Gather, Sort Objects
         const objects = [];
@@ -85,33 +102,33 @@ class Renderer extends Canvas {
             if (!child.pointerEvents) continue;
 
             // Pointer position in object coordinates
-            const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreViewport ? point : viewportPoint);
+            const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
 
             // Pointer Inside?
             if (child.isInside(localPoint)) {
-                if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, viewport);
-                if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, viewport);
-                if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, viewport);
-                if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, viewport);
-                if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, viewport);
+                if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
+                if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
+                if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
+                if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
+                if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
                 if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                    if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, viewport);
+                    if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
                     // Start Object Drag & Break (to only start a drag operation on the top element)
                     if (child.draggable) {
                         child.beingDragged = true;
-                        if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, viewport);
+                        if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
                         break;
                     }
                 }
                 child.pointerInside = true;
             } else if (child.pointerInside) {
-                if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, viewport);
+                if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
                 child.pointerInside = false;
             }
 
             // Stop Drag
             if (child.beingDragged === true && pointer.buttonJustReleased(Pointer.LEFT)) {
-                if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, viewport);
+                if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, camera);
                 child.beingDragged = false;
             }
         }
@@ -120,7 +137,7 @@ class Renderer extends Canvas {
         for (const child of objects) {
             // Dragging?
             if (child.beingDragged && typeof child.onPointerDrag === 'function') {
-                child.onPointerDrag(pointer, viewport);
+                child.onPointerDrag(pointer, camera);
             }
 
             // Update
@@ -148,24 +165,24 @@ class Renderer extends Canvas {
 
             // Apply all masks
             for (const mask of object.masks) {
-                if (!mask.ignoreViewport) viewport.matrix.setContextTransform(this.ctx);
-                mask.transform(this.ctx, viewport, this.dom, this);
-                mask.clip(this.ctx, viewport, this.dom);
+                if (!mask.ignoreCamera) camera.matrix.setContextTransform(this.ctx);
+                mask.transform(this.ctx, camera, this.dom, this);
+                mask.clip(this.ctx, camera, this.dom);
             }
 
-            // Set the viewport transform
-            if (!object.ignoreViewport) {
-                viewport.matrix.setContextTransform(this.ctx);
+            // Set Context Transform
+            if (!object.ignoreCamera) {
+                camera.matrix.setContextTransform(this.ctx);
             } else if (object.masks.length > 0) {
                 this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
 
             // Apply the object transform to the canvas context
-            object.transform(this.ctx, viewport, this.dom, this);
+            object.transform(this.ctx, camera, this.dom, this);
 
             // Style and Draw Object
-            if (typeof object.style === 'function') object.style(this.ctx, viewport, this.dom);
-            if (typeof object.draw === 'function') object.draw(this.ctx, viewport, this.dom);
+            if (typeof object.style === 'function') object.style(this.ctx, camera, this.dom, this);
+            if (typeof object.draw === 'function') object.draw(this.ctx, camera, this.dom, this);
 
             if (object.restoreContextState) this.ctx.restore();
         }

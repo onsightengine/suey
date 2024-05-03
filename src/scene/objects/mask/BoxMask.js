@@ -2,16 +2,12 @@ import { Box2 } from '../../math/Box2.js';
 import { Mask } from './Mask.js';
 import { Vector2 } from '../../math/Vector2.js';
 
-/**
- * Box mask can be used to clear a box mask region.
- * It will limit the drawing region to this box.
- */
 class BoxMask extends Mask {
-
-    type = 'BoxMask';
 
     constructor() {
         super();
+        this.type = 'BoxMask';
+
         this.box = new Box2(new Vector2(-50, -35), new Vector2(50, 35));
         this.invert = false; // if inverted the mask considers the outside of the box instead of the inside
     }
@@ -20,7 +16,7 @@ class BoxMask extends Mask {
         return this.box.containsPoint(point);
     }
 
-    clip(context, viewport, canvas) {
+    clip(context, camera, canvas) {
         context.beginPath();
         const width = this.box.max.x - this.box.min.x;
         if (this.invert) {

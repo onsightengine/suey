@@ -22,22 +22,23 @@
 
         const scene = new Scene.Object2D();
 
-        // const text = new Scene.Text();
-        // text.position.set(0, -100);
-        // text.text = "Hello World!"
-        // scene.add(text);
+        // Objects
+        const text = new Scene.Text().setPosition(0, -100);
+        text.fillStyle.color = '#D27D2D';
+        text.text = 'Hello World!';
+        scene.add(text);
 
-        const box = new Scene.Box();
-        box.draggable = true;
-        box.position.set(-100, 0);
+        const box = new Scene.Box().setPosition(-100, 0);
         scene.add(box);
-        Scene.Helpers.boxResizeTool(box);
-        Scene.Helpers.rotateTool(box);
 
-        const circle = new Scene.Circle();
-        circle.position.set(100, 0);
+        const circle = new Scene.Circle().setPosition(100, 0);
         circle.radius = 50;
         scene.add(circle);
+
+        // Helpers
+        Scene.Helpers.rotateTool(box);
+        Scene.Helpers.resizeTool(box);
+        Scene.Helpers.resizeTool(circle);
 
         // Renderer
         const renderer = new Scene.Renderer({ width: window.innerWidth, height: window.innerHeight });
@@ -45,17 +46,11 @@
         container.appendChild(renderer.dom);
 
         // Camera
-        const viewport = new Scene.Viewport();
-        viewport.position.copy(new Scene.Vector2(renderer.width / 2.0, renderer.height / 2.0));
+        const camera = new Scene.Camera2D();
+        camera.position.copy(new Scene.Vector2(renderer.width / 2.0, renderer.height / 2.0));
 
         // Start
-        renderer.start(scene, viewport);
-
-        // Resize canvas on window resize
-        window.onresize = function() {
-            renderer.width = window.innerWidth;
-            renderer.height = window.innerHeight;
-        };
+        renderer.start(scene, camera);
 
     </script>
 

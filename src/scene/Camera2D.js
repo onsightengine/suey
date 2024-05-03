@@ -3,7 +3,7 @@ import { Pointer } from '../utils/input/Pointer.js';
 import { UUID } from './math/UUID.js';
 import { Vector2 } from './math/Vector2.js';
 
-class Viewport {
+class Camera2D {
 
     constructor() {
         this.uuid = UUID.generate();
@@ -16,19 +16,19 @@ class Viewport {
         this.inverseMatrix = new Matrix2();
         this.matrixNeedsUpdate = true;
 
-        this.dragButton = Pointer.RIGHT;            // button used to drag and viewport around
-        this.rotateButton = Pointer.MIDDLE;         // button used to rotate the viewport
+        this.dragButton = Pointer.RIGHT;            // button used to drag
+        this.rotateButton = Pointer.MIDDLE;         // button used to rotate
 
-        this.allowDrag = true;                      // viewport allowed to be dragged?
-        this.allowScale = true;                     // viewport allowed to be scaled?
-        this.allowRotation = true;                  // viewport allowed to be rotated?
+        this.allowDrag = true;                      // allowed to be dragged?
+        this.allowScale = true;                     // allowed to be scaled?
+        this.allowRotation = true;                  // allowed to be rotated?
 
         // INTERNAL
         this.rotationPoint = new Vector2(0, 0);     // pointer position when the rotation starts
-        this.rotationInitial = 0;                   // initial rotation of the viewport when the rotation starts
+        this.rotationInitial = 0;                   // initial rotation when the rotation starts
     }
 
-    /** Update the viewport controls using a pointer object, should be called every frame before rendering */
+    /** Update the camera controls using a pointer object, should be called every frame before rendering */
     update(pointer) {
         // Scale
         if (this.allowScale && pointer.wheel !== 0) {
@@ -59,10 +59,9 @@ class Viewport {
             this.position.add(delta);
             this.matrixNeedsUpdate = true;
         }
-
     }
 
-    /** Calculate and update the viewport transformation matrix */
+    /** Calculate and update the transformation matrix */
     updateMatrix(centerX, centerY) {
         if (!this.matrixNeedsUpdate) return;
         this.matrix.identity();
@@ -86,4 +85,4 @@ class Viewport {
 
 }
 
-export { Viewport };
+export { Camera2D };

@@ -2750,33 +2750,33 @@ class Pointer {
             self._positionUpdated = true;
         }
         function updateKey(button, action) {
-            if (button > -1) self._keys[button].update(action);
+            if (button >= 0) self._keys[button].update(action);
         }
-        const lastTouch = new Vector2(0, 0);
-        element.on('touchstart', (event) => {
-            const touch = event.touches[0];
-            updatePosition(touch.clientX, touch.clientY, 0, 0);
-            updateKey(Pointer.LEFT, Key.DOWN);
-            lastTouch.set(touch.clientX, touch.clientY);
+        element.on('contextmenu', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
         });
-        element.on('touchend', (event) => { updateKey(Pointer.LEFT, Key.UP); });
-        element.on('touchcancel', (event) => { updateKey(Pointer.LEFT, Key.UP); });
-        element.on('touchmove', (event) => {
-            const touch = event.touches[0];
-            updatePosition(touch.clientX, touch.clientY, touch.clientX - lastTouch.x, touch.clientY - lastTouch.y);
-            lastTouch.set(touch.clientX, touch.clientY);
+        element.on('pointermove', (event) => {
+            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
         });
-        element.on('pointermove', (event) => { updatePosition(event.clientX, event.clientY, event.movementX, event.movementY); });
-        element.on('pointerdown', (event) => { updateKey(event.which - 1, Key.DOWN); });
-        element.on('pointerup', (event) => { updateKey(event.which - 1, Key.UP); });
+        element.on('pointerdown',  (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            element.dom.setPointerCapture(event.pointerId);
+            updateKey(event.button, Key.DOWN);
+        });
+        element.on('pointerup', (event) => {
+            element.dom.releasePointerCapture(event.pointerId);
+            updateKey(event.button, Key.UP);
+        });
         element.on('pointerenter', () => { self.pointerInside = true; });
         element.on('pointerleave', () => { self.pointerInside = false; });
         element.on('wheel', (event) => {
             self._wheel = event.deltaY;
             self._wheelUpdated = true;
         });
-        element.on('dragstart', (event) => { updateKey(event.which - 1, Key.UP); });
-        element.on('dblclick', (event) => { self._doubleClicked[event.which - 1] = true; });
+        element.on('dragstart', (event) => { updateKey(event.button, Key.UP); });
+        element.on('dblclick', (event) => { self._doubleClicked[event.button] = true; });
     }
     buttonPressed(button)       { return this.keys[button].pressed; }
     buttonDoubleClicked(button) { return this.doubleClicked[button] }
@@ -2838,7 +2838,7 @@ class Row extends Div {
     }
 }
 
-class Text extends Span {
+class Text$1 extends Span {
     constructor(innerHtml) {
         super(innerHtml);
         this.setClass('suey-text');
@@ -2901,7 +2901,7 @@ class PropertyList extends Div {
     }
     createRow(title = '', ...controls) {
         const rightWidget = this.createControls(...controls);
-        const leftWidget = new Text(title).selectable(false).addClass('suey-property-left');
+        const leftWidget = new Text$1(title).selectable(false).addClass('suey-property-left');
         if (this.leftPropertySpacing === LEFT_SPACING.TABS) leftWidget.addClass('suey-left-tab-spacing');
         Css.setVariable('--left-property-width', this.#leftWidth(), leftWidget);
         Css.setVariable('--right-property-width', this.#rightWidth(), rightWidget);
@@ -3119,7 +3119,7 @@ class Titled extends Panel {
         this.addClass('suey-expanded');
         this.isExpanded = true;
         const tabTitle = new Div().addClass('suey-tab-title');
-        tabTitle.add(new Text(Strings.capitalize(title)).addClass('suey-tab-title-text'));
+        tabTitle.add(new Text$1(Strings.capitalize(title)).addClass('suey-tab-title-text'));
         this.add(tabTitle);
         this.tabTitle = tabTitle;
         if (collapsible) {
@@ -4731,7 +4731,7 @@ class Floater extends Panel {
         if (typeof options.title !== 'string') options.title = id;
         if (options.titled) {
             const tabTitle = new Div().addClass('suey-tab-title');
-            tabTitle.add(new Text(Strings.capitalize(options.title)).addClass('suey-tab-title-text'));
+            tabTitle.add(new Text$1(Strings.capitalize(options.title)).addClass('suey-tab-title-text'));
             this.add(tabTitle);
             this.tabTitle = tabTitle;
             this.scroller = new Div().addClass('suey-scroller');
@@ -7212,24 +7212,6 @@ class Scrollable extends Panel {
     }
 }
 
-class Style {
-    constructor() {
-        this.cache = null;
-        this.needsUpdate = true;
-    }
-    get(context) {}
-}
-
-class ColorStyle extends Style {
-    constructor(color = '#000000') {
-        super();
-        this.color = color;
-    }
-    get(context) {
-        return this.color;
-    }
-}
-
 class Matrix2 {
     constructor(values = []) {
         if (Array.isArray(values)) this.m = [ ...values ];
@@ -7356,333 +7338,7 @@ class UUID {
     }
 }
 
-class Object2D {
-    type = 'Object2D';
-    constructor() {
-        this.uuid = UUID.generate();
-        this.children = [];
-        this.parent = null;
-        this.visible = true;
-        this.layer = 0;
-        this.level = 0;
-        this.position = new Vector2(0, 0);
-        this.scale = new Vector2(1, 1);
-        this.rotation = 0.0;
-        this.origin = new Vector2(0, 0);
-        this.matrix = new Matrix2();
-        this.globalMatrix = new Matrix2();
-        this.inverseGlobalMatrix = new Matrix2();
-        this.matrixAutoUpdate = true;
-        this.matrixNeedsUpdate = true;
-        this.masks = [];
-        this.draggable = false;
-        this.pointerEvents = true;
-        this.ignoreViewport = false;
-        this.saveContextState = true;
-        this.restoreContextState = true;
-        this.pointerInside = false;
-        this.beingDragged = false;
-        this.serializable = true;
-    }
-    getWorldPointIntersections(point, list = []) {
-        if (Array.isArray(list) === false) list = [];
-        const localPoint = this.inverseGlobalMatrix.transformPoint(point);
-        if (this.isInside(localPoint)) list.push(this);
-        for (const child of this.children) {
-            child.getWorldPointIntersections(point, list);
-        }
-        return list;
-    }
-    isWorldPointInside(point, recursive) {
-        const localPoint = this.inverseGlobalMatrix.transformPoint(point);
-        if (this.isInside(localPoint)) return true;
-        if(recursive) {
-            for (const child of this.children) {
-                if(child.isWorldPointInside(point, true)) return true;
-            }
-        }
-        return false;
-    }
-    destroy() {
-        if (this.parent) this.parent.remove(this);
-        return this;
-    }
-    traverse(callback) {
-        callback(this);
-        for (const child of this.children) {
-            child.traverse(callback);
-        }
-    }
-    getChildByUUID(uuid) {
-        let object = null;
-        this.traverse(function(child) {
-            if (child.uuid === uuid) object = child;
-        });
-        return object;
-    }
-    add(object) {
-        object.parent = this;
-        object.level = this.level + 1;
-        object.traverse(function(child) {
-            if (typeof child.onAdd === 'function') child.onAdd(this);
-        });
-        this.children.push(object);
-        return this;
-    }
-    remove(children) {
-        let index = this.children.indexOf(children);
-        if (index !== -1) {
-            let object = this.children[index];
-            object.parent = null;
-            object.level = 0;
-            object.traverse(function(child) {
-                if (typeof child.onRemove === 'function') child.onRemove(this);
-            });
-        }
-        this.children.splice(index, 1);
-    }
-    isInside(point) {
-        return false;
-    }
-    updateMatrix(context) {
-        if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
-            this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
-            this.globalMatrix.copy(this.matrix);
-            if (this.parent) this.globalMatrix.premultiply(this.parent.globalMatrix);
-            this.inverseGlobalMatrix = this.globalMatrix.getInverse();
-            this.matrixNeedsUpdate = false;
-        }
-    }
-    transform(context, viewport, canvas, renderer) {
-        this.globalMatrix.tranformContext(context);
-    }
-    onPointerDrag(pointer, viewport) {
-        const pointerStart = pointer.position.clone();
-        const pointerEnd = pointer.position.clone().sub(pointer.delta);
-        const parent = this.parent ?? this;
-        const worldPositionStart = viewport.inverseMatrix.transformPoint(pointerStart);
-        const localPositionStart = parent.inverseGlobalMatrix.transformPoint(worldPositionStart);
-        const worldPositionEnd = viewport.inverseMatrix.transformPoint(pointerEnd);
-        const localPositionEnd = parent.inverseGlobalMatrix.transformPoint(worldPositionEnd);
-        const delta = localPositionStart.clone().sub(localPositionEnd);
-        this.position.add(delta);
-    }
-}
-
-class Circle extends Object2D {
-    type = 'Circle';
-    constructor() {
-        super();
-        this.radius = 10.0;
-        this.strokeStyle = new ColorStyle('#000000');
-        this.lineWidth = 1;
-        this.fillStyle = new ColorStyle('#FFFFFF');
-    }
-    isInside(point) {
-        return point.length() <= this.radius;
-    }
-    draw(context, viewport, canvas) {
-        context.beginPath();
-        context.arc(0, 0, this.radius, 0, 2 * Math.PI);
-        if (this.fillStyle) {
-            context.fillStyle = this.fillStyle.get(context);
-            context.fill();
-        }
-        if (this.strokeStyle) {
-            context.lineWidth = this.lineWidth;
-            context.strokeStyle = this.strokeStyle.get(context);
-            context.stroke();
-        }
-    }
-}
-
-class Helpers {
-    static rotateTool(object) {
-        const tool = new Circle();
-        tool.radius = 4;
-        tool.layer = object.layer + 1;
-        tool.draggable = true;
-        tool.onPointerDrag = function(pointer, viewport) {
-            object.rotation += pointer.delta.x * 0.01;
-        };
-        object.add(tool);
-    }
-    static boxResizeTool(object) {
-        if (object.box == undefined) {
-            console.warn('Helpers.boxResizeTool(): Object box property missing');
-            return;
-        }
-        function updateHelpers() {
-            topLeft.position.copy(object.box.min);
-            topRight.position.set(object.box.max.x, object.box.min.y);
-            bottomLeft.position.set(object.box.min.x, object.box.max.y);
-            bottomRight.position.copy(object.box.max);
-        }
-        const topLeft = new Circle();
-        topLeft.fillStyle.color = '#ff0000';
-        topLeft.radius = 4;
-        topLeft.layer = object.layer + 1;
-        topLeft.draggable = true;
-        topLeft.onPointerDrag = function(pointer, viewport) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
-            object.box.min.copy(topLeft.position);
-            updateHelpers();
-        };
-        object.add(topLeft);
-        const topRight = new Circle();
-        topRight.fillStyle.color = '#00ff00';
-        topRight.radius = 4;
-        topRight.layer = object.layer + 1;
-        topRight.draggable = true;
-        topRight.onPointerDrag = function(pointer, viewport) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
-            object.box.max.x = topRight.position.x;
-            object.box.min.y = topRight.position.y;
-            updateHelpers();
-        };
-        object.add(topRight);
-        const bottomRight = new Circle();
-        bottomRight.fillStyle.color = '#0000ff';
-        bottomRight.radius = 4;
-        bottomRight.layer = object.layer + 1;
-        bottomRight.draggable = true;
-        bottomRight.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
-            object.box.max.copy(bottomRight.position);
-            updateHelpers();
-        };
-        object.add(bottomRight);
-        const bottomLeft = new Circle();
-        bottomLeft.radius = 4;
-        bottomLeft.layer = object.layer + 1;
-        bottomLeft.draggable = true;
-        bottomLeft.onPointerDrag = function(pointer, viewport, delta) {
-            Object2D.prototype.onPointerDrag.call(this, pointer, viewport);
-            object.box.min.x = bottomLeft.position.x;
-            object.box.max.y = bottomLeft.position.y;
-            updateHelpers();
-        };
-        object.add(bottomLeft);
-        updateHelpers();
-    }
-}
-
-class Renderer extends Canvas {
-    constructor(options = {}) {
-        if (options === undefined) options = {};
-        if (!('alpha' in options)) options.alpha = true;
-        if (!('disableContextMenu' in options)) options.disableContextMenu = true;
-        if (!('imageSmoothingEnabled' in options)) options.imageSmoothingEnabled = true;
-        if (!('imageSmoothingQuality' in options)) options.imageSmoothingQuality = 'low';
-        if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
-        options.width = options.width ?? 1000;
-        options.height = options.height ?? 1000;
-        super(options.width, options.height, false );
-        this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
-        this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
-        this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
-        this.ctx.globalCompositeOperation = options.globalCompositeOperation;
-        this.pointer = new Pointer(this);
-        this.autoClear = true;
-        this.running = false;
-        this.id = -1;
-        this.on('contextmenu', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-    }
-    start(group, viewport, onUpdate) {
-        if (this.running) return;
-        this.running = true;
-        const self = this;
-        function loop() {
-            if (typeof onUpdate === 'function') onUpdate();
-            self.update(group, viewport);
-            if (self.running) self.id = requestAnimationFrame(loop);
-        }
-        loop();
-    }
-    stop() {
-        this.running = false;
-        cancelAnimationFrame(this.id);
-    }
-    update(object, viewport) {
-        this.pointer.update();
-        viewport.update(this.pointer);
-        viewport.updateMatrix(this.width / 2.0, this.height / 2.0);
-        const pointer = this.pointer;
-        const point = pointer.position.clone();
-        const viewportPoint = viewport.inverseMatrix.transformPoint(point);
-        const objects = [];
-        object.traverse(function(child) { if (child.visible) objects.push(child); });
-        objects.sort(function(a, b) {
-            if (b.layer === a.layer) return b.level - a.level;
-            return b.layer - a.layer;
-        });
-        for (const child of objects) {
-            if (!child.pointerEvents) continue;
-            const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreViewport ? point : viewportPoint);
-            if (child.isInside(localPoint)) {
-                if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, viewport);
-                if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, viewport);
-                if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, viewport);
-                if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, viewport);
-                if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, viewport);
-                if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                    if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, viewport);
-                    if (child.draggable) {
-                        child.beingDragged = true;
-                        if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, viewport);
-                        break;
-                    }
-                }
-                child.pointerInside = true;
-            } else if (child.pointerInside) {
-                if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, viewport);
-                child.pointerInside = false;
-            }
-            if (child.beingDragged === true && pointer.buttonJustReleased(Pointer.LEFT)) {
-                if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, viewport);
-                child.beingDragged = false;
-            }
-        }
-        for (const child of objects) {
-            if (child.beingDragged && typeof child.onPointerDrag === 'function') {
-                const positionWorld = viewport.inverseMatrix.transformPoint(pointer.position);
-                const lastWorld = viewport.inverseMatrix.transformPoint(pointer.position.clone().sub(pointer.delta));
-                const delta = positionWorld.clone().sub(lastWorld).multiplyScalar(viewport.scale);
-                child.onPointerDrag(pointer, viewport);
-            }
-            if (typeof child.onUpdate === 'function') child.onUpdate();
-        }
-        object.traverse(function(child) {
-            child.updateMatrix();
-        });
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
-        objects.reverse();
-        for (const object of objects) {
-            if (object.isMask) continue;
-            if (object.saveContextState) this.ctx.save();
-            for (const mask of object.masks) {
-                if (!mask.ignoreViewport) viewport.matrix.setContextTransform(this.ctx);
-                mask.transform(this.ctx, viewport, this.dom, this);
-                mask.clip(this.ctx, viewport, this.dom);
-            }
-            if (!object.ignoreViewport) {
-                viewport.matrix.setContextTransform(this.ctx);
-            } else if (object.masks.length > 0) {
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-            }
-            object.transform(this.ctx, viewport, this.dom, this);
-            if (typeof object.style === 'function') object.style(this.ctx, viewport, this.dom);
-            if (typeof object.draw === 'function') object.draw(this.ctx, viewport, this.dom);
-            if (object.restoreContextState) this.ctx.restore();
-        }
-    };
-}
-
-class Viewport {
+class Camera2D {
     constructor() {
         this.uuid = UUID.generate();
         this.position = new Vector2(0, 0);
@@ -7737,6 +7393,24 @@ class Viewport {
         this.matrix.multiply(new Matrix2([ this.scale, 0, 0, this.scale, 0, 0 ]));
         this.inverseMatrix = this.matrix.getInverse();
         this.matrixNeedsUpdate = false;
+    }
+}
+
+class Style {
+    constructor() {
+        this.cache = null;
+        this.needsUpdate = true;
+    }
+    get(context) {}
+}
+
+class ColorStyle extends Style {
+    constructor(color = '#000000') {
+        super();
+        this.color = color;
+    }
+    get(context) {
+        return this.color;
     }
 }
 
@@ -7843,19 +7517,384 @@ class Box2 {
     }
 }
 
-class Box extends Object2D {
-    type = 'Box';
+class Object2D {
+    constructor() {
+        this.type = 'Object2D';
+        this.uuid = UUID.generate();
+        this.children = [];
+        this.parent = null;
+        this.visible = true;
+        this.layer = 0;
+        this.level = 0;
+        this.position = new Vector2(0, 0);
+        this.scale = new Vector2(1, 1);
+        this.rotation = 0.0;
+        this.origin = new Vector2(0, 0);
+        this.matrix = new Matrix2();
+        this.globalMatrix = new Matrix2();
+        this.inverseGlobalMatrix = new Matrix2();
+        this.matrixAutoUpdate = true;
+        this.matrixNeedsUpdate = true;
+        this.boundingBox = new Box2();
+        this.masks = [];
+        this.draggable = true;
+        this.pointerEvents = true;
+        this.ignoreCamera = false;
+        this.saveContextState = true;
+        this.restoreContextState = true;
+        this.pointerInside = false;
+        this.beingDragged = false;
+    }
+    add(object) {
+        const index = this.children.indexOf(object);
+        if (index === -1) {
+            object.parent = this;
+            object.level = this.level + 1;
+            object.traverse(function(child) {
+                if (typeof child.onAdd === 'function') child.onAdd(this);
+            });
+            this.children.push(object);
+        }
+        return this;
+    }
+    remove(object) {
+        const index = this.children.indexOf(object);
+        if (index === -1) return undefined;
+        const child = this.children[index];
+        child.parent = null;
+        child.level = 0;
+        child.traverse(function(child) {
+            if (typeof child.onRemove === 'function') child.onRemove(this);
+        });
+        this.children.splice(index, 1);
+        return child;
+    }
+    getChildByUUID(uuid) {
+        return this.getEntityByProperty('uuid', uuid);
+    }
+    getChildByProperty(property, value) {
+        if (this[property] === value) return this;
+        for (const child of this.children) {
+            const object = child.getChildByProperty(property, value);
+            if (object) return object;
+        }
+        return undefined;
+    }
+    traverse(callback) {
+        if (typeof callback === 'function' && callback(this)) return true;
+        for (const child of this.children) {
+            if (child.traverse(callback)) return true;
+        }
+        return false;
+    }
+    destroy() {
+        if (this.parent) this.parent.remove(this);
+    }
+    computeBoundingBox() {
+        return this.boundingBox;
+    }
+    isInside(point) {
+        return false;
+    }
+    isWorldPointInside(worldPoint, recursive = false) {
+        const localPoint = this.inverseGlobalMatrix.transformPoint(worldPoint);
+        if (this.isInside(localPoint)) return true;
+        if (recursive) {
+            for (const child of this.children) {
+                if (child.isWorldPointInside(worldPoint, true)) return true;
+            }
+        }
+        return false;
+    }
+    getWorldPointIntersections(worldPoint, list = []) {
+        list = Array.isArray(list) ? list : [];
+        const localPoint = this.inverseGlobalMatrix.transformPoint(worldPoint);
+        if (this.isInside(localPoint)) list.push(this);
+        for (const child of this.children) child.getWorldPointIntersections(worldPoint, list);
+        return list;
+    }
+    updateMatrix() {
+        if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+            this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
+            this.globalMatrix.copy(this.matrix);
+            if (this.parent) this.globalMatrix.premultiply(this.parent.globalMatrix);
+            this.inverseGlobalMatrix = this.globalMatrix.getInverse();
+            this.matrixNeedsUpdate = false;
+        }
+    }
+    setPosition(x, y) {
+        if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
+        else this.position.set(x, y);
+        return this;
+    }
+    transform(context, camera, canvas, renderer) {
+        this.globalMatrix.tranformContext(context);
+    }
+    onPointerDrag(pointer, camera) {
+        const pointerStart = pointer.position.clone();
+        const pointerEnd = pointer.position.clone().sub(pointer.delta);
+        const parent = this.parent ?? this;
+        const worldPositionStart = camera.inverseMatrix.transformPoint(pointerStart);
+        const localPositionStart = parent.inverseGlobalMatrix.transformPoint(worldPositionStart);
+        const worldPositionEnd = camera.inverseMatrix.transformPoint(pointerEnd);
+        const localPositionEnd = parent.inverseGlobalMatrix.transformPoint(worldPositionEnd);
+        const delta = localPositionStart.clone().sub(localPositionEnd);
+        this.position.add(delta);
+    }
+}
+
+class Circle extends Object2D {
     constructor() {
         super();
+        this.type = 'Circle';
+        this.radius = 10.0;
+        this.strokeStyle = new ColorStyle('#000000');
+        this.lineWidth = 1;
+        this.fillStyle = new ColorStyle('#FFFFFF');
+        this.computeBoundingBox();
+    }
+    computeBoundingBox() {
+        this.boundingBox.min.set(-this.radius, -this.radius);
+        this.boundingBox.max.set( this.radius,  this.radius);
+    }
+    isInside(point) {
+        return point.length() <= this.radius;
+    }
+    draw(context, camera, canvas) {
+        context.beginPath();
+        context.arc(0, 0, this.radius, 0, 2 * Math.PI);
+        if (this.fillStyle) {
+            context.fillStyle = this.fillStyle.get(context);
+            context.fill();
+        }
+        if (this.strokeStyle) {
+            context.lineWidth = this.lineWidth;
+            context.strokeStyle = this.strokeStyle.get(context);
+            context.stroke();
+        }
+    }
+}
+
+class Helpers {
+    static rotateTool(object) {
+        const tool = new Circle();
+        tool.radius = 4;
+        tool.layer = object.layer + 1;
+        tool.draggable = true;
+        tool.onPointerDrag = function(pointer, camera) { object.rotation += pointer.delta.x * 0.01; };
+        object.add(tool);
+    }
+    static resizeTool(object) {
+        if (!object.boundingBox) {
+            console.warn('Helpers.boxResizeTool(): Object property missing boundingBox');
+            return;
+        }
+        function updateHelpers() {
+            const box = object.boundingBox;
+            topLeft.position.copy(box.min);
+            topRight.position.set(box.max.x, box.min.y);
+            bottomLeft.position.set(box.min.x, box.max.y);
+            bottomRight.position.copy(box.max);
+        }
+        const topLeft = new Circle();
+        topLeft.fillStyle.color = '#ff0000';
+        topLeft.radius = 4;
+        topLeft.layer = object.layer + 1;
+        topLeft.draggable = true;
+        topLeft.onPointerDrag = function(pointer, camera) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
+            object.box.min.copy(topLeft.position);
+            object.computeBoundingBox();
+            updateHelpers();
+        };
+        object.add(topLeft);
+        const topRight = new Circle();
+        topRight.fillStyle.color = '#00ff00';
+        topRight.radius = 4;
+        topRight.layer = object.layer + 1;
+        topRight.draggable = true;
+        topRight.onPointerDrag = function(pointer, camera) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
+            object.box.max.x = topRight.position.x;
+            object.box.min.y = topRight.position.y;
+            object.computeBoundingBox();
+            updateHelpers();
+        };
+        object.add(topRight);
+        const bottomRight = new Circle();
+        bottomRight.fillStyle.color = '#0000ff';
+        bottomRight.radius = 4;
+        bottomRight.layer = object.layer + 1;
+        bottomRight.draggable = true;
+        bottomRight.onPointerDrag = function(pointer, camera, delta) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
+            object.box.max.copy(bottomRight.position);
+            object.computeBoundingBox();
+            updateHelpers();
+        };
+        object.add(bottomRight);
+        const bottomLeft = new Circle();
+        bottomLeft.radius = 4;
+        bottomLeft.layer = object.layer + 1;
+        bottomLeft.draggable = true;
+        bottomLeft.onPointerDrag = function(pointer, camera, delta) {
+            Object2D.prototype.onPointerDrag.call(this, pointer, camera);
+            object.box.min.x = bottomLeft.position.x;
+            object.box.max.y = bottomLeft.position.y;
+            object.computeBoundingBox();
+            updateHelpers();
+        };
+        object.add(bottomLeft);
+        updateHelpers();
+    }
+}
+
+class Renderer extends Canvas {
+    constructor(options = {}) {
+        if (options === undefined) options = {};
+        if (!('alpha' in options)) options.alpha = true;
+        if (!('disableContextMenu' in options)) options.disableContextMenu = true;
+        if (!('imageSmoothingEnabled' in options)) options.imageSmoothingEnabled = true;
+        if (!('imageSmoothingQuality' in options)) options.imageSmoothingQuality = 'low';
+        if (!('globalCompositeOperation' in options)) options.globalCompositeOperation = 'source-over';
+        options.width = options.width ?? 1000;
+        options.height = options.height ?? 1000;
+        super(options.width, options.height, false );
+        this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
+        this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
+        this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
+        this.ctx.globalCompositeOperation = options.globalCompositeOperation;
+        this.pointer = new Pointer(this);
+        this.autoClear = true;
+        this.running = false;
+        this.frame = -1;
+        this.scene = null;
+        this.camera = null;
+        const self = this;
+        const canvas = this.dom;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        const resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                canvas.width = entry.contentRect.width;
+                canvas.height = entry.contentRect.height;
+                if (self.running && self.scene && self.camera) {
+                    self.update(self.scene, self.camera);
+                }
+            }
+        });
+        resizeObserver.observe(canvas);
+        this.on('destroy', () => {
+            resizeObserver.unobserve(canvas);
+        });
+    }
+    start(scene, camera, onUpdate) {
+        if (this.running) return;
+        this.running = true;
+        this.scene = scene;
+        this.camera = camera;
+        const self = this;
+        function loop() {
+            if (typeof onUpdate === 'function') onUpdate();
+            self.update(scene, camera);
+            if (self.running) self.frame = requestAnimationFrame(loop);
+        }
+        loop();
+    }
+    stop() {
+        this.running = false;
+        cancelAnimationFrame(this.frame);
+    }
+    update(object, camera) {
+        this.pointer.update();
+        camera.update(this.pointer);
+        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
+        const pointer = this.pointer;
+        const point = pointer.position.clone();
+        const cameraPoint = camera.inverseMatrix.transformPoint(point);
+        const objects = [];
+        object.traverse(function(child) { if (child.visible) objects.push(child); });
+        objects.sort(function(a, b) {
+            if (b.layer === a.layer) return b.level - a.level;
+            return b.layer - a.layer;
+        });
+        for (const child of objects) {
+            if (!child.pointerEvents) continue;
+            const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
+            if (child.isInside(localPoint)) {
+                if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
+                if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
+                if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
+                if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
+                if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                if (pointer.buttonJustPressed(Pointer.LEFT)) {
+                    if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
+                    if (child.draggable) {
+                        child.beingDragged = true;
+                        if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                        break;
+                    }
+                }
+                child.pointerInside = true;
+            } else if (child.pointerInside) {
+                if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
+                child.pointerInside = false;
+            }
+            if (child.beingDragged === true && pointer.buttonJustReleased(Pointer.LEFT)) {
+                if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, camera);
+                child.beingDragged = false;
+            }
+        }
+        for (const child of objects) {
+            if (child.beingDragged && typeof child.onPointerDrag === 'function') {
+                child.onPointerDrag(pointer, camera);
+            }
+            if (typeof child.onUpdate === 'function') child.onUpdate();
+        }
+        object.traverse(function(child) {
+            child.updateMatrix();
+        });
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
+        objects.reverse();
+        for (const object of objects) {
+            if (object.isMask) continue;
+            if (object.saveContextState) this.ctx.save();
+            for (const mask of object.masks) {
+                if (!mask.ignoreCamera) camera.matrix.setContextTransform(this.ctx);
+                mask.transform(this.ctx, camera, this.dom, this);
+                mask.clip(this.ctx, camera, this.dom);
+            }
+            if (!object.ignoreCamera) {
+                camera.matrix.setContextTransform(this.ctx);
+            } else if (object.masks.length > 0) {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            object.transform(this.ctx, camera, this.dom, this);
+            if (typeof object.style === 'function') object.style(this.ctx, camera, this.dom, this);
+            if (typeof object.draw === 'function') object.draw(this.ctx, camera, this.dom, this);
+            if (object.restoreContextState) this.ctx.restore();
+        }
+    };
+}
+
+class Box extends Object2D {
+    constructor() {
+        super();
+        this.type = 'Box';
         this.box = new Box2(new Vector2(-50, -50), new Vector2(50, 50));
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
         this.fillStyle = new ColorStyle('#FFFFFF');
+        this.computeBoundingBox();
+    }
+    computeBoundingBox() {
+        this.boundingBox.copy(this.box);
     }
     isInside(point) {
         return this.box.containsPoint(point);
     }
-    draw(context, viewport, canvas) {
+    draw(context, camera, canvas) {
         const width = this.box.max.x - this.box.min.x;
         const height = this.box.max.y - this.box.min.y;
         if (this.fillStyle) {
@@ -7870,27 +7909,73 @@ class Box extends Object2D {
     }
 }
 
+class Text extends Object2D {
+    constructor(text = '', font = '16px Arial') {
+        super();
+        this.type = 'Text';
+        this.text = text;
+        this.font = font;
+        this.context = null;
+        this.strokeStyle = null;
+        this.lineWidth = 1;
+        this.fillStyle = new ColorStyle('#000000');
+        this.textAlign = 'center';
+        this.textBaseline = 'middle';
+    }
+    computeBoundingBox() {
+        if (!this.context) return false;
+        const context = this.context;
+        context.font = this.font;
+        context.textAlign = this.textAlign;
+        context.textBaseline = this.textBaseline;
+        const textMetrics = context.measureText(this.text);
+        const textWidth = textMetrics.width;
+        const textHeight = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+        this.boundingBox.set(new Vector2(textWidth / -2, textHeight / -2), new Vector2(textWidth / 2, textHeight / 2));
+    }
+    isInside(point) {
+        return this.boundingBox.containsPoint(point);
+    }
+    draw(context, camera, canvas) {
+        if (this.context !== context) {
+            this.context = context;
+            this.computeBoundingBox();
+        }
+        context.font = this.font;
+        context.textAlign = this.textAlign;
+        context.textBaseline = this.textBaseline;
+        if (this.fillStyle) {
+            context.fillStyle = this.fillStyle.get(context);
+            context.fillText(this.text, 0, 0);
+        }
+        if (this.strokeStyle) {
+            context.strokeStyle = this.strokeStyle.get(context);
+            context.strokeText(this.text, 0, 0);
+        }
+    }
+}
+
 class Mask extends Object2D {
-    type = 'Mask';
     constructor() {
         super();
         this.isMask = true;
+        this.type = 'Mask';
     }
-    clip(context, viewport, canvas) {
+    clip(context, camera, canvas) {
     }
 }
 
 class BoxMask extends Mask {
-    type = 'BoxMask';
     constructor() {
         super();
+        this.type = 'BoxMask';
         this.box = new Box2(new Vector2(-50, -35), new Vector2(50, 35));
         this.invert = false;
     }
     isInside(point) {
         return this.box.containsPoint(point);
     }
-    clip(context, viewport, canvas) {
+    clip(context, camera, canvas) {
         context.beginPath();
         const width = this.box.max.x - this.box.min.x;
         if (this.invert) {
@@ -7908,16 +7993,17 @@ class BoxMask extends Mask {
 
 var Scene$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
+  Camera2D: Camera2D,
   Helpers: Helpers,
   Object2D: Object2D,
   Renderer: Renderer,
-  Viewport: Viewport,
   Box2: Box2,
   Matrix2: Matrix2,
   UUID: UUID,
   Vector2: Vector2,
   Box: Box,
   Circle: Circle,
+  Text: Text,
   Mask: Mask,
   BoxMask: BoxMask,
   Style: Style,
@@ -8003,4 +8089,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Pointer, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scene$1 as Scene, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Pointer, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scene$1 as Scene, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text$1 as Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

@@ -1,28 +1,30 @@
 import { ColorStyle } from './style/ColorStyle';
 import { Object2D } from '../Object2D.js';
 
-/**
- * Circle object draw a circular object, into the canvas.
- * Can be used as a base to implement other circular objects, already implements the circle collision for pointer events.
- */
 class Circle extends Object2D {
-
-    type = 'Circle';
 
     constructor() {
         super();
+        this.type = 'Circle';
 
         this.radius = 10.0;
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
         this.fillStyle = new ColorStyle('#FFFFFF');
+
+        this.computeBoundingBox();
+    }
+
+    computeBoundingBox() {
+        this.boundingBox.min.set(-this.radius, -this.radius);
+        this.boundingBox.max.set( this.radius,  this.radius);
     }
 
     isInside(point) {
         return point.length() <= this.radius;
     }
 
-    draw(context, viewport, canvas) {
+    draw(context, camera, canvas) {
         context.beginPath();
         context.arc(0, 0, this.radius, 0, 2 * Math.PI);
         if (this.fillStyle) {

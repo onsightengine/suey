@@ -3,6 +3,7 @@ import { Vector2 } from '../../scene/math/Vector2.js';
 
 class Pointer {
 
+    // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
     static LEFT = 0;
     static MIDDLE = 1;
     static RIGHT = 2;
@@ -53,29 +54,35 @@ class Pointer {
             self._positionUpdated = true;
         }
         function updateKey(button, action) {
-            if (button > -1) self._keys[button].update(action);
+            if (button >= 0) self._keys[button].update(action);
         }
 
-        // Touch
-        const lastTouch = new Vector2(0, 0);
-        element.on('touchstart', (event) => {
-            const touch = event.touches[0];
-            updatePosition(touch.clientX, touch.clientY, 0, 0);
-            updateKey(Pointer.LEFT, Key.DOWN);
-            lastTouch.set(touch.clientX, touch.clientY);
-        });
-        element.on('touchend', (event) => { updateKey(Pointer.LEFT, Key.UP); });
-        element.on('touchcancel', (event) => { updateKey(Pointer.LEFT, Key.UP); });
-        element.on('touchmove', (event) => {
-            const touch = event.touches[0];
-            updatePosition(touch.clientX, touch.clientY, touch.clientX - lastTouch.x, touch.clientY - lastTouch.y);
-            lastTouch.set(touch.clientX, touch.clientY);
+        // Disable Context Menu
+        element.on('contextmenu', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
         });
 
         // Pointer
-        element.on('pointermove', (event) => { updatePosition(event.clientX, event.clientY, event.movementX, event.movementY); });
-        element.on('pointerdown', (event) => { updateKey(event.which - 1, Key.DOWN); });
-        element.on('pointerup', (event) => { updateKey(event.which - 1, Key.UP); });
+        element.on('pointermove', (event) => {
+            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
+        });
+        element.on('pointerdown', /* async */ (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            // // OPTION
+            element.dom.setPointerCapture(event.pointerId);
+            // // OPTION
+            // element.dom.requestPointerLock();
+            updateKey(event.button, Key.DOWN);
+        });
+        element.on('pointerup', (event) => {
+            // // OPTION
+            element.dom.releasePointerCapture(event.pointerId);
+            // // OPTION
+            // if (document.pointerLockElement === element.dom) document.exitPointerLock();
+            updateKey(event.button, Key.UP);
+        });
         element.on('pointerenter', () => { self.pointerInside = true; });
         element.on('pointerleave', () => { self.pointerInside = false; });
 
@@ -86,10 +93,10 @@ class Pointer {
         });
 
         // Drag
-        element.on('dragstart', (event) => { updateKey(event.which - 1, Key.UP); });
+        element.on('dragstart', (event) => { updateKey(event.button, Key.UP); });
 
         // Double Click
-        element.on('dblclick', (event) => { self._doubleClicked[event.which - 1] = true; });
+        element.on('dblclick', (event) => { self._doubleClicked[event.button] = true; });
     }
 
     buttonPressed(button)       { return this.keys[button].pressed; }

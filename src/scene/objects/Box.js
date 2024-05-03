@@ -3,28 +3,29 @@ import { ColorStyle } from './style/ColorStyle';
 import { Object2D } from '../Object2D.js';
 import { Vector2 } from '../math/Vector2.js';
 
-/**
- * Box object draw a rectangular object.
- * Can be used as a base to implement other box objects, already implements collision for pointer events.
- */
 class Box extends Object2D {
-
-    type = 'Box';
 
     constructor() {
         super();
+        this.type = 'Box';
 
         this.box = new Box2(new Vector2(-50, -50), new Vector2(50, 50));
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
         this.fillStyle = new ColorStyle('#FFFFFF');
+
+        this.computeBoundingBox();
+    }
+
+    computeBoundingBox() {
+        this.boundingBox.copy(this.box);
     }
 
     isInside(point) {
         return this.box.containsPoint(point);
     }
 
-    draw(context, viewport, canvas) {
+    draw(context, camera, canvas) {
         const width = this.box.max.x - this.box.min.x;
         const height = this.box.max.y - this.box.min.y;
         if (this.fillStyle) {
