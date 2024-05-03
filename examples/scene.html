@@ -28,20 +28,24 @@
         text.text = 'Hello World!';
         text.draggable = true;
         scene.add(text);
+        Scene.Helpers.resizeTool(text, scene);
 
         const box = new Scene.Box().setPosition(-100, 0);
         box.draggable = true;
         scene.add(box);
+        Scene.Helpers.resizeTool(box, scene);
 
         const circle = new Scene.Circle().setPosition(100, 0);
         circle.radius = 50;
         circle.draggable = true;
         scene.add(circle);
-
-        // Helpers
-        Scene.Helpers.resizeTool(box, scene);
         Scene.Helpers.resizeTool(circle, scene);
-        Scene.Helpers.resizeTool(text, scene);
+
+        for (let i = 0; i < 1000; i++) {
+            const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
+            box.draggable = true;
+            scene.add(box);
+        }
 
         // Renderer
         const renderer = new Scene.Renderer({ width: window.innerWidth, height: window.innerHeight });

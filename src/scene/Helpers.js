@@ -10,7 +10,7 @@ class Helpers {
     static RESIZE = 1;
     static ROTATE = 2;
 
-    static resizeTool(object, scene, tools = Helpers.ALL) {
+    static resizeTool(object, scene, tools = Helpers.ALL, radius = 5) {
         if (!object || !scene) return console.warn(`Helpers.boxResizeTool(): Object or scene missing from argument list`);
         if (!object.boundingBox) return console.warn(`Helpers.boxResizeTool(): Object missing 'boundingBox' property`);
 
@@ -36,7 +36,7 @@ class Helpers {
                 const circle = new Circle();
                 circle.draggable = true;
                 circle.fillStyle.color = color;
-                circle.radius = 4;
+                circle.radius = radius;
                 circle.layer = object.layer + 1;
                 circle.onPointerDrag = function(pointer, camera) {
                     Object2D.prototype.onPointerDrag.call(this, pointer, camera);
@@ -61,9 +61,8 @@ class Helpers {
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
             rotater.draggable = true;
-            rotater.radius = 4;
+            rotater.radius = radius;
             rotater.layer = object.layer + 1;
-
             rotater.onPointerDrag = function(pointer, camera) {
                 const objectCenter = object.boundingBox.getCenter();
                 const pointerStart = pointer.position.clone();
@@ -79,18 +78,19 @@ class Helpers {
                 const sign = Math.sign(cross);
                 object.rotation += (angle * sign);
             };
-
             resizerContainer.add(rotater);
         }
 
-        resizerContainer.onUpdate = function() {
+        resizerContainer.onUpdate = function(camera) {
             const box = object.boundingBox;
             const center = box.getCenter();
 
+            const handleOffset = ((radius * 4) / object.scale.y) / camera.scale;
             const centerWorld = object.globalMatrix.transformPoint(center);
-            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - 15);
+            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
             if (rotater) {
                 rotater.position.copy(topCenterWorld);
+                rotater.scale.set(1 / camera.scale, 1 / camera.scale);
                 rotater.updateMatrix();
             }
 
@@ -98,10 +98,26 @@ class Helpers {
             const topRightWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
             const bottomLeftWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
             const bottomRightWorld = object.globalMatrix.transformPoint(box.max);
-            if (topLeft) { topLeft.position.copy(topLeftWorld); topLeft.updateMatrix(); }
-            if (topRight) { topRight.position.copy(topRightWorld); topRight.updateMatrix(); }
-            if (bottomLeft) { bottomLeft.position.copy(bottomLeftWorld); bottomLeft.updateMatrix(); }
-            if (bottomRight) { bottomRight.position.copy(bottomRightWorld); bottomRight.updateMatrix(); }
+            if (topLeft) {
+                topLeft.position.copy(topLeftWorld);
+                topLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                topLeft.updateMatrix();
+            }
+            if (topRight) {
+                topRight.position.copy(topRightWorld);
+                topRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                topRight.updateMatrix();
+            }
+            if (bottomLeft) {
+                bottomLeft.position.copy(bottomLeftWorld);
+                bottomLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomLeft.updateMatrix();
+            }
+            if (bottomRight) {
+                bottomRight.position.copy(bottomRightWorld);
+                bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomRight.updateMatrix();
+            }
         }
 
         scene.add(resizerContainer);

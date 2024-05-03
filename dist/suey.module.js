@@ -7644,6 +7644,11 @@ class Object2D {
         for (const child of this.children) child.getWorldPointIntersections(worldPoint, list);
         return list;
     }
+    setPosition(x, y) {
+        if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
+        else this.position.set(x, y);
+        return this;
+    }
     updateMatrix() {
         if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
             this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
@@ -7652,11 +7657,6 @@ class Object2D {
             this.inverseGlobalMatrix = this.globalMatrix.getInverse();
             this.matrixNeedsUpdate = false;
         }
-    }
-    setPosition(x, y) {
-        if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
-        else this.position.set(x, y);
-        return this;
     }
     transform(context, camera, canvas, renderer) {
         this.globalMatrix.tranformContext(context);
@@ -7750,7 +7750,7 @@ class Helpers {
     static ALL = 0;
     static RESIZE = 1;
     static ROTATE = 2;
-    static resizeTool(object, scene, tools = Helpers.ALL) {
+    static resizeTool(object, scene, tools = Helpers.ALL, radius = 5) {
         if (!object || !scene) return console.warn(`Helpers.boxResizeTool(): Object or scene missing from argument list`);
         if (!object.boundingBox) return console.warn(`Helpers.boxResizeTool(): Object missing 'boundingBox' property`);
         function localDelta(pointer, camera) {
@@ -7772,7 +7772,7 @@ class Helpers {
                 const circle = new Circle();
                 circle.draggable = true;
                 circle.fillStyle.color = color;
-                circle.radius = 4;
+                circle.radius = radius;
                 circle.layer = object.layer + 1;
                 circle.onPointerDrag = function(pointer, camera) {
                     Object2D.prototype.onPointerDrag.call(this, pointer, camera);
@@ -7796,7 +7796,7 @@ class Helpers {
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
             rotater.draggable = true;
-            rotater.radius = 4;
+            rotater.radius = radius;
             rotater.layer = object.layer + 1;
             rotater.onPointerDrag = function(pointer, camera) {
                 const objectCenter = object.boundingBox.getCenter();
@@ -7815,23 +7815,41 @@ class Helpers {
             };
             resizerContainer.add(rotater);
         }
-        resizerContainer.onUpdate = function() {
+        resizerContainer.onUpdate = function(camera) {
             const box = object.boundingBox;
             const center = box.getCenter();
+            const handleOffset = ((radius * 4) / object.scale.y) / camera.scale;
             const centerWorld = object.globalMatrix.transformPoint(center);
-            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - 15);
+            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
             if (rotater) {
                 rotater.position.copy(topCenterWorld);
+                rotater.scale.set(1 / camera.scale, 1 / camera.scale);
                 rotater.updateMatrix();
             }
             const topLeftWorld = object.globalMatrix.transformPoint(box.min);
             const topRightWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
             const bottomLeftWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
             const bottomRightWorld = object.globalMatrix.transformPoint(box.max);
-            if (topLeft) { topLeft.position.copy(topLeftWorld); topLeft.updateMatrix(); }
-            if (topRight) { topRight.position.copy(topRightWorld); topRight.updateMatrix(); }
-            if (bottomLeft) { bottomLeft.position.copy(bottomLeftWorld); bottomLeft.updateMatrix(); }
-            if (bottomRight) { bottomRight.position.copy(bottomRightWorld); bottomRight.updateMatrix(); }
+            if (topLeft) {
+                topLeft.position.copy(topLeftWorld);
+                topLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                topLeft.updateMatrix();
+            }
+            if (topRight) {
+                topRight.position.copy(topRightWorld);
+                topRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                topRight.updateMatrix();
+            }
+            if (bottomLeft) {
+                bottomLeft.position.copy(bottomLeftWorld);
+                bottomLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomLeft.updateMatrix();
+            }
+            if (bottomRight) {
+                bottomRight.position.copy(bottomRightWorld);
+                bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomRight.updateMatrix();
+            }
         };
         scene.add(resizerContainer);
     }
@@ -7955,7 +7973,7 @@ class Renderer extends Element {
             child.updateMatrix();
         });
         object.traverse(function(child) {
-            if (typeof child.onUpdate === 'function') child.onUpdate();
+            if (typeof child.onUpdate === 'function') child.onUpdate(camera);
         });
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);

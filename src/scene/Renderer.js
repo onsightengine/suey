@@ -167,7 +167,7 @@ class Renderer extends Element {
 
         // Update Objects
         object.traverse(function(child) {
-            if (typeof child.onUpdate === 'function') child.onUpdate();
+            if (typeof child.onUpdate === 'function') child.onUpdate(camera);
         });
 
         // Identity Transform

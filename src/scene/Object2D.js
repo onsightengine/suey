@@ -107,7 +107,7 @@ class Object2D {
         if (this.parent) this.parent.remove(this); // remove from parent
     }
 
-    /******************** INSIDE */
+    /******************** BOUNDING BOX */
 
     /** Recomputes bounding box of object */
     computeBoundingBox() {
@@ -150,6 +150,14 @@ class Object2D {
         return list;
     }
 
+    /******************** POSITION */
+
+    setPosition(x, y) {
+        if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
+        else this.position.set(x, y);
+        return this;
+    }
+
     /** Update the transformation matrix of the object */
     updateMatrix() {
         if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
@@ -159,14 +167,6 @@ class Object2D {
             this.inverseGlobalMatrix = this.globalMatrix.getInverse();
             this.matrixNeedsUpdate = false;
         }
-    }
-
-    /******************** POSITION */
-
-    setPosition(x, y) {
-        if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
-        else this.position.set(x, y);
-        return this;
     }
 
     /******************** RENDERING */
@@ -245,7 +245,7 @@ class Object2D {
      *
      * Overloadable Update Event
      *
-     * onUpdate() {}
+     * onUpdate(camera) {}
      *
      * Callback method called every time before the object is draw into the canvas.
      * Should be used to run object logic, any preparation code, move the object, etc.
