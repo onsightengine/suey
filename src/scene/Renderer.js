@@ -43,8 +43,10 @@ class Renderer extends Element {
         this.scene = null;
         this.camera = null;
 
-        // Resize Observer
+        // Scope
         const self = this;
+
+        // Resize Observer
         const resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
                 canvas.width = entry.contentRect.width;
@@ -57,6 +59,18 @@ class Renderer extends Element {
         resizeObserver.observe(canvas);
         this.on('destroy', () => {
             resizeObserver.unobserve(canvas);
+        });
+
+        // Focus on Double Click
+        this.on('dblclick', (event) => {
+            if (!self.scene || !self.camera) return;
+            const point = new Vector2(event.clientX, event.clientY);
+            const worldPoint = self.camera.inverseMatrix.transformPoint(point);
+            const objects = self.scene.getWorldPointIntersections(worldPoint);
+            if (objects.length > 0) {
+                const targetObject = objects[0];
+                self.focusCamera(targetObject);
+            }
         });
 
         // INTERNAL
@@ -206,6 +220,30 @@ class Renderer extends Element {
             if (object.restoreContextState) this.ctx.restore();
         }
     };
+
+    /******************** CAMERA */
+
+    focusCamera(targetObject, animationDuration = 200 /* milliseconds */) {
+        const targetScale = 10 * Math.max(
+            targetObject.boundingBox.getSize().x / this.width,
+            targetObject.boundingBox.getSize().y / this.height
+        );
+        const targetPosition = targetObject.globalMatrix.getPosition();
+        targetPosition.multiplyScalar(-targetScale);
+        targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+
+        const startTime = performance.now();
+        const startPosition = this.camera.position.clone();
+        const startScale = this.camera.scale;
+        const animate = () => {
+            const elapsedTime = performance.now() - startTime;
+            const t = Math.min(elapsedTime / animationDuration, 1);
+            this.camera.lerpPosition(startPosition, targetPosition, t);
+            this.camera.scale = startScale + (targetScale - startScale) * t;
+            if (t < 1) requestAnimationFrame(animate);
+        };
+        animate();
+    }
 
 }
 

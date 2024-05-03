@@ -7424,6 +7424,11 @@ class Camera2D {
         this.inverseMatrix = this.matrix.getInverse();
         this.matrixNeedsUpdate = false;
     }
+    lerpPosition(v1, v2, t) {
+        this.position.x = (v1.x * (1 - t)) + (v2.x * t);
+        this.position.y = (v1.y * (1 - t)) + (v2.y * t);
+        this.matrixNeedsUpdate = true;
+    }
 }
 
 class Box2 {
@@ -7691,7 +7696,15 @@ class Object2D {
         const worldPositionEnd = camera.inverseMatrix.transformPoint(pointerEnd);
         const localPositionEnd = parent.inverseGlobalMatrix.transformPoint(worldPositionEnd);
         const delta = localPositionStart.clone().sub(localPositionEnd);
-        this.position.add(delta);
+        const mouseSlopThreshold = 2;
+        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+            this.dragStartPosition = pointer.position.clone();
+        } else if (pointer.buttonPressed(Pointer.LEFT)) {
+            const manhattanDistance = this.dragStartPosition.manhattanDistanceTo(pointerEnd);
+            if (manhattanDistance >= mouseSlopThreshold) {
+                this.position.add(delta);
+            }
+        }
     }
 }
 
@@ -7919,6 +7932,16 @@ class Renderer extends Element {
         this.on('destroy', () => {
             resizeObserver.unobserve(canvas);
         });
+        this.on('dblclick', (event) => {
+            if (!self.scene || !self.camera) return;
+            const point = new Vector2(event.clientX, event.clientY);
+            const worldPoint = self.camera.inverseMatrix.transformPoint(point);
+            const objects = self.scene.getWorldPointIntersections(worldPoint);
+            if (objects.length > 0) {
+                const targetObject = objects[0];
+                self.focusCamera(targetObject);
+            }
+        });
         this.beingDragged = null;
     }
     get width() { return this.dom.width; }
@@ -8018,6 +8041,26 @@ class Renderer extends Element {
             if (object.restoreContextState) this.ctx.restore();
         }
     };
+    focusCamera(targetObject, animationDuration = 200 ) {
+        const targetScale = 10 * Math.max(
+            targetObject.boundingBox.getSize().x / this.width,
+            targetObject.boundingBox.getSize().y / this.height
+        );
+        const targetPosition = targetObject.globalMatrix.getPosition();
+        targetPosition.multiplyScalar(-targetScale);
+        targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        const startTime = performance.now();
+        const startPosition = this.camera.position.clone();
+        const startScale = this.camera.scale;
+        const animate = () => {
+            const elapsedTime = performance.now() - startTime;
+            const t = Math.min(elapsedTime / animationDuration, 1);
+            this.camera.lerpPosition(startPosition, targetPosition, t);
+            this.camera.scale = startScale + (targetScale - startScale) * t;
+            if (t < 1) requestAnimationFrame(animate);
+        };
+        animate();
+    }
 }
 
 class Text extends Object2D {

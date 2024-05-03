@@ -7,6 +7,7 @@
 
 import { Box2 } from './math/Box2.js';
 import { Matrix2 } from './math/Matrix2.js';
+import { Pointer } from '../utils/input/Pointer.js';
 import { UUID } from './math/UUID.js';
 import { Vector2 } from './math/Vector2.js';
 
@@ -224,10 +225,20 @@ class Object2D {
         const localPositionStart = parent.inverseGlobalMatrix.transformPoint(worldPositionStart);
         const worldPositionEnd = camera.inverseMatrix.transformPoint(pointerEnd);
         const localPositionEnd = parent.inverseGlobalMatrix.transformPoint(worldPositionEnd);
+        const delta = localPositionStart.clone().sub(localPositionEnd);
+
+        // Mouse Slop
+        const mouseSlopThreshold = 2;
 
         // Adjust Position
-        const delta = localPositionStart.clone().sub(localPositionEnd);
-        this.position.add(delta);
+        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+            this.dragStartPosition = pointer.position.clone();
+        } else if (pointer.buttonPressed(Pointer.LEFT)) {
+            const manhattanDistance = this.dragStartPosition.manhattanDistanceTo(pointerEnd);
+            if (manhattanDistance >= mouseSlopThreshold) {
+                this.position.add(delta);
+            }
+        }
     }
 
     /**

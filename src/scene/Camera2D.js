@@ -83,6 +83,12 @@ class Camera2D {
         this.matrixNeedsUpdate = false;
     }
 
+    lerpPosition(v1, v2, t) {
+        this.position.x = (v1.x * (1 - t)) + (v2.x * t);
+        this.position.y = (v1.y * (1 - t)) + (v2.y * t);
+        this.matrixNeedsUpdate = true;
+    }
+
 }
 
 export { Camera2D };
