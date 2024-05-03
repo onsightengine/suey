@@ -53,6 +53,9 @@ class Renderer extends Canvas {
         this.on('destroy', () => {
             resizeObserver.unobserve(canvas);
         });
+
+        // INTERNAL
+        this.beingDragged = null;
     }
 
     start(scene, camera, onUpdate) {
@@ -97,46 +100,42 @@ class Renderer extends Canvas {
             return b.layer - a.layer;
         });
 
-        // Object Pointer Events
+        // Update Objects
         for (const child of objects) {
-            if (!child.pointerEvents) continue;
-
-            // Pointer position in object coordinates
-            const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
-
-            // Pointer Inside?
-            if (child.isInside(localPoint)) {
-                if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
-                if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
-                if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
-                if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
-                if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
-                if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                    if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
-                    // Start Object Drag & Break (to only start a drag operation on the top element)
-                    if (child.draggable) {
-                        child.beingDragged = true;
-                        if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
-                        break;
+            // Pointer Events?
+            if (child.pointerEvents) {
+                // Local Pointer Position
+                const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
+                // Pointer Inside?
+                if (!this.beingDragged && child.isInside(localPoint)) {
+                    if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
+                    if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
+                    if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
+                    if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
+                    if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                    if (pointer.buttonJustPressed(Pointer.LEFT)) {
+                        if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
+                        if (child.draggable) {
+                            this.beingDragged = child;
+                            if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                        }
                     }
+                    child.pointerInside = true;
+                } else if (this.beingDragged !== child && child.pointerInside) {
+                    if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
+                    child.pointerInside = false;
                 }
-                child.pointerInside = true;
-            } else if (child.pointerInside) {
-                if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
-                child.pointerInside = false;
             }
 
             // Stop Drag
-            if (child.beingDragged === true && pointer.buttonJustReleased(Pointer.LEFT)) {
-                if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, camera);
-                child.beingDragged = false;
-            }
-        }
+            if (pointer.buttonJustReleased(Pointer.LEFT)) {
+                if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDragEnd === 'function') {
+                    child.onPointerDragEnd(pointer, camera);
+                }
+                this.beingDragged = null;
 
-        // Object Drag Events
-        for (const child of objects) {
-            // Dragging?
-            if (child.beingDragged && typeof child.onPointerDrag === 'function') {
+            // Still Dragging
+            } else if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDrag === 'function') {
                 child.onPointerDrag(pointer, camera);
             }
 
@@ -155,11 +154,9 @@ class Renderer extends Canvas {
         // Clear canvas content
         if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // Render Back to Front
-        objects.reverse();
-
-        // Render Objects
-        for (const object of objects) {
+        // Render Objects Back to Front
+        for (let i = objects.length - 1; i >= 0; i--) {
+            const object = objects[i];
             if (object.isMask) continue;
             if (object.saveContextState) this.ctx.save();
 

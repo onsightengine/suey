@@ -7553,7 +7553,6 @@ class Object2D {
         this.saveContextState = true;
         this.restoreContextState = true;
         this.pointerInside = false;
-        this.beingDragged = false;
     }
     add(...objects) {
         if (objects.length > 0 && Array.isArray(objects[0])) objects = objects[0];
@@ -7792,6 +7791,7 @@ class Renderer extends Canvas {
         this.on('destroy', () => {
             resizeObserver.unobserve(canvas);
         });
+        this.beingDragged = null;
     }
     start(scene, camera, onUpdate) {
         if (this.running) return;
@@ -7824,34 +7824,33 @@ class Renderer extends Canvas {
             return b.layer - a.layer;
         });
         for (const child of objects) {
-            if (!child.pointerEvents) continue;
-            const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
-            if (child.isInside(localPoint)) {
-                if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
-                if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
-                if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
-                if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
-                if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
-                if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                    if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
-                    if (child.draggable) {
-                        child.beingDragged = true;
-                        if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
-                        break;
+            if (child.pointerEvents) {
+                const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
+                if (!this.beingDragged && child.isInside(localPoint)) {
+                    if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
+                    if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
+                    if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
+                    if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
+                    if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                    if (pointer.buttonJustPressed(Pointer.LEFT)) {
+                        if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
+                        if (child.draggable) {
+                            this.beingDragged = child;
+                            if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                        }
                     }
+                    child.pointerInside = true;
+                } else if (this.beingDragged !== child && child.pointerInside) {
+                    if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
+                    child.pointerInside = false;
                 }
-                child.pointerInside = true;
-            } else if (child.pointerInside) {
-                if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
-                child.pointerInside = false;
             }
-            if (child.beingDragged === true && pointer.buttonJustReleased(Pointer.LEFT)) {
-                if (typeof child.onPointerDragEnd === 'function') child.onPointerDragEnd(pointer, camera);
-                child.beingDragged = false;
-            }
-        }
-        for (const child of objects) {
-            if (child.beingDragged && typeof child.onPointerDrag === 'function') {
+            if (pointer.buttonJustReleased(Pointer.LEFT)) {
+                if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDragEnd === 'function') {
+                    child.onPointerDragEnd(pointer, camera);
+                }
+                this.beingDragged = null;
+            } else if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDrag === 'function') {
                 child.onPointerDrag(pointer, camera);
             }
             if (typeof child.onUpdate === 'function') child.onUpdate();
@@ -7861,8 +7860,8 @@ class Renderer extends Canvas {
         });
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
-        objects.reverse();
-        for (const object of objects) {
+        for (let i = objects.length - 1; i >= 0; i--) {
+            const object = objects[i];
             if (object.isMask) continue;
             if (object.saveContextState) this.ctx.save();
             for (const mask of object.masks) {

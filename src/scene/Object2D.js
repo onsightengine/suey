@@ -45,7 +45,6 @@ class Object2D {
         this.saveContextState = true;               // FLAG: context of canvas should be saved before render?
         this.restoreContextState = true;            // FLAG: context of canvas should be restored after render?
         this.pointerInside = false;                 // FLAG: pointer is inside of the element?
-        this.beingDragged = false;                  // FLAG: object is currently being dragged?
     }
 
     /******************** CHILDREN */
