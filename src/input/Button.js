@@ -130,11 +130,11 @@ class Button extends Element {
     /******************** EVENTS ********************/
 
     /** Override to alert about special event handler */
-    on(event, callback, once = false) {
+    on(event, callback, options = {}) {
         if (event === 'click' || event === 'select') {
             console.warn('Button.on(): Click event for this Element is meant to be used with onPress()');
         }
-        super.on(event, callback, once);
+        super.on(event, callback, options);
         return this;
     }
 

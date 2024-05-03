@@ -88,6 +88,7 @@ class Pointer {
 
         // Wheel
         element.on('wheel', (event) => {
+            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
             self._wheel = event.deltaY;
             self._wheelUpdated = true;
         });

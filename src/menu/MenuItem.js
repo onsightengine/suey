@@ -100,11 +100,11 @@ class MenuItem extends Div {
     /******************** EVENTS ********************/
 
     /** Override to alert about special event handler */
-    on(event, callback, once = false) {
+    on(event, callback, options = {}) {
         if (event === 'click' || event === 'select') {
             console.warn('MenuItem.on: Click event for this Element is meant to be used with onSelect()');
         }
-        super.on(event, callback, once);
+        super.on(event, callback, options);
         return this;
     }
 

@@ -54,7 +54,7 @@ class Element {
         });
 
         // Clean Slots
-        this.on('destroy', function() {
+        this.on('destroy', () => {
             for (const slot of suey.slots) {
                 if (typeof slot.detach === 'function') slot.detach();
                 if (typeof slot.destroy === 'function') slot.destroy();
@@ -634,22 +634,24 @@ class Element {
      * Attaches an event listener to the Element.
      * @param {string} event - The event type string.
      * @param {function} callback - The callback function to execute when the event is triggered.
-     * @param {boolean} [once=false] - Whether the event should be triggered only once.
+     * @param {Object} options Event listener options. (https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
      * @returns {Element} The Element instance.
      * @memberof Element
      */
-    on(event, callback, once = false) {
+    on(event, callback, options = {}) {
+        if (typeof options !== 'object') options = {};
         if (typeof callback !== 'function') {
             console.warn(`Element.on(): No callback function provided for '${event}'`);
         } else {
             const eventName = event.toLowerCase();
             const eventHandler = callback.bind(this);
             const dom = this.dom;
-            if (once || eventName === 'destroy') {
-                dom.addEventListener(eventName, eventHandler, { once: true });
+            if (options.once || eventName === 'destroy') {
+                options.once = true;
+                dom.addEventListener(eventName, eventHandler, options);
             } else {
-                dom.addEventListener(eventName, eventHandler);
-                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+                dom.addEventListener(eventName, eventHandler, options);
+                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler, options), { once: true });
             }
         }
         return this;

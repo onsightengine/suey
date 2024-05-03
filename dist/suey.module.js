@@ -674,7 +674,7 @@ class Element {
                 get: function() { return suey; },
             },
         });
-        this.on('destroy', function() {
+        this.on('destroy', () => {
             for (const slot of suey.slots) {
                 if (typeof slot.detach === 'function') slot.detach();
                 if (typeof slot.destroy === 'function') slot.destroy();
@@ -915,18 +915,20 @@ class Element {
         if (applyToSelf) callback(this);
         if (this.parent) this.parent.traverseAncestors(callback, true);
     }
-    on(event, callback, once = false) {
+    on(event, callback, options = {}) {
+        if (typeof options !== 'object') options = {};
         if (typeof callback !== 'function') {
             console.warn(`Element.on(): No callback function provided for '${event}'`);
         } else {
             const eventName = event.toLowerCase();
             const eventHandler = callback.bind(this);
             const dom = this.dom;
-            if (once || eventName === 'destroy') {
-                dom.addEventListener(eventName, eventHandler, { once: true });
+            if (options.once || eventName === 'destroy') {
+                options.once = true;
+                dom.addEventListener(eventName, eventHandler, options);
             } else {
-                dom.addEventListener(eventName, eventHandler);
-                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler), { once: true });
+                dom.addEventListener(eventName, eventHandler, options);
+                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler, options), { once: true });
             }
         }
         return this;
@@ -2111,11 +2113,11 @@ class Button extends Element {
             self.attachedMenu = undefined;
         };
     }
-    on(event, callback, once = false) {
+    on(event, callback, options = {}) {
         if (event === 'click' || event === 'select') {
             console.warn('Button.on(): Click event for this Element is meant to be used with onPress()');
         }
-        super.on(event, callback, once);
+        super.on(event, callback, options);
         return this;
     }
     onPress(callback) {
@@ -2801,6 +2803,7 @@ class Pointer {
         element.on('pointerenter', () => { self.pointerInside = true; });
         element.on('pointerleave', () => { self.pointerInside = false; });
         element.on('wheel', (event) => {
+            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
             self._wheel = event.deltaY;
             self._wheelUpdated = true;
         });
@@ -3514,11 +3517,11 @@ class MenuItem extends Div {
         this.setText(text);
         this.selectable(false);
     }
-    on(event, callback, once = false) {
+    on(event, callback, options = {}) {
         if (event === 'click' || event === 'select') {
             console.warn('MenuItem.on: Click event for this Element is meant to be used with onSelect()');
         }
-        super.on(event, callback, once);
+        super.on(event, callback, options);
         return this;
     }
     onSelect(callback) {
