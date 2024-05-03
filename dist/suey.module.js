@@ -7529,6 +7529,23 @@ class Box2 {
 }
 
 class Style {
+    static extractColor(color, context) {
+        function extractCSSVariableName(str) {
+            const regex = /--[a-zA-Z0-9-_]+/;
+            const match = str.match(regex);
+            return match ? match[0] : null;
+        }
+        if (typeof color === 'string' && context) {
+            const cssVariable = extractCSSVariableName(color, context);
+            if (cssVariable) {
+                const canvas = context.canvas;
+                const computedStyle = getComputedStyle(canvas);
+                const computedColor = computedStyle.getPropertyValue(cssVariable);
+                return `rgb(${computedColor})`;
+            }
+        }
+        return color;
+    }
     constructor() {
         this.cache = null;
         this.needsUpdate = true;
@@ -7542,7 +7559,11 @@ class ColorStyle extends Style {
         this.color = color;
     }
     get(context) {
-        return this.color;
+        if (this.needsUpdate || this.cache == null) {
+            this.cache = Style.extractColor(this.color, context);
+            this.needsUpdate = false;
+        }
+        return this.cache;
     }
 }
 

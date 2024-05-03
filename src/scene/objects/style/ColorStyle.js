@@ -12,7 +12,11 @@ class ColorStyle extends Style {
     }
 
     get(context) {
-        return this.color;
+        if (this.needsUpdate || this.cache == null) {
+            this.cache = Style.extractColor(this.color, context);
+            this.needsUpdate = false;
+        }
+        return this.cache;
     }
 
 }

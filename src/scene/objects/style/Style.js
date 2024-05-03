@@ -1,8 +1,22 @@
-/**
- * Style represents in a generic way a style applied to canvas drawing.
- * Some styles (e.g. gradients, patterns) required a context to be generated this provides a generic way to share styles between objects.
- */
 class Style {
+
+    static extractColor(color, context) {
+        function extractCSSVariableName(str) {
+            const regex = /--[a-zA-Z0-9-_]+/;
+            const match = str.match(regex);
+            return match ? match[0] : null;
+        }
+        if (typeof color === 'string' && context) {
+            const cssVariable = extractCSSVariableName(color, context);
+            if (cssVariable) {
+                const canvas = context.canvas;
+                const computedStyle = getComputedStyle(canvas);
+                const computedColor = computedStyle.getPropertyValue(cssVariable);
+                return `rgb(${computedColor})`;
+            }
+        }
+        return color;
+    }
 
     constructor() {
         /**
