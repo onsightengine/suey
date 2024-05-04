@@ -40,6 +40,7 @@ class Object2D {
         this.masks = [];
 
         this.draggable = false;
+        this.focusable = true;
         this.pointerEvents = true;                  // better performance if pointer events are not required
 
         this.ignoreCamera = false;                  // FLAG: ignore the camera transformation?
@@ -151,6 +152,16 @@ class Object2D {
         return list;
     }
 
+    getWorldBoundingBox() {
+        const box = this.boundingBox;
+        const topLeftWorld = this.globalMatrix.transformPoint(box.min);
+        const topRightWorld = this.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
+        const bottomLeftWorld = this.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
+        const bottomRightWorld = this.globalMatrix.transformPoint(box.max);
+        const worldBox = new Box2().setFromPoints(topLeftWorld, topRightWorld, bottomLeftWorld, bottomRightWorld);
+        return worldBox;
+    }
+
     /******************** POSITION */
 
     setPosition(x, y) {
@@ -160,8 +171,8 @@ class Object2D {
     }
 
     /** Update the transformation matrix of the object */
-    updateMatrix() {
-        if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+    updateMatrix(force = false) {
+        if (force || this.matrixAutoUpdate || this.matrixNeedsUpdate) {
             this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
             this.globalMatrix.copy(this.matrix);
             if (this.parent) this.globalMatrix.premultiply(this.parent.globalMatrix);
@@ -237,6 +248,7 @@ class Object2D {
             const manhattanDistance = this.dragStartPosition.manhattanDistanceTo(pointerEnd);
             if (manhattanDistance >= mouseSlopThreshold) {
                 this.position.add(delta);
+                this.matrixNeedsUpdate = true;
             }
         }
     }

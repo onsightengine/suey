@@ -23,14 +23,8 @@
         const scene = new Scene.Object2D();
 
         // Objects
-        const text = new Scene.Text().setPosition(0, -100);
-        text.fillStyle.color = 'var(--icon)';
-        text.text = 'Hello World!';
-        text.draggable = true;
-        scene.add(text);
-        Scene.Helpers.resizeTool(text, scene);
-
         const box = new Scene.Box().setPosition(-100, 0);
+        box.fillStyle.color = '#ff0000';
         box.draggable = true;
         scene.add(box);
         Scene.Helpers.resizeTool(box, scene);
@@ -41,7 +35,14 @@
         scene.add(circle);
         Scene.Helpers.resizeTool(circle, scene);
 
-        for (let i = 0; i < 1000; i++) {
+        const text = new Scene.Text().setPosition(0, -100);
+        text.fillStyle.color = 'var(--icon)';
+        text.text = 'Hello World!';
+        text.draggable = true;
+        scene.add(text);
+        Scene.Helpers.resizeTool(text, scene);
+
+        for (let i = 0; i < 100; i++) {
             const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
             box.draggable = true;
             scene.add(box);

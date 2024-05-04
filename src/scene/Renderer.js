@@ -1,3 +1,4 @@
+import { Box2 } from './math/Box2.js';
 import { Element } from '../core/Element.js';
 import { Pointer } from '../utils/input/Pointer.js';
 import { Vector2 } from './math/Vector2.js';
@@ -67,10 +68,8 @@ class Renderer extends Element {
             const point = new Vector2(event.clientX, event.clientY);
             const worldPoint = self.camera.inverseMatrix.transformPoint(point);
             const objects = self.scene.getWorldPointIntersections(worldPoint);
-            if (objects.length > 0) {
-                const targetObject = objects[0];
-                self.focusCamera(targetObject);
-            }
+            for (const object of objects) if (object.focusable) return self.focusCamera(object);
+            return self.focusCamera(null);
         });
 
         // INTERNAL
@@ -223,14 +222,28 @@ class Renderer extends Element {
 
     /******************** CAMERA */
 
-    focusCamera(targetObject, animationDuration = 200 /* milliseconds */) {
-        const targetScale = 10 * Math.max(
-            targetObject.boundingBox.getSize().x / this.width,
-            targetObject.boundingBox.getSize().y / this.height
-        );
-        const targetPosition = targetObject.globalMatrix.getPosition();
-        targetPosition.multiplyScalar(-targetScale);
-        targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+    focusCamera(object, animationDuration = 200 /* milliseconds */) {
+        let targetScale, targetPosition;
+
+        // Focus Object
+        if (object) {
+            const worldSize = object.getWorldBoundingBox().getSize();
+            targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
+            targetPosition = object.globalMatrix.getPosition();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        // Focus Scene
+        } else if (this.scene) {
+            const sceneBounds = new Box2();
+            this.scene.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
+            targetScale = 0.5 * Math.min(this.width / sceneBounds.getSize().x, this.height / sceneBounds.getSize().y);
+            targetPosition = sceneBounds.getCenter();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        } else {
+            return;
+        }
+        targetScale = Math.abs(targetScale);
 
         const startTime = performance.now();
         const startPosition = this.camera.position.clone();

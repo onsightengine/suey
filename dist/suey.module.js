@@ -7433,15 +7433,16 @@ class Camera2D {
 
 class Box2 {
     constructor(min, max) {
-        this.min = min ?? new Vector2();
-        this.max = max ?? new Vector2();
+        this.min = min ?? new Vector2(+Infinity, +Infinity);
+        this.max = max ?? new Vector2(-Infinity, -Infinity);
     }
     set(min, max) {
         this.min.copy(min);
         this.max.copy(max);
         return this;
     }
-    setFromPoints(points = []) {
+    setFromPoints(...points) {
+        if (points.length > 0 && Array.isArray(points[0])) points = points[0];
         this.min = new Vector2(+Infinity, +Infinity);
         this.max = new Vector2(-Infinity, -Infinity);
         for (const point of points) {
@@ -7593,6 +7594,7 @@ class Object2D {
         this.boundingBox = new Box2();
         this.masks = [];
         this.draggable = false;
+        this.focusable = true;
         this.pointerEvents = true;
         this.ignoreCamera = false;
         this.saveContextState = true;
@@ -7670,13 +7672,22 @@ class Object2D {
         for (const child of this.children) child.getWorldPointIntersections(worldPoint, list);
         return list;
     }
+    getWorldBoundingBox() {
+        const box = this.boundingBox;
+        const topLeftWorld = this.globalMatrix.transformPoint(box.min);
+        const topRightWorld = this.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
+        const bottomLeftWorld = this.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
+        const bottomRightWorld = this.globalMatrix.transformPoint(box.max);
+        const worldBox = new Box2().setFromPoints(topLeftWorld, topRightWorld, bottomLeftWorld, bottomRightWorld);
+        return worldBox;
+    }
     setPosition(x, y) {
         if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
         else this.position.set(x, y);
         return this;
     }
-    updateMatrix() {
-        if (this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+    updateMatrix(force = false) {
+        if (force || this.matrixAutoUpdate || this.matrixNeedsUpdate) {
             this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
             this.globalMatrix.copy(this.matrix);
             if (this.parent) this.globalMatrix.premultiply(this.parent.globalMatrix);
@@ -7703,6 +7714,7 @@ class Object2D {
             const manhattanDistance = this.dragStartPosition.manhattanDistanceTo(pointerEnd);
             if (manhattanDistance >= mouseSlopThreshold) {
                 this.position.add(delta);
+                this.matrixNeedsUpdate = true;
             }
         }
     }
@@ -7798,6 +7810,9 @@ class Helpers {
             return delta;
         }
         const resizerContainer = new Object2D();
+        resizerContainer.draggable = false;
+        resizerContainer.focusable = false;
+        resizerContainer.pointerEvents = false;
         resizerContainer.layer = object.layer + 1;
         let topLeft, topRight, bottomLeft, bottomRight;
         let rotater;
@@ -7805,6 +7820,7 @@ class Helpers {
             function createCircle(color, x, y) {
                 const circle = new Circle();
                 circle.draggable = true;
+                circle.focusable = false;
                 circle.fillStyle.color = color;
                 circle.radius = radius;
                 circle.layer = object.layer + 1;
@@ -7817,6 +7833,7 @@ class Helpers {
                     const rotatedDelta = rotationMatrix.transformPoint(delta);
                     object.position.add(rotatedDelta);
                     object.scale.sub(delta.multiply(x, y).multiply(scale));
+                    object.matrixNeedsUpdate = true;
                 };
                 resizerContainer.add(circle);
                 return circle;
@@ -7830,6 +7847,7 @@ class Helpers {
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
             rotater.draggable = true;
+            rotater.focusable = false;
             rotater.radius = radius;
             rotater.layer = object.layer + 1;
             rotater.onPointerDrag = function(pointer, camera) {
@@ -7846,6 +7864,7 @@ class Helpers {
                 const cross = localPositionEnd.cross(localPositionStart);
                 const sign = Math.sign(cross);
                 object.rotation += (angle * sign);
+                object.updateMatrix(true);
             };
             resizerContainer.add(rotater);
         }
@@ -7937,10 +7956,8 @@ class Renderer extends Element {
             const point = new Vector2(event.clientX, event.clientY);
             const worldPoint = self.camera.inverseMatrix.transformPoint(point);
             const objects = self.scene.getWorldPointIntersections(worldPoint);
-            if (objects.length > 0) {
-                const targetObject = objects[0];
-                self.focusCamera(targetObject);
-            }
+            for (const object of objects) if (object.focusable) return self.focusCamera(object);
+            return self.focusCamera(null);
         });
         this.beingDragged = null;
     }
@@ -8041,14 +8058,25 @@ class Renderer extends Element {
             if (object.restoreContextState) this.ctx.restore();
         }
     };
-    focusCamera(targetObject, animationDuration = 200 ) {
-        const targetScale = 10 * Math.max(
-            targetObject.boundingBox.getSize().x / this.width,
-            targetObject.boundingBox.getSize().y / this.height
-        );
-        const targetPosition = targetObject.globalMatrix.getPosition();
-        targetPosition.multiplyScalar(-targetScale);
-        targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+    focusCamera(object, animationDuration = 200 ) {
+        let targetScale, targetPosition;
+        if (object) {
+            const worldSize = object.getWorldBoundingBox().getSize();
+            targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
+            targetPosition = object.globalMatrix.getPosition();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        } else if (this.scene) {
+            const sceneBounds = new Box2();
+            this.scene.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
+            targetScale = 0.5 * Math.min(this.width / sceneBounds.getSize().x, this.height / sceneBounds.getSize().y);
+            targetPosition = sceneBounds.getCenter();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        } else {
+            return;
+        }
+        targetScale = Math.abs(targetScale);
         const startTime = performance.now();
         const startPosition = this.camera.position.clone();
         const startScale = this.camera.scale;

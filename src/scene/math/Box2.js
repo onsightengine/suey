@@ -3,8 +3,8 @@ import { Vector2 } from './Vector2.js';
 class Box2 {
 
     constructor(min, max) {
-        this.min = min ?? new Vector2();
-        this.max = max ?? new Vector2();
+        this.min = min ?? new Vector2(+Infinity, +Infinity);
+        this.max = max ?? new Vector2(-Infinity, -Infinity);
     }
 
     /** Set the box values */
@@ -15,7 +15,8 @@ class Box2 {
     }
 
     /** Set the box from a list of Vector2 points */
-    setFromPoints(points = []) {
+    setFromPoints(...points) {
+        if (points.length > 0 && Array.isArray(points[0])) points = points[0];
         this.min = new Vector2(+Infinity, +Infinity);
         this.max = new Vector2(-Infinity, -Infinity);
         for (const point of points) {

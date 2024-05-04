@@ -26,6 +26,9 @@ class Helpers {
         }
 
         const resizerContainer = new Object2D();
+        resizerContainer.draggable = false;
+        resizerContainer.focusable = false;
+        resizerContainer.pointerEvents = false;
         resizerContainer.layer = object.layer + 1;
 
         let topLeft, topRight, bottomLeft, bottomRight;
@@ -35,6 +38,7 @@ class Helpers {
             function createCircle(color, x, y) {
                 const circle = new Circle();
                 circle.draggable = true;
+                circle.focusable = false;
                 circle.fillStyle.color = color;
                 circle.radius = radius;
                 circle.layer = object.layer + 1;
@@ -47,6 +51,7 @@ class Helpers {
                     const rotatedDelta = rotationMatrix.transformPoint(delta);
                     object.position.add(rotatedDelta);
                     object.scale.sub(delta.multiply(x, y).multiply(scale));
+                    object.matrixNeedsUpdate = true;
                 };
                 resizerContainer.add(circle);
                 return circle;
@@ -61,6 +66,7 @@ class Helpers {
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
             rotater.draggable = true;
+            rotater.focusable = false;
             rotater.radius = radius;
             rotater.layer = object.layer + 1;
             rotater.onPointerDrag = function(pointer, camera) {
@@ -77,6 +83,7 @@ class Helpers {
                 const cross = localPositionEnd.cross(localPositionStart);
                 const sign = Math.sign(cross);
                 object.rotation += (angle * sign);
+                object.updateMatrix(true);
             };
             resizerContainer.add(rotater);
         }
