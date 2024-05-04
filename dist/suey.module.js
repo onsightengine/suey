@@ -7814,35 +7814,45 @@ class Helpers {
         resizerContainer.focusable = false;
         resizerContainer.pointerEvents = false;
         resizerContainer.layer = object.layer + 1;
+        scene.add(resizerContainer);
         let topLeft, topRight, bottomLeft, bottomRight;
+        let topResizer, rightResizer, bottomResizer, leftResizer;
         let rotater;
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createCircle(color, x, y) {
-                const circle = new Circle();
-                circle.draggable = true;
-                circle.focusable = false;
-                circle.fillStyle.color = color;
-                circle.radius = radius;
-                circle.layer = object.layer + 1;
-                circle.onPointerDrag = function(pointer, camera) {
+            function createResizer(color, x, y, type = 'box') {
+                const resizer = (type === 'box') ? new Box() : new Circle();
+                if (type === 'circle') resizer.radius = radius;
+                resizer.draggable = true;
+                resizer.focusable = false;
+                resizer.fillStyle.color = color;
+                resizer.layer = object.layer + 1;
+                resizer.onPointerDrag = function(pointer, camera) {
                     Object2D.prototype.onPointerDrag.call(this, pointer, camera);
-                    const delta = localDelta(pointer, camera).multiplyScalar(0.5);
+                    const delta = localDelta(pointer, camera);
+                    if (x === 0) delta.x = 0;
+                    if (y === 0) delta.y = 0;
+                    delta.multiplyScalar(0.5);
                     const size = object.boundingBox.getSize();
-                    const scale = new Vector2(2 / size.x, 2 / size.y);
+                    const scaleX = (x === 0) ? 0 : 2 / size.x;
+                    const scaleY = (y === 0) ? 0 : 2 / size.y;
+                    const scale = new Vector2(scaleX, scaleY);
                     const rotationMatrix = new Matrix2().rotate(object.rotation);
                     const rotatedDelta = rotationMatrix.transformPoint(delta);
                     object.position.add(rotatedDelta);
                     object.scale.sub(delta.multiply(x, y).multiply(scale));
                     object.matrixNeedsUpdate = true;
                 };
-                resizerContainer.add(circle);
-                return circle;
+                resizerContainer.add(resizer);
+                return resizer;
             }
-            topLeft = createCircle('#ff0000', 1, 1);
-            topRight = createCircle('#00ff00', -1, 1);
-            bottomRight = createCircle('#0000ff', -1, -1);
-            bottomLeft = createCircle('#ffff00', 1, -1);
-            resizerContainer.add(topLeft, topRight, bottomRight, bottomLeft);
+            topLeft = createResizer('#ff0000', 1, 1, 'circle');
+            topRight = createResizer('#00ff00', -1, 1, 'circle');
+            bottomRight = createResizer('#0000ff', -1, -1, 'circle');
+            bottomLeft = createResizer('#ffff00', 1, -1, 'circle');
+            leftResizer = createResizer('#ff0000', 1, 0, 'box');
+            rightResizer = createResizer('#0000ff', -1, 0, 'box');
+            topResizer = createResizer('#00ff00', 0, 1, 'box');
+            bottomResizer = createResizer('#ffff00', 0, -1, 'box');
         }
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
@@ -7871,7 +7881,7 @@ class Helpers {
         resizerContainer.onUpdate = function(camera) {
             const box = object.boundingBox;
             const center = box.getCenter();
-            const handleOffset = ((radius * 4) / object.scale.y) / camera.scale;
+            const handleOffset = ((radius * 4) / Math.abs(object.scale.y)) / camera.scale;
             const centerWorld = object.globalMatrix.transformPoint(center);
             const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
             if (rotater) {
@@ -7903,8 +7913,41 @@ class Helpers {
                 bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
                 bottomRight.updateMatrix();
             }
+            const leftMiddleWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, center.y));
+            const rightMiddleWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, center.y));
+            const topMiddleWorld = object.globalMatrix.transformPoint(new Vector2(center.x, box.min.y));
+            const bottomMiddleWorld = object.globalMatrix.transformPoint(new Vector2(center.x, box.max.y));
+            const halfWidth = object.boundingBox.getSize().x / 2 * Math.abs(object.scale.x);
+            const halfHeight = object.boundingBox.getSize().y / 2 * Math.abs(object.scale.y);
+            if (leftResizer) {
+                leftResizer.position.copy(leftMiddleWorld);
+                leftResizer.scale.set(1 / camera.scale, 1);
+                leftResizer.rotation = object.rotation;
+                leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                leftResizer.updateMatrix();
+            }
+            if (rightResizer) {
+                rightResizer.position.copy(rightMiddleWorld);
+                rightResizer.scale.set(1 / camera.scale, 1);
+                rightResizer.rotation = object.rotation;
+                rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                rightResizer.updateMatrix();
+            }
+            if (topResizer) {
+                topResizer.position.copy(topMiddleWorld);
+                topResizer.scale.set(1, 1 / camera.scale);
+                topResizer.rotation = object.rotation;
+                topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                topResizer.updateMatrix();
+            }
+            if (bottomResizer) {
+                bottomResizer.position.copy(bottomMiddleWorld);
+                bottomResizer.scale.set(1, 1 / camera.scale);
+                bottomResizer.rotation = object.rotation;
+                bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                bottomResizer.updateMatrix();
+            }
         };
-        scene.add(resizerContainer);
     }
 }
 
