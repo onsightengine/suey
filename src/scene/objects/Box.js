@@ -1,5 +1,5 @@
 import { Box2 } from '../math/Box2.js';
-import { ColorStyle } from './style/ColorStyle';
+import { ColorStyle } from './style/ColorStyle.js';
 import { Object2D } from '../Object2D.js';
 import { Vector2 } from '../math/Vector2.js';
 

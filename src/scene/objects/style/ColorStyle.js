@@ -1,4 +1,4 @@
-import { Style } from './Style';
+import { Style } from './Style.js';
 
 /**
  * Simple solid color style represented and stored as a CSS color.

@@ -8216,6 +8216,55 @@ class BoxMask extends Mask {
     }
 }
 
+class GradientColorStop {
+    constructor(offset, color) {
+        this.offset = offset;
+        this.color = color;
+    }
+}
+
+class GradientStyle extends Style {
+    constructor() {
+        super();
+        this.colors = [];
+    }
+    addColorStop(offset, color) {
+        this.colors.push(new GradientColorStop(offset, color));
+    }
+}
+
+class LinearGradientStyle extends GradientStyle {
+    constructor() {
+        super();
+        this.start = new Vector2(-100, 0);
+        this.end = new Vector2(100, 0);
+    }
+    get(context) {
+        let style = context.createLinearGradient(this.start.x, this.start.y, this.end.x, this.end.y);
+        for (let i = 0; i < this.colors.length; i++) {
+            style.addColorStop(this.colors[i].offset, this.colors[i].color);
+        }
+        return style;
+    }
+}
+
+class RadialGradientStyle extends GradientStyle {
+    constructor() {
+        super();
+        this.start = new Vector2(0, 0);
+        this.startRadius = 10;
+        this.end = new Vector2(0, 0);
+        this.endRadius = 50;
+    }
+    get(context) {
+        let style = context.createRadialGradient(this.start.x, this.start.y, this.startRadius, this.end.x, this.end.y, this.endRadius);
+        for (let i = 0; i < this.colors.length; i++) {
+            style.addColorStop(this.colors[i].offset, this.colors[i].color);
+        }
+        return style;
+    };
+}
+
 var Scene$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   Camera2D: Camera2D,
@@ -8232,7 +8281,11 @@ var Scene$1 = /*#__PURE__*/Object.freeze({
   Mask: Mask,
   BoxMask: BoxMask,
   Style: Style,
-  ColorStyle: ColorStyle
+  ColorStyle: ColorStyle,
+  GradientStyle: GradientStyle,
+  GradientColorStop: GradientColorStop,
+  LinearGradientStyle: LinearGradientStyle,
+  RadialGradientStyle: RadialGradientStyle
 });
 
 function styleInject(css, ref) {

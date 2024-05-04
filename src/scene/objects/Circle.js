@@ -1,4 +1,4 @@
-import { ColorStyle } from './style/ColorStyle';
+import { ColorStyle } from './style/ColorStyle.js';
 import { Object2D } from '../Object2D.js';
 
 class Circle extends Object2D {

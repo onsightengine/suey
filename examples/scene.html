@@ -29,11 +29,31 @@
         scene.add(box);
         Scene.Helpers.resizeTool(box, scene);
 
+        const rainbowBox = new Scene.Box().setPosition(-100, 200);
+        rainbowBox.draggable = true;
+        rainbowBox.fillStyle = new Scene.LinearGradientStyle();
+        rainbowBox.fillStyle.start.set(-50, -50);
+        rainbowBox.fillStyle.end.set(50, 50);
+        rainbowBox.fillStyle.addColorStop(0, '#ff0000');
+        rainbowBox.fillStyle.addColorStop(0.5, '#00ff00');
+        rainbowBox.fillStyle.addColorStop(1, '#0000ff');
+        scene.add(rainbowBox);
+        Scene.Helpers.resizeTool(rainbowBox, scene);
+
         const circle = new Scene.Circle().setPosition(100, 0);
         circle.radius = 50;
         circle.draggable = true;
         scene.add(circle);
         Scene.Helpers.resizeTool(circle, scene);
+
+        const rainbowCircle = new Scene.Circle().setPosition(100, 200);
+        rainbowCircle.radius = 50;
+        rainbowCircle.draggable = true;
+        rainbowCircle.fillStyle = new Scene.RadialGradientStyle();
+        rainbowCircle.fillStyle.addColorStop(0, '#000000');
+        rainbowCircle.fillStyle.addColorStop(1, '#ffffff');
+        scene.add(rainbowCircle);
+        Scene.Helpers.resizeTool(rainbowCircle, scene);
 
         const text = new Scene.Text().setPosition(0, -100);
         text.fillStyle.color = 'var(--icon)';
@@ -42,11 +62,11 @@
         scene.add(text);
         Scene.Helpers.resizeTool(text, scene);
 
-        for (let i = 0; i < 100; i++) {
-            const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
-            box.draggable = true;
-            scene.add(box);
-        }
+        // for (let i = 0; i < 500; i++) {
+        //     const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
+        //     box.draggable = true;
+        //     scene.add(box);
+        // }
 
         // Renderer
         const renderer = new Scene.Renderer({ width: window.innerWidth, height: window.innerHeight });

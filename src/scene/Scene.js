@@ -33,8 +33,8 @@ export { BoxMask } from './objects/mask/BoxMask.js';
 // Objects, Style
 export { Style } from './objects/style/Style.js';
 export { ColorStyle } from './objects/style/ColorStyle.js';
+export { GradientStyle } from './objects/style/GradientStyle.js';
+export { GradientColorStop } from './objects/style/GradientColorStop.js';
+export { LinearGradientStyle } from './objects/style/LinearGradientStyle.js';
+export { RadialGradientStyle } from './objects/style/RadialGradientStyle.js';
 // export { PatternStyle } from './objects/style/PatternStyle.js';
-// export { GradientStyle } from './objects/style/GradientStyle.js';
-// export { GradientColorStop } from './objects/style/GradientColorStop.js';
-// export { LinearGradientStyle } from './objects/style/LinearGradientStyle.js';
-// export { RadialGradientStyle } from './objects/style/RadialGradientStyle.js';
