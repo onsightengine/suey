@@ -6,33 +6,36 @@
  * @source      https://github.com/salinityengine/suey
  * @version     v0.1.27
  */
-var img$8 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M184.001%2c292.65l-119.111%2c-0c-13.193%2c-0 -23.889%2c-10.695 -23.889%2c-23.889l-0%2c-26.85c-0%2c-13.194 10.696%2c-23.889 23.889%2c-23.889l46.704%2c-0.001l31.681%2c0l74.967%2c0l0%2c-78.878l-0%2c-71.489c-0%2c-7.129 2.832%2c-13.965 7.872%2c-19.004c5.038%2c-5.041 11.875%2c-7.873 19.002%2c-7.873l21.767%2c0c7.127%2c0 13.964%2c2.832 19.003%2c7.873c5.04%2c5.039 7.873%2c11.875 7.873%2c19.004l0%2c150.364l150.365%2c0c7.127%2c0 13.964%2c2.833 19.004%2c7.873c5.04%2c5.041 7.872%2c11.876 7.872%2c19.002l-0%2c20.88c-0%2c7.127 -2.832%2c13.963 -7.872%2c19.003c-5.041%2c5.04 -11.877%2c7.87 -19.004%2c7.87l-72.38%2c0l0.003%2c0.003l-77.988%2c0l0%2c154.707c0%2c6.33 -2.514%2c12.4 -6.99%2c16.876c-4.476%2c4.476 -10.546%2c6.99 -16.877%2c6.99l-27.761%2c0c-6.336%2c0 -12.411%2c-2.516 -16.892%2c-6.996c-4.48%2c-4.48 -6.996%2c-10.556 -6.996%2c-16.892l-0%2c-118.1l-0%2c-36.247l-0.001%2c-0.338l-0.339%2c0.001l-33.902%2c-0Z' style='fill:%23e6e6e6%3b'/%3e%3c/svg%3e";
+var img$9 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M184.001%2c292.65l-119.111%2c-0c-13.193%2c-0 -23.889%2c-10.695 -23.889%2c-23.889l-0%2c-26.85c-0%2c-13.194 10.696%2c-23.889 23.889%2c-23.889l46.704%2c-0.001l31.681%2c0l74.967%2c0l0%2c-78.878l-0%2c-71.489c-0%2c-7.129 2.832%2c-13.965 7.872%2c-19.004c5.038%2c-5.041 11.875%2c-7.873 19.002%2c-7.873l21.767%2c0c7.127%2c0 13.964%2c2.832 19.003%2c7.873c5.04%2c5.039 7.873%2c11.875 7.873%2c19.004l0%2c150.364l150.365%2c0c7.127%2c0 13.964%2c2.833 19.004%2c7.873c5.04%2c5.041 7.872%2c11.876 7.872%2c19.002l-0%2c20.88c-0%2c7.127 -2.832%2c13.963 -7.872%2c19.003c-5.041%2c5.04 -11.877%2c7.87 -19.004%2c7.87l-72.38%2c0l0.003%2c0.003l-77.988%2c0l0%2c154.707c0%2c6.33 -2.514%2c12.4 -6.99%2c16.876c-4.476%2c4.476 -10.546%2c6.99 -16.877%2c6.99l-27.761%2c0c-6.336%2c0 -12.411%2c-2.516 -16.892%2c-6.996c-4.48%2c-4.48 -6.996%2c-10.556 -6.996%2c-16.892l-0%2c-118.1l-0%2c-36.247l-0.001%2c-0.338l-0.339%2c0.001l-33.902%2c-0Z' style='fill:%23e6e6e6%3b'/%3e%3c/svg%3e";
 
-var img$7 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
+var img$8 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
 
-var img$6 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.576%2c386.574c-12.567%2c12.568 -33.514%2c12.568 -46.08%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c-0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c-0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c-0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.498%2c84.498c12.565%2c12.566 12.565%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
+var img$7 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.576%2c386.574c-12.567%2c12.568 -33.514%2c12.568 -46.08%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c-0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c-0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c-0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.498%2c84.498c12.565%2c12.566 12.565%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
 
-var img$5 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
+var img$6 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
 
-var img$4 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M202.677%2c396c-6.857%2c0 -13.038%2c-4.13 -15.662%2c-10.465c-2.624%2c-6.335 -1.174%2c-13.626 3.674%2c-18.474c44.911%2c-44.911 130.904%2c-130.904 176.025%2c-176.025c4.906%2c-4.906 12.285%2c-6.374 18.696%2c-3.719c6.41%2c2.656 10.59%2c8.911 10.59%2c15.85c0%2c45.295 0%2c117.022 0%2c159.048c0%2c18.659 -15.126%2c33.785 -33.785%2c33.785l-159.538%2c0Z' style='fill:white%3b'/%3e%3cpath d='M303.059%2c116c6.881%2c-0 13.084%2c4.145 15.717%2c10.502c2.634%2c6.357 1.178%2c13.674 -3.687%2c18.54c-43.748%2c43.748 -126.088%2c126.087 -169.914%2c169.913c-4.888%2c4.888 -12.239%2c6.35 -18.625%2c3.705c-6.386%2c-2.645 -10.55%2c-8.877 -10.55%2c-15.789c-0%2c-43.783 -0%2c-112.154 -0%2c-152.928c-0%2c-18.746 15.197%2c-33.943 33.943%2c-33.943l153.116%2c-0Z' style='fill:white%3b'/%3e%3c/svg%3e";
+var img$5 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M202.677%2c396c-6.857%2c0 -13.038%2c-4.13 -15.662%2c-10.465c-2.624%2c-6.335 -1.174%2c-13.626 3.674%2c-18.474c44.911%2c-44.911 130.904%2c-130.904 176.025%2c-176.025c4.906%2c-4.906 12.285%2c-6.374 18.696%2c-3.719c6.41%2c2.656 10.59%2c8.911 10.59%2c15.85c0%2c45.295 0%2c117.022 0%2c159.048c0%2c18.659 -15.126%2c33.785 -33.785%2c33.785l-159.538%2c0Z' style='fill:white%3b'/%3e%3cpath d='M303.059%2c116c6.881%2c-0 13.084%2c4.145 15.717%2c10.502c2.634%2c6.357 1.178%2c13.674 -3.687%2c18.54c-43.748%2c43.748 -126.088%2c126.087 -169.914%2c169.913c-4.888%2c4.888 -12.239%2c6.35 -18.625%2c3.705c-6.386%2c-2.645 -10.55%2c-8.877 -10.55%2c-15.789c-0%2c-43.783 -0%2c-112.154 -0%2c-152.928c-0%2c-18.746 15.197%2c-33.943 33.943%2c-33.943l153.116%2c-0Z' style='fill:white%3b'/%3e%3c/svg%3e";
 
-var img$3 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M256%2c16c132.46%2c-0 240%2c107.54 240%2c240c0%2c132.46 -107.54%2c240 -240%2c240c-132.46%2c0 -240%2c-107.54 -240%2c-240c0%2c-132.46 107.54%2c-240 240%2c-240Zm0%2c57.6c-100.669%2c0 -182.4%2c81.731 -182.4%2c182.4c0%2c100.669 81.731%2c182.4 182.4%2c182.4c100.669%2c0 182.4%2c-81.731 182.4%2c-182.4c0%2c-100.669 -81.731%2c-182.4 -182.4%2c-182.4Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256.001%2c320.462c-12.011%2c-0 -21.749%2c-9.737 -21.749%2c-21.749l0%2c-9.225c0%2c-21.468 13.519%2c-40.67 33.639%2c-47.784c15.135%2c-5.352 24.887%2c-20.319 23.715%2c-36.397c-1.284%2c-17.606 -15.538%2c-31.752 -33.157%2c-32.906c-18.636%2c-1.231 -35.239%2c12.228 -37.805%2c30.616c-0.23%2c1.644 -0.346%2c3.329 -0.346%2c5.008c0%2c12.011 -9.737%2c21.749 -21.749%2c21.749c-12.012%2c-0 -21.749%2c-9.738 -21.749%2c-21.749c-0%2c-3.682 0.257%2c-7.389 0.763%2c-11.018c5.698%2c-40.84 42.476%2c-70.72 83.728%2c-68.012c39.162%2c2.565 70.846%2c34.012 73.699%2c73.149c2.593%2c35.571 -19.036%2c68.702 -52.598%2c80.57c-2.776%2c0.981 -4.641%2c3.703 -4.641%2c6.774l-0%2c9.225c-0%2c12.012 -9.738%2c21.749 -21.75%2c21.749Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256.001%2c390.135c-14.739%2c0 -26.687%2c-11.948 -26.687%2c-26.687l-0%2c-0.221c-0%2c-14.739 11.948%2c-26.688 26.687%2c-26.688c14.739%2c0 26.688%2c11.949 26.688%2c26.688l-0%2c0.221c0.001%2c14.739 -11.948%2c26.687 -26.688%2c26.687Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
+var img$4 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M256%2c16c132.46%2c-0 240%2c107.54 240%2c240c0%2c132.46 -107.54%2c240 -240%2c240c-132.46%2c0 -240%2c-107.54 -240%2c-240c0%2c-132.46 107.54%2c-240 240%2c-240Zm0%2c57.6c-100.669%2c0 -182.4%2c81.731 -182.4%2c182.4c0%2c100.669 81.731%2c182.4 182.4%2c182.4c100.669%2c0 182.4%2c-81.731 182.4%2c-182.4c0%2c-100.669 -81.731%2c-182.4 -182.4%2c-182.4Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256.001%2c320.462c-12.011%2c-0 -21.749%2c-9.737 -21.749%2c-21.749l0%2c-9.225c0%2c-21.468 13.519%2c-40.67 33.639%2c-47.784c15.135%2c-5.352 24.887%2c-20.319 23.715%2c-36.397c-1.284%2c-17.606 -15.538%2c-31.752 -33.157%2c-32.906c-18.636%2c-1.231 -35.239%2c12.228 -37.805%2c30.616c-0.23%2c1.644 -0.346%2c3.329 -0.346%2c5.008c0%2c12.011 -9.737%2c21.749 -21.749%2c21.749c-12.012%2c-0 -21.749%2c-9.738 -21.749%2c-21.749c-0%2c-3.682 0.257%2c-7.389 0.763%2c-11.018c5.698%2c-40.84 42.476%2c-70.72 83.728%2c-68.012c39.162%2c2.565 70.846%2c34.012 73.699%2c73.149c2.593%2c35.571 -19.036%2c68.702 -52.598%2c80.57c-2.776%2c0.981 -4.641%2c3.703 -4.641%2c6.774l-0%2c9.225c-0%2c12.012 -9.738%2c21.749 -21.75%2c21.749Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256.001%2c390.135c-14.739%2c0 -26.687%2c-11.948 -26.687%2c-26.687l-0%2c-0.221c-0%2c-14.739 11.948%2c-26.688 26.687%2c-26.688c14.739%2c0 26.688%2c11.949 26.688%2c26.688l-0%2c0.221c0.001%2c14.739 -11.948%2c26.687 -26.688%2c26.687Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
 
-var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M256%2c16c132.46%2c0 240%2c107.54 240%2c240c0%2c132.46 -107.54%2c240 -240%2c240c-132.46%2c0 -240%2c-107.54 -240%2c-240c0%2c-132.46 107.54%2c-240 240%2c-240Zm-0%2c57.6c-100.669%2c0 -182.4%2c81.731 -182.4%2c182.4c0%2c100.669 81.731%2c182.4 182.4%2c182.4c100.669%2c0 182.4%2c-81.731 182.4%2c-182.4c-0%2c-100.669 -81.731%2c-182.4 -182.4%2c-182.4Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256%2c140.739c18.48%2c0 33.6%2c15.12 33.6%2c33.6c0%2c18.48 -15.12%2c33.6 -33.6%2c33.6c-18.48%2c0 -33.6%2c-15.12 -33.6%2c-33.6c0%2c-18.48 15.12%2c-33.6 33.6%2c-33.6Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256%2c219.364c15.464%2c0 28%2c12.536 28%2c28l0%2c100.511c-0%2c15.464 -12.536%2c28 -28%2c28l-0%2c-0c-15.464%2c-0 -28%2c-12.536 -28%2c-28l0%2c-100.511c0%2c-15.464 12.536%2c-28 28%2c-28l0%2c0Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
+var img$3 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M256%2c16c132.46%2c0 240%2c107.54 240%2c240c0%2c132.46 -107.54%2c240 -240%2c240c-132.46%2c0 -240%2c-107.54 -240%2c-240c0%2c-132.46 107.54%2c-240 240%2c-240Zm-0%2c57.6c-100.669%2c0 -182.4%2c81.731 -182.4%2c182.4c0%2c100.669 81.731%2c182.4 182.4%2c182.4c100.669%2c0 182.4%2c-81.731 182.4%2c-182.4c-0%2c-100.669 -81.731%2c-182.4 -182.4%2c-182.4Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256%2c140.739c18.48%2c0 33.6%2c15.12 33.6%2c33.6c0%2c18.48 -15.12%2c33.6 -33.6%2c33.6c-18.48%2c0 -33.6%2c-15.12 -33.6%2c-33.6c0%2c-18.48 15.12%2c-33.6 33.6%2c-33.6Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M256%2c219.364c15.464%2c0 28%2c12.536 28%2c28l0%2c100.511c-0%2c15.464 -12.536%2c28 -28%2c28l-0%2c-0c-15.464%2c-0 -28%2c-12.536 -28%2c-28l0%2c-100.511c0%2c-15.464 12.536%2c-28 28%2c-28l0%2c0Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
 
-var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M335.44%2c16c12.788%2c-0.01 25.064%2c5.091 34.08%2c14.16l112.32%2c112.32c9.069%2c9.016 14.17%2c21.292 14.16%2c34.08l-0%2c158.88c0.01%2c12.788 -5.091%2c25.064 -14.16%2c34.08l-112.32%2c112.32c-9.016%2c9.069 -21.292%2c14.17 -34.08%2c14.16l-158.88%2c-0c-12.788%2c0.01 -25.064%2c-5.091 -34.08%2c-14.16l-112.32%2c-112.32c-9.069%2c-9.016 -14.17%2c-21.292 -14.16%2c-34.08l0%2c-158.88c-0.01%2c-12.788 5.091%2c-25.064 14.16%2c-34.08l112.32%2c-112.32c9.016%2c-9.069 21.292%2c-14.17 34.08%2c-14.16l158.88%2c0Zm-259.497%2c162.155c-1.5%2c1.5 -2.343%2c3.535 -2.343%2c5.657c-0%2c19.996 -0%2c124.38 -0%2c144.376c-0%2c2.122 0.843%2c4.157 2.343%2c5.657c14.15%2c14.15 88.062%2c88.062 102.212%2c102.212c1.5%2c1.5 3.535%2c2.343 5.657%2c2.343c19.996%2c0 124.38%2c0 144.376%2c0c2.122%2c0 4.157%2c-0.843 5.657%2c-2.343c14.15%2c-14.15 88.062%2c-88.062 102.212%2c-102.212c1.5%2c-1.5 2.343%2c-3.535 2.343%2c-5.657c0%2c-19.996 0%2c-124.38 0%2c-144.376c0%2c-2.122 -0.843%2c-4.157 -2.343%2c-5.657c-14.15%2c-14.15 -88.062%2c-88.062 -102.212%2c-102.212c-1.5%2c-1.5 -3.535%2c-2.343 -5.657%2c-2.343c-19.996%2c-0 -124.38%2c-0 -144.376%2c-0c-2.122%2c-0 -4.157%2c0.843 -5.657%2c2.343c-14.15%2c14.15 -88.062%2c88.062 -102.212%2c102.212Z' style='fill:grey%3b'/%3e%3cpath d='M313.604%2c339.978c-7%2c0.022 -13.725%2c-2.762 -18.662%2c-7.726l-38.941%2c-38.928l-38.941%2c38.947c-4.948%2c4.948 -11.665%2c7.73 -18.662%2c7.73c-14.478%2c-0 -26.392%2c-11.914 -26.392%2c-26.392c0%2c-6.997 2.783%2c-13.714 7.73%2c-18.662l38.941%2c-38.947l-38.947%2c-38.941c-4.948%2c-4.948 -7.73%2c-11.665 -7.73%2c-18.662c0%2c-14.478 11.914%2c-26.392 26.392%2c-26.392c6.997%2c0 13.714%2c2.783 18.662%2c7.73l38.947%2c38.941l38.941%2c-38.947c4.948%2c-4.948 11.665%2c-7.73 18.662%2c-7.73c14.478%2c0 26.392%2c11.914 26.392%2c26.392c-0%2c6.997 -2.783%2c13.714 -7.73%2c18.662l-38.941%2c38.947l38.947%2c38.941c4.946%2c4.946 7.728%2c11.661 7.728%2c18.656c0%2c14.472 -11.909%2c26.381 -26.382%2c26.381c-0.002%2c0 -0.014%2c0 -0.014%2c0Z' style='fill:%237f7f7f%3bfill-rule:nonzero%3b'/%3e%3c/svg%3e";
+var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M335.44%2c16c12.788%2c-0.01 25.064%2c5.091 34.08%2c14.16l112.32%2c112.32c9.069%2c9.016 14.17%2c21.292 14.16%2c34.08l-0%2c158.88c0.01%2c12.788 -5.091%2c25.064 -14.16%2c34.08l-112.32%2c112.32c-9.016%2c9.069 -21.292%2c14.17 -34.08%2c14.16l-158.88%2c-0c-12.788%2c0.01 -25.064%2c-5.091 -34.08%2c-14.16l-112.32%2c-112.32c-9.069%2c-9.016 -14.17%2c-21.292 -14.16%2c-34.08l0%2c-158.88c-0.01%2c-12.788 5.091%2c-25.064 14.16%2c-34.08l112.32%2c-112.32c9.016%2c-9.069 21.292%2c-14.17 34.08%2c-14.16l158.88%2c0Zm-259.497%2c162.155c-1.5%2c1.5 -2.343%2c3.535 -2.343%2c5.657c-0%2c19.996 -0%2c124.38 -0%2c144.376c-0%2c2.122 0.843%2c4.157 2.343%2c5.657c14.15%2c14.15 88.062%2c88.062 102.212%2c102.212c1.5%2c1.5 3.535%2c2.343 5.657%2c2.343c19.996%2c0 124.38%2c0 144.376%2c0c2.122%2c0 4.157%2c-0.843 5.657%2c-2.343c14.15%2c-14.15 88.062%2c-88.062 102.212%2c-102.212c1.5%2c-1.5 2.343%2c-3.535 2.343%2c-5.657c0%2c-19.996 0%2c-124.38 0%2c-144.376c0%2c-2.122 -0.843%2c-4.157 -2.343%2c-5.657c-14.15%2c-14.15 -88.062%2c-88.062 -102.212%2c-102.212c-1.5%2c-1.5 -3.535%2c-2.343 -5.657%2c-2.343c-19.996%2c-0 -124.38%2c-0 -144.376%2c-0c-2.122%2c-0 -4.157%2c0.843 -5.657%2c2.343c-14.15%2c14.15 -88.062%2c88.062 -102.212%2c102.212Z' style='fill:grey%3b'/%3e%3cpath d='M313.604%2c339.978c-7%2c0.022 -13.725%2c-2.762 -18.662%2c-7.726l-38.941%2c-38.928l-38.941%2c38.947c-4.948%2c4.948 -11.665%2c7.73 -18.662%2c7.73c-14.478%2c-0 -26.392%2c-11.914 -26.392%2c-26.392c0%2c-6.997 2.783%2c-13.714 7.73%2c-18.662l38.941%2c-38.947l-38.947%2c-38.941c-4.948%2c-4.948 -7.73%2c-11.665 -7.73%2c-18.662c0%2c-14.478 11.914%2c-26.392 26.392%2c-26.392c6.997%2c0 13.714%2c2.783 18.662%2c7.73l38.947%2c38.941l38.941%2c-38.947c4.948%2c-4.948 11.665%2c-7.73 18.662%2c-7.73c14.478%2c0 26.392%2c11.914 26.392%2c26.392c-0%2c6.997 -2.783%2c13.714 -7.73%2c18.662l-38.941%2c38.947l38.947%2c38.941c4.946%2c4.946 7.728%2c11.661 7.728%2c18.656c0%2c14.472 -11.909%2c26.381 -26.382%2c26.381c-0.002%2c0 -0.014%2c0 -0.014%2c0Z' style='fill:%237f7f7f%3bfill-rule:nonzero%3b'/%3e%3c/svg%3e";
 
-var img = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M217.561%2c65.75c7.968%2c-13.681 22.607%2c-22.096 38.439%2c-22.096c15.832%2c-0 30.471%2c8.415 38.439%2c22.096l195.518%2c335.729c8.012%2c13.759 8.06%2c30.751 0.125%2c44.554c-7.935%2c13.804 -22.642%2c22.313 -38.564%2c22.313l-391.036%2c0c-15.922%2c0 -30.629%2c-8.509 -38.564%2c-22.313c-7.935%2c-13.803 -7.887%2c-30.795 0.125%2c-44.554l195.518%2c-335.729Zm-136.351%2c340.199c-1.08%2c1.856 -1.087%2c4.148 -0.017%2c6.01c1.071%2c1.861 3.055%2c3.009 5.202%2c3.009c52.447%2c0 286.763%2c0 339.21%2c0c2.147%2c0 4.131%2c-1.148 5.202%2c-3.009c1.07%2c-1.862 1.063%2c-4.154 -0.017%2c-6.01c-26.302%2c-45.163 -143.46%2c-246.339 -169.605%2c-291.233c-1.075%2c-1.845 -3.049%2c-2.98 -5.185%2c-2.98c-2.136%2c-0 -4.11%2c1.135 -5.185%2c2.98c-26.145%2c44.894 -143.303%2c246.07 -169.605%2c291.233Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M283.679%2c215.374l-7.778%2c93.106c-0.813%2c9.752 -8.939%2c17.298 -18.807%2c17.298c-9.868%2c-0 -17.994%2c-7.546 -18.807%2c-17.298l-7.778%2c-93.106c-1.277%2c-15.556 10.913%2c-28.907 26.585%2c-28.907c14.86%2c0 26.701%2c12.074 26.701%2c26.702c0%2c0.696 0%2c1.509 -0.116%2c2.205Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M257.093%2c385.058c-12.952%2c0 -23.549%2c-10.597 -23.549%2c-23.549c-0%2c-12.952 10.597%2c-23.549 23.549%2c-23.549c12.952%2c-0 23.549%2c10.597 23.549%2c23.549c0%2c12.952 -10.597%2c23.549 -23.549%2c23.549Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
+var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M217.561%2c65.75c7.968%2c-13.681 22.607%2c-22.096 38.439%2c-22.096c15.832%2c-0 30.471%2c8.415 38.439%2c22.096l195.518%2c335.729c8.012%2c13.759 8.06%2c30.751 0.125%2c44.554c-7.935%2c13.804 -22.642%2c22.313 -38.564%2c22.313l-391.036%2c0c-15.922%2c0 -30.629%2c-8.509 -38.564%2c-22.313c-7.935%2c-13.803 -7.887%2c-30.795 0.125%2c-44.554l195.518%2c-335.729Zm-136.351%2c340.199c-1.08%2c1.856 -1.087%2c4.148 -0.017%2c6.01c1.071%2c1.861 3.055%2c3.009 5.202%2c3.009c52.447%2c0 286.763%2c0 339.21%2c0c2.147%2c0 4.131%2c-1.148 5.202%2c-3.009c1.07%2c-1.862 1.063%2c-4.154 -0.017%2c-6.01c-26.302%2c-45.163 -143.46%2c-246.339 -169.605%2c-291.233c-1.075%2c-1.845 -3.049%2c-2.98 -5.185%2c-2.98c-2.136%2c-0 -4.11%2c1.135 -5.185%2c2.98c-26.145%2c44.894 -143.303%2c246.07 -169.605%2c291.233Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M283.679%2c215.374l-7.778%2c93.106c-0.813%2c9.752 -8.939%2c17.298 -18.807%2c17.298c-9.868%2c-0 -17.994%2c-7.546 -18.807%2c-17.298l-7.778%2c-93.106c-1.277%2c-15.556 10.913%2c-28.907 26.585%2c-28.907c14.86%2c0 26.701%2c12.074 26.701%2c26.702c0%2c0.696 0%2c1.509 -0.116%2c2.205Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M257.093%2c385.058c-12.952%2c0 -23.549%2c-10.597 -23.549%2c-23.549c-0%2c-12.952 10.597%2c-23.549 23.549%2c-23.549c12.952%2c-0 23.549%2c10.597 23.549%2c23.549c0%2c12.952 -10.597%2c23.549 -23.549%2c23.549Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
 
-const IMAGE_ADD = img$8;
-const IMAGE_CHECK = img$7;
-const IMAGE_CLOSE = img$6;
-const IMAGE_EMPTY = img$5;
-const IMAGE_EXPAND = img$4;
-const IMAGE_QUESTION = img$3;
-const IMAGE_INFO = img$2;
-const IMAGE_ERROR = img$1;
-const IMAGE_WARNING = img;
+var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFUmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgZXhpZjpQaXhlbFhEaW1lbnNpb249IjMyIgogICBleGlmOlBpeGVsWURpbWVuc2lvbj0iMzIiCiAgIGV4aWY6Q29sb3JTcGFjZT0iMSIKICAgdGlmZjpJbWFnZVdpZHRoPSIzMiIKICAgdGlmZjpJbWFnZUxlbmd0aD0iMzIiCiAgIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiCiAgIHRpZmY6WFJlc29sdXRpb249IjcyLzEiCiAgIHRpZmY6WVJlc29sdXRpb249IjcyLzEiCiAgIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiCiAgIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIKICAgeG1wOk1vZGlmeURhdGU9IjIwMjEtMTItMTRUMTI6MDE6MTgtMDg6MDAiCiAgIHhtcDpNZXRhZGF0YURhdGU9IjIwMjEtMTItMTRUMTI6MDE6MTgtMDg6MDAiPgogICA8ZGM6dGl0bGU+CiAgICA8cmRmOkFsdD4KICAgICA8cmRmOmxpIHhtbDpsYW5nPSJ4LWRlZmF1bHQiPnJvdGF0ZS12MjwvcmRmOmxpPgogICAgPC9yZGY6QWx0PgogICA8L2RjOnRpdGxlPgogICA8eG1wTU06SGlzdG9yeT4KICAgIDxyZGY6U2VxPgogICAgIDxyZGY6bGkKICAgICAgc3RFdnQ6YWN0aW9uPSJwcm9kdWNlZCIKICAgICAgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWZmaW5pdHkgRGVzaWduZXIgMS4xMC40IgogICAgICBzdEV2dDp3aGVuPSIyMDIxLTEyLTE0VDEyOjAxOjE4LTA4OjAwIi8+CiAgICA8L3JkZjpTZXE+CiAgIDwveG1wTU06SGlzdG9yeT4KICA8L3JkZjpEZXNjcmlwdGlvbj4KIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+Cjw/eHBhY2tldCBlbmQ9InIiPz7Eh4STAAABgGlDQ1BzUkdCIElFQzYxOTY2LTIuMQAAKJF1kd8rg1EYxz/biBhbceHCxRK72sTU4kaZNGpJM2W42d79Utu8ve8kuVVuV5S48euCv4Bb5VopIiV3yjVxg17Pu622ZM/pOc/nfM95ns55DlgjWSWnNwxALl/QwsGAaz664Gp6wU47TtwQU3R1bGYmRF37vMdixluvWav+uX+tNZHUFbA0C48qqlYQnhQOrRVUk3eEO5VMLCF8JuzR5ILCd6YeL/Oryekyf5usRcLjYHUKu9I1HK9hJaPlhOXl9Oayq0rlPuZL7Mn83KzEHvFudMIECeBiignG8TPIiMx+vPjolxV18gdK+dOsSK4is8o6GsukyVDAI+qqVE9KTImelJFl3ez/377qqSFfubo9AI3PhvHeB03b8FM0jK8jw/g5BtsTXOar+SuHMPwherGq9R6AYxPOr6pafBcutqDrUY1psZJkE7emUvB2Cm1R6LiBlsVyzyr7nDxAZEO+6hr29sEt5x1LvyX7Z8giEquKAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC2klEQVRYhe2WT0jTYRjHn9c19dCm4EGhi9ghsWYqm0MGOcTTbhIWQZfhQUSkU5YIQ3AdAqFr0CnRtDxEhsQQkS6Ctj94kRGKHiIvyQJN3X7j9+nQNpqb5n7TLvqF9/Y83+/3fd73fd5H5BIXHcpoInBNROwickVEvopIVCmlnZWxfIIK6Ac+Atvkx1vADdQDL4D6sxJvAL4kEglmZ2fx+Xx4PB6qq6upqqqira0Nr9fL/Px82khibW0NIFG0CeApsL+6ukpTUxMicuKy2+0MDQ2hlGJ9fR3geTHiw8lkktHRUcxmc5ZQeXk5TqcTl8tFTU1NXjM+nw9g26i4DdgfGRnJIu3q6iISiaBpWtbhr6ys4PF4smJra2vRdR2gt1DxEiAcDoczO6+oqGBycjKt9w7oA24DN4GBw8NDHA5HThUWFxcBJgs10B+Px7HZbBmi6elpgB/AvTzxj2OxGD09PTidTiwWSybP6/WmTZsLMRCYmZnJkHR3d6dJ7h4TfxV4mQ7SdZ2trS3m5uZYWFgAmCq0ArHBwcGMgdSTenOKPFPqWHqBZ8B7YAq4U4j4dYCOjg5EBIvFYuwiGQXQDVBZWYmI0N7enq7sjfPQKzkP0qLwv48gpwJKqQ0R+Wm320VEZHd3V6LRqIhI+3kYyItCn+GR3LpUk6orxkB/PB6nsbHxaCPaAe6fkPcI2Eu16T3giVEDJUAoEolkWrHVamViYiJfK3YAA8AnXdcZGxujrKwMv98PoAEtRk3cOu4zCofDWZ/RwcEBS0tLdHZ2ZsUuLy8DvDJkIGViOJlM4vf7KS0tzfmOW1tbaW5uzvmqrVYr4+PjxVXgLxNPgF+nHUhcLhebm5vp+/LgX/ynGkqBBhF5rWmaPRAISDAYlGAwKKFQSMxmszgcjsxyu91iMpk+i8hDpdQ3oxvPZyI9lH4AvpOLDf4MpX2F8BY7lreISFJEVpRSO0a5LnGx8RuE2whaFVdzbQAAAABJRU5ErkJggg==";
+
+const IMAGE_ADD = img$9;
+const IMAGE_CHECK = img$8;
+const IMAGE_CLOSE = img$7;
+const IMAGE_EMPTY = img$6;
+const IMAGE_EXPAND = img$5;
+const IMAGE_QUESTION = img$4;
+const IMAGE_INFO = img$3;
+const IMAGE_ERROR = img$2;
+const IMAGE_WARNING = img$1;
+const CURSOR_ROTATE = img;
 const GRID_SIZE = 25;
 const MOUSE_CLICK = 500;
 const MOUSE_SLOP_SMALL = 2;
@@ -2318,6 +2321,9 @@ class Matrix2 {
     getPosition() {
         return new Vector2(this.m[4], this.m[5]);
     }
+    getRotation() {
+        return Math.atan2(this.m[1], this.m[0]);
+    }
     skew(radianX, radianY) {
         return this.multiply(new Matrix2([ 1, Math.tan(radianY), Math.tan(radianX), 1, 0, 0 ]));
     }
@@ -2819,13 +2825,38 @@ class Helpers {
         let topResizer, rightResizer, bottomResizer, leftResizer;
         let rotater;
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createResizer(color, x, y, type = 'box') {
+            function createResizer(color, x, y, type = 'box', addRotation) {
                 const resizer = (type === 'box') ? new Box() : new Circle();
                 if (type === 'circle') resizer.radius = radius;
                 resizer.draggable = true;
                 resizer.focusable = false;
                 resizer.fillStyle.color = color;
                 resizer.layer = object.layer + 1;
+                resizer.cursor = function(camera) {
+                    const cursorStyles = [
+                        { angle:   0, cursor: 'ew-resize' },
+                        { angle:  45, cursor: 'nwse-resize' },
+                        { angle:  90, cursor: 'ns-resize' },
+                        { angle: 135, cursor: 'nesw-resize' },
+                        { angle: 180, cursor: 'ew-resize' },
+                        { angle: 225, cursor: 'nwse-resize' },
+                        { angle: 270, cursor: 'ns-resize' },
+                        { angle: 315, cursor: 'nesw-resize' },
+                        { angle: 360, cursor: 'ew-resize' },
+                    ];
+                    const rotation = ((resizer.globalMatrix.getRotation() + camera.rotation) * 180 / Math.PI) + addRotation;
+                    const normalizedRotation = (rotation + 360) % 360;
+                    let closestCursor = 'default';
+                    let minAngleDiff = Infinity;
+                    for (const { angle, cursor } of cursorStyles) {
+                        const angleDiff = Math.abs(normalizedRotation - angle);
+                        if (angleDiff < minAngleDiff) {
+                            minAngleDiff = angleDiff;
+                            closestCursor = cursor;
+                        }
+                    }
+                    return closestCursor;
+                };
                 resizer.onPointerDrag = function(pointer, camera) {
                     Object2D.prototype.onPointerDrag.call(this, pointer, camera);
                     const delta = localDelta(pointer, camera);
@@ -2845,14 +2876,14 @@ class Helpers {
                 resizerContainer.add(resizer);
                 return resizer;
             }
-            topLeft = createResizer('#ff0000', 1, 1, 'circle');
-            topRight = createResizer('#00ff00', -1, 1, 'circle');
-            bottomRight = createResizer('#0000ff', -1, -1, 'circle');
-            bottomLeft = createResizer('#ffff00', 1, -1, 'circle');
-            leftResizer = createResizer('#ff0000', 1, 0, 'box');
-            rightResizer = createResizer('#0000ff', -1, 0, 'box');
-            topResizer = createResizer('#00ff00', 0, 1, 'box');
-            bottomResizer = createResizer('#ffff00', 0, -1, 'box');
+            bottomRight = createResizer('#0000ff', -1, -1, 'circle', 45);
+            bottomLeft = createResizer('#ffff00', 1, -1, 'circle', 135);
+            topLeft = createResizer('#ff0000', 1, 1, 'circle', 225);
+            topRight = createResizer('#00ff00', -1, 1, 'circle', 315);
+            rightResizer = createResizer('#0000ff', -1, 0, 'box', 0);
+            bottomResizer = createResizer('#ffff00', 0, -1, 'box', 90);
+            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180);
+            topResizer = createResizer('#00ff00', 0, 1, 'box', 270);
         }
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
@@ -2860,6 +2891,7 @@ class Helpers {
             rotater.focusable = false;
             rotater.radius = radius;
             rotater.layer = object.layer + 1;
+            rotater.cursor = `url('${CURSOR_ROTATE}') 16 16, auto`;
             rotater.onPointerDrag = function(pointer, camera) {
                 const objectCenter = object.boundingBox.getCenter();
                 const pointerStart = pointer.position.clone();
@@ -2896,21 +2928,25 @@ class Helpers {
             if (topLeft) {
                 topLeft.position.copy(topLeftWorld);
                 topLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                topLeft.rotation = object.rotation;
                 topLeft.updateMatrix();
             }
             if (topRight) {
                 topRight.position.copy(topRightWorld);
                 topRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                topRight.rotation = object.rotation;
                 topRight.updateMatrix();
             }
             if (bottomLeft) {
                 bottomLeft.position.copy(bottomLeftWorld);
                 bottomLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomLeft.rotation = object.rotation;
                 bottomLeft.updateMatrix();
             }
             if (bottomRight) {
                 bottomRight.position.copy(bottomRightWorld);
                 bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomRight.rotation = object.rotation;
                 bottomRight.updateMatrix();
             }
             const leftMiddleWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, center.y));
@@ -3042,20 +3078,28 @@ class Renderer extends Element {
             if (b.layer === a.layer) return b.level - a.level;
             return b.layer - a.layer;
         });
+        let currentCursor = null;
         for (const child of objects) {
             if (child.pointerEvents) {
                 const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
-                if (!this.beingDragged && child.isInside(localPoint)) {
-                    if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
-                    if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
-                    if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
-                    if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
-                    if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
-                    if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                        if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
-                        if (child.draggable) {
-                            this.beingDragged = child;
-                            if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                const isInside = child.isInside(localPoint);
+                if (!currentCursor && isInside || this.beingDragged === child && child.cursor) {
+                    if (typeof child.cursor === 'function') currentCursor = child.cursor(camera);
+                    else currentCursor = child.cursor;
+                }
+                if (isInside) {
+                    if (!this.beingDragged) {
+                        if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
+                        if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
+                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
+                        if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
+                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+                            if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
+                            if (child.draggable) {
+                                this.beingDragged = child;
+                                if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                            }
                         }
                     }
                     child.pointerInside = true;
@@ -3073,6 +3117,7 @@ class Renderer extends Element {
                 child.onPointerDrag(pointer, camera);
             }
         }
+        document.body.style.cursor = currentCursor ?? 'default';
         object.traverse(function(child) {
             child.updateMatrix();
         });
@@ -3367,4 +3412,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { BACKGROUNDS, BUTTON_TYPES, CLOSE_SIDES, CORNER_BUTTONS, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Dom, Element, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, NODE_TYPES, PANEL_STYLES, Pointer, QUESTION_COLORS, QUESTION_ICONS, RESIZERS, Scene$1 as Scene, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT };
+export { BACKGROUNDS, BUTTON_TYPES, CLOSE_SIDES, CORNER_BUTTONS, CURSOR_ROTATE, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Dom, Element, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, NODE_TYPES, PANEL_STYLES, Pointer, QUESTION_COLORS, QUESTION_ICONS, RESIZERS, Scene$1 as Scene, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT };

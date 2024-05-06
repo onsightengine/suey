@@ -128,6 +128,11 @@ class Matrix2 {
         return new Vector2(this.m[4], this.m[5]);
     }
 
+    /** Extract the rotation angle from the transformation matrix */
+    getRotation() {
+        return Math.atan2(this.m[1], this.m[0]);
+    }
+
     /** Apply skew to this matrix */
     skew(radianX, radianY) {
         return this.multiply(new Matrix2([ 1, Math.tan(radianY), Math.tan(radianX), 1, 0, 0 ]));

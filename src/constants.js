@@ -18,6 +18,9 @@ export const IMAGE_INFO = imageInfo;
 export const IMAGE_ERROR = imageError;
 export const IMAGE_WARNING = imageWarning;
 
+import cursorRotate from '../files/cursors/rotate.png';
+export const CURSOR_ROTATE = cursorRotate;
+
 export const GRID_SIZE = 25;
 
 export const MOUSE_CLICK = 500;         // milliseconds for "click" event

@@ -1,3 +1,6 @@
+import {
+    CURSOR_ROTATE,
+} from '../constants.js';
 import { Box } from './objects/Box.js';
 import { Circle } from './objects/Circle.js';
 import { Matrix2 } from './math/Matrix2.js';
@@ -38,13 +41,38 @@ class Helpers {
 
         // Add Resizers
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createResizer(color, x, y, type = 'box') {
+            function createResizer(color, x, y, type = 'box', addRotation) {
                 const resizer = (type === 'box') ? new Box() : new Circle();
                 if (type === 'circle') resizer.radius = radius;
                 resizer.draggable = true;
                 resizer.focusable = false;
                 resizer.fillStyle.color = color;
                 resizer.layer = object.layer + 1;
+                resizer.cursor = function(camera) {
+                    const cursorStyles = [
+                        { angle:   0, cursor: 'ew-resize' },
+                        { angle:  45, cursor: 'nwse-resize' },
+                        { angle:  90, cursor: 'ns-resize' },
+                        { angle: 135, cursor: 'nesw-resize' },
+                        { angle: 180, cursor: 'ew-resize' },
+                        { angle: 225, cursor: 'nwse-resize' },
+                        { angle: 270, cursor: 'ns-resize' },
+                        { angle: 315, cursor: 'nesw-resize' },
+                        { angle: 360, cursor: 'ew-resize' },
+                    ];
+                    const rotation = ((resizer.globalMatrix.getRotation() + camera.rotation) * 180 / Math.PI) + addRotation;
+                    const normalizedRotation = (rotation + 360) % 360;
+                    let closestCursor = 'default';
+                    let minAngleDiff = Infinity;
+                    for (const { angle, cursor } of cursorStyles) {
+                        const angleDiff = Math.abs(normalizedRotation - angle);
+                        if (angleDiff < minAngleDiff) {
+                            minAngleDiff = angleDiff;
+                            closestCursor = cursor;
+                        }
+                    }
+                    return closestCursor;
+                };
                 resizer.onPointerDrag = function(pointer, camera) {
                     Object2D.prototype.onPointerDrag.call(this, pointer, camera);
                     const delta = localDelta(pointer, camera)
@@ -64,14 +92,14 @@ class Helpers {
                 resizerContainer.add(resizer);
                 return resizer;
             }
-            topLeft = createResizer('#ff0000', 1, 1, 'circle');
-            topRight = createResizer('#00ff00', -1, 1, 'circle');
-            bottomRight = createResizer('#0000ff', -1, -1, 'circle');
-            bottomLeft = createResizer('#ffff00', 1, -1, 'circle');
-            leftResizer = createResizer('#ff0000', 1, 0, 'box');
-            rightResizer = createResizer('#0000ff', -1, 0, 'box');
-            topResizer = createResizer('#00ff00', 0, 1, 'box');
-            bottomResizer = createResizer('#ffff00', 0, -1, 'box');
+            bottomRight = createResizer('#0000ff', -1, -1, 'circle', 45);
+            bottomLeft = createResizer('#ffff00', 1, -1, 'circle', 135);
+            topLeft = createResizer('#ff0000', 1, 1, 'circle', 225);
+            topRight = createResizer('#00ff00', -1, 1, 'circle', 315);
+            rightResizer = createResizer('#0000ff', -1, 0, 'box', 0);
+            bottomResizer = createResizer('#ffff00', 0, -1, 'box', 90);
+            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180);
+            topResizer = createResizer('#00ff00', 0, 1, 'box', 270);
         }
 
         // Add Rotate Tool
@@ -81,6 +109,8 @@ class Helpers {
             rotater.focusable = false;
             rotater.radius = radius;
             rotater.layer = object.layer + 1;
+            // rotater.cursor = `url('../files/cursors/rotate.png') 16 16, auto`;
+            rotater.cursor = `url('${CURSOR_ROTATE}') 16 16, auto`;
             rotater.onPointerDrag = function(pointer, camera) {
                 const objectCenter = object.boundingBox.getCenter();
                 const pointerStart = pointer.position.clone();
@@ -123,21 +153,25 @@ class Helpers {
             if (topLeft) {
                 topLeft.position.copy(topLeftWorld);
                 topLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                topLeft.rotation = object.rotation;
                 topLeft.updateMatrix();
             }
             if (topRight) {
                 topRight.position.copy(topRightWorld);
                 topRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                topRight.rotation = object.rotation;
                 topRight.updateMatrix();
             }
             if (bottomLeft) {
                 bottomLeft.position.copy(bottomLeftWorld);
                 bottomLeft.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomLeft.rotation = object.rotation;
                 bottomLeft.updateMatrix();
             }
             if (bottomRight) {
                 bottomRight.position.copy(bottomRightWorld);
                 bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
+                bottomRight.rotation = object.rotation;
                 bottomRight.updateMatrix();
             }
 

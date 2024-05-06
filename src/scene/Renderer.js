@@ -134,23 +134,32 @@ class Renderer extends Element {
         });
 
         // Pointer Events
+        let currentCursor = null;
         for (const child of objects) {
             // Process?
             if (child.pointerEvents) {
                 // Local Pointer Position
                 const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
+                const isInside = child.isInside(localPoint);
+                // Mouse Cursor
+                if (!currentCursor && isInside || this.beingDragged === child && child.cursor) {
+                    if (typeof child.cursor === 'function') currentCursor = child.cursor(camera);
+                    else currentCursor = child.cursor;
+                }
                 // Pointer Inside?
-                if (!this.beingDragged && child.isInside(localPoint)) {
-                    if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
-                    if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
-                    if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
-                    if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
-                    if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
-                    if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                        if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
-                        if (child.draggable) {
-                            this.beingDragged = child;
-                            if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                if (isInside) {
+                    if (!this.beingDragged) {
+                        if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
+                        if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
+                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
+                        if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
+                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+                            if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
+                            if (child.draggable) {
+                                this.beingDragged = child;
+                                if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                            }
                         }
                     }
                     child.pointerInside = true;
@@ -172,6 +181,9 @@ class Renderer extends Element {
                 child.onPointerDrag(pointer, camera);
             }
         }
+
+        // Update Cursor
+        document.body.style.cursor = currentCursor ?? 'default';
 
         // Update Transformation Matrices
         object.traverse(function(child) {
