@@ -285,71 +285,6 @@ class Css {
     }
 }
 
-const EDGE_SPACE = 4;
-const ALIGN = {
-    LEFT:       'left',
-    CENTER:     'center',
-    MIDDLE:     'center',
-    RIGHT:      'right',
-};
-const OVERFLOW = {
-    LEFT:       'left',
-    RIGHT:      'right',
-};
-const POSITION = {
-    OVER:       'over',
-    UNDER:      'under',
-};
-class Popper {
-    static getLeft(dom) { return dom.getBoundingClientRect().left; }
-    static getTop(dom) { return dom.getBoundingClientRect().top; }
-    static getWidth(dom) { return dom.offsetWidth; }
-    static getHeight(dom) { return dom.offsetHeight; }
-    static popOver(dom, parent, align = ALIGN.LEFT, offsetX = 0, offsetY = 0, overflow = OVERFLOW.RIGHT) {
-        return Popper.popOverUnder(dom, parent, POSITION.OVER, align, offsetX, offsetY, overflow);
-    }
-    static popUnder(dom, parent, align = ALIGN.LEFT, offsetX = 0, offsetY = 0, overflow = OVERFLOW.RIGHT) {
-        return Popper.popOverUnder(dom, parent, POSITION.UNDER, align, offsetX, offsetY, overflow);
-    }
-    static popOverUnder(dom, parent, overUnder = POSITION.UNDER, align = ALIGN.LEFT,
-                        offsetX = 0, offsetY = 0, overflow = OVERFLOW.RIGHT) {
-        let maxRight = window.innerWidth - EDGE_SPACE;
-        let maxBottom = window.innerHeight - EDGE_SPACE;
-        offsetX = (offsetX) ? parseInt(Css.toPx(offsetX), 10) : 0;
-        offsetY = (offsetY) ? parseInt(Css.toPx(offsetY), 10) : 0;
-        let desiredLeft = Popper.getLeft(parent) + offsetX;
-        if (align === ALIGN.CENTER) {
-            let offset = Popper.getLeft(parent) + ((Popper.getWidth(parent) - Popper.getWidth(dom)) / 2.0);
-            desiredLeft = offset + offsetX;
-        } else if (align === ALIGN.RIGHT) {
-            let offset = Popper.getLeft(parent) + (Popper.getWidth(parent) - Popper.getWidth(dom));
-            desiredLeft = offset + offsetX;
-        }
-        if (overflow === OVERFLOW.LEFT) {
-            maxRight = Popper.getLeft(parent) + Popper.getWidth(parent);
-        }
-        let rightSide = desiredLeft + Popper.getWidth(dom);
-        if (rightSide > maxRight) desiredLeft -= (rightSide - maxRight);
-        if (desiredLeft < EDGE_SPACE) desiredLeft = EDGE_SPACE;
-        let underTop = Popper.getTop(parent) + Popper.getHeight(parent) + offsetY;
-        let overTop = Popper.getTop(parent) - Popper.getHeight(dom) - offsetY;
-        let bottomSide = underTop + Popper.getHeight(dom);
-        if (bottomSide > maxBottom) overUnder = POSITION.OVER;
-        if (overTop < EDGE_SPACE) overUnder = POSITION.UNDER;
-        let desiredTop = (overUnder === POSITION.UNDER) ? underTop : overTop;
-        if (overUnder === POSITION.UNDER) {
-            bottomSide = desiredTop + Popper.getHeight(dom);
-            if (bottomSide > maxBottom) {
-                desiredTop = maxBottom - Popper.getHeight(dom);
-                if (desiredTop < EDGE_SPACE) desiredTop = EDGE_SPACE;
-            }
-        }
-        dom.style.left = Css.toPx(desiredLeft);
-        dom.style.top = Css.toPx(desiredTop);
-        return overUnder;
-    }
-}
-
 class Dom {
     static findElementAt(className, centerX, centerY) {
         const domElements = document.elementsFromPoint(centerX, centerY);
@@ -443,612 +378,6 @@ class Dom {
         }
     }
 }
-
-class SignalBinding {
-    active = true;
-    params = null;
-    onceOnly = false;
-    constructor(signal, listener, onceOnly, priority = 0) {
-        this.listener = listener;
-        this.onceOnly = onceOnly;
-        this.signal = signal;
-        this.priority = priority;
-    }
-    execute(paramsArr) {
-        let handlerReturn;
-        let params;
-        if (this.active && !!this.listener) {
-            params = this.params ? this.params.concat(paramsArr) : paramsArr;
-            handlerReturn = this.listener.apply(null, params);
-            if (this.onceOnly) this.detach();
-        }
-        return handlerReturn;
-    }
-    detach() {
-        return this.isBound() ? this.signal.remove(this.listener) : null;
-    }
-    isBound() {
-        return (!!this.signal && !!this.listener);
-    }
-    isOnce() {
-        return this.onceOnly;
-    }
-    getListener() {
-        return this.listener;
-    }
-    getSignal() {
-        return this.signal;
-    }
-    destroy() {
-        delete this.signal;
-        delete this.listener;
-    }
-    toString() {
-        return '[SignalBinding onceOnly:' + this.onceOnly +', isBound:'+ this.isBound() +', active:' + this.active + ']';
-    }
-}
-const _enabled = [];
-const _missed = {};
-let _time = 0;
-class Signal {
-    VERSION = '1.0.2';
-    active = true;
-    memorize = false;
-    shouldPropagate = true;
-    static disableSignals() {
-        if (_enabled.length === 0) {
-            for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
-            _time = 0;
-        }
-        _enabled.push('false');
-    }
-    static enableSignals() {
-        _enabled.pop();
-        return (_enabled.length > 0) ? {} : Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
-    }
-    constructor(moniker) {
-        this._bindings = [];
-        this._prevParams = null;
-        this.moniker = moniker;
-    }
-    #registerListener(listener, onceOnly, priority) {
-        let prevIndex = this.#indexOfListener(listener);
-        let binding;
-        if (prevIndex !== -1) {
-            binding = this._bindings[prevIndex];
-            if (binding.isOnce() !== onceOnly) {
-                throw new Error('You cannot add' + (onceOnly ? '' : 'Once') +'() then add'+ (!onceOnly ? '' : 'Once') +'() the same listener without removing the relationship first');
-            }
-        } else {
-            binding = new SignalBinding(this, listener, onceOnly, priority);
-            let n = this._bindings.length;
-            do { --n; } while (this._bindings[n] && binding.priority <= this._bindings[n].priority);
-            this._bindings.splice(n + 1, 0, binding);
-        }
-        if (this.memorize && this._prevParams){
-            binding.execute(this._prevParams);
-        }
-        return binding;
-    }
-    #indexOfListener(listener) {
-        let n = this._bindings.length;
-        let cur;
-        while (n--) {
-            cur = this._bindings[n];
-            if (cur.listener === listener) return n;
-        }
-        return -1;
-    }
-    has(listener) {
-        return this.#indexOfListener(listener) !== -1;
-    }
-    add(listener, priority) {
-        validateListener(listener, 'add');
-        return this.#registerListener(listener, false, priority);
-    }
-    addOnce(listener, priority) {
-        validateListener(listener, 'addOnce');
-        return this.#registerListener(listener, true, priority);
-    }
-    remove(listener) {
-        validateListener(listener, 'remove');
-        const index = this.#indexOfListener(listener);
-        if (index !== -1) {
-            this._bindings[index].destroy();
-            this._bindings.splice(index, 1);
-        }
-        return listener;
-    }
-    removeAll() {
-        let n = this._bindings.length;
-        while (n--) this._bindings[n].destroy();
-        this._bindings.length = 0;
-    }
-    getNumListeners() {
-        return this._bindings.length;
-    }
-    halt() {
-        this.shouldPropagate = false;
-    }
-    dispatch() {
-        if (!this.active) return;
-        if (_enabled.length > 0) {
-            if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
-            _missed[this.moniker].args.push([ ...arguments ]);
-            _missed[this.moniker].time = _time++;
-            return;
-        }
-        let paramsArr = [ ...arguments ];
-        let n = this._bindings.length;
-        if (this.memorize) this._prevParams = paramsArr;
-        if (!n) return;
-        const bindings = [ ...this._bindings ];
-        this.shouldPropagate = true;
-        do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
-    }
-    forget() {
-        this._prevParams = null;
-    }
-    dispose() {
-        this.removeAll();
-        delete this._bindings;
-        delete this._prevParams;
-    }
-    toString() {
-        return '[Signal active:'+ this.active +' numListeners:'+ this.getNumListeners() +']';
-    }
-}
-function validateListener(listener, fnName) {
-    if (typeof listener !== 'function') {
-        throw new Error(`'listener' is a required param of ${fnName}() and should be a Function!`);
-    }
-}
-
-class Strings {
-    static addSpaces(string) {
-        if (typeof string !== 'string') string = String(string);
-        string = string.replace(/([a-z])([A-Z])/g, '$1 $2');
-        string = string.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
-        return string.trim();
-    }
-    static capitalize(string) {
-        const words = String(string).split(' ');
-        for (let i = 0; i < words.length; i++) {
-            words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-        }
-        return words.join(' ');
-    }
-    static countDigits(number) {
-        return parseFloat(number).toString().length;
-    }
-    static escapeHTML(html) {
-        if (html == undefined) return html;
-        return html
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-    }
-    static nameFromUrl(url, capitalize = true) {
-        let imageName = new String(url.replace(/^.*[\\\/]/, ''));
-        imageName = imageName.replace(/\.[^/.]+$/, "");
-        if (capitalize) imageName = Strings.capitalize(imageName);
-        return imageName;
-    }
-    static prettyTitle(string) {
-        return Strings.addSpaces(Strings.capitalize(string));
-    }
-}
-
-class Element {
-    constructor(domElement) {
-        if (domElement == null) {
-            console.trace('Element.constructor: No HTMLElement provided!');
-            domElement = document.createElement('div');
-        }
-        this.isElement = true;
-        let dom = domElement;
-        let suey = this;
-        this.parent = undefined;
-        this.children = [];
-        this.slots = [];
-        this.contents = function() { return suey; };
-        Object.defineProperties(this, {
-            dom: {
-                get: function() { return dom; },
-                set: function(value) { dom = value; },
-            },
-            id: {
-                configurable: true,
-                get: function() { return dom.id; },
-                set: function(value) { dom.id = value; },
-            },
-            name: {
-                get: function() { return dom.name ?? '???'; },
-                set: function(value) { dom.name = String(value); } ,
-            },
-        });
-        Object.defineProperties(dom, {
-            suey: {
-                get: function() { return suey; },
-            },
-        });
-        this.on('destroy', () => {
-            for (const slot of suey.slots) {
-                if (typeof slot.detach === 'function') slot.detach();
-                if (typeof slot.destroy === 'function') slot.destroy();
-            }
-            suey.slots.length = 0;
-        });
-    }
-    setID(id) {
-        this.id = id;
-        return this;
-    }
-    addSlot(slot) {
-        if (slot instanceof SignalBinding) {
-            this.slots.push(slot);
-        } else {
-            console.warn(`Element.addSlot(): ID: '${this.id}' / NAME: '${this.name}' failed to add slot`, slot);
-        }
-    }
-    add(...elements) {
-        for (const element of elements) {
-            addToParent(this.contents(), element);
-        }
-        return this;
-    }
-    addToSelf(...elements) {
-        for (const element of elements) {
-            addToParent(this, element);
-        }
-        return this;
-    }
-    clearContents() {
-        destroyChildren(this.contents(), false );
-        return this;
-    }
-    destroy() {
-        destroyChildren(this, true );
-        return this;
-    }
-    detach(...elements) {
-        const removedElements = [];
-        for (const element of elements) {
-            let removed = removeFromParent(this.contents(), element, false );
-            if (!removed) removed = removeFromParent(this, element, false );
-            if (!removed) {  }
-            removedElements.push(removed);
-        }
-        if (removedElements.length === 0) return undefined;
-        if (removedElements.length === 1) return removedElements[0];
-        return removedElements;
-    }
-    remove(...elements) {
-        const removedElements = [];
-        for (const element of elements) {
-            let removed = removeFromParent(this.contents(), element, true );
-            if (!removed) removed = removeFromParent(this, element, true );
-            if (!removed) {  }
-            removedElements.push(removed);
-        }
-        if (removedElements.length === 0) return undefined;
-        if (removedElements.length === 1) return removedElements[0];
-        return removedElements;
-    }
-    removeSelf() {
-        this.destroy();
-        const parent = this.parent ?? this.dom?.parentElement;
-        removeFromParent(parent, this, false );
-        return this;
-    }
-    setClass(...classNames) {
-        this.dom.className = '';
-        return this.addClass(...classNames);
-    }
-    addClass(...classNames) {
-        for (const className of classNames) {
-            if (className && typeof className === 'string' && className != '') {
-                this.dom.classList.add(className);
-            }
-        }
-        return this;
-    }
-    hasClass(className) {
-        return this.dom.classList.contains(className);
-    }
-    hasClassWithString(substring) {
-        substring = String(substring).toLowerCase();
-        const classArray = [ ...this.dom.classList ];
-        for (let i = 0; i < classArray.length; i++) {
-            const className = classArray[i];
-            if (className.toLowerCase().includes(substring)) return true;
-        }
-        return false;
-    }
-    removeClass(...classNames) {
-        for (const className of classNames) {
-            this.dom.classList.remove(className);
-        }
-        return this;
-    }
-    toggleClass(className) {
-        if (className != null && typeof className === 'string' && className !== '') {
-            if (this.hasClass(className)) this.removeClass(className);
-            else this.addClass(className);
-        }
-        return this;
-    }
-    wantsClass(className, wants = true) {
-        if (className && className != '') {
-            if (wants) this.addClass(className);
-            else this.removeClass(className);
-        }
-        return this;
-    }
-    setAttribute(attrib, value) {
-        this.dom.setAttribute(attrib, value);
-    }
-    setDisabled(value = true) {
-        if (value) this.addClass('suey-disabled');
-        else this.removeClass('suey-disabled');
-        this.dom.disabled = value;
-        return this;
-    }
-    selectable(allowSelection) {
-        if (allowSelection) this.removeClass('suey-unselectable');
-        else this.addClass('suey-unselectable');
-        return this;
-    }
-    hide(dispatchEvent = true) {
-        if (this.isHidden()) return;
-        if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
-        this.addClass('suey-hidden');
-        this.setStyle('display', 'none');
-    }
-    display(dispatchEvent = true) {
-        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
-        this.removeClass('suey-hidden');
-        this.setStyle('display', '');
-        if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
-    }
-    isDisplayed() {
-        return getComputedStyle(this.dom).display != 'none';
-    }
-    isHidden() {
-        return getComputedStyle(this.dom).display == 'none';
-    }
-    allowFocus() {
-        this.dom.tabIndex = 0;
-    }
-    allowMouseFocus() {
-        this.dom.tabIndex = -1;
-    }
-    focus() {
-        this.dom.focus();
-    }
-    blur() {
-        this.dom.blur();
-    }
-    setTextContent(value) {
-        if (value != undefined) this.contents().dom.textContent = value;
-        return this;
-    }
-    getTextContent() {
-        return this.contents().dom.textContent;
-    }
-    setInnerText(value) {
-        if (value != undefined) this.contents().dom.innerText = value;
-        return this;
-    }
-    getInnerText() {
-        return this.contents().dom.innerText;
-    }
-    setInnerHtml(value) {
-        if (value === undefined || value === null) value = '';
-        if (typeof this.contents().dom.setHTML === 'function') {
-            this.contents().dom.setHTML(value);
-        } else {
-            this.contents().dom.innerHTML = value;
-        }
-        return this;
-    }
-    getInnerHtml() {
-        return this.contents().dom.innerHTML;
-    }
-    setStyle() {
-        for (let i = 0, l = arguments.length; i < l; i += 2) {
-            const style = arguments[i];
-            const value = arguments[i + 1];
-            this.dom.style[style] = value;
-        }
-        return this;
-    }
-    setContentsStyle() {
-        for (let i = 0, l = arguments.length; i < l; i += 2) {
-            const style = arguments[i];
-            const value = arguments[i + 1];
-            this.contents().dom.style[style] = value;
-        }
-        return this;
-    }
-    setColor() {
-        console.error(`${this.constructor.name}.setColor(): Method must be reimplemented from Element`);
-        return this;
-    }
-    getLeft() {
-        return this.dom.getBoundingClientRect().left;
-    }
-    getTop() {
-        return this.dom.getBoundingClientRect().top;
-    }
-    getWidth() {
-        return this.dom.getBoundingClientRect().width;
-    }
-    getHeight() {
-        return this.dom.getBoundingClientRect().height;
-    }
-    getRelativePosition() {
-        const rect = this.dom.getBoundingClientRect();
-        let offsetParent = this.dom.offsetParent;
-        while (offsetParent && getComputedStyle(offsetParent).position === 'static') {
-            offsetParent = offsetParent.offsetParent;
-        }
-        if (!offsetParent) {
-            return { left: rect.left, top: rect.top };
-        }
-        const parentRect = offsetParent.getBoundingClientRect();
-        const relativeLeft = rect.left - parentRect.left;
-        const relativeTop = rect.top - parentRect.top;
-        return { left: relativeLeft, top: relativeTop };
-    }
-    traverse(callback, applyToSelf = true) {
-        if (applyToSelf) callback(this);
-        if (this.children) {
-            for (const child of this.children) {
-                child.traverse(callback, true);
-            }
-        }
-    }
-    traverseAncestors(callback, applyToSelf = true) {
-        if (applyToSelf) callback(this);
-        if (this.parent) this.parent.traverseAncestors(callback, true);
-    }
-    on(event, callback, options = {}) {
-        if (typeof options !== 'object') options = {};
-        if (typeof callback !== 'function') {
-            console.warn(`Element.on(): No callback function provided for '${event}'`);
-        } else {
-            const eventName = event.toLowerCase();
-            const eventHandler = callback.bind(this);
-            const dom = this.dom;
-            if (options.once || eventName === 'destroy') {
-                options.once = true;
-                dom.addEventListener(eventName, eventHandler, options);
-            } else {
-                dom.addEventListener(eventName, eventHandler, options);
-                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler, options), { once: true });
-            }
-        }
-        return this;
-    }
-}
-function addToParent(parent, element) {
-    if (!parent || !element) return;
-    if (element.isElement) {
-        if (parent.isElement && element.parent === parent) return;
-        if (element.parent && element.parent.isElement) {
-            removeFromParent(element.parent, element, false);
-        }
-    }
-    const parentDom = parent.isElement ? parent.dom : parent;
-    const elementDom = element.isElement ? element.dom : element;
-    try { if (parentDom) parentDom.appendChild(elementDom); }
-    catch (error) {  }
-    if (element.isElement) {
-        let hasIt = false;
-        for (const child of parent.children) {
-            if (child.dom.isSameNode(element.dom)) { hasIt = true; break; }
-        }
-        if (!hasIt) parent.children.push(element);
-        element.parent = parent;
-    }
-    if (elementDom instanceof HTMLElement) {
-        elementDom.dispatchEvent(new Event('parent-changed'));
-    }
-}
-function destroyChildren(element, destroySelf = true) {
-    if (!element) return;
-    const dom = element.isElement ? element.dom : element;
-    if (!(dom instanceof HTMLElement)) return;
-    if (destroySelf) {
-        if (!dom.wasDestroyed) {
-            dom.dispatchEvent(new Event('destroy'));
-            dom.wasDestroyed = true;
-        }
-    }
-    for (let i = dom.children.length - 1; i >= 0; i--) {
-        const child = dom.children[i];
-        destroyChildren(child, true );
-        try { dom.removeChild(child); } catch (error) {  }
-    }
-    if (dom.suey && dom.suey.isElement) dom.suey.children.length = 0;
-}
-function removeFromParent(parent, element, destroy = true) {
-    if (!parent || !element) return undefined;
-    if (destroy) destroyChildren(element, true );
-    if (element.isElement && parent.isElement) {
-        for (let i = 0; i < parent.children.length; i++) {
-            const child = parent.children[i];
-            if (child.dom.isSameNode(element.dom)) {
-                parent.children.splice(i, 1);
-                element.parent = undefined;
-            }
-        }
-    }
-    try {
-        if (parent.isElement) parent = parent.dom;
-        if (parent instanceof HTMLElement) {
-            const removed = parent.removeChild(element.isElement ? element.dom : element);
-            return (removed && removed.suey) ? removed.suey : removed;
-        }
-    } catch (error) {  }
-}
-
-class Div extends Element {
-    constructor(innerHtml) {
-        super(document.createElement('div'));
-        this.setInnerHtml(innerHtml);
-    }
-}
-
-const DEVICE_TYPE = {
-    POINTER: 1,
-    TOUCH: 2,
-};
-let _showTimer;
-class Tooltipper {
-    constructor() {
-        const tooltip = new Div().setClass('suey-tooltip');
-        tooltip.setInnerHtml('');
-        document.body.appendChild(tooltip.dom);
-        let deviceType = DEVICE_TYPE.POINTER;
-        document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
-        document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
-        document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
-        document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
-        function showTooltip(event) {
-            const element = event.target;
-            if (!element || !(element instanceof HTMLElement)) return;
-            if (!element.getAttribute('tooltip')) return;
-            if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
-            if (('TouchEvent' in window) && event instanceof TouchEvent) return;
-            let text = element.getAttribute('tooltip');
-            if (!text.length) return;
-            clearTimeout(_showTimer);
-            tooltip.removeClass('suey-updated');
-            _showTimer = setTimeout(() => {
-                tooltip.setInnerHtml(text);
-                Popper.popUnder(tooltip.dom, element, ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
-                tooltip.addClass('suey-updated');
-            }, parseInt(Css.getVariable('--tooltip-delay')));
-        }
-        function hideTooltip(event) {
-            if (event) {
-                const element = event.target;
-                if (!element || !(element instanceof HTMLElement)) return;
-                if (!element.getAttribute('tooltip')) return;
-            }
-            clearTimeout(_showTimer);
-            tooltip.removeClass('suey-updated');
-        }
-    }
-}
-const tooltipper = new Tooltipper();
 
 class Iris {
     static get NAMES() { return HTML_COLORS; }
@@ -1870,7 +1199,7 @@ class ColorizeFilter {
     }
 }
 
-const _clr$1 = new Iris();
+const _clr = new Iris();
 const _icon = new Iris();
 const _icon_light = new Iris();
 const _icon_dark = new Iris();
@@ -1894,7 +1223,7 @@ class ColorScheme {
     }
     static changeColor(color, tint, saturation) {
         if (color === undefined || color === null) return;
-        _color = _clr$1.set(color).hex();
+        _color = _clr.set(color).hex();
         _tint = (tint !== undefined) ? tint : _tint;
         _saturation = (saturation !== undefined) ? saturation : _saturation;
         _icon.set(color);
@@ -1912,7 +1241,7 @@ class ColorScheme {
     static updateCSS() {
         for (const key in TRAIT) {
             const guiColor = TRAIT[key];
-            Css.setVariable(`--${guiColor}`, _clr$1.set(ColorScheme.color(guiColor)).rgbString());
+            Css.setVariable(`--${guiColor}`, _clr.set(ColorScheme.color(guiColor)).rgbString());
         }
         Css.setVariable('--tint-icon', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.ICON)));
         Css.setVariable('--tint-complement', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.COMPLEMENT)));
@@ -1924,8 +1253,8 @@ class ColorScheme {
         Css.setVariable('--tint-triadic6', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC6)));
         Css.setVariable('--tint-text', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TEXT)));
         Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$1.set(DEFAULT_CLR).hue();
-        const newHue = _clr$1.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const startHue = _clr.set(DEFAULT_CLR).hue();
+        const newHue = _clr.set(ColorScheme.color(TRAIT.ICON, true )).hue();
         const diffHue = `${newHue - startHue}deg`;
         Css.setVariable('--rotate-hue', diffHue);
     }
@@ -1934,17 +1263,17 @@ class ColorScheme {
         let output = '';
         for (const key in TRAIT) {
             const guiColor = TRAIT[key];
-            _clr$1.set(ColorScheme.color(guiColor));
+            _clr.set(ColorScheme.color(guiColor));
             output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$1.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$1.hexString()}\n`;
+            output += `${_clr.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr.hexString()}\n`;
         }
         return output;
     }
     static color(guiColor, ignoreSaturation = false) {
-        _clr$1.set(0);
-        if (guiColor == null) return _clr$1.hex();
-        if (Object.values(TRAIT).includes(guiColor) === false) return _clr$1.set(guiColor).hex();
+        _clr.set(0);
+        if (guiColor == null) return _clr.hex();
+        if (Object.values(TRAIT).includes(guiColor) === false) return _clr.set(guiColor).hex();
         let tint = _tint;
         let saturation = _saturation;
         let darkness = 0;
@@ -1957,57 +1286,57 @@ class ColorScheme {
         }
         if (_background == BACKGROUNDS.LIGHT) {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$1.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$1.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$1.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$1.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$1.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$1.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$1.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$1.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$1.set(255, 255, 255, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$1.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$1.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$1.set(  0,   0,   0, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr.set(  0,   0,   0, 'rgb'); break;
             }
         } else {
             switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$1.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$1.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$1.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$1.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$1.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$1.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$1.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$1.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$1.set(  0,   0,   0, 'rgb'); lightness = 0; break;
-                case TRAIT.DARKLIGHT:           _clr$1.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$1.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$1.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.SHADOW:              _clr.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr.set(  0,   0,   0, 'rgb'); lightness = 0; break;
+                case TRAIT.DARKLIGHT:           _clr.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr.set(255, 255, 255, 'rgb'); break;
             }
             if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$1.set( 64,  64,  64, 'rgb');
+                _clr.set( 64,  64,  64, 'rgb');
             }
         }
         if (guiColor === TRAIT.DARKNESS) {
             switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$1.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$1.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$1.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$1.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.DARK:      _clr.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr.set(  0,   0,   0, 'rgb');     break;
             }
         }
         switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$1.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$1.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$1.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$1.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$1.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$1.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$1.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$1.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr$1.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr$1.copy(_triadic6);   break;
+            case TRAIT.ICON_DARK:   _clr.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr.copy(_triadic6);   break;
         }
         switch (guiColor) {
             case TRAIT.COMPLEMENT:
@@ -2025,469 +1354,14 @@ class ColorScheme {
                 lightness = 0;
                 break;
         }
-        if (tint !== 0) _clr$1.mix(_icon, tint);
-        if (lightness !== 0) _clr$1.brighten(lightness);
-        if (darkness !== 0) _clr$1.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$1.hslOffset(0, saturation, 0);
-        return _clr$1.hex();
+        if (tint !== 0) _clr.mix(_icon, tint);
+        if (lightness !== 0) _clr.brighten(lightness);
+        if (darkness !== 0) _clr.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr.hslOffset(0, saturation, 0);
+        return _clr.hex();
     }
 }
 ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
-
-const _clr = new Iris();
-class Button extends Element {
-    constructor(buttonText = ' ', closesMenus = true) {
-        super(document.createElement('button'));
-        const self = this;
-        this.setClass('suey-button');
-        this.allowMouseFocus();
-        this.dom.textContent = buttonText ?? ' ';
-        this.attachedMenu = undefined;
-        this.menuOffsetX = 0;
-        this.menuOffsetY = 0;
-        this.alignMenu = ALIGN.LEFT;
-        this.overflowMenu = OVERFLOW.RIGHT;
-        this.closesMenus = closesMenus;
-        Object.defineProperty(this, 'disabled', {
-            get: function() { return (this.dom) ? this.dom.disabled : true; },
-            set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
-        });
-        function onPointerDown(event) {
-            const hideEvent = new Event('hidetooltip', { bubbles: true });
-            self.dom.dispatchEvent(hideEvent);
-            event.preventDefault();
-        }
-        this.on('pointerdown', onPointerDown);
-        this.on('destroy', () => {
-            if (self.attachedMenu) self.detachMenu();
-        });
-    }
-    setColor(color) {
-        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) color = `var(--${color})`;
-        else color = _clr.set(color).rgbString();
-        this.setStyle('background-image', `linear-gradient(to bottom, rgba(${color}, 0.9), rgba(${color}, 0.65))`);
-        return this;
-    }
-    attachMenu(menuElement, popupStyle = false) {
-        const self = this;
-        if (popupStyle) menuElement.addClass('suey-popup-menu');
-        function buttonPointerDown(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (self.hasClass('suey-selected') === false) {
-                self.addClass('suey-selected');
-                popMenu();
-                setTimeout(() => {
-                    if (!self.dom) return;
-                    menuElement.showMenu(self.dom, true );
-                }, 0);
-            }
-            document.dispatchEvent(new Event('closemenu'));
-        }
-        function popMenu() {
-            const popped = Popper.popUnder(menuElement.dom, self.dom, self.alignMenu, self.menuOffsetX, self.menuOffsetY, self.overflowMenu);
-            menuElement.removeClass('suey-slide-up');
-            menuElement.removeClass('suey-slide-down');
-            menuElement.addClass((popped === POSITION.UNDER) ? 'suey-slide-down' : 'suey-slide-up');
-        }
-        if (menuElement.hasClass('suey-menu') === false) return this;
-        this.addClass('suey-menu-button');
-        this.attachedMenu = menuElement;
-        document.body.appendChild(menuElement.dom);
-        this.on('pointerdown', buttonPointerDown);
-        const observer = new MutationObserver((mutations, observer) => {
-            if (document.contains(this.dom)) {
-                popMenu();
-                observer.disconnect();
-            }
-        });
-        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
-        window.addEventListener('resize', popMenu);
-        this.detachMenu = function() {
-            if (self.hasClass('suey-menu-button') === false) return;
-            self.removeClass('suey-menu-button');
-            window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', buttonPointerDown);
-            self.attachedMenu.destroy();
-            document.body.removeChild(self.attachedMenu.dom);
-            self.attachedMenu = undefined;
-        };
-    }
-    on(event, callback, options = {}) {
-        if (event === 'click' || event === 'select') {
-            console.warn('Button.on(): Click event for this Element is meant to be used with onPress()');
-        }
-        super.on(event, callback, options);
-        return this;
-    }
-    onPress(callback) {
-        if (typeof callback !== 'function') return;
-        const self = this;
-        callback = callback.bind(self);
-        const eventHandler = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (!self.hasClass('suey-disabled')) {
-                callback(event);
-                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
-            }
-        };
-        super.on('click', eventHandler);
-        return self;
-    }
-}
-
-class Image extends Element {
-    constructor(imageUrl, width = null, height = null, draggable = false) {
-        const imageDom = document.createElement('img');
-        imageDom.onerror = () => imageDom.style.visibility = 'hidden';
-        if (!draggable) imageDom.ondragstart = () => { return false };
-        if (width != null) imageDom.style.width = Css.parseSize(width);
-        if (height != null) imageDom.style.height = Css.parseSize(height);
-        super(imageDom);
-        this.setClass('suey-image');
-        this.setImage(imageUrl);
-    }
-    setImage(image) {
-        if (typeof image === 'string' && image.toLowerCase().includes('<svg')) {
-            const blob = new Blob([ image ], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            this.dom.src = url;
-            this.dom.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
-        } else {
-            this.dom.src = image;
-        }
-        return this;
-    }
-    setColor(color) {
-        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) {
-            this.setStyle('filter', `var(--tint-${color})`);
-        } else {
-            this.setStyle('filter', ColorizeFilter.fromColor(color));
-        }
-        return this;
-    }
-}
-
-class VectorBox extends Div {
-    constructor() {
-        super();
-        this.setClass('suey-vector-box');
-        this.img = undefined;
-        if (arguments.length === 0) return this.addImage(IMAGE_EMPTY);
-        const images = Array.isArray(arguments[0]) ? arguments[0] : [...arguments];
-        for (const image of images) {
-            this.addImage(image);
-        }
-    }
-    setColor(color) {
-        this.firstImage()?.setColor(color);
-        return this;
-    }
-    firstImage() {
-        for (const child of this.contents().children) {
-            if (!child || !child.isElement) continue;
-            if (child.hasClass('suey-image')) return child;
-        }
-    }
-    addImage(imageUrl = IMAGE_EMPTY) {
-        const stretchX = '100%';
-        const stretchY = '100%';
-        const newImage = new Image(imageUrl, stretchX, stretchY, false );
-        if (!this.img) this.img = newImage;
-        this.add(newImage);
-        return this;
-    }
-    enableDragging() {
-        if (this.dom) this.dom.draggable = true;
-        for (const child of this.contents().children) {
-            if (child.isElement && child.dom) child.dom.ondragstart = () => {};
-        }
-        return this;
-    }
-    setImage(imageUrl) {
-        return this.img.setImage(imageUrl);
-    }
-}
-
-class ShadowBox extends Div {
-    constructor() {
-        super();
-        this.setClass('suey-shadow-box');
-        this.addClass('suey-drop-shadow');
-        if (arguments.length === 0) return;
-        const elements = Array.isArray(arguments[0]) ? arguments[0] : [...arguments];
-        for (const element of elements) {
-            this.add((element && element.isElement) ? element : new VectorBox(element));
-        }
-    }
-    setColor(color) {
-        this.firstImage()?.setColor(color);
-        return this;
-    }
-    firstImage() {
-        for (const child of this.contents().children) {
-            if (!child || !child.isElement) continue;
-            if (child.hasClass('suey-image')) return child;
-            if (child.hasClass('suey-vector-box')) return child.firstImage();
-        }
-    }
-    fullSize() {
-        this.addClass('suey-full-size');
-        return this;
-    }
-    dropShadow() {
-        this.addClass('suey-drop-shadow');
-        this.removeClass('suey-even-shadow');
-        return this;
-    }
-    evenShadow() {
-        this.removeClass('suey-drop-shadow');
-        this.addClass('suey-even-shadow');
-        return this;
-    }
-    noShadow() {
-        this.removeClass('suey-drop-shadow');
-        this.removeClass('suey-even-shadow');
-        return this;
-    }
-}
-
-class Interaction {
-    static addCloseButton(element, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
-        Interaction.addCornerButton(CORNER_BUTTONS.CLOSE, element, closeSide, offset, scale);
-    }
-    static addMaxButton(element, closeSide = CLOSE_SIDES.BOTH, offset = 0, scale = 1.3) {
-        Interaction.addCornerButton(CORNER_BUTTONS.MAX, element, closeSide, offset, scale);
-    }
-    static addCornerButton(type = CORNER_BUTTONS.CLOSE, element, closeSide, offset = 0, scale = 1.3) {
-        if (!element || !element.isElement) return console.warn(`Interaction.addCornerButton(): Missing element argument`);
-        const button = new Button();
-        button.setClass('suey-corner-button');
-        button.addClass('suey-panel-button');
-        let cornerImage, buttonTooltip, buttonOffset;
-        switch (type) {
-            case CORNER_BUTTONS.CLOSE:
-                button.setStyle('background-color', '#e24c4b');
-                cornerImage = IMAGE_CLOSE;
-                buttonTooltip = 'Close Panel';
-                buttonOffset = 0;
-                break;
-            case CORNER_BUTTONS.MAX:
-                button.setStyle('background-color', '#2bc840');
-                cornerImage = IMAGE_EXPAND;
-                buttonTooltip = 'Toggle Panel';
-                buttonOffset = 1.2;
-                break;
-        }
-        const imageBox = new ShadowBox(cornerImage).evenShadow().fullSize().addClass('suey-corner-image');
-        button.add(imageBox);
-        button.setAttribute('tooltip', buttonTooltip);
-        button.setStyle('min-height', `${scale}em`, 'min-width', `${scale}em`);
-        const sideways = `${0.8 - ((scale + 0.28571) / 2) + offset + (buttonOffset * scale)}em`;
-        button.setStyle('top', `${0.8 - ((scale + 0.28571) / 2)}em`);
-        button.setStyle((closeSide === CLOSE_SIDES.LEFT) ? 'left' : 'right', sideways);
-        if (closeSide === CLOSE_SIDES.BOTH) {
-            let lastSide = CLOSE_SIDES.RIGHT;
-            element.on('pointermove', function(event) {
-                const rect = element.dom.getBoundingClientRect();
-                const middle = rect.left + (rect.width / 2);
-                const x = event.pageX;
-                let changeSide = CLOSE_SIDES.NONE;
-                if (x > middle && lastSide !== CLOSE_SIDES.RIGHT) changeSide = CLOSE_SIDES.RIGHT;
-                else if (x < middle && lastSide !== CLOSE_SIDES.LEFT) changeSide = CLOSE_SIDES.LEFT;
-                if (changeSide !== CLOSE_SIDES.NONE) {
-                    button.addClass('suey-item-hidden');
-                    setTimeout(() => {
-                        button.dom.style.removeProperty('left');
-                        button.dom.style.removeProperty('right');
-                        button.setStyle(changeSide, sideways);
-                        button.removeClass('suey-item-hidden');
-                    }, 100);
-                    lastSide = changeSide;
-                }
-            });
-        }
-        switch (type) {
-            case CORNER_BUTTONS.CLOSE:
-                button.onPress(() => {
-                    if (element.hasClass('suey-dock') && element.tabCount() > 0) {
-                        element.removeFloater(element.selectedID, true );
-                    } else {
-                        element.removeSelf();
-                    }
-                });
-                break;
-            case CORNER_BUTTONS.MAX:
-                button.onPress(() => {
-                    if (typeof element.toggleMinMax === 'function') {
-                        element.toggleMinMax();
-                    }
-                });
-                break;
-        }
-        element.on('pointerenter', () => button.addClass('suey-item-shown'));
-        element.on('pointerleave', () => button.removeClass('suey-item-shown'));
-        element.addToSelf(button);
-    }
-    static makeDraggable(element, parent = element, limitToWindow = false, onDown, onMove, onUp) {
-        const eventElement = (element && element.isElement) ? element.dom : element;
-        const dragElement = (parent && parent.isElement) ? parent.dom : parent;
-        let downX, downY, rect = {}, startingRect = {};
-        let lastX, lastY;
-        let minDistance = 0;
-        let moreThanSlop = false;
-        function roundNearest(decimal, increment = GRID_SIZE) {
-            if (!element.snapToGrid) return decimal;
-            return Math.round(decimal / increment) * increment;
-        }
-        function dragPointerDown(event) {
-            if (event.button !== 0) return;
-            event.stopPropagation();
-            event.preventDefault();
-            eventElement.focus();
-            eventElement.setPointerCapture(event.pointerId);
-            minDistance = 0;
-            downX = event.pageX;
-            downY = event.pageY;
-            lastX = event.pageX;
-            lastY = event.pageY;
-            const computed = getComputedStyle(dragElement);
-            startingRect.left = rect.left = parseFloat(computed.left);
-            startingRect.top = rect.top = parseFloat(computed.top);
-            startingRect.width = rect.width = parseFloat(computed.width);
-            startingRect.height = rect.height = parseFloat(computed.height);
-            document.addEventListener('pointermove', dragPointerMove);
-            document.addEventListener('pointerup', dragPointerUp);
-            document.dispatchEvent(new Event('closemenu'));
-            moreThanSlop = false;
-            if (typeof onDown === 'function') onDown();
-        }
-        function dragPointerMove(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (event.isTrusted) {
-                lastX = event.pageX;
-                lastY = event.pageY;
-            }
-            const computed = getComputedStyle(dragElement);
-            rect.width = parseFloat(computed.width);
-            rect.height = parseFloat(computed.height);
-            const xDiff = (startingRect.width - rect.width) / 2;
-            const yDiff = 0;
-            minDistance = Math.max(minDistance, Math.abs(downX - lastX));
-            minDistance = Math.max(minDistance, Math.abs(downY - lastY));
-            if (!moreThanSlop && minDistance < MOUSE_SLOP_SMALL) return;
-            moreThanSlop = true;
-            eventElement.style.cursor = 'move';
-            const scale = ((element && element.getScale) ? element.getScale() : 1);
-            const diffX = (lastX - downX + xDiff) * (1 / scale);
-            const diffY = (lastY - downY + yDiff) * (1 / scale);
-            let newLeft = roundNearest(rect.left + diffX);
-            let newTop = roundNearest(rect.top + diffY);
-            if (limitToWindow) {
-                const titleHeight = parseInt(Css.toPx('3em'));
-                newLeft = Math.min(window.innerWidth - (rect.width / 2), newLeft);
-                newTop = Math.min(window.innerHeight - titleHeight, newTop);
-                newLeft = Math.max(- (rect.width / 2), newLeft);
-                newTop = Math.max(0, newTop);
-            }
-            if (dragElement.suey) {
-                dragElement.suey.setStyle('left', `${newLeft}px`, 'top', `${newTop}px`);
-            } else {
-                dragElement.style.left = `${newLeft}px`;
-                dragElement.style.top = `${newTop}px`;
-            }
-            if (parent.isWindow) {
-                const parentRect = parent.dom.parentElement.getBoundingClientRect();
-                if (event.clientX < parentRect.left + 50) parent.dockLeft();
-                else if (event.clientX > parentRect.right - 50) parent.dockRight();
-                else if (event.clientY < parentRect.top) parent.dockTop();
-                else if (event.clientY > parentRect.bottom - 50) parent.dockBottom();
-                else parent.undock();
-            }
-            if (typeof onMove === 'function') onMove(diffX, diffY);
-        }
-        function dragPointerUp(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            eventElement.releasePointerCapture(event.pointerId);
-            document.removeEventListener('pointermove', dragPointerMove);
-            document.removeEventListener('pointerup', dragPointerUp);
-            eventElement.style.cursor = 'inherit';
-            if (typeof onUp === 'function') onUp();
-        }
-        eventElement.addEventListener('pointerdown', dragPointerDown);
-        eventElement.addEventListener('destroy', () => { eventElement.removeEventListener('pointerdown', dragPointerDown); }, { once: true });
-    }
-    static makeResizeable(addToElement, onDown, onMove, onUp) {
-        if (!addToElement || !addToElement.isElement) return console.warning('Interaction.makeResizeable(): AddToElement not defined');
-        function createResizer(className) {
-            const resizer = new Div().addClass('suey-resizer', className);
-            let downX, downY, lastX, lastY;
-            let isDown = false;
-            function resizePointerDown(event) {
-                if (event.button !== 0) return;
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.setPointerCapture(event.pointerId);
-                isDown = true;
-                downX = event.pageX;
-                downY = event.pageY;
-                lastX = event.pageX;
-                lastY = event.pageY;
-                document.addEventListener('pointerup', resizePointerUp);
-                document.dispatchEvent(new Event('closemenu'));
-                if (typeof onDown === 'function') onDown();
-            }
-            function resizePointerMove(event) {
-                if (!isDown) return;
-                event.stopPropagation();
-                event.preventDefault();
-                if (event.isTrusted ) {
-                    lastX = event.pageX;
-                    lastY = event.pageY;
-                }
-                const diffX = lastX - downX;
-                const diffY = lastY - downY;
-                if (typeof onMove === 'function') onMove(resizer, diffX, diffY);
-            }
-            function resizePointerUp(event) {
-                event.stopPropagation();
-                event.preventDefault();
-                resizer.dom.releasePointerCapture(event.pointerId);
-                isDown = false;
-                document.removeEventListener('pointerup', resizePointerUp);
-                if (typeof onUp === 'function') onUp();
-            }
-            resizer.on('pointerdown', resizePointerDown);
-            resizer.on('pointermove', resizePointerMove);
-            return resizer;
-        }
-        addToElement.addResizers = function(resizers = []) {
-            if (!resizers.includes(RESIZERS.TOP_LEFT) && (resizers.includes(RESIZERS.LEFT) && resizers.includes(RESIZERS.TOP))) resizers.push(RESIZERS.TOP_LEFT);
-            if (!resizers.includes(RESIZERS.TOP_RIGHT) && (resizers.includes(RESIZERS.RIGHT) && resizers.includes(RESIZERS.TOP))) resizers.push(RESIZERS.TOP_RIGHT);
-            if (!resizers.includes(RESIZERS.BOTTOM_LEFT) && (resizers.includes(RESIZERS.LEFT) && resizers.includes(RESIZERS.BOTTOM))) resizers.push(RESIZERS.BOTTOM_LEFT);
-            if (!resizers.includes(RESIZERS.BOTTOM_RIGHT) && (resizers.includes(RESIZERS.RIGHT) && resizers.includes(RESIZERS.BOTTOM))) resizers.push(RESIZERS.BOTTOM_RIGHT);
-            for (const key in RESIZERS) {
-                const resizerName = RESIZERS[key];
-                if (resizers === 'all' || (Array.isArray(resizers) && resizers.includes(resizerName))) {
-                    const className = `suey-resizer-${resizerName}`;
-                    const existingResizer = addToElement.children.find(child => child.hasClass(className));
-                    if (!existingResizer) addToElement.addToSelf(createResizer(className));
-                }
-            }
-        };
-        addToElement.clearResizers = function() {
-            const resizers = [];
-            for (const child of addToElement.children) {
-                if (child.hasClass('suey-resizer')) resizers.push(child);
-            }
-            addToElement.remove(...resizers);
-        };
-        return addToElement;
-    }
-}
 
 class Key {
     static DOWN = -1;
@@ -2847,43 +1721,519 @@ class Pointer {
     }
 }
 
-class Break extends Element {
-    constructor() {
-        super(document.createElement('br'));
+class SignalBinding {
+    active = true;
+    params = null;
+    onceOnly = false;
+    constructor(signal, listener, onceOnly, priority = 0) {
+        this.listener = listener;
+        this.onceOnly = onceOnly;
+        this.signal = signal;
+        this.priority = priority;
+    }
+    execute(paramsArr) {
+        let handlerReturn;
+        let params;
+        if (this.active && !!this.listener) {
+            params = this.params ? this.params.concat(paramsArr) : paramsArr;
+            handlerReturn = this.listener.apply(null, params);
+            if (this.onceOnly) this.detach();
+        }
+        return handlerReturn;
+    }
+    detach() {
+        return this.isBound() ? this.signal.remove(this.listener) : null;
+    }
+    isBound() {
+        return (!!this.signal && !!this.listener);
+    }
+    isOnce() {
+        return this.onceOnly;
+    }
+    getListener() {
+        return this.listener;
+    }
+    getSignal() {
+        return this.signal;
+    }
+    destroy() {
+        delete this.signal;
+        delete this.listener;
+    }
+    toString() {
+        return '[SignalBinding onceOnly:' + this.onceOnly +', isBound:'+ this.isBound() +', active:' + this.active + ']';
+    }
+}
+const _enabled = [];
+const _missed = {};
+let _time = 0;
+class Signal {
+    VERSION = '1.0.2';
+    active = true;
+    memorize = false;
+    shouldPropagate = true;
+    static disableSignals() {
+        if (_enabled.length === 0) {
+            for (const key in _missed) { if (_missed.hasOwnProperty(key)) delete _missed[key]; }
+            _time = 0;
+        }
+        _enabled.push('false');
+    }
+    static enableSignals() {
+        _enabled.pop();
+        return (_enabled.length > 0) ? {} : Object.fromEntries(Object.entries(_missed).sort(([, a], [, b]) => a.time - b.time));
+    }
+    constructor(moniker) {
+        this._bindings = [];
+        this._prevParams = null;
+        this.moniker = moniker;
+    }
+    #registerListener(listener, onceOnly, priority) {
+        let prevIndex = this.#indexOfListener(listener);
+        let binding;
+        if (prevIndex !== -1) {
+            binding = this._bindings[prevIndex];
+            if (binding.isOnce() !== onceOnly) {
+                throw new Error('You cannot add' + (onceOnly ? '' : 'Once') +'() then add'+ (!onceOnly ? '' : 'Once') +'() the same listener without removing the relationship first');
+            }
+        } else {
+            binding = new SignalBinding(this, listener, onceOnly, priority);
+            let n = this._bindings.length;
+            do { --n; } while (this._bindings[n] && binding.priority <= this._bindings[n].priority);
+            this._bindings.splice(n + 1, 0, binding);
+        }
+        if (this.memorize && this._prevParams){
+            binding.execute(this._prevParams);
+        }
+        return binding;
+    }
+    #indexOfListener(listener) {
+        let n = this._bindings.length;
+        let cur;
+        while (n--) {
+            cur = this._bindings[n];
+            if (cur.listener === listener) return n;
+        }
+        return -1;
+    }
+    has(listener) {
+        return this.#indexOfListener(listener) !== -1;
+    }
+    add(listener, priority) {
+        validateListener(listener, 'add');
+        return this.#registerListener(listener, false, priority);
+    }
+    addOnce(listener, priority) {
+        validateListener(listener, 'addOnce');
+        return this.#registerListener(listener, true, priority);
+    }
+    remove(listener) {
+        validateListener(listener, 'remove');
+        const index = this.#indexOfListener(listener);
+        if (index !== -1) {
+            this._bindings[index].destroy();
+            this._bindings.splice(index, 1);
+        }
+        return listener;
+    }
+    removeAll() {
+        let n = this._bindings.length;
+        while (n--) this._bindings[n].destroy();
+        this._bindings.length = 0;
+    }
+    getNumListeners() {
+        return this._bindings.length;
+    }
+    halt() {
+        this.shouldPropagate = false;
+    }
+    dispatch() {
+        if (!this.active) return;
+        if (_enabled.length > 0) {
+            if (!(this.moniker in _missed)) _missed[this.moniker] = { time: 0, args: [] };
+            _missed[this.moniker].args.push([ ...arguments ]);
+            _missed[this.moniker].time = _time++;
+            return;
+        }
+        let paramsArr = [ ...arguments ];
+        let n = this._bindings.length;
+        if (this.memorize) this._prevParams = paramsArr;
+        if (!n) return;
+        const bindings = [ ...this._bindings ];
+        this.shouldPropagate = true;
+        do { n--; } while (bindings[n] && this.shouldPropagate && bindings[n].execute(paramsArr) !== false);
+    }
+    forget() {
+        this._prevParams = null;
+    }
+    dispose() {
+        this.removeAll();
+        delete this._bindings;
+        delete this._prevParams;
+    }
+    toString() {
+        return '[Signal active:'+ this.active +' numListeners:'+ this.getNumListeners() +']';
+    }
+}
+function validateListener(listener, fnName) {
+    if (typeof listener !== 'function') {
+        throw new Error(`'listener' is a required param of ${fnName}() and should be a Function!`);
     }
 }
 
-class Canvas extends Element {
-    constructor(width = 300, height = 150) {
-        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
-        canvas.width = width;
-        canvas.height = height;
-        super(canvas);
-        this.ctx = this.dom.getContext('2d');
+class Element {
+    constructor(domElement) {
+        if (domElement == null) {
+            console.trace('Element.constructor: No HTMLElement provided!');
+            domElement = document.createElement('div');
+        }
+        this.isElement = true;
+        let dom = domElement;
+        let suey = this;
+        this.parent = undefined;
+        this.children = [];
+        this.slots = [];
+        this.contents = function() { return suey; };
+        Object.defineProperties(this, {
+            dom: {
+                get: function() { return dom; },
+                set: function(value) { dom = value; },
+            },
+            id: {
+                configurable: true,
+                get: function() { return dom.id; },
+                set: function(value) { dom.id = value; },
+            },
+            name: {
+                get: function() { return dom.name ?? '???'; },
+                set: function(value) { dom.name = String(value); } ,
+            },
+        });
+        Object.defineProperties(dom, {
+            suey: {
+                get: function() { return suey; },
+            },
+        });
+        this.on('destroy', () => {
+            for (const slot of suey.slots) {
+                if (typeof slot.detach === 'function') slot.detach();
+                if (typeof slot.destroy === 'function') slot.destroy();
+            }
+            suey.slots.length = 0;
+        });
     }
-    get width() { return this.dom.width; }
-    set width(x) { this.dom.width = x; }
-    get height() { return this.dom.height; }
-    set height(y) { this.dom.height = y; }
-    ratio() {
+    setID(id) {
+        this.id = id;
+        return this;
+    }
+    addSlot(slot) {
+        if (slot instanceof SignalBinding) {
+            this.slots.push(slot);
+        } else {
+            console.warn(`Element.addSlot(): ID: '${this.id}' / NAME: '${this.name}' failed to add slot`, slot);
+        }
+    }
+    add(...elements) {
+        for (const element of elements) {
+            addToParent(this.contents(), element);
+        }
+        return this;
+    }
+    addToSelf(...elements) {
+        for (const element of elements) {
+            addToParent(this, element);
+        }
+        return this;
+    }
+    clearContents() {
+        destroyChildren(this.contents(), false );
+        return this;
+    }
+    destroy() {
+        destroyChildren(this, true );
+        return this;
+    }
+    detach(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
+            let removed = removeFromParent(this.contents(), element, false );
+            if (!removed) removed = removeFromParent(this, element, false );
+            if (!removed) {  }
+            removedElements.push(removed);
+        }
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
+    }
+    remove(...elements) {
+        const removedElements = [];
+        for (const element of elements) {
+            let removed = removeFromParent(this.contents(), element, true );
+            if (!removed) removed = removeFromParent(this, element, true );
+            if (!removed) {  }
+            removedElements.push(removed);
+        }
+        if (removedElements.length === 0) return undefined;
+        if (removedElements.length === 1) return removedElements[0];
+        return removedElements;
+    }
+    removeSelf() {
+        this.destroy();
+        const parent = this.parent ?? this.dom?.parentElement;
+        removeFromParent(parent, this, false );
+        return this;
+    }
+    setClass(...classNames) {
+        this.dom.className = '';
+        return this.addClass(...classNames);
+    }
+    addClass(...classNames) {
+        for (const className of classNames) {
+            if (className && typeof className === 'string' && className != '') {
+                this.dom.classList.add(className);
+            }
+        }
+        return this;
+    }
+    hasClass(className) {
+        return this.dom.classList.contains(className);
+    }
+    hasClassWithString(substring) {
+        substring = String(substring).toLowerCase();
+        const classArray = [ ...this.dom.classList ];
+        for (let i = 0; i < classArray.length; i++) {
+            const className = classArray[i];
+            if (className.toLowerCase().includes(substring)) return true;
+        }
+        return false;
+    }
+    removeClass(...classNames) {
+        for (const className of classNames) {
+            this.dom.classList.remove(className);
+        }
+        return this;
+    }
+    toggleClass(className) {
+        if (className != null && typeof className === 'string' && className !== '') {
+            if (this.hasClass(className)) this.removeClass(className);
+            else this.addClass(className);
+        }
+        return this;
+    }
+    wantsClass(className, wants = true) {
+        if (className && className != '') {
+            if (wants) this.addClass(className);
+            else this.removeClass(className);
+        }
+        return this;
+    }
+    setAttribute(attrib, value) {
+        this.dom.setAttribute(attrib, value);
+    }
+    setDisabled(value = true) {
+        if (value) this.addClass('suey-disabled');
+        else this.removeClass('suey-disabled');
+        this.dom.disabled = value;
+        return this;
+    }
+    selectable(allowSelection) {
+        if (allowSelection) this.removeClass('suey-unselectable');
+        else this.addClass('suey-unselectable');
+        return this;
+    }
+    hide(dispatchEvent = true) {
+        if (this.isHidden()) return;
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
+        this.addClass('suey-hidden');
+        this.setStyle('display', 'none');
+    }
+    display(dispatchEvent = true) {
+        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
+        this.removeClass('suey-hidden');
+        this.setStyle('display', '');
+        if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
+    }
+    isDisplayed() {
+        return getComputedStyle(this.dom).display != 'none';
+    }
+    isHidden() {
+        return getComputedStyle(this.dom).display == 'none';
+    }
+    allowFocus() {
+        this.dom.tabIndex = 0;
+    }
+    allowMouseFocus() {
+        this.dom.tabIndex = -1;
+    }
+    focus() {
+        this.dom.focus();
+    }
+    blur() {
+        this.dom.blur();
+    }
+    setTextContent(value) {
+        if (value != undefined) this.contents().dom.textContent = value;
+        return this;
+    }
+    getTextContent() {
+        return this.contents().dom.textContent;
+    }
+    setInnerText(value) {
+        if (value != undefined) this.contents().dom.innerText = value;
+        return this;
+    }
+    getInnerText() {
+        return this.contents().dom.innerText;
+    }
+    setInnerHtml(value) {
+        if (value === undefined || value === null) value = '';
+        if (typeof this.contents().dom.setHTML === 'function') {
+            this.contents().dom.setHTML(value);
+        } else {
+            this.contents().dom.innerHTML = value;
+        }
+        return this;
+    }
+    getInnerHtml() {
+        return this.contents().dom.innerHTML;
+    }
+    setStyle() {
+        for (let i = 0, l = arguments.length; i < l; i += 2) {
+            const style = arguments[i];
+            const value = arguments[i + 1];
+            this.dom.style[style] = value;
+        }
+        return this;
+    }
+    setContentsStyle() {
+        for (let i = 0, l = arguments.length; i < l; i += 2) {
+            const style = arguments[i];
+            const value = arguments[i + 1];
+            this.contents().dom.style[style] = value;
+        }
+        return this;
+    }
+    setColor() {
+        console.error(`${this.constructor.name}.setColor(): Method must be reimplemented from Element`);
+        return this;
+    }
+    getLeft() {
+        return this.dom.getBoundingClientRect().left;
+    }
+    getTop() {
+        return this.dom.getBoundingClientRect().top;
+    }
+    getWidth() {
+        return this.dom.getBoundingClientRect().width;
+    }
+    getHeight() {
+        return this.dom.getBoundingClientRect().height;
+    }
+    getRelativePosition() {
         const rect = this.dom.getBoundingClientRect();
-        return ((this.dom.width / this.dom.height) / (rect.width / rect.height));
+        let offsetParent = this.dom.offsetParent;
+        while (offsetParent && getComputedStyle(offsetParent).position === 'static') {
+            offsetParent = offsetParent.offsetParent;
+        }
+        if (!offsetParent) {
+            return { left: rect.left, top: rect.top };
+        }
+        const parentRect = offsetParent.getBoundingClientRect();
+        const relativeLeft = rect.left - parentRect.left;
+        const relativeTop = rect.top - parentRect.top;
+        return { left: relativeLeft, top: relativeTop };
+    }
+    traverse(callback, applyToSelf = true) {
+        if (applyToSelf) callback(this);
+        if (this.children) {
+            for (const child of this.children) {
+                child.traverse(callback, true);
+            }
+        }
+    }
+    traverseAncestors(callback, applyToSelf = true) {
+        if (applyToSelf) callback(this);
+        if (this.parent) this.parent.traverseAncestors(callback, true);
+    }
+    on(event, callback, options = {}) {
+        if (typeof options !== 'object') options = {};
+        if (typeof callback !== 'function') {
+            console.warn(`Element.on(): No callback function provided for '${event}'`);
+        } else {
+            const eventName = event.toLowerCase();
+            const eventHandler = callback.bind(this);
+            const dom = this.dom;
+            if (options.once || eventName === 'destroy') {
+                options.once = true;
+                dom.addEventListener(eventName, eventHandler, options);
+            } else {
+                dom.addEventListener(eventName, eventHandler, options);
+                dom.addEventListener('destroy', () => dom.removeEventListener(eventName, eventHandler, options), { once: true });
+            }
+        }
+        return this;
     }
 }
-
-class Span extends Element {
-    constructor(innerHtml) {
-        super(document.createElement('span'));
-        this.setInnerHtml(innerHtml);
+function addToParent(parent, element) {
+    if (!parent || !element) return;
+    if (element.isElement) {
+        if (parent.isElement && element.parent === parent) return;
+        if (element.parent && element.parent.isElement) {
+            removeFromParent(element.parent, element, false);
+        }
+    }
+    const parentDom = parent.isElement ? parent.dom : parent;
+    const elementDom = element.isElement ? element.dom : element;
+    try { if (parentDom) parentDom.appendChild(elementDom); }
+    catch (error) {  }
+    if (element.isElement) {
+        let hasIt = false;
+        for (const child of parent.children) {
+            if (child.dom.isSameNode(element.dom)) { hasIt = true; break; }
+        }
+        if (!hasIt) parent.children.push(element);
+        element.parent = parent;
+    }
+    if (elementDom instanceof HTMLElement) {
+        elementDom.dispatchEvent(new Event('parent-changed'));
     }
 }
-
-class Text$1 extends Span {
-    constructor(innerHtml) {
-        super(innerHtml);
-        this.setClass('suey-text');
-        this.setStyle('cursor', 'default');
+function destroyChildren(element, destroySelf = true) {
+    if (!element) return;
+    const dom = element.isElement ? element.dom : element;
+    if (!(dom instanceof HTMLElement)) return;
+    if (destroySelf) {
+        if (!dom.wasDestroyed) {
+            dom.dispatchEvent(new Event('destroy'));
+            dom.wasDestroyed = true;
+        }
     }
+    for (let i = dom.children.length - 1; i >= 0; i--) {
+        const child = dom.children[i];
+        destroyChildren(child, true );
+        try { dom.removeChild(child); } catch (error) {  }
+    }
+    if (dom.suey && dom.suey.isElement) dom.suey.children.length = 0;
+}
+function removeFromParent(parent, element, destroy = true) {
+    if (!parent || !element) return undefined;
+    if (destroy) destroyChildren(element, true );
+    if (element.isElement && parent.isElement) {
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i];
+            if (child.dom.isSameNode(element.dom)) {
+                parent.children.splice(i, 1);
+                element.parent = undefined;
+            }
+        }
+    }
+    try {
+        if (parent.isElement) parent = parent.dom;
+        if (parent instanceof HTMLElement) {
+            const removed = parent.removeChild(element.isElement ? element.dom : element);
+            return (removed && removed.suey) ? removed.suey : removed;
+        }
+    } catch (error) {  }
 }
 
 class Matrix2 {
@@ -4017,4 +3367,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, BACKGROUNDS, BUTTON_TYPES, Break, CLOSE_SIDES, CORNER_BUTTONS, Canvas, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Dom, Element, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, NODE_TYPES, OVERFLOW, PANEL_STYLES, POSITION, Pointer, Popper, QUESTION_COLORS, QUESTION_ICONS, RESIZERS, Scene$1 as Scene, Signal, SignalBinding, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Text$1 as Text, tooltipper };
+export { BACKGROUNDS, BUTTON_TYPES, CLOSE_SIDES, CORNER_BUTTONS, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Dom, Element, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, NODE_TYPES, PANEL_STYLES, Pointer, QUESTION_COLORS, QUESTION_ICONS, RESIZERS, Scene$1 as Scene, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT };
