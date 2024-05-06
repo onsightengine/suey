@@ -2,7 +2,7 @@ import cleanup from 'rollup-plugin-cleanup';                // Remove comments, 
 import postcss from 'rollup-plugin-postcss';                // Include CSS
 import image from '@rollup/plugin-image';                   // Include Images
 import json from '@rollup/plugin-json';                     // Import JSON
-import terser from '@rollup/plugin-terser';                 // Remove comments, minify
+// import terser from '@rollup/plugin-terser';                 // Remove comments, minify
 
 import pkg from './package.json';
 
@@ -51,11 +51,16 @@ const builds = [
         }],
     },
 
-    { // Minified
-        input: './src/Suey.js',
+    { // Scene Only
+        input: './src/Scene.js',
         treeshake: false,
 
         plugins: [
+            cleanup({
+                comments: 'none',
+                extensions: [ 'js', 'ts' ],
+                sourcemap: false,
+            }),
             json(),
             postcss({
                 extensions: [ '.css' ],
@@ -65,14 +70,36 @@ const builds = [
 
         output: [{
             format: 'esm',
-            file: './dist/suey.min.js',
+            file: './dist/scene.module.js',
             sourcemap: false,
             plugins: [
-                terser({ format: { comments: false } }),
                 header(),
             ],
         }],
     },
+
+    // { // Minified
+    //     input: './src/Suey.js',
+    //     treeshake: false,
+
+    //     plugins: [
+    //         json(),
+    //         postcss({
+    //             extensions: [ '.css' ],
+    //         }),
+    //         image(),
+    //     ],
+
+    //     output: [{
+    //         format: 'esm',
+    //         file: './dist/suey.min.js',
+    //         sourcemap: false,
+    //         plugins: [
+    //             terser({ format: { comments: false } }),
+    //             header(),
+    //         ],
+    //     }],
+    // },
 
 ];
 

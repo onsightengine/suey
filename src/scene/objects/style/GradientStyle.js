@@ -4,9 +4,6 @@ import { GradientColorStop } from './GradientColorStop.js';
 /**
  * Gradient style is used to represent any type of gradient based style.
  * It handles any gradient based operations and should be used as base for other gradient styles.
- *
- * @class
- * @extends {Style}
  */
 class GradientStyle extends Style {
 
