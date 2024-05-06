@@ -60,8 +60,15 @@ class Helpers {
                         { angle: 315, cursor: 'nesw-resize' },
                         { angle: 360, cursor: 'ew-resize' },
                     ];
-                    const rotation = ((resizer.globalMatrix.getRotation() + camera.rotation) * 180 / Math.PI) + addRotation;
-                    const normalizedRotation = (rotation + 360) % 360;
+                    let localScale =  object.globalMatrix.getScale();
+                    let localRotation = object.globalMatrix.getRotation();
+                    if (localScale.x < 0 && localScale.y > 0 || localScale.x > 0 && localScale.y < 0) {
+                        localRotation -= (addRotation * (Math.PI / 180));
+                    } else {
+                        localRotation += (addRotation * (Math.PI / 180));
+                    }
+                    const rotation = (localRotation + camera.rotation) * 180 / Math.PI;
+                    const normalizedRotation = (rotation + 720) % 360;
                     let closestCursor = 'default';
                     let minAngleDiff = Infinity;
                     for (const { angle, cursor } of cursorStyles) {
