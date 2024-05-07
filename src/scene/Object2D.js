@@ -24,6 +24,9 @@ class Object2D {
         this.layer = 0;                             // lower layer is drawn first, higher is drawn on top
         this.level = 0;                             // higher depth is drawn on top, layer is considered first
 
+        this.opacity = 1;
+        this.globalOpacity = 1;
+
         this.position = new Vector2(0, 0);
         this.scale = new Vector2(1, 1);
         this.rotation = 0.0;
@@ -173,6 +176,7 @@ class Object2D {
     /** Update the transformation matrix of the object */
     updateMatrix(force = false) {
         if (force || this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+            this.globalOpacity = this.opacity * ((this.parent) ? this.parent.globalOpacity : 1);
             this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
             this.globalMatrix.copy(this.matrix);
             if (this.parent) this.globalMatrix.premultiply(this.parent.globalMatrix);

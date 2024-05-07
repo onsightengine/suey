@@ -1621,7 +1621,7 @@ class Pointer {
     static RIGHT = 2;
     static BACK = 3;
     static FORWARD = 4;
-    constructor(element) {
+    constructor(element, disableContextMenu = true) {
         if (!element || !element.isElement) {
             console.error(`Pointer: No Suey Element was provided`);
             return;
@@ -1660,10 +1660,12 @@ class Pointer {
         function updateKey(button, action) {
             if (button >= 0) self._keys[button].update(action);
         }
-        element.on('contextmenu', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-        });
+        if (disableContextMenu) {
+            element.on('contextmenu', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
         element.on('pointermove', (event) => {
             updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
         });
@@ -2588,6 +2590,8 @@ class Object2D {
         this.visible = true;
         this.layer = 0;
         this.level = 0;
+        this.opacity = 1;
+        this.globalOpacity = 1;
         this.position = new Vector2(0, 0);
         this.scale = new Vector2(1, 1);
         this.rotation = 0.0;
@@ -2694,6 +2698,7 @@ class Object2D {
     }
     updateMatrix(force = false) {
         if (force || this.matrixAutoUpdate || this.matrixNeedsUpdate) {
+            this.globalOpacity = this.opacity * ((this.parent) ? this.parent.globalOpacity : 1);
             this.matrix.compose(this.position.x, this.position.y, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.rotation);
             this.globalMatrix.copy(this.matrix);
             if (this.parent) this.globalMatrix.premultiply(this.parent.globalMatrix);
@@ -2726,14 +2731,16 @@ class Object2D {
     }
 }
 
+let count = 0;
 class Box extends Object2D {
     constructor() {
         super();
         this.type = 'Box';
         this.box = new Box2(new Vector2(-50, -50), new Vector2(50, 50));
+        this.fillStyle = new ColorStyle('#FFFFFF');
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
-        this.fillStyle = new ColorStyle('#FFFFFF');
+        this.constantWidth = false;
         this.computeBoundingBox();
     }
     computeBoundingBox() {
@@ -2750,7 +2757,14 @@ class Box extends Object2D {
             context.fillRect(this.box.min.x, this.box.min.y, width, height);
         }
         if (this.strokeStyle) {
-            context.lineWidth = this.lineWidth;
+            let scaleX = 1;
+            let scaleY = 1;
+            if (this.constantWidth) {
+                const matrix = context.getTransform();
+                scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+                scaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            }
+            context.lineWidth = this.lineWidth / Math.max(scaleX, scaleY);
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeRect(this.box.min.x, this.box.min.y, width, height);
         }
@@ -2760,12 +2774,13 @@ class Box extends Object2D {
 class Circle extends Object2D {
     constructor() {
         super();
+        const self = this;
         this.type = 'Circle';
+        this.fillStyle = new ColorStyle('#FFFFFF');
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
-        this.fillStyle = new ColorStyle('#FFFFFF');
+        this.constantWidth = false;
         let radius = 10.0;
-        const self = this;
         Object.defineProperties(this, {
             radius: {
                 get: function() { return radius; },
@@ -2778,7 +2793,7 @@ class Circle extends Object2D {
     }
     computeBoundingBox() {
         this.boundingBox.min.set(-this.radius, -this.radius);
-        this.boundingBox.max.set( this.radius,  this.radius);
+        this.boundingBox.max.set(+this.radius, +this.radius);
     }
     isInside(point) {
         return point.length() <= this.radius;
@@ -2791,10 +2806,123 @@ class Circle extends Object2D {
             context.fill();
         }
         if (this.strokeStyle) {
-            context.lineWidth = this.lineWidth;
+            let scaleX = 1;
+            let scaleY = 1;
+            if (this.constantWidth) {
+                const matrix = context.getTransform();
+                scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+                scaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            }
+            context.lineWidth = this.lineWidth / Math.max(scaleX, scaleY);
             context.strokeStyle = this.strokeStyle.get(context);
             context.stroke();
         }
+    }
+}
+
+class Line extends Object2D {
+    constructor() {
+        super();
+        this.type = 'Line';
+        this.from = new Vector2();
+        this.to = new Vector2();
+        this.strokeStyle = new ColorStyle('#ffffff');
+        this.lineWidth = 5;
+        this.constantWidth = false;
+        this.buffer = 5;
+        this.dashPattern = [];
+        this.scaledLineWidth = this.lineWidth;
+    }
+    computeBoundingBox() {
+        this.boundingBox.min.copy(this.from);
+        this.boundingBox.max.copy(this.to);
+    }
+    isInside(point) {
+        const x = point.x;
+        const y = point.y;
+        const x1 = this.from.x;
+        const y1 = this.from.y;
+        const x2 = this.to.x;
+        const y2 = this.to.y;
+        const buffer = (this.scaledLineWidth / 2) + this.buffer;
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lengthSquared = dx * dx + dy * dy;
+        if (lengthSquared === 0) {
+            return Math.sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1)) <= buffer;
+        }
+        const t = ((x - x1) * dx + (y - y1) * dy) / lengthSquared;
+        let nearestX, nearestY;
+        if (t < 0) {
+            nearestX = x1;
+            nearestY = y1;
+        } else if (t > 1) {
+            nearestX = x2;
+            nearestY = y2;
+        } else {
+            nearestX = x1 + t * dx;
+            nearestY = y1 + t * dy;
+        }
+        const distanceSquared = (x - nearestX) * (x - nearestX) + (y - nearestY) * (y - nearestY);
+        return distanceSquared <= buffer * buffer;
+    }
+    style(context, viewport, canvas) {
+        let scaleX = 1;
+        let scaleY = 1;
+        if (this.constantWidth) {
+            const matrix = context.getTransform();
+            scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+            scaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            this.scaledLineWidth = this.lineWidth / Math.max(scaleX, scaleY);
+        } else {
+            this.scaledLineWidth = this.lineWidth;
+        }
+        context.lineWidth = this.scaledLineWidth;
+        context.strokeStyle = this.strokeStyle.get(context);
+        context.setLineDash(this.dashPattern);
+    }
+    draw(context, viewport, canvas) {
+        context.beginPath();
+        context.moveTo(this.from.x, this.from.y);
+        context.lineTo(this.to.x, this.to.y);
+        context.stroke();
+    }
+}
+
+class GradientColorStop {
+    constructor(offset, color) {
+        this.offset = offset;
+        this.color = color;
+    }
+}
+
+class GradientStyle extends Style {
+    constructor() {
+        super();
+        this.colors = [];
+    }
+    addColorStop(offset, color) {
+        this.colors.push(new GradientColorStop(offset, color));
+    }
+}
+
+class LinearGradientStyle extends GradientStyle {
+    constructor() {
+        super();
+        this.start = new Vector2(-100, 0);
+        this.end = new Vector2(100, 0);
+    }
+    get(context) {
+        if (this.needsUpdate || this.cache == null) {
+            const style = context.createLinearGradient(this.start.x, this.start.y, this.end.x, this.end.y);
+            for (const colorStop of this.colors) {
+                const finalColor = Style.extractColor(colorStop.color, context);
+                style.addColorStop(colorStop.offset, finalColor);
+            }
+            this.cache = style;
+            this.needsUpdate = false;
+        }
+        return this.cache;
     }
 }
 
@@ -2825,13 +2953,42 @@ class Helpers {
         let topResizer, rightResizer, bottomResizer, leftResizer;
         let rotater;
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createResizer(color, x, y, type = 'box', addRotation) {
-                const resizer = (type === 'box') ? new Box() : new Circle();
-                if (type === 'circle') resizer.radius = radius;
+            function createResizer(color, x, y, type = 'box', addRotation, alpha) {
+                let resizer;
+                switch (type) {
+                    case 'circle':
+                        resizer = new Circle();
+                        resizer.radius = radius;
+                        break;
+                    case 'line':
+                        resizer = new Line();
+                        resizer.buffer = radius;
+                        break;
+                    case 'box':
+                    default:
+                        resizer = new Box();
+                        resizer.box.set(new Vector2(-radius, -radius), new Vector2(radius, radius));
+                }
                 resizer.draggable = true;
                 resizer.focusable = false;
-                resizer.fillStyle.color = color;
                 resizer.layer = object.layer + 1;
+                resizer.opacity = alpha;
+                resizer.constantWidth = true;
+                switch (type) {
+                    case 'box':
+                    case 'circle':
+                        resizer.fillStyle = new LinearGradientStyle();
+                        resizer.fillStyle.start.set(-radius, -radius);
+                        resizer.fillStyle.end.set(radius, radius);
+                        resizer.fillStyle.addColorStop(0, '--icon-light');
+                        resizer.fillStyle.addColorStop(1, '--icon-dark');
+                        resizer.strokeStyle.color = '--highlight';
+                        break;
+                    case 'line':
+                        resizer.strokeStyle.color = '#0000ff';
+                        resizer.lineWidth = 1;
+                        break;
+                }
                 resizer.cursor = function(camera) {
                     const cursorStyles = [
                         { angle:   0, cursor: 'ew-resize' },
@@ -2883,21 +3040,27 @@ class Helpers {
                 resizerContainer.add(resizer);
                 return resizer;
             }
-            bottomRight = createResizer('#0000ff', -1, -1, 'circle', 45);
-            bottomLeft = createResizer('#ffff00', 1, -1, 'circle', 135);
-            topLeft = createResizer('#ff0000', 1, 1, 'circle', 225);
-            topRight = createResizer('#00ff00', -1, 1, 'circle', 315);
-            rightResizer = createResizer('#0000ff', -1, 0, 'box', 0);
-            bottomResizer = createResizer('#ffff00', 0, -1, 'box', 90);
-            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180);
-            topResizer = createResizer('#00ff00', 0, 1, 'box', 270);
+            bottomRight = createResizer('#0000ff', -1, -1, 'box', 45, 1);
+            bottomLeft = createResizer('#ffff00', 1, -1, 'box', 135, 1);
+            topLeft = createResizer('#ff0000', 1, 1, 'box', 225, 1);
+            topRight = createResizer('#00ff00', -1, 1, 'box', 315, 1);
+            rightResizer = createResizer('#0000ff', -1, 0, 'line', 0, 1);
+            bottomResizer = createResizer('#ffff00', 0, -1, 'line', 90, 1);
+            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180, 1);
+            topResizer = createResizer('#00ff00', 0, 1, 'line', 270, 1);
         }
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
             rotater.draggable = true;
             rotater.focusable = false;
-            rotater.radius = radius;
+            rotater.radius = radius + 1;
             rotater.layer = object.layer + 1;
+            rotater.fillStyle = new LinearGradientStyle();
+            rotater.fillStyle.start.set(-radius, -radius);
+            rotater.fillStyle.end.set(radius, radius);
+            rotater.fillStyle.addColorStop(0, '--icon-light');
+            rotater.fillStyle.addColorStop(1, '--icon-dark');
+            rotater.strokeStyle.color = '--highlight';
             rotater.cursor = `url('${CURSOR_ROTATE}') 16 16, auto`;
             rotater.onPointerDrag = function(pointer, camera) {
                 const objectCenter = object.boundingBox.getCenter();
@@ -2964,30 +3127,58 @@ class Helpers {
             const halfHeight = object.boundingBox.getSize().y / 2 * Math.abs(object.scale.y);
             if (leftResizer) {
                 leftResizer.position.copy(leftMiddleWorld);
-                leftResizer.scale.set(1 / camera.scale, 1);
                 leftResizer.rotation = object.rotation;
-                leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                if (leftResizer.type === 'Box') {
+                    leftResizer.scale.set(1 / camera.scale, 1);
+                    leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                }
+                if (leftResizer.type === 'Line') {
+                    leftResizer.buffer = radius / camera.scale;
+                    leftResizer.from.set(0, -halfHeight);
+                    leftResizer.to.set(0, +halfHeight);
+                }
                 leftResizer.updateMatrix();
             }
             if (rightResizer) {
                 rightResizer.position.copy(rightMiddleWorld);
-                rightResizer.scale.set(1 / camera.scale, 1);
                 rightResizer.rotation = object.rotation;
-                rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                if (rightResizer.type === 'Box') {
+                    rightResizer.scale.set(1 / camera.scale, 1);
+                    rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                }
+                if (rightResizer.type === 'Line') {
+                    rightResizer.buffer = radius / camera.scale;
+                    rightResizer.from.set(0, -halfHeight);
+                    rightResizer.to.set(0, +halfHeight);
+                }
                 rightResizer.updateMatrix();
             }
             if (topResizer) {
                 topResizer.position.copy(topMiddleWorld);
-                topResizer.scale.set(1, 1 / camera.scale);
                 topResizer.rotation = object.rotation;
-                topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                if (topResizer.type === 'Box') {
+                    topResizer.scale.set(1, 1 / camera.scale);
+                    topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                }
+                if (topResizer.type === 'Line') {
+                    topResizer.buffer = radius / camera.scale;
+                    topResizer.from.set(-halfWidth, 0);
+                    topResizer.to.set(+halfWidth, 0);
+                }
                 topResizer.updateMatrix();
             }
             if (bottomResizer) {
                 bottomResizer.position.copy(bottomMiddleWorld);
-                bottomResizer.scale.set(1, 1 / camera.scale);
                 bottomResizer.rotation = object.rotation;
-                bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                if (bottomResizer.type === 'Box') {
+                    bottomResizer.scale.set(1, 1 / camera.scale);
+                    bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                }
+                if (bottomResizer.type === 'Line') {
+                    bottomResizer.buffer = radius / camera.scale;
+                    bottomResizer.from.set(-halfWidth, 0);
+                    bottomResizer.to.set(+halfWidth, 0);
+                }
                 bottomResizer.updateMatrix();
             }
         };
@@ -3003,7 +3194,7 @@ class Renderer extends Element {
         defaultOption('alpha', true);
         defaultOption('disableContextMenu', true);
         defaultOption('imageSmoothingEnabled', true);
-        defaultOption('imageSmoothingQuality', 'low');
+        defaultOption('imageSmoothingQuality', 'medium');
         defaultOption('globalCompositeOperation', 'source-over');
         defaultOption('width', 1000);
         defaultOption('height', 1000);
@@ -3017,7 +3208,7 @@ class Renderer extends Element {
         this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
         this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
         this.ctx.globalCompositeOperation = options.globalCompositeOperation;
-        this.pointer = new Pointer(this);
+        this.pointer = new Pointer(this, options.disableContextMenu);
         this.autoClear = true;
         this.running = false;
         this.frame = -1;
@@ -3148,6 +3339,7 @@ class Renderer extends Element {
                 this.ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
             object.transform(this.ctx, camera, this.dom, this);
+            this.ctx.globalAlpha = object.globalOpacity;
             if (typeof object.style === 'function') object.style(this.ctx, camera, this.dom, this);
             if (typeof object.draw === 'function') object.draw(this.ctx, camera, this.dom, this);
             if (object.restoreContextState) this.ctx.restore();
@@ -3268,38 +3460,6 @@ class BoxMask extends Mask {
     }
 }
 
-class GradientColorStop {
-    constructor(offset, color) {
-        this.offset = offset;
-        this.color = color;
-    }
-}
-
-class GradientStyle extends Style {
-    constructor() {
-        super();
-        this.colors = [];
-    }
-    addColorStop(offset, color) {
-        this.colors.push(new GradientColorStop(offset, color));
-    }
-}
-
-class LinearGradientStyle extends GradientStyle {
-    constructor() {
-        super();
-        this.start = new Vector2(-100, 0);
-        this.end = new Vector2(100, 0);
-    }
-    get(context) {
-        let style = context.createLinearGradient(this.start.x, this.start.y, this.end.x, this.end.y);
-        for (let i = 0; i < this.colors.length; i++) {
-            style.addColorStop(this.colors[i].offset, this.colors[i].color);
-        }
-        return style;
-    }
-}
-
 class RadialGradientStyle extends GradientStyle {
     constructor() {
         super();
@@ -3309,12 +3469,16 @@ class RadialGradientStyle extends GradientStyle {
         this.endRadius = 50;
     }
     get(context) {
-        let style = context.createRadialGradient(this.start.x, this.start.y, this.startRadius, this.end.x, this.end.y, this.endRadius);
-        for (let i = 0; i < this.colors.length; i++) {
-            style.addColorStop(this.colors[i].offset, this.colors[i].color);
+        if (this.needsUpdate || this.cache == null) {
+            const style = context.createRadialGradient(this.start.x, this.start.y, this.startRadius, this.end.x, this.end.y, this.endRadius);
+            for (const colorStop of this.colors) {
+                style.addColorStop(colorStop.offset, colorStop.color);
+            }
+            this.cache = style;
+            this.needsUpdate = false;
         }
-        return style;
-    };
+        return this.cache;
+    }
 }
 
 var Scene$1 = /*#__PURE__*/Object.freeze({
@@ -3329,6 +3493,7 @@ var Scene$1 = /*#__PURE__*/Object.freeze({
   Vector2: Vector2,
   Box: Box,
   Circle: Circle,
+  Line: Line,
   Text: Text,
   Mask: Mask,
   BoxMask: BoxMask,

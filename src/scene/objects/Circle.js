@@ -5,16 +5,16 @@ class Circle extends Object2D {
 
     constructor() {
         super();
+        const self = this;
         this.type = 'Circle';
 
+        this.fillStyle = new ColorStyle('#FFFFFF');
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
-        this.fillStyle = new ColorStyle('#FFFFFF');
+        this.constantWidth = false;
 
         // Property Definitions
         let radius = 10.0;
-
-        const self = this;
         Object.defineProperties(this, {
             radius: {
                 get: function() { return radius; },
@@ -28,7 +28,7 @@ class Circle extends Object2D {
 
     computeBoundingBox() {
         this.boundingBox.min.set(-this.radius, -this.radius);
-        this.boundingBox.max.set( this.radius,  this.radius);
+        this.boundingBox.max.set(+this.radius, +this.radius);
     }
 
     isInside(point) {
@@ -43,7 +43,14 @@ class Circle extends Object2D {
             context.fill();
         }
         if (this.strokeStyle) {
-            context.lineWidth = this.lineWidth;
+            let scaleX = 1;
+            let scaleY = 1;
+            if (this.constantWidth) {
+                const matrix = context.getTransform();
+                scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+                scaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            }
+            context.lineWidth = this.lineWidth / Math.max(scaleX, scaleY);
             context.strokeStyle = this.strokeStyle.get(context);
             context.stroke();
         }

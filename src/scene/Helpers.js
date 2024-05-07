@@ -3,6 +3,8 @@ import {
 } from '../constants.js';
 import { Box } from './objects/Box.js';
 import { Circle } from './objects/Circle.js';
+import { Line } from './objects/Line.js';
+import { LinearGradientStyle } from './objects/style/LinearGradientStyle.js';
 import { Matrix2 } from './math/Matrix2.js';
 import { Object2D } from './Object2D.js';
 import { Vector2 } from './math/Vector2.js';
@@ -41,13 +43,44 @@ class Helpers {
 
         // Add Resizers
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createResizer(color, x, y, type = 'box', addRotation) {
-                const resizer = (type === 'box') ? new Box() : new Circle();
-                if (type === 'circle') resizer.radius = radius;
+            function createResizer(color, x, y, type = 'box', addRotation, alpha) {
+                let resizer;
+                switch (type) {
+                    case 'circle':
+                        resizer = new Circle();
+                        resizer.radius = radius;
+                        break;
+                    case 'line':
+                        resizer = new Line();
+                        resizer.buffer = radius;
+                        break;
+                    case 'box':
+                    default:
+                        resizer = new Box();
+                        resizer.box.set(new Vector2(-radius, -radius), new Vector2(radius, radius));
+                }
                 resizer.draggable = true;
                 resizer.focusable = false;
-                resizer.fillStyle.color = color;
                 resizer.layer = object.layer + 1;
+                resizer.opacity = alpha;
+                resizer.constantWidth = true;
+                switch (type) {
+                    case 'box':
+                    case 'circle':
+                        // resizer.fillStyle.color = color;
+                        resizer.fillStyle = new LinearGradientStyle();
+                        resizer.fillStyle.start.set(-radius, -radius);
+                        resizer.fillStyle.end.set(radius, radius);
+                        resizer.fillStyle.addColorStop(0, '--icon-light');
+                        resizer.fillStyle.addColorStop(1, '--icon-dark');
+                        resizer.strokeStyle.color = '--highlight';
+                        break;
+                    case 'line':
+                        resizer.strokeStyle.color = '#0000ff';
+                        // resizer.strokeStyle.color = '--highlight';
+                        resizer.lineWidth = 1;
+                        break;
+                }
                 resizer.cursor = function(camera) {
                     const cursorStyles = [
                         { angle:   0, cursor: 'ew-resize' },
@@ -99,14 +132,14 @@ class Helpers {
                 resizerContainer.add(resizer);
                 return resizer;
             }
-            bottomRight = createResizer('#0000ff', -1, -1, 'circle', 45);
-            bottomLeft = createResizer('#ffff00', 1, -1, 'circle', 135);
-            topLeft = createResizer('#ff0000', 1, 1, 'circle', 225);
-            topRight = createResizer('#00ff00', -1, 1, 'circle', 315);
-            rightResizer = createResizer('#0000ff', -1, 0, 'box', 0);
-            bottomResizer = createResizer('#ffff00', 0, -1, 'box', 90);
-            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180);
-            topResizer = createResizer('#00ff00', 0, 1, 'box', 270);
+            bottomRight = createResizer('#0000ff', -1, -1, 'box', 45, 1);
+            bottomLeft = createResizer('#ffff00', 1, -1, 'box', 135, 1);
+            topLeft = createResizer('#ff0000', 1, 1, 'box', 225, 1);
+            topRight = createResizer('#00ff00', -1, 1, 'box', 315, 1);
+            rightResizer = createResizer('#0000ff', -1, 0, 'line', 0, 1);
+            bottomResizer = createResizer('#ffff00', 0, -1, 'line', 90, 1);
+            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180, 1);
+            topResizer = createResizer('#00ff00', 0, 1, 'line', 270, 1);
         }
 
         // Add Rotate Tool
@@ -114,9 +147,14 @@ class Helpers {
             rotater = new Circle();
             rotater.draggable = true;
             rotater.focusable = false;
-            rotater.radius = radius;
+            rotater.radius = radius + 1;
             rotater.layer = object.layer + 1;
-            // rotater.cursor = `url('../files/cursors/rotate.png') 16 16, auto`;
+            rotater.fillStyle = new LinearGradientStyle();
+            rotater.fillStyle.start.set(-radius, -radius);
+            rotater.fillStyle.end.set(radius, radius);
+            rotater.fillStyle.addColorStop(0, '--icon-light');
+            rotater.fillStyle.addColorStop(1, '--icon-dark');
+            rotater.strokeStyle.color = '--highlight';
             rotater.cursor = `url('${CURSOR_ROTATE}') 16 16, auto`;
             rotater.onPointerDrag = function(pointer, camera) {
                 const objectCenter = object.boundingBox.getCenter();
@@ -191,30 +229,58 @@ class Helpers {
             const halfHeight = object.boundingBox.getSize().y / 2 * Math.abs(object.scale.y);
             if (leftResizer) {
                 leftResizer.position.copy(leftMiddleWorld);
-                leftResizer.scale.set(1 / camera.scale, 1);
                 leftResizer.rotation = object.rotation;
-                leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                if (leftResizer.type === 'Box') {
+                    leftResizer.scale.set(1 / camera.scale, 1);
+                    leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                }
+                if (leftResizer.type === 'Line') {
+                    leftResizer.buffer = radius / camera.scale;
+                    leftResizer.from.set(0, -halfHeight);
+                    leftResizer.to.set(0, +halfHeight);
+                }
                 leftResizer.updateMatrix();
             }
             if (rightResizer) {
                 rightResizer.position.copy(rightMiddleWorld);
-                rightResizer.scale.set(1 / camera.scale, 1);
                 rightResizer.rotation = object.rotation;
-                rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                if (rightResizer.type === 'Box') {
+                    rightResizer.scale.set(1 / camera.scale, 1);
+                    rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
+                }
+                if (rightResizer.type === 'Line') {
+                    rightResizer.buffer = radius / camera.scale;
+                    rightResizer.from.set(0, -halfHeight);
+                    rightResizer.to.set(0, +halfHeight);
+                }
                 rightResizer.updateMatrix();
             }
             if (topResizer) {
                 topResizer.position.copy(topMiddleWorld);
-                topResizer.scale.set(1, 1 / camera.scale);
                 topResizer.rotation = object.rotation;
-                topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                if (topResizer.type === 'Box') {
+                    topResizer.scale.set(1, 1 / camera.scale);
+                    topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                }
+                if (topResizer.type === 'Line') {
+                    topResizer.buffer = radius / camera.scale;
+                    topResizer.from.set(-halfWidth, 0);
+                    topResizer.to.set(+halfWidth, 0);
+                }
                 topResizer.updateMatrix();
             }
             if (bottomResizer) {
                 bottomResizer.position.copy(bottomMiddleWorld);
-                bottomResizer.scale.set(1, 1 / camera.scale);
                 bottomResizer.rotation = object.rotation;
-                bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                if (bottomResizer.type === 'Box') {
+                    bottomResizer.scale.set(1, 1 / camera.scale);
+                    bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
+                }
+                if (bottomResizer.type === 'Line') {
+                    bottomResizer.buffer = radius / camera.scale;
+                    bottomResizer.from.set(-halfWidth, 0);
+                    bottomResizer.to.set(+halfWidth, 0);
+                }
                 bottomResizer.updateMatrix();
             }
         }

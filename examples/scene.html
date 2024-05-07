@@ -62,6 +62,15 @@
         scene.add(text);
         Scene.Helpers.resizeTool(text, scene);
 
+        const line = new Scene.Line();
+        line.strokeStyle.color = '#ff0000';
+        line.lineWidth = 10;
+        line.draggable = true;
+        line.buffer = 0;
+        line.from.set(-200, -200);
+        line.to.set(0, 0);
+        scene.add(line);
+
         // for (let i = 0; i < 500; i++) {
         //     const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
         //     box.draggable = true;

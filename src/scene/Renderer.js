@@ -13,7 +13,7 @@ class Renderer extends Element {
         defaultOption('alpha', true);
         defaultOption('disableContextMenu', true);
         defaultOption('imageSmoothingEnabled', true);
-        defaultOption('imageSmoothingQuality', 'low');
+        defaultOption('imageSmoothingQuality', 'medium'); // 'low');
         defaultOption('globalCompositeOperation', 'source-over');
         defaultOption('width', 1000);
         defaultOption('height', 1000);
@@ -33,7 +33,7 @@ class Renderer extends Element {
         this.ctx.globalCompositeOperation = options.globalCompositeOperation;
 
         // Pointer Input Handler Object
-        this.pointer = new Pointer(this);
+        this.pointer = new Pointer(this, options.disableContextMenu);
 
         // Auto Clear Canvas? (if false, user must clear the frame)
         this.autoClear = true;
@@ -223,6 +223,9 @@ class Renderer extends Element {
 
             // Apply Object Transform to Canvas
             object.transform(this.ctx, camera, this.dom, this);
+
+            // Apply Object Opacity
+            this.ctx.globalAlpha = object.globalOpacity;
 
             // Style and Draw Object
             if (typeof object.style === 'function') object.style(this.ctx, camera, this.dom, this);

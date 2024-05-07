@@ -3,6 +3,8 @@ import { ColorStyle } from './style/ColorStyle.js';
 import { Object2D } from '../Object2D.js';
 import { Vector2 } from '../math/Vector2.js';
 
+let count = 0;
+
 class Box extends Object2D {
 
     constructor() {
@@ -10,9 +12,10 @@ class Box extends Object2D {
         this.type = 'Box';
 
         this.box = new Box2(new Vector2(-50, -50), new Vector2(50, 50));
+        this.fillStyle = new ColorStyle('#FFFFFF');
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
-        this.fillStyle = new ColorStyle('#FFFFFF');
+        this.constantWidth = false;
 
         this.computeBoundingBox();
     }
@@ -33,7 +36,14 @@ class Box extends Object2D {
             context.fillRect(this.box.min.x, this.box.min.y, width, height);
         }
         if (this.strokeStyle) {
-            context.lineWidth = this.lineWidth;
+            let scaleX = 1;
+            let scaleY = 1;
+            if (this.constantWidth) {
+                const matrix = context.getTransform();
+                scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+                scaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            }
+            context.lineWidth = this.lineWidth / Math.max(scaleX, scaleY);
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeRect(this.box.min.x, this.box.min.y, width, height);
         }

@@ -29,14 +29,12 @@ class Style {
         /**
          * Indicates if the style object needs to be updated, should be used after applying changed to the style in order to generate a new object.
          * Inherited classes should implement this functionality.
-         * @type {boolean}
          */
         this.needsUpdate = true;
     }
 
     /**
      * Get generated style object from style data and the drawing context.
-     *
      * @param {CanvasRenderingContext2D} context Context being used to draw the object.
      * @return {string | CanvasGradient | CanvasPattern} Return the canvas style object generated.
      */

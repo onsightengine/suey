@@ -10,7 +10,7 @@ class Pointer {
     static BACK = 3;
     static FORWARD = 4;
 
-    constructor(element) {
+    constructor(element, disableContextMenu = true) {
         if (!element || !element.isElement) {
             console.error(`Pointer: No Suey Element was provided`);
             return;
@@ -58,10 +58,12 @@ class Pointer {
         }
 
         // Disable Context Menu
-        element.on('contextmenu', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-        });
+        if (disableContextMenu) {
+            element.on('contextmenu', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
 
         // Pointer
         element.on('pointermove', (event) => {

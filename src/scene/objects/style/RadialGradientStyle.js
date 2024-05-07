@@ -19,12 +19,16 @@ class RadialGradientStyle extends GradientStyle {
     }
 
     get(context) {
-        let style = context.createRadialGradient(this.start.x, this.start.y, this.startRadius, this.end.x, this.end.y, this.endRadius);
-        for (let i = 0; i < this.colors.length; i++) {
-            style.addColorStop(this.colors[i].offset, this.colors[i].color);
+        if (this.needsUpdate || this.cache == null) {
+            const style = context.createRadialGradient(this.start.x, this.start.y, this.startRadius, this.end.x, this.end.y, this.endRadius);
+            for (const colorStop of this.colors) {
+                style.addColorStop(colorStop.offset, colorStop.color);
+            }
+            this.cache = style;
+            this.needsUpdate = false;
         }
-        return style;
-    };
+        return this.cache;
+    }
 
 }
 

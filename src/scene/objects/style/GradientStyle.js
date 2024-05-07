@@ -1,21 +1,11 @@
 import { Style } from './Style.js';
 import { GradientColorStop } from './GradientColorStop.js';
 
-/**
- * Gradient style is used to represent any type of gradient based style.
- * It handles any gradient based operations and should be used as base for other gradient styles.
- */
 class GradientStyle extends Style {
 
     constructor() {
         super();
-
-        /**
-         * List of colors that compose this gradient ordered.
-         * You need to add at least one color stop to have a visible gradient.
-         * @type {GradientColorStop[]}
-         */
-        this.colors = [];
+        this.colors = [];       // ordered list of gradient color stops (need at least one)
     }
 
     /**

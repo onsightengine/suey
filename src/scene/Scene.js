@@ -15,10 +15,10 @@ export { Vector2 } from './math/Vector2.js';
 // Objects
 export { Box } from './objects/Box.js';
 export { Circle } from './objects/Circle.js';
+export { Line } from './objects/Line.js';
 export { Text } from './objects/Text.js';
 // export { DOM } from './objects/DOM.js';
 // export { Image } from './objects/Image.js';
-// export { Line } from './objects/Line.js';
 // export { MultiLineText } from './objects/MultiLineText.js';
 // export { Pattern } from './objects/Pattern.js';
 // export { RoundedBox } from './objects/RoundedBox.js';
