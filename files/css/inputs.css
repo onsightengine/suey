@@ -266,6 +266,7 @@
 
 /** Div used for a Dropdown Color Button */
 .suey-drop-color {
+    pointer-events: none;
     background-color: #ff0000;
     width: calc(100% - 0.5em);
     height: 1.1em;

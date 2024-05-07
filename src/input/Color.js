@@ -14,47 +14,48 @@ class Color extends Button {
         this.addClass('suey-drop-arrow');
 
         // Color Input
-
         const colorBox = new Element(document.createElement('input'));
-        colorBox.setClass('suey-input');
-        colorBox.addClass('suey-color-input-button');
+        colorBox.allowFocus();
+        colorBox.setClass('suey-input', 'suey-color-input-button');
         colorBox.setAttribute('autocomplete', 'off');
         try { colorBox.dom.type = 'color'; } catch(exception) {}
         this.add(colorBox);
 
         // Color Background
-
         const colorBackground = new Div().addClass('suey-drop-color');
         colorBackground.setStyle('backgroundColor', colorBox.dom.value);
         this.add(colorBackground);
 
         // Child Element Events
-
         let selected = false;
         function colorBoxClick(event) {
-            if (!selected) {
+            if (selected === false) {
                 self.addClass('suey-selected');
                 selected = true;
+                colorBox.focus();
             } else {
                 event.stopPropagation();
                 event.preventDefault();
                 colorBox.blur();
             }
         }
-
         function colorBoxInput() {
             colorBackground.setStyle('backgroundColor', colorBox.dom.value);
             self.setAttribute('tooltip', colorBox.dom.value);
         }
-
+        function colorBoxKeyUp(event) {
+            if (event.key === 'Escape') {
+                self.removeClass('suey-selected');
+                selected = false;
+            }
+        }
         function colorBoxBlur() {
             self.removeClass('suey-selected');
             selected = false;
         }
-
         colorBox.on('click', colorBoxClick);
         colorBox.on('input', colorBoxInput);
-        colorBox.on('blur', colorBoxBlur);
+        colorBox.on('keyup', colorBoxKeyUp);
         colorBox.on('focusout', colorBoxBlur);
 
         // Member Functions

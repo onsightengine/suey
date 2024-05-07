@@ -1585,33 +1585,28 @@ class Box extends Object2D {
 class Circle extends Object2D {
     constructor() {
         super();
-        const self = this;
         this.type = 'Circle';
         this.fillStyle = new ColorStyle('#FFFFFF');
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
         this.constantWidth = false;
-        let radius = 10.0;
-        Object.defineProperties(this, {
-            radius: {
-                get: function() { return radius; },
-                set: function(value) {
-                    radius = value;
-                    self.computeBoundingBox();
-                },
-            },
-        });
+        this._radius = 10.0;
+    }
+    get radius() { return this._radius; }
+    set radius(value) {
+        this._radius = value;
+        this.computeBoundingBox();
     }
     computeBoundingBox() {
-        this.boundingBox.min.set(-this.radius, -this.radius);
-        this.boundingBox.max.set(+this.radius, +this.radius);
+        this.boundingBox.min.set(-this._radius, -this._radius);
+        this.boundingBox.max.set(+this._radius, +this._radius);
     }
     isInside(point) {
-        return point.length() <= this.radius;
+        return point.length() <= this._radius;
     }
     draw(context, camera, canvas) {
         context.beginPath();
-        context.arc(0, 0, this.radius, 0, 2 * Math.PI);
+        context.arc(0, 0, this._radius, 0, 2 * Math.PI);
         if (this.fillStyle) {
             context.fillStyle = this.fillStyle.get(context);
             context.fill();
