@@ -39,11 +39,11 @@ class Helpers {
 
         let topLeft, topRight, bottomLeft, bottomRight;
         let topResizer, rightResizer, bottomResizer, leftResizer;
-        let rotater;
+        let rotater, rotateLine;
 
         // Add Resizers
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createResizer(color, x, y, type = 'box', addRotation, alpha) {
+            function createResizer(x, y, type = 'box', addRotation, alpha) {
                 let resizer;
                 switch (type) {
                     case 'circle':
@@ -67,7 +67,6 @@ class Helpers {
                 switch (type) {
                     case 'box':
                     case 'circle':
-                        // resizer.fillStyle.color = color;
                         resizer.fillStyle = new LinearGradientStyle();
                         resizer.fillStyle.start.set(-radius, -radius);
                         resizer.fillStyle.end.set(radius, radius);
@@ -76,8 +75,8 @@ class Helpers {
                         resizer.strokeStyle.color = '--highlight';
                         break;
                     case 'line':
-                        resizer.strokeStyle.color = '#0000ff';
-                        // resizer.strokeStyle.color = '--highlight';
+                        // resizer.strokeStyle.color = '#0000ff';
+                        resizer.strokeStyle.color = '--highlight';
                         resizer.lineWidth = 1;
                         break;
                 }
@@ -132,23 +131,25 @@ class Helpers {
                 resizerContainer.add(resizer);
                 return resizer;
             }
-            bottomRight = createResizer('#0000ff', -1, -1, 'box', 45, 1);
-            bottomLeft = createResizer('#ffff00', 1, -1, 'box', 135, 1);
-            topLeft = createResizer('#ff0000', 1, 1, 'box', 225, 1);
-            topRight = createResizer('#00ff00', -1, 1, 'box', 315, 1);
-            rightResizer = createResizer('#0000ff', -1, 0, 'line', 0, 1);
-            bottomResizer = createResizer('#ffff00', 0, -1, 'line', 90, 1);
-            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180, 1);
-            topResizer = createResizer('#00ff00', 0, 1, 'line', 270, 1);
+            bottomRight = createResizer(-1, -1, 'box', 45, 1);
+            bottomLeft = createResizer(1, -1, 'box', 135, 1);
+            topLeft = createResizer(1, 1, 'box', 225, 1);
+            topRight = createResizer(-1, 1, 'box', 315, 1);
+            rightResizer = createResizer(-1, 0, 'line', 0, 1);
+            bottomResizer = createResizer(0, -1, 'line', 90, 1);
+            leftResizer = createResizer(1, 0, 'line', 180, 1);
+            topResizer = createResizer(0, 1, 'line', 270, 1);
         }
 
         // Add Rotate Tool
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
+            // Circle
             rotater = new Circle();
             rotater.draggable = true;
             rotater.focusable = false;
             rotater.radius = radius + 1;
             rotater.layer = object.layer + 1;
+            rotater.constantWidth = true;
             rotater.fillStyle = new LinearGradientStyle();
             rotater.fillStyle.start.set(-radius, -radius);
             rotater.fillStyle.end.set(radius, radius);
@@ -172,7 +173,15 @@ class Helpers {
                 object.rotation += (angle * sign);
                 object.updateMatrix(true);
             };
-            resizerContainer.add(rotater);
+            // Line
+            rotateLine = new Line();
+            rotateLine.lineWidth = 1;
+            rotateLine.draggable = false;
+            rotateLine.focusable = false;
+            rotateLine.layer = object.layer + 1;
+            rotateLine.constantWidth = true;
+            rotateLine.strokeStyle.color = '--highlight';
+            resizerContainer.add(rotater, rotateLine);
         }
 
         // Update Tools
@@ -182,12 +191,17 @@ class Helpers {
 
             // Rotate Tool
             const handleOffset = ((radius * 4) / Math.abs(object.scale.y)) / camera.scale;
-            const centerWorld = object.globalMatrix.transformPoint(center);
-            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
+            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y);
+            const topCenterWorldOffset = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
             if (rotater) {
-                rotater.position.copy(topCenterWorld);
+                rotater.position.copy(topCenterWorldOffset);
                 rotater.scale.set(1 / camera.scale, 1 / camera.scale);
                 rotater.updateMatrix();
+            }
+            if (rotateLine) {
+                rotateLine.from.copy(topCenterWorldOffset);
+                rotateLine.to.copy(topCenterWorld);
+                rotateLine.updateMatrix();
             }
 
             // Corner Resizers
@@ -195,30 +209,16 @@ class Helpers {
             const topRightWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
             const bottomLeftWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
             const bottomRightWorld = object.globalMatrix.transformPoint(box.max);
-            if (topLeft) {
-                topLeft.position.copy(topLeftWorld);
-                topLeft.scale.set(1 / camera.scale, 1 / camera.scale);
-                topLeft.rotation = object.rotation;
-                topLeft.updateMatrix();
+            function updateCornerResizer(resizer, point) {
+                resizer.position.copy(point);
+                resizer.scale.set(1 / camera.scale, 1 / camera.scale);
+                resizer.rotation = object.rotation;
+                resizer.updateMatrix();
             }
-            if (topRight) {
-                topRight.position.copy(topRightWorld);
-                topRight.scale.set(1 / camera.scale, 1 / camera.scale);
-                topRight.rotation = object.rotation;
-                topRight.updateMatrix();
-            }
-            if (bottomLeft) {
-                bottomLeft.position.copy(bottomLeftWorld);
-                bottomLeft.scale.set(1 / camera.scale, 1 / camera.scale);
-                bottomLeft.rotation = object.rotation;
-                bottomLeft.updateMatrix();
-            }
-            if (bottomRight) {
-                bottomRight.position.copy(bottomRightWorld);
-                bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
-                bottomRight.rotation = object.rotation;
-                bottomRight.updateMatrix();
-            }
+            if (topLeft) updateCornerResizer(topLeft, topLeftWorld);
+            if (topRight) updateCornerResizer(topRight, topRightWorld);
+            if (bottomLeft) updateCornerResizer(bottomLeft, bottomLeftWorld);
+            if (bottomRight) updateCornerResizer(bottomRight, bottomRightWorld);
 
             // Side Resizers
             const leftMiddleWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, center.y));

@@ -160,8 +160,7 @@ class Object2D {
         const topRightWorld = this.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
         const bottomLeftWorld = this.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
         const bottomRightWorld = this.globalMatrix.transformPoint(box.max);
-        const worldBox = new Box2().setFromPoints(topLeftWorld, topRightWorld, bottomLeftWorld, bottomRightWorld);
-        return worldBox;
+        return new Box2().setFromPoints(topLeftWorld, topRightWorld, bottomLeftWorld, bottomRightWorld);
     }
 
     /******************** POSITION */

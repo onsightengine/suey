@@ -139,7 +139,7 @@ class Renderer extends Element {
         let currentCursor = null;
         for (const object of objects) {
             // Inside Viewport?
-            isVisible[object.uuid] = viewport.intersectsBox(object.getWorldBoundingBox());
+            isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
 
             // Process?
             if (object.pointerEvents && isVisible[object.uuid]) {
@@ -212,7 +212,11 @@ class Renderer extends Element {
         for (let i = objects.length - 1; i >= 0; i--) {
             const object = objects[i];
             if (object.isMask) continue;
-            if (isVisible[object.uuid] !== true) continue;
+            if (isVisible[object.uuid] !== true) {
+                // // DEBUG
+                // console.log(`Object culled: ${object.constructor.name}`);
+                continue;
+            }
             if (object.saveContextState) context.save();
 
             // Apply Masks

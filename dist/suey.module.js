@@ -7972,9 +7972,9 @@ class Helpers {
         scene.add(resizerContainer);
         let topLeft, topRight, bottomLeft, bottomRight;
         let topResizer, rightResizer, bottomResizer, leftResizer;
-        let rotater;
+        let rotater, rotateLine;
         if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
-            function createResizer(color, x, y, type = 'box', addRotation, alpha) {
+            function createResizer(x, y, type = 'box', addRotation, alpha) {
                 let resizer;
                 switch (type) {
                     case 'circle':
@@ -8006,7 +8006,7 @@ class Helpers {
                         resizer.strokeStyle.color = '--highlight';
                         break;
                     case 'line':
-                        resizer.strokeStyle.color = '#0000ff';
+                        resizer.strokeStyle.color = '--highlight';
                         resizer.lineWidth = 1;
                         break;
                 }
@@ -8061,14 +8061,14 @@ class Helpers {
                 resizerContainer.add(resizer);
                 return resizer;
             }
-            bottomRight = createResizer('#0000ff', -1, -1, 'box', 45, 1);
-            bottomLeft = createResizer('#ffff00', 1, -1, 'box', 135, 1);
-            topLeft = createResizer('#ff0000', 1, 1, 'box', 225, 1);
-            topRight = createResizer('#00ff00', -1, 1, 'box', 315, 1);
-            rightResizer = createResizer('#0000ff', -1, 0, 'line', 0, 1);
-            bottomResizer = createResizer('#ffff00', 0, -1, 'line', 90, 1);
-            leftResizer = createResizer('#ff0000', 1, 0, 'box', 180, 1);
-            topResizer = createResizer('#00ff00', 0, 1, 'line', 270, 1);
+            bottomRight = createResizer(-1, -1, 'box', 45, 1);
+            bottomLeft = createResizer(1, -1, 'box', 135, 1);
+            topLeft = createResizer(1, 1, 'box', 225, 1);
+            topRight = createResizer(-1, 1, 'box', 315, 1);
+            rightResizer = createResizer(-1, 0, 'line', 0, 1);
+            bottomResizer = createResizer(0, -1, 'line', 90, 1);
+            leftResizer = createResizer(1, 0, 'line', 180, 1);
+            topResizer = createResizer(0, 1, 'line', 270, 1);
         }
         if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
             rotater = new Circle();
@@ -8076,6 +8076,7 @@ class Helpers {
             rotater.focusable = false;
             rotater.radius = radius + 1;
             rotater.layer = object.layer + 1;
+            rotater.constantWidth = true;
             rotater.fillStyle = new LinearGradientStyle();
             rotater.fillStyle.start.set(-radius, -radius);
             rotater.fillStyle.end.set(radius, radius);
@@ -8099,47 +8100,45 @@ class Helpers {
                 object.rotation += (angle * sign);
                 object.updateMatrix(true);
             };
-            resizerContainer.add(rotater);
+            rotateLine = new Line();
+            rotateLine.lineWidth = 1;
+            rotateLine.draggable = false;
+            rotateLine.focusable = false;
+            rotateLine.layer = object.layer + 1;
+            rotateLine.constantWidth = true;
+            rotateLine.strokeStyle.color = '--highlight';
+            resizerContainer.add(rotater, rotateLine);
         }
         resizerContainer.onUpdate = function(context, camera) {
             const box = object.boundingBox;
             const center = box.getCenter();
             const handleOffset = ((radius * 4) / Math.abs(object.scale.y)) / camera.scale;
-            const centerWorld = object.globalMatrix.transformPoint(center);
-            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
+            const topCenterWorld = object.globalMatrix.transformPoint(center.x, box.min.y);
+            const topCenterWorldOffset = object.globalMatrix.transformPoint(center.x, box.min.y - handleOffset);
             if (rotater) {
-                rotater.position.copy(topCenterWorld);
+                rotater.position.copy(topCenterWorldOffset);
                 rotater.scale.set(1 / camera.scale, 1 / camera.scale);
                 rotater.updateMatrix();
+            }
+            if (rotateLine) {
+                rotateLine.from.copy(topCenterWorldOffset);
+                rotateLine.to.copy(topCenterWorld);
+                rotateLine.updateMatrix();
             }
             const topLeftWorld = object.globalMatrix.transformPoint(box.min);
             const topRightWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
             const bottomLeftWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
             const bottomRightWorld = object.globalMatrix.transformPoint(box.max);
-            if (topLeft) {
-                topLeft.position.copy(topLeftWorld);
-                topLeft.scale.set(1 / camera.scale, 1 / camera.scale);
-                topLeft.rotation = object.rotation;
-                topLeft.updateMatrix();
+            function updateCornerResizer(resizer, point) {
+                resizer.position.copy(point);
+                resizer.scale.set(1 / camera.scale, 1 / camera.scale);
+                resizer.rotation = object.rotation;
+                resizer.updateMatrix();
             }
-            if (topRight) {
-                topRight.position.copy(topRightWorld);
-                topRight.scale.set(1 / camera.scale, 1 / camera.scale);
-                topRight.rotation = object.rotation;
-                topRight.updateMatrix();
-            }
-            if (bottomLeft) {
-                bottomLeft.position.copy(bottomLeftWorld);
-                bottomLeft.scale.set(1 / camera.scale, 1 / camera.scale);
-                bottomLeft.rotation = object.rotation;
-                bottomLeft.updateMatrix();
-            }
-            if (bottomRight) {
-                bottomRight.position.copy(bottomRightWorld);
-                bottomRight.scale.set(1 / camera.scale, 1 / camera.scale);
-                bottomRight.rotation = object.rotation;
-                bottomRight.updateMatrix();
-            }
+            if (topLeft) updateCornerResizer(topLeft, topLeftWorld);
+            if (topRight) updateCornerResizer(topRight, topRightWorld);
+            if (bottomLeft) updateCornerResizer(bottomLeft, bottomLeftWorld);
+            if (bottomRight) updateCornerResizer(bottomRight, bottomRightWorld);
             const leftMiddleWorld = object.globalMatrix.transformPoint(new Vector2(box.min.x, center.y));
             const rightMiddleWorld = object.globalMatrix.transformPoint(new Vector2(box.max.x, center.y));
             const topMiddleWorld = object.globalMatrix.transformPoint(new Vector2(center.x, box.min.y));
@@ -8209,12 +8208,17 @@ class Helpers {
 class Viewport {
     constructor(context, camera) {
         const canvas = context.canvas;
-        const topLeft = camera.inverseMatrix.transformPoint(0, 0);
-        const bottomRight = camera.inverseMatrix.transformPoint(canvas.width, canvas.height);
+        const topLeft = new Vector2(0, 0);
+        const bottomRight = new Vector2(canvas.width, canvas.height);
         this.box = new Box2(topLeft, bottomRight);
     }
-    intersectsBox(box) {
-        return this.box.intersectsBox(box);
+    intersectsBox(camera, box) {
+        const topLeft = camera.matrix.transformPoint(box.min);
+        const topRight = camera.matrix.transformPoint(new Vector2(box.max.x, box.min.y));
+        const bottomLeft = camera.matrix.transformPoint(new Vector2(box.min.x, box.max.y));
+        const bottomRight = camera.matrix.transformPoint(box.max);
+        const actualBox = new Box2().setFromPoints(topLeft, topRight, bottomLeft, bottomRight);
+        return this.box.intersectsBox(actualBox);
     }
 }
 
@@ -8313,7 +8317,7 @@ class Renderer extends Element {
         const isVisible = {};
         let currentCursor = null;
         for (const object of objects) {
-            isVisible[object.uuid] = viewport.intersectsBox(object.getWorldBoundingBox());
+            isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
             if (object.pointerEvents && isVisible[object.uuid]) {
                 const localPoint = object.inverseGlobalMatrix.transformPoint(cameraPoint);
                 const isInside = object.isInside(localPoint);
@@ -8365,7 +8369,10 @@ class Renderer extends Element {
         for (let i = objects.length - 1; i >= 0; i--) {
             const object = objects[i];
             if (object.isMask) continue;
-            if (isVisible[object.uuid] !== true) continue;
+            if (isVisible[object.uuid] !== true) {
+                console.log(`Object culled: ${object.constructor.name}`);
+                continue;
+            }
             if (object.saveContextState) context.save();
             for (const mask of object.masks) {
                 camera.matrix.setContextTransform(context);
