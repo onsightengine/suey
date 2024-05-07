@@ -7694,8 +7694,7 @@ class Object2D {
         const topRightWorld = this.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
         const bottomLeftWorld = this.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
         const bottomRightWorld = this.globalMatrix.transformPoint(box.max);
-        const worldBox = new Box2().setFromPoints(topLeftWorld, topRightWorld, bottomLeftWorld, bottomRightWorld);
-        return worldBox;
+        return new Box2().setFromPoints(topLeftWorld, topRightWorld, bottomLeftWorld, bottomRightWorld);
     }
     setPosition(x, y) {
         if (typeof x === 'object' && x.x && x.y) this.position.copy(x);
@@ -7848,8 +7847,7 @@ class Line extends Object2D {
         this._to = new Vector2();
     }
     computeBoundingBox() {
-        this.boundingBox.min.copy(this.from);
-        this.boundingBox.max.copy(this.to);
+        this.boundingBox.setFromPoints(this.from, this.to);
     }
     isInside(point) {
         const x = point.x;
@@ -8370,7 +8368,6 @@ class Renderer extends Element {
             const object = objects[i];
             if (object.isMask) continue;
             if (isVisible[object.uuid] !== true) {
-                console.log(`Object culled: ${object.constructor.name}`);
                 continue;
             }
             if (object.saveContextState) context.save();
@@ -8390,9 +8387,11 @@ class Renderer extends Element {
     focusCamera(object, animationDuration = 200 ) {
         let targetScale, targetPosition;
         if (object) {
-            const worldSize = object.getWorldBoundingBox().getSize();
+            const worldBox = object.getWorldBoundingBox();
+            const worldSize = worldBox.getSize();
+            const worldCenter = worldBox.getCenter();
             targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
-            targetPosition = object.globalMatrix.getPosition();
+            targetPosition = worldCenter;
             targetPosition.multiplyScalar(-targetScale);
             targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
         } else if (this.scene) {
@@ -8406,14 +8405,15 @@ class Renderer extends Element {
             return;
         }
         targetScale = Math.abs(targetScale);
+        const camera = this.camera;
         const startTime = performance.now();
-        const startPosition = this.camera.position.clone();
-        const startScale = this.camera.scale;
+        const startPosition = camera.position.clone();
+        const startScale = camera.scale;
         const animate = () => {
             const elapsedTime = performance.now() - startTime;
             const t = Math.min(elapsedTime / animationDuration, 1);
-            this.camera.lerpPosition(startPosition, targetPosition, t);
-            this.camera.scale = startScale + (targetScale - startScale) * t;
+            camera.lerpPosition(startPosition, targetPosition, t);
+            camera.scale = startScale + (targetScale - startScale) * t;
             if (t < 1) requestAnimationFrame(animate);
         };
         animate();

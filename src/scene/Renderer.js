@@ -250,9 +250,11 @@ class Renderer extends Element {
 
         // Focus Object
         if (object) {
-            const worldSize = object.getWorldBoundingBox().getSize();
+            const worldBox = object.getWorldBoundingBox();
+            const worldSize = worldBox.getSize();
+            const worldCenter = worldBox.getCenter();
             targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
-            targetPosition = object.globalMatrix.getPosition();
+            targetPosition = worldCenter;
             targetPosition.multiplyScalar(-targetScale);
             targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
         // Focus Scene
@@ -268,14 +270,15 @@ class Renderer extends Element {
         }
         targetScale = Math.abs(targetScale);
 
+        const camera = this.camera;
         const startTime = performance.now();
-        const startPosition = this.camera.position.clone();
-        const startScale = this.camera.scale;
+        const startPosition = camera.position.clone();
+        const startScale = camera.scale;
         const animate = () => {
             const elapsedTime = performance.now() - startTime;
             const t = Math.min(elapsedTime / animationDuration, 1);
-            this.camera.lerpPosition(startPosition, targetPosition, t);
-            this.camera.scale = startScale + (targetScale - startScale) * t;
+            camera.lerpPosition(startPosition, targetPosition, t);
+            camera.scale = startScale + (targetScale - startScale) * t;
             if (t < 1) requestAnimationFrame(animate);
         };
         animate();

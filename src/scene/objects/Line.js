@@ -33,8 +33,7 @@ class Line extends Object2D {
     }
 
     computeBoundingBox() {
-        this.boundingBox.min.copy(this.from);
-        this.boundingBox.max.copy(this.to);
+        this.boundingBox.setFromPoints(this.from, this.to);
     }
 
     isInside(point) {
