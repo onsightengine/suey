@@ -71,11 +71,13 @@
         line.to.set(0, 0);
         scene.add(line);
 
-        // for (let i = 0; i < 500; i++) {
-        //     const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
-        //     box.draggable = true;
-        //     scene.add(box);
-        // }
+        for (let i = 0; i < 50; i++) {
+            const box = new Scene.Box().setPosition((Math.random() * 1000) - 500, (Math.random() * 1000) - 500);
+            box.draggable = true;
+            // box.focusable = false;
+            // box.selectable = false;
+            scene.add(box);
+        }
 
         // Renderer
         const renderer = new Scene.Renderer({ width: window.innerWidth, height: window.innerHeight });

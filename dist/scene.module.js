@@ -24,7 +24,7 @@ var img$2 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standal
 
 var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M217.561%2c65.75c7.968%2c-13.681 22.607%2c-22.096 38.439%2c-22.096c15.832%2c-0 30.471%2c8.415 38.439%2c22.096l195.518%2c335.729c8.012%2c13.759 8.06%2c30.751 0.125%2c44.554c-7.935%2c13.804 -22.642%2c22.313 -38.564%2c22.313l-391.036%2c0c-15.922%2c0 -30.629%2c-8.509 -38.564%2c-22.313c-7.935%2c-13.803 -7.887%2c-30.795 0.125%2c-44.554l195.518%2c-335.729Zm-136.351%2c340.199c-1.08%2c1.856 -1.087%2c4.148 -0.017%2c6.01c1.071%2c1.861 3.055%2c3.009 5.202%2c3.009c52.447%2c0 286.763%2c0 339.21%2c0c2.147%2c0 4.131%2c-1.148 5.202%2c-3.009c1.07%2c-1.862 1.063%2c-4.154 -0.017%2c-6.01c-26.302%2c-45.163 -143.46%2c-246.339 -169.605%2c-291.233c-1.075%2c-1.845 -3.049%2c-2.98 -5.185%2c-2.98c-2.136%2c-0 -4.11%2c1.135 -5.185%2c2.98c-26.145%2c44.894 -143.303%2c246.07 -169.605%2c291.233Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M283.679%2c215.374l-7.778%2c93.106c-0.813%2c9.752 -8.939%2c17.298 -18.807%2c17.298c-9.868%2c-0 -17.994%2c-7.546 -18.807%2c-17.298l-7.778%2c-93.106c-1.277%2c-15.556 10.913%2c-28.907 26.585%2c-28.907c14.86%2c0 26.701%2c12.074 26.701%2c26.702c0%2c0.696 0%2c1.509 -0.116%2c2.205Z' style='fill:%237f7f7f%3b'/%3e%3cpath d='M257.093%2c385.058c-12.952%2c0 -23.549%2c-10.597 -23.549%2c-23.549c-0%2c-12.952 10.597%2c-23.549 23.549%2c-23.549c12.952%2c-0 23.549%2c10.597 23.549%2c23.549c0%2c12.952 -10.597%2c23.549 -23.549%2c23.549Z' style='fill:%237f7f7f%3b'/%3e%3c/svg%3e";
 
-var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFUmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS41LjAiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIgogICAgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIKICAgZXhpZjpQaXhlbFhEaW1lbnNpb249IjMyIgogICBleGlmOlBpeGVsWURpbWVuc2lvbj0iMzIiCiAgIGV4aWY6Q29sb3JTcGFjZT0iMSIKICAgdGlmZjpJbWFnZVdpZHRoPSIzMiIKICAgdGlmZjpJbWFnZUxlbmd0aD0iMzIiCiAgIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiCiAgIHRpZmY6WFJlc29sdXRpb249IjcyLzEiCiAgIHRpZmY6WVJlc29sdXRpb249IjcyLzEiCiAgIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiCiAgIHBob3Rvc2hvcDpJQ0NQcm9maWxl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";
+var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB9klEQVRYhe2W3ZGbMBSFD5m8Sx1AB5AK5A5IB2wHuAO8DcSTCiiBpAK5A+EKoAM5FZx9sKQlNllkvDPOg+/MnTFYuucT92eUkEzwQPvySPEnwBPgvwD4umJPCqAGUFy8PwH4DeAXgD+xwZIb58APAFsA6Psep9Mp/CGlRFEUHuQVwM+oiCSTSO9IsmkapmlKAFeepim7rqOzfUzcWABNkmVZzgpfel3XHuLlMwB2/uReQCnFYRg4tWEYWNd1WNO2LUlaksW9ANRah8D7/T5oOjjvHckAIYTwkN09AAVJKqUIgFVVLeW3Jck8zy9TIdcCvJAMp3cnsjMBMyduSLJtWwJgnucewPBcRzu3NuxdmgNqHMfwkGUZABxw3eftOI4bv9a35/F4xOFwANzM2Gw2G5zb9L1FF76Anubf2W5mnbHWhk8/564oSfL7LSnohmEIQYwx/yoq+RHERPyqLZcAtiQphCAANk3jA8211izER+IxABn5PgOEELTW+oDbJYgl8RiAhGRrrQ3jN01Tnwpvhn/XhXTvFsVjASRJa4wJEEIIVlXFpmmotfZC8mLPdkk8FsAPpGGuyCZ1ERPnymMvJEcA36SUfd/30FqjLEsopfxsWG83EkuX71CJzvTaL3DOwzpTk989brgFTe0egE+xh19KnwBPgDcgcTvPHOiirwAAAABJRU5ErkJggg==";
 
 const IMAGE_ADD = img$9;
 const IMAGE_CHECK = img$8;
@@ -1408,12 +1408,14 @@ class Object2D {
         this.matrixNeedsUpdate = true;
         this.boundingBox = new Box2();
         this.masks = [];
+        this.pointerEvents = true;
         this.draggable = false;
         this.focusable = true;
-        this.pointerEvents = true;
+        this.selectable = true;
+        this.selected = false;
+        this.pointerInside = false;
         this.saveContextState = true;
         this.restoreContextState = true;
-        this.pointerInside = false;
     }
     add(...objects) {
         if (objects.length > 0 && Array.isArray(objects[0])) objects = objects[0];
@@ -1763,6 +1765,7 @@ class Helpers {
         const resizerContainer = new Object2D();
         resizerContainer.draggable = false;
         resizerContainer.focusable = false;
+        resizerContainer.selectable = false;
         resizerContainer.pointerEvents = false;
         resizerContainer.layer = object.layer + 1;
         scene.add(resizerContainer);
@@ -1788,6 +1791,7 @@ class Helpers {
                 }
                 resizer.draggable = true;
                 resizer.focusable = false;
+                resizer.selectable = false;
                 resizer.layer = object.layer + 1;
                 resizer.opacity = alpha;
                 resizer.constantWidth = true;
@@ -1870,6 +1874,7 @@ class Helpers {
             rotater = new Circle();
             rotater.draggable = true;
             rotater.focusable = false;
+            rotater.selectable = false;
             rotater.radius = radius + 1;
             rotater.layer = object.layer + 1;
             rotater.constantWidth = true;
@@ -1900,6 +1905,7 @@ class Helpers {
             rotateLine.lineWidth = 1;
             rotateLine.draggable = false;
             rotateLine.focusable = false;
+            rotateLine.selectable = false;
             rotateLine.layer = object.layer + 1;
             rotateLine.constantWidth = true;
             rotateLine.strokeStyle.color = '--highlight';
@@ -2037,12 +2043,13 @@ class Renderer extends Element {
         canvas.style.width = '100%';
         canvas.style.height = '100%';
         super(canvas);
-        this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
-        this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
-        this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
-        this.ctx.globalCompositeOperation = options.globalCompositeOperation;
+        this.context = this.dom.getContext('2d', { alpha: options.alpha });
+        this.context.imageSmoothingEnabled = options.imageSmoothingEnabled;
+        this.context.imageSmoothingQuality = options.imageSmoothingQuality;
+        this.context.globalCompositeOperation = options.globalCompositeOperation;
         this.pointer = new Pointer(this, options.disableContextMenu);
         this.autoClear = true;
+        this.selection = [];
         this.running = false;
         this.frame = -1;
         this.scene = null;
@@ -2098,7 +2105,7 @@ class Renderer extends Element {
     }
     update(scene, camera) {
         const pointer = this.pointer;
-        const context = this.ctx;
+        const context = this.context;
         pointer.update();
         camera.update(pointer);
         camera.updateMatrix(this.width / 2.0, this.height / 2.0);
@@ -2111,9 +2118,24 @@ class Renderer extends Element {
         });
         const viewport = new Viewport(context, camera);
         const isVisible = {};
-        let currentCursor = null;
         for (const object of objects) {
             isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
+        }
+        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+            for (const object of this.selection) object.selected = false;
+            this.selection = [];
+            const selectedObjects = scene.getWorldPointIntersections(cameraPoint);
+            if (selectedObjects.length > 0) {
+                for (const object of selectedObjects) {
+                    if (object.selectable) {
+                        object.selected = true;
+                        this.selection.push(object);
+                    }
+                }
+            }
+        }
+        let currentCursor = null;
+        for (const object of objects) {
             if (object.pointerEvents && isVisible[object.uuid]) {
                 const localPoint = object.inverseGlobalMatrix.transformPoint(cameraPoint);
                 const isInside = object.isInside(localPoint);
@@ -2156,8 +2178,6 @@ class Renderer extends Element {
         document.body.style.cursor = currentCursor ?? 'default';
         scene.traverse(function(child) {
             child.updateMatrix();
-        });
-        scene.traverse(function(child) {
             if (typeof child.onUpdate === 'function') child.onUpdate(context, camera);
         });
         context.setTransform(1, 0, 0, 1, 0, 0);
@@ -2179,6 +2199,24 @@ class Renderer extends Element {
             context.globalAlpha = object.globalOpacity;
             if (typeof object.style === 'function') object.style(context, camera, this.dom, this);
             if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
+            if (object.selected) {
+                camera.matrix.setContextTransform(context);
+                context.globalAlpha = 1;
+                context.strokeStyle = '#00aacc';
+                context.lineWidth = 2 / camera.scale;
+                const box = object.boundingBox;
+                const topLeft = object.globalMatrix.transformPoint(box.min);
+                const topRight = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
+                const bottomLeft = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
+                const bottomRight = object.globalMatrix.transformPoint(box.max);
+                context.beginPath();
+                context.moveTo(topLeft.x, topLeft.y);
+                context.lineTo(topRight.x, topRight.y);
+                context.lineTo(bottomRight.x, bottomRight.y);
+                context.lineTo(bottomLeft.x, bottomLeft.y);
+                context.closePath();
+                context.stroke();
+            }
             if (object.restoreContextState) context.restore();
         }
     }

@@ -13,7 +13,7 @@ class Canvas extends Element {
         super(canvas);
 
         // Context
-        this.ctx = this.dom.getContext('2d');
+        this.context = this.dom.getContext('2d');
     }
 
     get width() { return this.dom.width; }

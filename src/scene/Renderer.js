@@ -25,19 +25,23 @@ class Renderer extends Element {
         canvas.style.width = '100%';
         canvas.style.height = '100%';
 
+        // Base
         super(canvas);
 
         // Rendering Context (2D)
-        this.ctx = this.dom.getContext('2d', { alpha: options.alpha });
-        this.ctx.imageSmoothingEnabled = options.imageSmoothingEnabled;
-        this.ctx.imageSmoothingQuality = options.imageSmoothingQuality;
-        this.ctx.globalCompositeOperation = options.globalCompositeOperation;
+        this.context = this.dom.getContext('2d', { alpha: options.alpha });
+        this.context.imageSmoothingEnabled = options.imageSmoothingEnabled;
+        this.context.imageSmoothingQuality = options.imageSmoothingQuality;
+        this.context.globalCompositeOperation = options.globalCompositeOperation;
 
         // Pointer Input Handler Object
         this.pointer = new Pointer(this, options.disableContextMenu);
 
         // Auto Clear Canvas? (if false, user must clear the frame)
         this.autoClear = true;
+
+        // Selection
+        this.selection = [];
 
         // Rendering
         this.running = false;
@@ -115,7 +119,7 @@ class Renderer extends Element {
     /** Renders an object using a camera onto this canvas */
     update(scene, camera) {
         const pointer = this.pointer;
-        const context = this.ctx;
+        const context = this.context;
 
         // Update Pointer / Camera
         pointer.update();
@@ -134,13 +138,31 @@ class Renderer extends Element {
         // Frustum Culling
         const viewport = new Viewport(context, camera);
         const isVisible = {};
+        for (const object of objects) {
+            isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
+        }
+
+        // Selection
+        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+            // Clear previous selection
+            for (const object of this.selection) object.selected = false;
+            this.selection = [];
+
+            // New selected objects
+            const selectedObjects = scene.getWorldPointIntersections(cameraPoint);
+            if (selectedObjects.length > 0) {
+                for (const object of selectedObjects) {
+                    if (object.selectable) {
+                        object.selected = true;
+                        this.selection.push(object);
+                    }
+                }
+            }
+        }
 
         // Pointer Events
         let currentCursor = null;
         for (const object of objects) {
-            // Inside Viewport?
-            isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
-
             // Process?
             if (object.pointerEvents && isVisible[object.uuid]) {
                 // Local Pointer Position
@@ -192,20 +214,14 @@ class Renderer extends Element {
         // Update Cursor
         document.body.style.cursor = currentCursor ?? 'default';
 
-        // Update Transformation Matrices
+        // Update Object / Matrix
         scene.traverse(function(child) {
             child.updateMatrix();
-        });
-
-        // Update Objects
-        scene.traverse(function(child) {
             if (typeof child.onUpdate === 'function') child.onUpdate(context, camera);
         });
 
-        // Reset Context Transform to Identity
+        // Reset Transform, Clear Canvas
         context.setTransform(1, 0, 0, 1, 0, 0);
-
-        // Clear Canvas
         if (this.autoClear) context.clearRect(0, 0, this.width, this.height);
 
         // Render Objects Back to Front
@@ -217,6 +233,8 @@ class Renderer extends Element {
                 // console.log(`Object culled: ${object.constructor.name}`);
                 continue;
             }
+
+            // Save State
             if (object.saveContextState) context.save();
 
             // Apply Masks
@@ -226,19 +244,36 @@ class Renderer extends Element {
                 mask.clip(context, camera, this.dom);
             }
 
-            // Apply Camera Transform to Canvas
+            // Apply Camera / Object Transforms to Canvas
             camera.matrix.setContextTransform(context);
-
-            // Apply Object Transform to Canvas
             object.transform(context, camera, this.dom, this);
-
-            // Apply Object Opacity
             context.globalAlpha = object.globalOpacity;
 
             // Style and Draw Object
             if (typeof object.style === 'function') object.style(context, camera, this.dom, this);
             if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
 
+            // Selected?
+            if (object.selected) {
+                camera.matrix.setContextTransform(context);
+                context.globalAlpha = 1;
+                context.strokeStyle = '#00aacc';
+                context.lineWidth = 2 / camera.scale;
+                const box = object.boundingBox;
+                const topLeft = object.globalMatrix.transformPoint(box.min);
+                const topRight = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
+                const bottomLeft = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
+                const bottomRight = object.globalMatrix.transformPoint(box.max);
+                context.beginPath();
+                context.moveTo(topLeft.x, topLeft.y);
+                context.lineTo(topRight.x, topRight.y);
+                context.lineTo(bottomRight.x, bottomRight.y);
+                context.lineTo(bottomLeft.x, bottomLeft.y);
+                context.closePath();
+                context.stroke();
+            }
+
+            // Restore State
             if (object.restoreContextState) context.restore();
         }
     }

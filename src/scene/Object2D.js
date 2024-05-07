@@ -42,13 +42,17 @@ class Object2D {
 
         this.masks = [];
 
+        // Pointer Events
+        this.pointerEvents = true;                  // better performance if pointer events are not required
         this.draggable = false;
         this.focusable = true;
-        this.pointerEvents = true;                  // better performance if pointer events are not required
+        this.selectable = true;
 
-        this.saveContextState = true;               // FLAG: context of canvas should be saved before render?
-        this.restoreContextState = true;            // FLAG: context of canvas should be restored after render?
-        this.pointerInside = false;                 // FLAG: pointer is inside of the element?
+        // FLAGS
+        this.selected = false;                      // object is selected?
+        this.pointerInside = false;                 // pointer is inside of the element?
+        this.saveContextState = true;               // context of canvas should be saved before render?
+        this.restoreContextState = true;            // context of canvas should be restored after render?
     }
 
     /******************** CHILDREN */

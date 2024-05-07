@@ -33,6 +33,7 @@ class Helpers {
         const resizerContainer = new Object2D();
         resizerContainer.draggable = false;
         resizerContainer.focusable = false;
+        resizerContainer.selectable = false;
         resizerContainer.pointerEvents = false;
         resizerContainer.layer = object.layer + 1;
         scene.add(resizerContainer);
@@ -61,6 +62,7 @@ class Helpers {
                 }
                 resizer.draggable = true;
                 resizer.focusable = false;
+                resizer.selectable = false;
                 resizer.layer = object.layer + 1;
                 resizer.opacity = alpha;
                 resizer.constantWidth = true;
@@ -75,7 +77,6 @@ class Helpers {
                         resizer.strokeStyle.color = '--highlight';
                         break;
                     case 'line':
-                        // resizer.strokeStyle.color = '#0000ff';
                         resizer.strokeStyle.color = '--highlight';
                         resizer.lineWidth = 1;
                         break;
@@ -147,6 +148,7 @@ class Helpers {
             rotater = new Circle();
             rotater.draggable = true;
             rotater.focusable = false;
+            rotater.selectable = false;
             rotater.radius = radius + 1;
             rotater.layer = object.layer + 1;
             rotater.constantWidth = true;
@@ -178,6 +180,7 @@ class Helpers {
             rotateLine.lineWidth = 1;
             rotateLine.draggable = false;
             rotateLine.focusable = false;
+            rotateLine.selectable = false;
             rotateLine.layer = object.layer + 1;
             rotateLine.constantWidth = true;
             rotateLine.strokeStyle.color = '--highlight';

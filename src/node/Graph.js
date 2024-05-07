@@ -381,7 +381,7 @@ class Graph extends Panel {
         this.gridType = type;
         if (type === GRAPH_GRID_TYPES.LINES) {
             const squares = new Canvas(SIZE, SIZE);
-            const ctx = squares.ctx;
+            const ctx = squares.context;
             ctx.clearRect(0, 0, squares.width, squares.height); /* background: darkness */
             ctx.globalAlpha = 0.55;
             ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
@@ -403,7 +403,7 @@ class Graph extends Panel {
         } else if (type === GRAPH_GRID_TYPES.DOTS) {
             const radius = SIZE / 25;
             const dots = new Canvas(SIZE, SIZE);
-            const ctx = dots.ctx;
+            const ctx = dots.context;
             ctx.globalAlpha = 0.5;
             ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
             ctx.fillRect(0, 0, dots.width, dots.height);
@@ -466,7 +466,7 @@ class Graph extends Panel {
         const xMax = linesRect.right;
         const yMin = linesRect.top;
         const yMax = linesRect.bottom;
-        const ctx = lines.ctx;
+        const ctx = lines.context;
         ctx.clearRect(0, 0, lines.width, lines.height);
 
         function scaleX(x) { return (x / linesRect.width) * lines.width; }
@@ -580,7 +580,7 @@ class Graph extends Panel {
 
         // Clear
         const map = this.mapCanvas;
-        const ctx = map.ctx;
+        const ctx = map.context;
         ctx.clearRect(0, 0, map.width, map.height);
 
         // Bounds
