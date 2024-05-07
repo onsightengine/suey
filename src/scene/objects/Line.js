@@ -17,7 +17,7 @@ class Line extends Object2D {
         this.constantWidth = false;
 
         /** Mouse inside pixel buffer, extends this many pixels away from line */
-        this.buffer = 5;
+        this.mouseBuffer = 5;
 
         /**
          * Dash line pattern to be used, if empty draws a solid line.
@@ -28,6 +28,8 @@ class Line extends Object2D {
 
         // INTERNAL
         this.scaledLineWidth = this.lineWidth;
+        this._from = new Vector2();
+        this._to = new Vector2();
     }
 
     computeBoundingBox() {
@@ -42,7 +44,7 @@ class Line extends Object2D {
         const y1 = this.from.y;
         const x2 = this.to.x;
         const y2 = this.to.y;
-        const buffer = (this.scaledLineWidth / 2) + this.buffer;
+        const buffer = (this.scaledLineWidth / 2) + this.mouseBuffer;
         const dx = x2 - x1;
         const dy = y2 - y1;
         const lengthSquared = dx * dx + dy * dy;
@@ -66,7 +68,7 @@ class Line extends Object2D {
         return distanceSquared <= buffer * buffer;
     }
 
-    style(context, viewport, canvas) {
+    style(context, camera, canvas) {
         let scaleX = 1;
         let scaleY = 1;
         if (this.constantWidth) {
@@ -82,11 +84,19 @@ class Line extends Object2D {
         context.setLineDash(this.dashPattern);
     }
 
-    draw(context, viewport, canvas) {
+    draw(context, camera, canvas) {
         context.beginPath();
         context.moveTo(this.from.x, this.from.y);
         context.lineTo(this.to.x, this.to.y);
         context.stroke();
+    }
+
+    onUpdate(context, camera) {
+        if ((this.from.equals(this._from) === false) || (this.to.equals(this._to) === false)) {
+            this.computeBoundingBox();
+            this._from.copy(this.from);
+            this._to.copy(this.to);
+        }
     }
 
 }

@@ -5,6 +5,7 @@ export { Camera2D } from './Camera2D.js';
 export { Helpers } from './Helpers.js';
 export { Object2D } from './Object2D.js';
 export { Renderer } from './Renderer.js';
+export { Viewport } from './Viewport.js';
 
 // Math
 export { Box2 } from './math/Box2.js';

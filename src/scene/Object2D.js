@@ -46,7 +46,6 @@ class Object2D {
         this.focusable = true;
         this.pointerEvents = true;                  // better performance if pointer events are not required
 
-        this.ignoreCamera = false;                  // FLAG: ignore the camera transformation?
         this.saveContextState = true;               // FLAG: context of canvas should be saved before render?
         this.restoreContextState = true;            // FLAG: context of canvas should be restored after render?
         this.pointerInside = false;                 // FLAG: pointer is inside of the element?
@@ -189,11 +188,11 @@ class Object2D {
 
     /**
      *
-     * Overloadable Render Loop Functions, called in this order:
+     * Overloadable Render Loop Functions (called in this order):
      *
-     * transform(context, camera, canvas, renderer) {}
-     * style(context, camera, canvas, renderer) {}      // Apply styling (color, font, etc.)
-     * draw(context, camera, canvas, renderer) {}       // Draw object on canvas
+     *      transform(context, camera, canvas, renderer) {}
+     *      style(context, camera, canvas, renderer) {}
+     *      draw(context, camera, canvas, renderer) {}
      *
      * @param {CanvasRenderingContext2D} context Canvas 2d drawing context.
      * @param {Camera} camera Camera applied to the canvas.
@@ -210,18 +209,40 @@ class Object2D {
 
     /**
      *
+     * Overloadable Hierarchy Events
+     *
+     *      onAdd(parent) {}
+     *      onRemove(parent) {}
+     *
+     * @param {Object2D} parent Parent object were it was added / removed.
+     *
+     */
+
+    /**
+     *
+     * Overloadable Update Event
+     *
+     *      onUpdate(context, camera) {}
+     *
+     * @param {CanvasRenderingContext2D} context Canvas 2d drawing context.
+     * @param {Camera} camera Camera applied to the canvas.
+     *
+     */
+
+    /**
+     *
      * Overloadable Pointer Events
      *
-     * onPointerDrag(pointer, camera) {}
-     * onPointerDragStart(pointer, camera) {}
-     * onPointerDragEnd(pointer, camera) {}
-     * onPointerEnter(pointer, camera) {}
-     * onPointerLeave(pointer, camera) {}
-     * onPointerOver(pointer, camera) {}
-     * onButtonPressed(pointer, camera) {}
-     * onDoubleClick(pointer, camera) {}
-     * onButtonDown(pointer, camera) {}
-     * onButtonUp(pointer, camera) {}
+     *      onPointerDrag(pointer, camera) {}
+     *      onPointerDragStart(pointer, camera) {}
+     *      onPointerDragEnd(pointer, camera) {}
+     *      onPointerEnter(pointer, camera) {}
+     *      onPointerLeave(pointer, camera) {}
+     *      onPointerOver(pointer, camera) {}
+     *      onButtonPressed(pointer, camera) {}
+     *      onDoubleClick(pointer, camera) {}
+     *      onButtonDown(pointer, camera) {}
+     *      onButtonUp(pointer, camera) {}
      *
      * @param {Pointer} pointer Pointer object that receives the user input.
      * @param {Camera} camera Camera where the object is drawn.
@@ -256,29 +277,6 @@ class Object2D {
             }
         }
     }
-
-    /**
-     *
-     * Overloadable Hierarchy Events
-     *
-     * onAdd(parent) {}
-     * onRemove(parent) {}
-     *
-     * @param {Object2D} parent Parent object were it was added / removed
-     *
-     */
-
-    /**
-     *
-     * Overloadable Update Event
-     *
-     * onUpdate(camera) {}
-     *
-     * Callback method called every time before the object is draw into the canvas.
-     * Should be used to run object logic, any preparation code, move the object, etc.
-     * This method is called for every object before rendering.
-     *
-     */
 
 }
 

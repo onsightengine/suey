@@ -2,6 +2,7 @@ import { Box2 } from './math/Box2.js';
 import { Element } from '../core/Element.js';
 import { Pointer } from '../utils/input/Pointer.js';
 import { Vector2 } from './math/Vector2.js';
+import { Viewport } from './Viewport.js';
 
 class Renderer extends Element {
 
@@ -112,73 +113,79 @@ class Renderer extends Element {
     }
 
     /** Renders an object using a camera onto this canvas */
-    update(object, camera) {
-        // Pointer Update
-        this.pointer.update();
-
-        // Camera Transform
-        camera.update(this.pointer);
-        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
-
-        // Project Pointer Coordinates
+    update(scene, camera) {
         const pointer = this.pointer;
-        const point = pointer.position.clone();
-        const cameraPoint = camera.inverseMatrix.transformPoint(point);
+        const context = this.ctx;
+
+        // Update Pointer / Camera
+        pointer.update();
+        camera.update(pointer);
+        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
+        const cameraPoint = camera.inverseMatrix.transformPoint(pointer.position);
 
         // Gather, Sort Objects
         const objects = [];
-        object.traverse(function(child) { if (child.visible) objects.push(child); });
+        scene.traverse(function(child) { if (child.visible) objects.push(child); });
         objects.sort(function(a, b) {
             if (b.layer === a.layer) return b.level - a.level;
             return b.layer - a.layer;
         });
 
+        // Frustum Culling
+        const viewport = new Viewport(context, camera);
+        const isVisible = {};
+
         // Pointer Events
         let currentCursor = null;
-        for (const child of objects) {
+        for (const object of objects) {
+            // Inside Viewport?
+            isVisible[object.uuid] = viewport.intersectsBox(object.getWorldBoundingBox());
+
             // Process?
-            if (child.pointerEvents) {
+            if (object.pointerEvents && isVisible[object.uuid]) {
                 // Local Pointer Position
-                const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
-                const isInside = child.isInside(localPoint);
+                const localPoint = object.inverseGlobalMatrix.transformPoint(cameraPoint);
+                const isInside = object.isInside(localPoint);
                 // Mouse Cursor
-                if (!currentCursor && isInside || this.beingDragged === child && child.cursor) {
-                    if (typeof child.cursor === 'function') currentCursor = child.cursor(camera);
-                    else currentCursor = child.cursor;
+                if (!currentCursor && (isInside || this.beingDragged === object) && object.cursor) {
+                    if (typeof object.cursor === 'function') currentCursor = object.cursor(camera);
+                    else currentCursor = object.cursor;
                 }
                 // Pointer Inside?
                 if (isInside) {
-                    if (!this.beingDragged) {
-                        if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
-                        if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
-                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
-                        if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
-                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                    if (this.beingDragged == null) {
+                        if (!object.pointerInside && typeof object.onPointerEnter === 'function') object.onPointerEnter(pointer, camera);
+                        if (typeof object.onPointerOver === 'function') object.onPointerOver(pointer, camera);
+                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof object.onDoubleClick === 'function') object.onDoubleClick(pointer, camera);
+                        if (pointer.buttonPressed(Pointer.LEFT) && typeof object.onButtonPressed === 'function') object.onButtonPressed(pointer, camera);
+                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof object.onButtonUp === 'function') object.onButtonUp(pointer, camera);
                         if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                            if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
-                            if (child.draggable) {
-                                this.beingDragged = child;
-                                if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                            if (typeof object.onButtonDown === 'function') object.onButtonDown(pointer, camera);
+                            if (object.draggable) {
+                                this.beingDragged = object;
+                                if (typeof object.onPointerDragStart === 'function') object.onPointerDragStart(pointer, camera);
                             }
                         }
                     }
-                    child.pointerInside = true;
-                } else if (this.beingDragged !== child && child.pointerInside) {
-                    if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
-                    child.pointerInside = false;
+                    object.pointerInside = true;
+                } else if (this.beingDragged !== object && object.pointerInside) {
+                    if (typeof object.onPointerLeave === 'function') object.onPointerLeave(pointer, camera);
+                    object.pointerInside = false;
                 }
             }
 
-            // Stop Drag
-            if (pointer.buttonJustReleased(Pointer.LEFT)) {
-                if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDragEnd === 'function') {
-                    child.onPointerDragEnd(pointer, camera);
+            // Being Dragged?
+            if (this.beingDragged === object) {
+                // Stop Drag
+                if (pointer.buttonJustReleased(Pointer.LEFT)) {
+                    if (object.pointerEvents && typeof object.onPointerDragEnd === 'function') {
+                        object.onPointerDragEnd(pointer, camera);
+                    }
+                    this.beingDragged = null;
+                // Still Dragging
+                } else if (object.pointerEvents && typeof object.onPointerDrag === 'function') {
+                    object.onPointerDrag(pointer, camera);
                 }
-                this.beingDragged = null;
-
-            // Still Dragging
-            } else if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDrag === 'function') {
-                child.onPointerDrag(pointer, camera);
             }
         }
 
@@ -186,54 +193,51 @@ class Renderer extends Element {
         document.body.style.cursor = currentCursor ?? 'default';
 
         // Update Transformation Matrices
-        object.traverse(function(child) {
+        scene.traverse(function(child) {
             child.updateMatrix();
         });
 
         // Update Objects
-        object.traverse(function(child) {
-            if (typeof child.onUpdate === 'function') child.onUpdate(camera);
+        scene.traverse(function(child) {
+            if (typeof child.onUpdate === 'function') child.onUpdate(context, camera);
         });
 
-        // Identity Transform
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        // Reset Context Transform to Identity
+        context.setTransform(1, 0, 0, 1, 0, 0);
 
         // Clear Canvas
-        if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
+        if (this.autoClear) context.clearRect(0, 0, this.width, this.height);
 
         // Render Objects Back to Front
         for (let i = objects.length - 1; i >= 0; i--) {
             const object = objects[i];
             if (object.isMask) continue;
-            if (object.saveContextState) this.ctx.save();
+            if (isVisible[object.uuid] !== true) continue;
+            if (object.saveContextState) context.save();
 
             // Apply Masks
             for (const mask of object.masks) {
-                if (!mask.ignoreCamera) camera.matrix.setContextTransform(this.ctx);
-                mask.transform(this.ctx, camera, this.dom, this);
-                mask.clip(this.ctx, camera, this.dom);
+                camera.matrix.setContextTransform(context);
+                mask.transform(context, camera, this.dom, this);
+                mask.clip(context, camera, this.dom);
             }
 
-            // Set Context Transform
-            if (!object.ignoreCamera) {
-                camera.matrix.setContextTransform(this.ctx);
-            } else if (object.masks.length > 0) {
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-            }
+            // Apply Camera Transform to Canvas
+            camera.matrix.setContextTransform(context);
 
             // Apply Object Transform to Canvas
-            object.transform(this.ctx, camera, this.dom, this);
+            object.transform(context, camera, this.dom, this);
 
             // Apply Object Opacity
-            this.ctx.globalAlpha = object.globalOpacity;
+            context.globalAlpha = object.globalOpacity;
 
             // Style and Draw Object
-            if (typeof object.style === 'function') object.style(this.ctx, camera, this.dom, this);
-            if (typeof object.draw === 'function') object.draw(this.ctx, camera, this.dom, this);
+            if (typeof object.style === 'function') object.style(context, camera, this.dom, this);
+            if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
 
-            if (object.restoreContextState) this.ctx.restore();
+            if (object.restoreContextState) context.restore();
         }
-    };
+    }
 
     /******************** CAMERA */
 

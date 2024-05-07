@@ -12,18 +12,20 @@ class Text extends Object2D {
         this.text = text;
         this.font = font;
 
-        this.context = null;
         this.strokeStyle = null;
         this.lineWidth = 1;
         this.fillStyle = new ColorStyle('#000000');
 
         this.textAlign = 'center';      // https://developer.mozilla.org/en-US/docs/Web/CSS/text-align
         this.textBaseline = 'middle';   // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/textBaseline
+
+        // INTERNAL
+        this._font = font;
+        this._text = text;
     }
 
-    computeBoundingBox() {
-        if (!this.context) return false;
-        const context = this.context;
+    computeBoundingBox(context) {
+        if (!context) return false;
         context.font = this.font;
         context.textAlign = this.textAlign;
         context.textBaseline = this.textBaseline;
@@ -31,6 +33,7 @@ class Text extends Object2D {
         const textWidth = textMetrics.width;
         const textHeight = Math.max(textMetrics.actualBoundingBoxAscent, textMetrics.actualBoundingBoxDescent) * 2.0;
         this.boundingBox.set(new Vector2(textWidth / -2, textHeight / -2), new Vector2(textWidth / 2, textHeight / 2));
+        return true;
     }
 
     isInside(point) {
@@ -38,10 +41,6 @@ class Text extends Object2D {
     }
 
     draw(context, camera, canvas) {
-        if (this.context !== context) {
-            this.context = context;
-            this.computeBoundingBox();
-        }
         context.font = this.font;
         context.textAlign = this.textAlign;
         context.textBaseline = this.textBaseline;
@@ -53,6 +52,15 @@ class Text extends Object2D {
         if (this.strokeStyle) {
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeText(this.text, 0, 0);
+        }
+    }
+
+    onUpdate(context, camera) {
+        if (this._font !== this.font || this._text !== this.text) {
+            if (this.computeBoundingBox(context)) {
+                this._font = this.font;
+                this._text = this.text;
+            }
         }
     }
 

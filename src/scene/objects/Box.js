@@ -17,7 +17,8 @@ class Box extends Object2D {
         this.lineWidth = 1;
         this.constantWidth = false;
 
-        this.computeBoundingBox();
+        // INTERNAL
+        this._box = new Box2();
     }
 
     computeBoundingBox() {
@@ -46,6 +47,13 @@ class Box extends Object2D {
             context.lineWidth = this.lineWidth / Math.max(scaleX, scaleY);
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeRect(this.box.min.x, this.box.min.y, width, height);
+        }
+    }
+
+    onUpdate(context, camera) {
+        if (this.box.equals(this._box) === false) {
+            this.computeBoundingBox();
+            this._box.copy(this.box);
         }
     }
 

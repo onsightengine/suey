@@ -29,9 +29,14 @@ class Vector2 {
         return new Vector2(this.x, this.y);
     }
 
-    copy(vec) {
-        this.x = vec.x;
-        this.y = vec.y;
+    copy(vec, y) {
+        if (typeof vec === 'object') {
+            this.x = vec.x;
+            this.y = vec.y;
+        } else {
+            this.x = vec;
+            this.y = y;
+        }
         return this;
     }
 
@@ -231,6 +236,16 @@ class Vector2 {
         return Math.acos(clampedDot);
     }
 
+    /** Rotate the vector around a central point, in radians */
+    rotateAround(center, angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        const x = this.x - center.x;
+        const y = this.y - center.y;
+        this.x = x * c - y * s + center.x;
+        this.y = x * s + y * c + center.y;
+    }
+
     /** Distance between two vector positions */
     distanceTo(v) {
         return Math.sqrt(this.distanceToSquared(v));
@@ -272,16 +287,6 @@ class Vector2 {
     fromArray(array) {
         this.set(array[0], array[1]);
         return this;
-    }
-
-    /** Rotate the vector around a central point, in radians */
-    rotateAround(center, angle) {
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        const x = this.x - center.x;
-        const y = this.y - center.y;
-        this.x = x * c - y * s + center.x;
-        this.y = x * s + y * c + center.y;
     }
 
 }

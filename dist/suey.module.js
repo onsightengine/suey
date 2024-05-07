@@ -2551,9 +2551,14 @@ class Vector2 {
     clone() {
         return new Vector2(this.x, this.y);
     }
-    copy(vec) {
-        this.x = vec.x;
-        this.y = vec.y;
+    copy(vec, y) {
+        if (typeof vec === 'object') {
+            this.x = vec.x;
+            this.y = vec.y;
+        } else {
+            this.x = vec;
+            this.y = y;
+        }
         return this;
     }
     add(x, y) {
@@ -2702,6 +2707,14 @@ class Vector2 {
         const clampedDot = Math.min(Math.max(dot / magnitudes, -1), 1);
         return Math.acos(clampedDot);
     }
+    rotateAround(center, angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        const x = this.x - center.x;
+        const y = this.y - center.y;
+        this.x = x * c - y * s + center.x;
+        this.y = x * s + y * c + center.y;
+    }
     distanceTo(v) {
         return Math.sqrt(this.distanceToSquared(v));
     }
@@ -2730,14 +2743,6 @@ class Vector2 {
     fromArray(array) {
         this.set(array[0], array[1]);
         return this;
-    }
-    rotateAround(center, angle) {
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        const x = this.x - center.x;
-        const y = this.y - center.y;
-        this.x = x * c - y * s + center.x;
-        this.y = x * s + y * c + center.y;
     }
 }
 
@@ -7441,8 +7446,10 @@ class Camera2D {
 
 class Box2 {
     constructor(min, max) {
-        this.min = min ?? new Vector2(+Infinity, +Infinity);
-        this.max = max ?? new Vector2(-Infinity, -Infinity);
+        this.min = new Vector2(+Infinity, +Infinity);
+        this.max = new Vector2(-Infinity, -Infinity);
+        if (typeof min === 'object') this.min.copy(min);
+        if (typeof max === 'object') this.max.copy(max);
     }
     set(min, max) {
         this.min.copy(min);
@@ -7606,7 +7613,6 @@ class Object2D {
         this.draggable = false;
         this.focusable = true;
         this.pointerEvents = true;
-        this.ignoreCamera = false;
         this.saveContextState = true;
         this.restoreContextState = true;
         this.pointerInside = false;
@@ -7741,7 +7747,7 @@ class Box extends Object2D {
         this.strokeStyle = new ColorStyle('#000000');
         this.lineWidth = 1;
         this.constantWidth = false;
-        this.computeBoundingBox();
+        this._box = new Box2();
     }
     computeBoundingBox() {
         this.boundingBox.copy(this.box);
@@ -7767,6 +7773,12 @@ class Box extends Object2D {
             context.lineWidth = this.lineWidth / Math.max(scaleX, scaleY);
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeRect(this.box.min.x, this.box.min.y, width, height);
+        }
+    }
+    onUpdate(context, camera) {
+        if (this.box.equals(this._box) === false) {
+            this.computeBoundingBox();
+            this._box.copy(this.box);
         }
     }
 }
@@ -7829,9 +7841,11 @@ class Line extends Object2D {
         this.strokeStyle = new ColorStyle('#ffffff');
         this.lineWidth = 5;
         this.constantWidth = false;
-        this.buffer = 5;
+        this.mouseBuffer = 5;
         this.dashPattern = [];
         this.scaledLineWidth = this.lineWidth;
+        this._from = new Vector2();
+        this._to = new Vector2();
     }
     computeBoundingBox() {
         this.boundingBox.min.copy(this.from);
@@ -7844,7 +7858,7 @@ class Line extends Object2D {
         const y1 = this.from.y;
         const x2 = this.to.x;
         const y2 = this.to.y;
-        const buffer = (this.scaledLineWidth / 2) + this.buffer;
+        const buffer = (this.scaledLineWidth / 2) + this.mouseBuffer;
         const dx = x2 - x1;
         const dy = y2 - y1;
         const lengthSquared = dx * dx + dy * dy;
@@ -7866,7 +7880,7 @@ class Line extends Object2D {
         const distanceSquared = (x - nearestX) * (x - nearestX) + (y - nearestY) * (y - nearestY);
         return distanceSquared <= buffer * buffer;
     }
-    style(context, viewport, canvas) {
+    style(context, camera, canvas) {
         let scaleX = 1;
         let scaleY = 1;
         if (this.constantWidth) {
@@ -7881,11 +7895,18 @@ class Line extends Object2D {
         context.strokeStyle = this.strokeStyle.get(context);
         context.setLineDash(this.dashPattern);
     }
-    draw(context, viewport, canvas) {
+    draw(context, camera, canvas) {
         context.beginPath();
         context.moveTo(this.from.x, this.from.y);
         context.lineTo(this.to.x, this.to.y);
         context.stroke();
+    }
+    onUpdate(context, camera) {
+        if ((this.from.equals(this._from) === false) || (this.to.equals(this._to) === false)) {
+            this.computeBoundingBox();
+            this._from.copy(this.from);
+            this._to.copy(this.to);
+        }
     }
 }
 
@@ -7962,7 +7983,7 @@ class Helpers {
                         break;
                     case 'line':
                         resizer = new Line();
-                        resizer.buffer = radius;
+                        resizer.mouseBuffer = radius;
                         break;
                     case 'box':
                     default:
@@ -8080,7 +8101,7 @@ class Helpers {
             };
             resizerContainer.add(rotater);
         }
-        resizerContainer.onUpdate = function(camera) {
+        resizerContainer.onUpdate = function(context, camera) {
             const box = object.boundingBox;
             const center = box.getCenter();
             const handleOffset = ((radius * 4) / Math.abs(object.scale.y)) / camera.scale;
@@ -8133,7 +8154,7 @@ class Helpers {
                     leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
                 }
                 if (leftResizer.type === 'Line') {
-                    leftResizer.buffer = radius / camera.scale;
+                    leftResizer.mouseBuffer = radius / camera.scale;
                     leftResizer.from.set(0, -halfHeight);
                     leftResizer.to.set(0, +halfHeight);
                 }
@@ -8147,7 +8168,7 @@ class Helpers {
                     rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
                 }
                 if (rightResizer.type === 'Line') {
-                    rightResizer.buffer = radius / camera.scale;
+                    rightResizer.mouseBuffer = radius / camera.scale;
                     rightResizer.from.set(0, -halfHeight);
                     rightResizer.to.set(0, +halfHeight);
                 }
@@ -8161,7 +8182,7 @@ class Helpers {
                     topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
                 }
                 if (topResizer.type === 'Line') {
-                    topResizer.buffer = radius / camera.scale;
+                    topResizer.mouseBuffer = radius / camera.scale;
                     topResizer.from.set(-halfWidth, 0);
                     topResizer.to.set(+halfWidth, 0);
                 }
@@ -8175,13 +8196,25 @@ class Helpers {
                     bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
                 }
                 if (bottomResizer.type === 'Line') {
-                    bottomResizer.buffer = radius / camera.scale;
+                    bottomResizer.mouseBuffer = radius / camera.scale;
                     bottomResizer.from.set(-halfWidth, 0);
                     bottomResizer.to.set(+halfWidth, 0);
                 }
                 bottomResizer.updateMatrix();
             }
         };
+    }
+}
+
+class Viewport {
+    constructor(context, camera) {
+        const canvas = context.canvas;
+        const topLeft = camera.inverseMatrix.transformPoint(0, 0);
+        const bottomRight = camera.inverseMatrix.transformPoint(canvas.width, canvas.height);
+        this.box = new Box2(topLeft, bottomRight);
+    }
+    intersectsBox(box) {
+        return this.box.intersectsBox(box);
     }
 }
 
@@ -8263,88 +8296,90 @@ class Renderer extends Element {
         this.running = false;
         cancelAnimationFrame(this.frame);
     }
-    update(object, camera) {
-        this.pointer.update();
-        camera.update(this.pointer);
-        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
+    update(scene, camera) {
         const pointer = this.pointer;
-        const point = pointer.position.clone();
-        const cameraPoint = camera.inverseMatrix.transformPoint(point);
+        const context = this.ctx;
+        pointer.update();
+        camera.update(pointer);
+        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
+        const cameraPoint = camera.inverseMatrix.transformPoint(pointer.position);
         const objects = [];
-        object.traverse(function(child) { if (child.visible) objects.push(child); });
+        scene.traverse(function(child) { if (child.visible) objects.push(child); });
         objects.sort(function(a, b) {
             if (b.layer === a.layer) return b.level - a.level;
             return b.layer - a.layer;
         });
+        const viewport = new Viewport(context, camera);
+        const isVisible = {};
         let currentCursor = null;
-        for (const child of objects) {
-            if (child.pointerEvents) {
-                const localPoint = child.inverseGlobalMatrix.transformPoint(child.ignoreCamera ? point : cameraPoint);
-                const isInside = child.isInside(localPoint);
-                if (!currentCursor && isInside || this.beingDragged === child && child.cursor) {
-                    if (typeof child.cursor === 'function') currentCursor = child.cursor(camera);
-                    else currentCursor = child.cursor;
+        for (const object of objects) {
+            isVisible[object.uuid] = viewport.intersectsBox(object.getWorldBoundingBox());
+            if (object.pointerEvents && isVisible[object.uuid]) {
+                const localPoint = object.inverseGlobalMatrix.transformPoint(cameraPoint);
+                const isInside = object.isInside(localPoint);
+                if (!currentCursor && (isInside || this.beingDragged === object) && object.cursor) {
+                    if (typeof object.cursor === 'function') currentCursor = object.cursor(camera);
+                    else currentCursor = object.cursor;
                 }
                 if (isInside) {
-                    if (!this.beingDragged) {
-                        if (!child.pointerInside && typeof child.onPointerEnter === 'function') child.onPointerEnter(pointer, camera);
-                        if (typeof child.onPointerOver === 'function') child.onPointerOver(pointer, camera);
-                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof child.onDoubleClick === 'function') child.onDoubleClick(pointer, camera);
-                        if (pointer.buttonPressed(Pointer.LEFT) && typeof child.onButtonPressed === 'function') child.onButtonPressed(pointer, camera);
-                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof child.onButtonUp === 'function') child.onButtonUp(pointer, camera);
+                    if (this.beingDragged == null) {
+                        if (!object.pointerInside && typeof object.onPointerEnter === 'function') object.onPointerEnter(pointer, camera);
+                        if (typeof object.onPointerOver === 'function') object.onPointerOver(pointer, camera);
+                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof object.onDoubleClick === 'function') object.onDoubleClick(pointer, camera);
+                        if (pointer.buttonPressed(Pointer.LEFT) && typeof object.onButtonPressed === 'function') object.onButtonPressed(pointer, camera);
+                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof object.onButtonUp === 'function') object.onButtonUp(pointer, camera);
                         if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                            if (typeof child.onButtonDown === 'function') child.onButtonDown(pointer, camera);
-                            if (child.draggable) {
-                                this.beingDragged = child;
-                                if (typeof child.onPointerDragStart === 'function') child.onPointerDragStart(pointer, camera);
+                            if (typeof object.onButtonDown === 'function') object.onButtonDown(pointer, camera);
+                            if (object.draggable) {
+                                this.beingDragged = object;
+                                if (typeof object.onPointerDragStart === 'function') object.onPointerDragStart(pointer, camera);
                             }
                         }
                     }
-                    child.pointerInside = true;
-                } else if (this.beingDragged !== child && child.pointerInside) {
-                    if (typeof child.onPointerLeave === 'function') child.onPointerLeave(pointer, camera);
-                    child.pointerInside = false;
+                    object.pointerInside = true;
+                } else if (this.beingDragged !== object && object.pointerInside) {
+                    if (typeof object.onPointerLeave === 'function') object.onPointerLeave(pointer, camera);
+                    object.pointerInside = false;
                 }
             }
-            if (pointer.buttonJustReleased(Pointer.LEFT)) {
-                if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDragEnd === 'function') {
-                    child.onPointerDragEnd(pointer, camera);
+            if (this.beingDragged === object) {
+                if (pointer.buttonJustReleased(Pointer.LEFT)) {
+                    if (object.pointerEvents && typeof object.onPointerDragEnd === 'function') {
+                        object.onPointerDragEnd(pointer, camera);
+                    }
+                    this.beingDragged = null;
+                } else if (object.pointerEvents && typeof object.onPointerDrag === 'function') {
+                    object.onPointerDrag(pointer, camera);
                 }
-                this.beingDragged = null;
-            } else if (this.beingDragged === child && child.pointerEvents && typeof child.onPointerDrag === 'function') {
-                child.onPointerDrag(pointer, camera);
             }
         }
         document.body.style.cursor = currentCursor ?? 'default';
-        object.traverse(function(child) {
+        scene.traverse(function(child) {
             child.updateMatrix();
         });
-        object.traverse(function(child) {
-            if (typeof child.onUpdate === 'function') child.onUpdate(camera);
+        scene.traverse(function(child) {
+            if (typeof child.onUpdate === 'function') child.onUpdate(context, camera);
         });
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        if (this.autoClear) this.ctx.clearRect(0, 0, this.width, this.height);
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        if (this.autoClear) context.clearRect(0, 0, this.width, this.height);
         for (let i = objects.length - 1; i >= 0; i--) {
             const object = objects[i];
             if (object.isMask) continue;
-            if (object.saveContextState) this.ctx.save();
+            if (isVisible[object.uuid] !== true) continue;
+            if (object.saveContextState) context.save();
             for (const mask of object.masks) {
-                if (!mask.ignoreCamera) camera.matrix.setContextTransform(this.ctx);
-                mask.transform(this.ctx, camera, this.dom, this);
-                mask.clip(this.ctx, camera, this.dom);
+                camera.matrix.setContextTransform(context);
+                mask.transform(context, camera, this.dom, this);
+                mask.clip(context, camera, this.dom);
             }
-            if (!object.ignoreCamera) {
-                camera.matrix.setContextTransform(this.ctx);
-            } else if (object.masks.length > 0) {
-                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-            }
-            object.transform(this.ctx, camera, this.dom, this);
-            this.ctx.globalAlpha = object.globalOpacity;
-            if (typeof object.style === 'function') object.style(this.ctx, camera, this.dom, this);
-            if (typeof object.draw === 'function') object.draw(this.ctx, camera, this.dom, this);
-            if (object.restoreContextState) this.ctx.restore();
+            camera.matrix.setContextTransform(context);
+            object.transform(context, camera, this.dom, this);
+            context.globalAlpha = object.globalOpacity;
+            if (typeof object.style === 'function') object.style(context, camera, this.dom, this);
+            if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
+            if (object.restoreContextState) context.restore();
         }
-    };
+    }
     focusCamera(object, animationDuration = 200 ) {
         let targetScale, targetPosition;
         if (object) {
@@ -8384,16 +8419,16 @@ class Text extends Object2D {
         this.type = 'Text';
         this.text = text;
         this.font = font;
-        this.context = null;
         this.strokeStyle = null;
         this.lineWidth = 1;
         this.fillStyle = new ColorStyle('#000000');
         this.textAlign = 'center';
         this.textBaseline = 'middle';
+        this._font = font;
+        this._text = text;
     }
-    computeBoundingBox() {
-        if (!this.context) return false;
-        const context = this.context;
+    computeBoundingBox(context) {
+        if (!context) return false;
         context.font = this.font;
         context.textAlign = this.textAlign;
         context.textBaseline = this.textBaseline;
@@ -8401,15 +8436,12 @@ class Text extends Object2D {
         const textWidth = textMetrics.width;
         const textHeight = Math.max(textMetrics.actualBoundingBoxAscent, textMetrics.actualBoundingBoxDescent) * 2.0;
         this.boundingBox.set(new Vector2(textWidth / -2, textHeight / -2), new Vector2(textWidth / 2, textHeight / 2));
+        return true;
     }
     isInside(point) {
         return this.boundingBox.containsPoint(point);
     }
     draw(context, camera, canvas) {
-        if (this.context !== context) {
-            this.context = context;
-            this.computeBoundingBox();
-        }
         context.font = this.font;
         context.textAlign = this.textAlign;
         context.textBaseline = this.textBaseline;
@@ -8420,6 +8452,14 @@ class Text extends Object2D {
         if (this.strokeStyle) {
             context.strokeStyle = this.strokeStyle.get(context);
             context.strokeText(this.text, 0, 0);
+        }
+    }
+    onUpdate(context, camera) {
+        if (this._font !== this.font || this._text !== this.text) {
+            if (this.computeBoundingBox(context)) {
+                this._font = this.font;
+                this._text = this.text;
+            }
         }
     }
 }
@@ -8487,6 +8527,7 @@ var Scene$1 = /*#__PURE__*/Object.freeze({
   Helpers: Helpers,
   Object2D: Object2D,
   Renderer: Renderer,
+  Viewport: Viewport,
   Box2: Box2,
   Matrix2: Matrix2,
   UUID: UUID,

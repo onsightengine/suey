@@ -52,7 +52,7 @@ class Helpers {
                         break;
                     case 'line':
                         resizer = new Line();
-                        resizer.buffer = radius;
+                        resizer.mouseBuffer = radius;
                         break;
                     case 'box':
                     default:
@@ -176,7 +176,7 @@ class Helpers {
         }
 
         // Update Tools
-        resizerContainer.onUpdate = function(camera) {
+        resizerContainer.onUpdate = function(context, camera) {
             const box = object.boundingBox;
             const center = box.getCenter();
 
@@ -235,7 +235,7 @@ class Helpers {
                     leftResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
                 }
                 if (leftResizer.type === 'Line') {
-                    leftResizer.buffer = radius / camera.scale;
+                    leftResizer.mouseBuffer = radius / camera.scale;
                     leftResizer.from.set(0, -halfHeight);
                     leftResizer.to.set(0, +halfHeight);
                 }
@@ -249,7 +249,7 @@ class Helpers {
                     rightResizer.box.set(new Vector2(-radius, -halfHeight), new Vector2(radius, halfHeight));
                 }
                 if (rightResizer.type === 'Line') {
-                    rightResizer.buffer = radius / camera.scale;
+                    rightResizer.mouseBuffer = radius / camera.scale;
                     rightResizer.from.set(0, -halfHeight);
                     rightResizer.to.set(0, +halfHeight);
                 }
@@ -263,7 +263,7 @@ class Helpers {
                     topResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
                 }
                 if (topResizer.type === 'Line') {
-                    topResizer.buffer = radius / camera.scale;
+                    topResizer.mouseBuffer = radius / camera.scale;
                     topResizer.from.set(-halfWidth, 0);
                     topResizer.to.set(+halfWidth, 0);
                 }
@@ -277,7 +277,7 @@ class Helpers {
                     bottomResizer.box.set(new Vector2(-halfWidth, -radius), new Vector2(halfWidth, radius));
                 }
                 if (bottomResizer.type === 'Line') {
-                    bottomResizer.buffer = radius / camera.scale;
+                    bottomResizer.mouseBuffer = radius / camera.scale;
                     bottomResizer.from.set(-halfWidth, 0);
                     bottomResizer.to.set(+halfWidth, 0);
                 }

@@ -3,8 +3,10 @@ import { Vector2 } from './Vector2.js';
 class Box2 {
 
     constructor(min, max) {
-        this.min = min ?? new Vector2(+Infinity, +Infinity);
-        this.max = max ?? new Vector2(-Infinity, -Infinity);
+        this.min = new Vector2(+Infinity, +Infinity);
+        this.max = new Vector2(-Infinity, -Infinity);
+        if (typeof min === 'object') this.min.copy(min);
+        if (typeof max === 'object') this.max.copy(max);
     }
 
     /** Set the box values */
