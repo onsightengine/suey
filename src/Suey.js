@@ -168,9 +168,6 @@ export { Scrollable } from './panels/Scrollable.js';
 export { Shrinkable } from './panels/Shrinkable.js';
 export { Titled } from './panels/Titled.js';
 
-// Scene
-export * as Scene from './scene/Scene.js';
-
 // CSS
 import '../files/css/variables.css';
 import '../files/css/core.css';

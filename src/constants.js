@@ -1,25 +1,4 @@
-import imageAdd from '../files/images/add.svg';
-import imageCheck from '../files/images/check.svg';
-import imageClose from '../files/images/close.svg';
-import imageEmpty from '../files/images/empty.svg';
-import imageExpand from '../files/images/expand.svg';
-export const IMAGE_ADD = imageAdd;
-export const IMAGE_CHECK = imageCheck;
-export const IMAGE_CLOSE = imageClose;
-export const IMAGE_EMPTY = imageEmpty;
-export const IMAGE_EXPAND = imageExpand;
-
-import imageQuestion from '../files/images/question/question.svg';
-import imageInfo from '../files/images/question/info.svg';
-import imageError from '../files/images/question/error.svg';
-import imageWarning from '../files/images/question/warning.svg';
-export const IMAGE_QUESTION = imageQuestion;
-export const IMAGE_INFO = imageInfo;
-export const IMAGE_ERROR = imageError;
-export const IMAGE_WARNING = imageWarning;
-
-import cursorRotate from '../files/cursors/rotate.png';
-export const CURSOR_ROTATE = cursorRotate;
+/********** GUI */
 
 export const GRID_SIZE = 25;
 
@@ -184,3 +163,25 @@ export const NODE_TYPES = {
     INPUT:          'input',
     OUTPUT:         'output',
 };
+
+/********** IMAGES */
+
+import imageAdd from '../files/images/add.svg';
+import imageCheck from '../files/images/check.svg';
+import imageClose from '../files/images/close.svg';
+import imageEmpty from '../files/images/empty.svg';
+import imageExpand from '../files/images/expand.svg';
+export const IMAGE_ADD = imageAdd;
+export const IMAGE_CHECK = imageCheck;
+export const IMAGE_CLOSE = imageClose;
+export const IMAGE_EMPTY = imageEmpty;
+export const IMAGE_EXPAND = imageExpand;
+
+import imageQuestion from '../files/images/question/question.svg';
+import imageInfo from '../files/images/question/info.svg';
+import imageError from '../files/images/question/error.svg';
+import imageWarning from '../files/images/question/warning.svg';
+export const IMAGE_QUESTION = imageQuestion;
+export const IMAGE_INFO = imageInfo;
+export const IMAGE_ERROR = imageError;
+export const IMAGE_WARNING = imageWarning;
