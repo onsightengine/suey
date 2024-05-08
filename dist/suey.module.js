@@ -7750,7 +7750,6 @@ class Renderer extends Element {
         canvas.style.width = '100%';
         canvas.style.height = '100%';
         super(canvas);
-        const self = this;
         this.context = this.dom.getContext('2d', { alpha });
         this.context.imageSmoothingEnabled = imageSmoothingEnabled;
         this.context.imageSmoothingQuality = imageSmoothingQuality;
@@ -7760,31 +7759,22 @@ class Renderer extends Element {
         this.autoClear = true;
         this.updatable = [ this.pointer, this.keyboard ];
         this.selection = [];
-        this.running = false;
-        this.frame = -1;
-        this.scene = null;
-        this.camera = null;
+        const renderer = this;
         const resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
                 canvas.width = entry.contentRect.width;
                 canvas.height = entry.contentRect.height;
-                if (self.running && self.scene && self.camera) {
-                    self.update(self.scene, self.camera);
-                }
+                if (renderer.running) renderer.render();
             }
         });
         resizeObserver.observe(canvas);
         this.on('destroy', () => {
             resizeObserver.unobserve(canvas);
         });
-        this.on('dblclick', (event) => {
-            if (!self.scene || !self.camera) return;
-            const point = new Vector2(event.clientX, event.clientY);
-            const worldPoint = self.camera.inverseMatrix.transformPoint(point);
-            const objects = self.scene.getWorldPointIntersections(worldPoint);
-            for (const object of objects) if (object.focusable) return self.focusCamera(object);
-            return self.focusCamera(null);
-        });
+        this.running = false;
+        this.frame = -1;
+        this.scene = null;
+        this.camera = null;
         this.beingDragged = null;
     }
     get width() { return this.dom.width; }
@@ -7803,16 +7793,14 @@ class Renderer extends Element {
     start(scene, camera) {
         if (this.running) return;
         this.running = true;
-        this.scene = scene;
-        this.camera = camera;
-        const self = this;
+        const renderer = this;
         function loop() {
-            for (const object of self.updatable) {
-                object.update();
+            for (const object of renderer.updatable) {
+                if (typeof object.update === 'function') object.update();
             }
-            camera.updateMatrix(self.width / 2.0, self.height / 2.0);
-            self.update(scene, camera);
-            if (self.running) self.frame = requestAnimationFrame(loop);
+            camera.updateMatrix(renderer.width / 2.0, renderer.height / 2.0);
+            renderer.render(scene, camera);
+            if (renderer.running) renderer.frame = requestAnimationFrame(loop);
         }
         loop();
     }
@@ -7820,7 +7808,10 @@ class Renderer extends Element {
         this.running = false;
         cancelAnimationFrame(this.frame);
     }
-    update(scene, camera) {
+    render(scene, camera) {
+        if (scene) this.scene = scene; else scene = this.scene;
+        if (camera) this.camera = camera; else camera = this.camera;
+        if (!scene || !camera) return;
         const pointer = this.pointer;
         const context = this.context;
         const objects = [];
@@ -7932,44 +7923,11 @@ class Renderer extends Element {
             }
         }
     }
-    focusCamera(object, animationDuration = 200 ) {
-        let targetScale, targetPosition;
-        if (object) {
-            const worldBox = object.getWorldBoundingBox();
-            const worldSize = worldBox.getSize();
-            const worldCenter = worldBox.getCenter();
-            targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
-            targetPosition = worldCenter;
-            targetPosition.multiplyScalar(-targetScale);
-            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
-        } else if (this.scene) {
-            const sceneBounds = new Box2();
-            this.scene.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
-            targetScale = 0.5 * Math.min(this.width / sceneBounds.getSize().x, this.height / sceneBounds.getSize().y);
-            targetPosition = sceneBounds.getCenter();
-            targetPosition.multiplyScalar(-targetScale);
-            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
-        } else {
-            return;
-        }
-        targetScale = Math.abs(targetScale);
-        const camera = this.camera;
-        const startTime = performance.now();
-        const startPosition = camera.position.clone();
-        const startScale = camera.scale;
-        const animate = () => {
-            const elapsedTime = performance.now() - startTime;
-            const t = Math.min(elapsedTime / animationDuration, 1);
-            camera.lerpPosition(startPosition, targetPosition, t);
-            camera.scale = startScale + (targetScale - startScale) * t;
-            if (t < 1) requestAnimationFrame(animate);
-        };
-        animate();
-    }
 }
 
 class CameraControls {
     constructor(renderer, camera) {
+        const self = this;
         this.renderer = renderer;
         this.camera = camera;
         this.allowDrag = true;
@@ -7979,6 +7937,14 @@ class CameraControls {
         this.rotateButton = Pointer.MIDDLE;
         this.rotationPoint = new Vector2(0, 0);
         this.rotationInitial = 0;
+        renderer.on('dblclick', (event) => {
+            if (!renderer.scene || !renderer.camera) return;
+            const point = new Vector2(event.clientX, event.clientY);
+            const worldPoint = renderer.camera.inverseMatrix.transformPoint(point);
+            const objects = renderer.scene.getWorldPointIntersections(worldPoint);
+            for (const object of objects) if (object.focusable) return self.focusCamera(object, false );
+            return self.focusCamera(renderer.scene, true );
+        });
     }
     update() {
         const camera = this.camera;
@@ -8008,12 +7974,44 @@ class CameraControls {
             camera.matrixNeedsUpdate = true;
         }
     }
+    focusCamera(object, isScene = false, animationDuration = 200 ) {
+        const renderer = this.renderer;
+        let targetScale, targetPosition;
+        if (isScene) {
+            const sceneBounds = new Box2();
+            object.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
+            targetScale = 0.5 * Math.min(renderer.width / sceneBounds.getSize().x, renderer.height / sceneBounds.getSize().y);
+            targetPosition = sceneBounds.getCenter();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(renderer.width / 2.0, renderer.height / 2.0));
+        } else {
+            const worldBox = object.getWorldBoundingBox();
+            const worldSize = worldBox.getSize();
+            const worldCenter = worldBox.getCenter();
+            targetScale = 0.1 * Math.min(renderer.width / worldSize.x, renderer.height / worldSize.y);
+            targetPosition = worldCenter;
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(renderer.width / 2.0, renderer.height / 2.0));
+        }
+        targetScale = Math.abs(targetScale);
+        const camera = renderer.camera;
+        const startTime = performance.now();
+        const startPosition = camera.position.clone();
+        const startScale = camera.scale;
+        const animate = () => {
+            const elapsedTime = performance.now() - startTime;
+            const t = Math.min(elapsedTime / animationDuration, 1);
+            camera.lerpPosition(startPosition, targetPosition, t);
+            camera.scale = startScale + (targetScale - startScale) * t;
+            if (t < 1) requestAnimationFrame(animate);
+        };
+        animate();
+    }
 }
 
-class EditorControls {
+class DragControls {
     constructor(renderer) {
-        this.pointer = renderer.pointer;
-        this.keyboard = renderer.keyboard;
+        this.renderer = renderer;
     }
     update() {
     }
@@ -8639,7 +8637,7 @@ var Scene$1 = /*#__PURE__*/Object.freeze({
   Renderer: Renderer,
   Viewport: Viewport,
   CameraControls: CameraControls,
-  EditorControls: EditorControls,
+  DragControls: DragControls,
   ResizeTool: ResizeTool,
   Key: Key,
   Keyboard: Keyboard,

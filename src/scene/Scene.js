@@ -8,7 +8,7 @@ export { Viewport } from './Viewport.js';
 
 // Controls
 export { CameraControls } from './controls/CameraControls.js';
-export { EditorControls } from './controls/EditorControls.js';
+export { DragControls } from './controls/DragControls.js';
 
 // Helpers
 export { ResizeTool } from './helpers/ResizeTool.js';

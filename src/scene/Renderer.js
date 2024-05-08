@@ -24,7 +24,6 @@ class Renderer extends Element {
 
         // Base
         super(canvas);
-        const self = this;
 
         // Rendering Context (2D)
         this.context = this.dom.getContext('2d', { alpha });
@@ -45,20 +44,13 @@ class Renderer extends Element {
         // Selection
         this.selection = [];
 
-        // Rendering
-        this.running = false;
-        this.frame = -1;
-        this.scene = null;
-        this.camera = null;
-
         // Resize Observer
+        const renderer = this;
         const resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
                 canvas.width = entry.contentRect.width;
                 canvas.height = entry.contentRect.height;
-                if (self.running && self.scene && self.camera) {
-                    self.update(self.scene, self.camera);
-                }
+                if (renderer.running) renderer.render();
             }
         });
         resizeObserver.observe(canvas);
@@ -66,18 +58,12 @@ class Renderer extends Element {
             resizeObserver.unobserve(canvas);
         });
 
-        // Focus on Double Click
-        this.on('dblclick', (event) => {
-            if (!self.scene || !self.camera) return;
-            const point = new Vector2(event.clientX, event.clientY);
-            const worldPoint = self.camera.inverseMatrix.transformPoint(point);
-            const objects = self.scene.getWorldPointIntersections(worldPoint);
-            for (const object of objects) if (object.focusable) return self.focusCamera(object);
-            return self.focusCamera(null);
-        });
-
         // INTERNAL
-        this.beingDragged = null;
+        this.running = false;           // is animating?
+        this.frame = -1;                // frame count
+        this.scene = null;              // last rendered scene
+        this.camera = null;             // last rendered camera
+        this.beingDragged = null;       // object being dragged
     }
 
     /******************** SIZING */
@@ -93,8 +79,9 @@ class Renderer extends Element {
         return ((this.width / this.height) / (rect.width / rect.height));
     }
 
-    /******************** RENDERING */
+    /******************** LOOP */
 
+    /** Adds updatable object (has update() function) to list of objects to be updated */
     onUpdate(object) {
         if (this.updatable.includes(object) === false) {
             this.updatable.push(object);
@@ -104,20 +91,17 @@ class Renderer extends Element {
     start(scene, camera) {
         if (this.running) return;
         this.running = true;
-        this.scene = scene;
-        this.camera = camera;
 
-        const self = this;
+        const renderer = this;
         function loop() {
-            for (const object of self.updatable) {
-                // self.pointer.update();
-                // self.keyboard.update();
-                // etc.
-                object.update();
+            for (const object of renderer.updatable) {
+                // DEFAULT: renderer.pointer.update();
+                // DEFAULT: renderer.keyboard.update();
+                if (typeof object.update === 'function') object.update();
             }
-            camera.updateMatrix(self.width / 2.0, self.height / 2.0);
-            self.update(scene, camera);
-            if (self.running) self.frame = requestAnimationFrame(loop);
+            camera.updateMatrix(renderer.width / 2.0, renderer.height / 2.0);
+            renderer.render(scene, camera);
+            if (renderer.running) renderer.frame = requestAnimationFrame(loop);
         }
         loop();
     }
@@ -127,8 +111,13 @@ class Renderer extends Element {
         cancelAnimationFrame(this.frame);
     }
 
-    /** Renders an object using a camera onto this canvas */
-    update(scene, camera) {
+    /******************** RENDER */
+
+    /** Renders a scene (Object2D) using a Camera2D */
+    render(scene, camera) {
+        if (scene) this.scene = scene; else scene = this.scene;
+        if (camera) this.camera = camera; else camera = this.camera;
+        if (!scene || !camera) return;
         const pointer = this.pointer;
         const context = this.context;
 
@@ -278,47 +267,6 @@ class Renderer extends Element {
                 context.stroke();
             }
         }
-    }
-
-    /******************** CAMERA */
-
-    focusCamera(object, animationDuration = 200 /* milliseconds */) {
-        let targetScale, targetPosition;
-
-        // Focus Object
-        if (object) {
-            const worldBox = object.getWorldBoundingBox();
-            const worldSize = worldBox.getSize();
-            const worldCenter = worldBox.getCenter();
-            targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
-            targetPosition = worldCenter;
-            targetPosition.multiplyScalar(-targetScale);
-            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
-        // Focus Scene
-        } else if (this.scene) {
-            const sceneBounds = new Box2();
-            this.scene.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
-            targetScale = 0.5 * Math.min(this.width / sceneBounds.getSize().x, this.height / sceneBounds.getSize().y);
-            targetPosition = sceneBounds.getCenter();
-            targetPosition.multiplyScalar(-targetScale);
-            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
-        } else {
-            return;
-        }
-        targetScale = Math.abs(targetScale);
-
-        const camera = this.camera;
-        const startTime = performance.now();
-        const startPosition = camera.position.clone();
-        const startScale = camera.scale;
-        const animate = () => {
-            const elapsedTime = performance.now() - startTime;
-            const t = Math.min(elapsedTime / animationDuration, 1);
-            camera.lerpPosition(startPosition, targetPosition, t);
-            camera.scale = startScale + (targetScale - startScale) * t;
-            if (t < 1) requestAnimationFrame(animate);
-        };
-        animate();
     }
 
 }

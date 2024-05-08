@@ -1,9 +1,12 @@
+import { Box2 } from '../math/Box2.js';
 import { Pointer } from '../input/Pointer.js';
 import { Vector2 } from '../math/Vector2.js';
 
 class CameraControls {
 
     constructor(renderer, camera) {
+        const self = this;
+
         // Renderer / Camera
         this.renderer = renderer;
         this.camera = camera;
@@ -19,9 +22,21 @@ class CameraControls {
         // INTERNAL
         this.rotationPoint = new Vector2(0, 0);     // pointer position when the rotation starts
         this.rotationInitial = 0;                   // initial rotation when the rotation starts
+
+        /***** EVENTS */
+
+        // Focus on Double Click
+        renderer.on('dblclick', (event) => {
+            if (!renderer.scene || !renderer.camera) return;
+            const point = new Vector2(event.clientX, event.clientY);
+            const worldPoint = renderer.camera.inverseMatrix.transformPoint(point);
+            const objects = renderer.scene.getWorldPointIntersections(worldPoint);
+            for (const object of objects) if (object.focusable) return self.focusCamera(object, false /* isScene? */);
+            return self.focusCamera(renderer.scene, true /* isScene? */);
+        });
     }
 
-    /** Update the camera using a pointer object (should be called every frame before rendering) */
+    /** Update the camera (should be called every frame before rendering) */
     update() {
         const camera = this.camera;
         const pointer = this.renderer.pointer;
@@ -55,6 +70,44 @@ class CameraControls {
             camera.position.add(delta);
             camera.matrixNeedsUpdate = true;
         }
+    }
+
+    focusCamera(object, isScene = false, animationDuration = 200 /* milliseconds */) {
+        const renderer = this.renderer;
+
+        // Focus Scene
+        let targetScale, targetPosition;
+        if (isScene) {
+            const sceneBounds = new Box2();
+            object.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
+            targetScale = 0.5 * Math.min(renderer.width / sceneBounds.getSize().x, renderer.height / sceneBounds.getSize().y);
+            targetPosition = sceneBounds.getCenter();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(renderer.width / 2.0, renderer.height / 2.0));
+        // Focus Object
+        } else {
+            const worldBox = object.getWorldBoundingBox();
+            const worldSize = worldBox.getSize();
+            const worldCenter = worldBox.getCenter();
+            targetScale = 0.1 * Math.min(renderer.width / worldSize.x, renderer.height / worldSize.y);
+            targetPosition = worldCenter;
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(renderer.width / 2.0, renderer.height / 2.0));
+        }
+        targetScale = Math.abs(targetScale);
+
+        const camera = renderer.camera;
+        const startTime = performance.now();
+        const startPosition = camera.position.clone();
+        const startScale = camera.scale;
+        const animate = () => {
+            const elapsedTime = performance.now() - startTime;
+            const t = Math.min(elapsedTime / animationDuration, 1);
+            camera.lerpPosition(startPosition, targetPosition, t);
+            camera.scale = startScale + (targetScale - startScale) * t;
+            if (t < 1) requestAnimationFrame(animate);
+        };
+        animate();
     }
 
 }
