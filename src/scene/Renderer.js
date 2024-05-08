@@ -1,44 +1,46 @@
 import { Box2 } from './math/Box2.js';
 import { Element } from '../core/Element.js';
-import { Pointer } from '../utils/input/Pointer.js';
+import { Keyboard } from './input/Keyboard.js';
+import { Pointer } from './input/Pointer.js';
 import { Vector2 } from './math/Vector2.js';
 import { Viewport } from './Viewport.js';
 
 class Renderer extends Element {
 
-    constructor(options = {}) {
-        if (options === undefined) options = {};
-        function defaultOption(key, value) {
-            if (!(key in options)) options[key] = value;
-        }
-        defaultOption('alpha', true);
-        defaultOption('disableContextMenu', true);
-        defaultOption('imageSmoothingEnabled', true);
-        defaultOption('imageSmoothingQuality', 'medium'); // 'low');
-        defaultOption('globalCompositeOperation', 'source-over');
-        defaultOption('width', 1000);
-        defaultOption('height', 1000);
-
+    constructor({
+        alpha = true,
+        disableContextMenu = true,
+        imageSmoothingEnabled = true,
+        imageSmoothingQuality = 'medium', // 'low',
+        globalCompositeOperation = 'source-over',
+        width = 1000,
+        height = 1000,
+    } = {}) {
         const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
-        canvas.width = options.width;
-        canvas.height = options.height;
+        canvas.width = width;
+        canvas.height = height;
         canvas.style.width = '100%';
         canvas.style.height = '100%';
 
         // Base
         super(canvas);
+        const self = this;
 
         // Rendering Context (2D)
-        this.context = this.dom.getContext('2d', { alpha: options.alpha });
-        this.context.imageSmoothingEnabled = options.imageSmoothingEnabled;
-        this.context.imageSmoothingQuality = options.imageSmoothingQuality;
-        this.context.globalCompositeOperation = options.globalCompositeOperation;
+        this.context = this.dom.getContext('2d', { alpha });
+        this.context.imageSmoothingEnabled = imageSmoothingEnabled;
+        this.context.imageSmoothingQuality = imageSmoothingQuality;
+        this.context.globalCompositeOperation = globalCompositeOperation;
 
-        // Pointer Input Handler Object
-        this.pointer = new Pointer(this, options.disableContextMenu);
+        // Pointer / Keyboard Input Handlers
+        this.pointer = new Pointer(this, disableContextMenu);
+        this.keyboard = new Keyboard(this);
 
         // Auto Clear Canvas? (if false, user must clear the frame)
         this.autoClear = true;
+
+        // Updatables
+        this.updatable = [ this.pointer, this.keyboard ];
 
         // Selection
         this.selection = [];
@@ -48,9 +50,6 @@ class Renderer extends Element {
         this.frame = -1;
         this.scene = null;
         this.camera = null;
-
-        // Scope
-        const self = this;
 
         // Resize Observer
         const resizeObserver = new ResizeObserver(entries => {
@@ -96,7 +95,13 @@ class Renderer extends Element {
 
     /******************** RENDERING */
 
-    start(scene, camera, onUpdate) {
+    onUpdate(object) {
+        if (this.updatable.includes(object) === false) {
+            this.updatable.push(object);
+        }
+    }
+
+    start(scene, camera) {
         if (this.running) return;
         this.running = true;
         this.scene = scene;
@@ -104,7 +109,13 @@ class Renderer extends Element {
 
         const self = this;
         function loop() {
-            if (typeof onUpdate === 'function') onUpdate();
+            for (const object of self.updatable) {
+                // self.pointer.update();
+                // self.keyboard.update();
+                // etc.
+                object.update();
+            }
+            camera.updateMatrix(self.width / 2.0, self.height / 2.0);
             self.update(scene, camera);
             if (self.running) self.frame = requestAnimationFrame(loop);
         }
@@ -121,12 +132,6 @@ class Renderer extends Element {
         const pointer = this.pointer;
         const context = this.context;
 
-        // Update Pointer / Camera
-        pointer.update();
-        camera.update(pointer);
-        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
-        const cameraPoint = camera.inverseMatrix.transformPoint(pointer.position);
-
         // Gather, Sort Objects
         const objects = [];
         scene.traverse(function(child) { if (child.visible) objects.push(child); });
@@ -135,17 +140,20 @@ class Renderer extends Element {
             return b.layer - a.layer;
         });
 
-        // Frustum Culling
+        // Viewport Frustum Culling
         const viewport = new Viewport(context, camera);
         const isVisible = {};
         for (const object of objects) {
             isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
         }
 
+        // Pointer in Camera Coordinates
+        const cameraPoint = camera.inverseMatrix.transformPoint(pointer.position);
+
         // Selection
         if (pointer.buttonJustPressed(Pointer.LEFT)) {
             // Clear previous selection
-            for (const object of this.selection) object.selected = false;
+            for (const object of this.selection) object.isSelected = false;
             this.selection = [];
 
             // New selected objects
@@ -153,7 +161,7 @@ class Renderer extends Element {
             if (selectedObjects.length > 0) {
                 for (const object of selectedObjects) {
                     if (object.selectable) {
-                        object.selected = true;
+                        object.isSelected = true;
                         this.selection.push(object);
                     }
                 }
@@ -234,9 +242,6 @@ class Renderer extends Element {
                 continue;
             }
 
-            // Save State
-            if (object.saveContextState) context.save();
-
             // Apply Masks
             for (const mask of object.masks) {
                 camera.matrix.setContextTransform(context);
@@ -254,7 +259,7 @@ class Renderer extends Element {
             if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
 
             // Selected?
-            if (object.selected) {
+            if (object.isSelected) {
                 camera.matrix.setContextTransform(context);
                 context.globalAlpha = 1;
                 context.strokeStyle = '#00aacc';
@@ -272,9 +277,6 @@ class Renderer extends Element {
                 context.closePath();
                 context.stroke();
             }
-
-            // Restore State
-            if (object.restoreContextState) context.restore();
         }
     }
 

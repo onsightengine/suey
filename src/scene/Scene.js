@@ -2,15 +2,26 @@
 
 // Base
 export { Camera2D } from './Camera2D.js';
-export { Helpers } from './Helpers.js';
 export { Object2D } from './Object2D.js';
 export { Renderer } from './Renderer.js';
 export { Viewport } from './Viewport.js';
 
+// Controls
+export { CameraControls } from './controls/CameraControls.js';
+export { EditorControls } from './controls/EditorControls.js';
+
+// Helpers
+export { ResizeTool } from './helpers/ResizeTool.js';
+
+// Input
+export { Key } from './input/Key.js';
+export { Keyboard } from './input/Keyboard.js';
+export { Pointer } from './input/Pointer.js';
+
 // Math
 export { Box2 } from './math/Box2.js';
+export { MathUtils } from './math/MathUtils.js';
 export { Matrix2 } from './math/Matrix2.js';
-export { UUID } from './math/UUID.js';
 export { Vector2 } from './math/Vector2.js';
 
 // Objects

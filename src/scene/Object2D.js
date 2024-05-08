@@ -6,40 +6,45 @@
 //  y    V      x
 
 import { Box2 } from './math/Box2.js';
+import { MathUtils } from './math/MathUtils.js';
 import { Matrix2 } from './math/Matrix2.js';
-import { Pointer } from '../utils/input/Pointer.js';
-import { UUID } from './math/UUID.js';
+import { Pointer } from './input/Pointer.js';
 import { Vector2 } from './math/Vector2.js';
 
 class Object2D {
 
     constructor() {
         this.type = 'Object2D';
-        this.uuid = UUID.generate();
+        this.uuid = MathUtils.generateUUID();
 
+        // Hierarchy
         this.children = [];
         this.parent = null;
 
+        // Visibility
         this.visible = true;
         this.layer = 0;                             // lower layer is drawn first, higher is drawn on top
         this.level = 0;                             // higher depth is drawn on top, layer is considered first
-
         this.opacity = 1;
         this.globalOpacity = 1;
 
+        // Transform
         this.position = new Vector2(0, 0);
         this.scale = new Vector2(1, 1);
         this.rotation = 0.0;
         this.origin = new Vector2(0, 0);            // point of rotation
 
+        // Matrix
         this.matrix = new Matrix2();
         this.globalMatrix = new Matrix2();
         this.inverseGlobalMatrix = new Matrix2();
         this.matrixAutoUpdate = true;
         this.matrixNeedsUpdate = true;
 
+        // Bounding Box
         this.boundingBox = new Box2();
 
+        // Masks
         this.masks = [];
 
         // Pointer Events
@@ -48,11 +53,10 @@ class Object2D {
         this.focusable = true;
         this.selectable = true;
 
-        // FLAGS
-        this.selected = false;                      // object is selected?
+        // INTERNAL
         this.pointerInside = false;                 // pointer is inside of the element?
-        this.saveContextState = true;               // context of canvas should be saved before render?
-        this.restoreContextState = true;            // context of canvas should be restored after render?
+        this.inViewport = true;                     // object within viewport frustum?
+        this.isSelected = false;                    // object is selected?
     }
 
     /******************** CHILDREN */

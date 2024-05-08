@@ -607,43 +607,6 @@ function validateListener(listener, fnName) {
     }
 }
 
-class Strings {
-    static addSpaces(string) {
-        if (typeof string !== 'string') string = String(string);
-        string = string.replace(/([a-z])([A-Z])/g, '$1 $2');
-        string = string.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
-        return string.trim();
-    }
-    static capitalize(string) {
-        const words = String(string).split(' ');
-        for (let i = 0; i < words.length; i++) {
-            words[i] = words[i][0].toUpperCase() + words[i].substring(1);
-        }
-        return words.join(' ');
-    }
-    static countDigits(number) {
-        return parseFloat(number).toString().length;
-    }
-    static escapeHTML(html) {
-        if (html == undefined) return html;
-        return html
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-    }
-    static nameFromUrl(url, capitalize = true) {
-        let imageName = new String(url.replace(/^.*[\\\/]/, ''));
-        imageName = imageName.replace(/\.[^/.]+$/, "");
-        if (capitalize) imageName = Strings.capitalize(imageName);
-        return imageName;
-    }
-    static prettyTitle(string) {
-        return Strings.addSpaces(Strings.capitalize(string));
-    }
-}
-
 class Element {
     constructor(domElement) {
         if (domElement == null) {
@@ -998,60 +961,6 @@ function removeFromParent(parent, element, destroy = true) {
         }
     } catch (error) {  }
 }
-
-class Div extends Element {
-    constructor(innerHtml) {
-        super(document.createElement('div'));
-        this.setInnerHtml(innerHtml);
-    }
-}
-
-const DEVICE_TYPE = {
-    POINTER: 1,
-    TOUCH: 2,
-};
-let _showTimer;
-class Tooltipper {
-    constructor() {
-        const tooltip = new Div().setClass('suey-tooltip');
-        tooltip.setInnerHtml('');
-        document.body.appendChild(tooltip.dom);
-        let deviceType = DEVICE_TYPE.POINTER;
-        document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
-        document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
-        document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
-        document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
-        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
-        function showTooltip(event) {
-            const element = event.target;
-            if (!element || !(element instanceof HTMLElement)) return;
-            if (!element.getAttribute('tooltip')) return;
-            if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
-            if (('TouchEvent' in window) && event instanceof TouchEvent) return;
-            let text = element.getAttribute('tooltip');
-            if (!text.length) return;
-            clearTimeout(_showTimer);
-            tooltip.removeClass('suey-updated');
-            _showTimer = setTimeout(() => {
-                tooltip.setInnerHtml(text);
-                Popper.popUnder(tooltip.dom, element, ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
-                tooltip.addClass('suey-updated');
-            }, parseInt(Css.getVariable('--tooltip-delay')));
-        }
-        function hideTooltip(event) {
-            if (event) {
-                const element = event.target;
-                if (!element || !(element instanceof HTMLElement)) return;
-                if (!element.getAttribute('tooltip')) return;
-            }
-            clearTimeout(_showTimer);
-            tooltip.removeClass('suey-updated');
-        }
-    }
-}
-const tooltipper = new Tooltipper();
 
 class Iris {
     static get NAMES() { return HTML_COLORS; }
@@ -1647,6 +1556,116 @@ const EXTENDED_COLORS = {
     'wheat': 0xf5deb3, 'yellow': 0xffff00, 'yelloworange': 0xffaa33,
 };
 
+const _clr$5 = new Iris();
+class Button extends Element {
+    constructor(buttonText = ' ', closesMenus = true) {
+        super(document.createElement('button'));
+        const self = this;
+        this.setClass('suey-button');
+        this.allowMouseFocus();
+        this.dom.textContent = buttonText ?? ' ';
+        this.attachedMenu = undefined;
+        this.menuOffsetX = 0;
+        this.menuOffsetY = 0;
+        this.alignMenu = ALIGN.LEFT;
+        this.overflowMenu = OVERFLOW.RIGHT;
+        this.closesMenus = closesMenus;
+        Object.defineProperty(this, 'disabled', {
+            get: function() { return (this.dom) ? this.dom.disabled : true; },
+            set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
+        });
+        function onPointerDown(event) {
+            const hideEvent = new Event('hidetooltip', { bubbles: true });
+            self.dom.dispatchEvent(hideEvent);
+            event.preventDefault();
+        }
+        this.on('pointerdown', onPointerDown);
+        this.on('destroy', () => {
+            if (self.attachedMenu) self.detachMenu();
+        });
+    }
+    setColor(color) {
+        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) color = `var(--${color})`;
+        else color = _clr$5.set(color).rgbString();
+        this.setStyle('background-image', `linear-gradient(to bottom, rgba(${color}, 0.9), rgba(${color}, 0.65))`);
+        return this;
+    }
+    attachMenu(menuElement, popupStyle = false) {
+        const self = this;
+        if (popupStyle) menuElement.addClass('suey-popup-menu');
+        function buttonPointerDown(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (self.hasClass('suey-selected') === false) {
+                self.addClass('suey-selected');
+                popMenu();
+                setTimeout(() => {
+                    if (!self.dom) return;
+                    menuElement.showMenu(self.dom, true );
+                }, 0);
+            }
+            document.dispatchEvent(new Event('closemenu'));
+        }
+        function popMenu() {
+            const popped = Popper.popUnder(menuElement.dom, self.dom, self.alignMenu, self.menuOffsetX, self.menuOffsetY, self.overflowMenu);
+            menuElement.removeClass('suey-slide-up');
+            menuElement.removeClass('suey-slide-down');
+            menuElement.addClass((popped === POSITION.UNDER) ? 'suey-slide-down' : 'suey-slide-up');
+        }
+        if (menuElement.hasClass('suey-menu') === false) return this;
+        this.addClass('suey-menu-button');
+        this.attachedMenu = menuElement;
+        document.body.appendChild(menuElement.dom);
+        this.on('pointerdown', buttonPointerDown);
+        const observer = new MutationObserver((mutations, observer) => {
+            if (document.contains(this.dom)) {
+                popMenu();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
+        window.addEventListener('resize', popMenu);
+        this.detachMenu = function() {
+            if (self.hasClass('suey-menu-button') === false) return;
+            self.removeClass('suey-menu-button');
+            window.removeEventListener('resize', popMenu);
+            self.dom.removeEventListener('pointerdown', buttonPointerDown);
+            self.attachedMenu.destroy();
+            document.body.removeChild(self.attachedMenu.dom);
+            self.attachedMenu = undefined;
+        };
+    }
+    on(event, callback, options = {}) {
+        if (event === 'click' || event === 'select') {
+            console.warn('Button.on(): Click event for this Element is meant to be used with onPress()');
+        }
+        super.on(event, callback, options);
+        return this;
+    }
+    onPress(callback) {
+        if (typeof callback !== 'function') return;
+        const self = this;
+        callback = callback.bind(self);
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!self.hasClass('suey-disabled')) {
+                callback(event);
+                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
+            }
+        };
+        super.on('click', eventHandler);
+        return self;
+    }
+}
+
+class Div extends Element {
+    constructor(innerHtml) {
+        super(document.createElement('div'));
+        this.setInnerHtml(innerHtml);
+    }
+}
+
 class Color$1 {
     constructor(r, g, b) {
         this.set(r, g, b);
@@ -1870,273 +1889,6 @@ class ColorizeFilter {
         _solver.setTarget(_color$4.red(), _color$4.green(), _color$4.blue());
         const result = _solver.solve(true );
         return result.filter;
-    }
-}
-
-const _clr$5 = new Iris();
-const _icon = new Iris();
-const _icon_light = new Iris();
-const _icon_dark = new Iris();
-const _complement = new Iris();
-const _triadic1 = new Iris();
-const _triadic2 = new Iris();
-const _triadic3 = new Iris();
-const _triadic4 = new Iris();
-const _triadic5 = new Iris();
-const _triadic6 = new Iris();
-const DEFAULT_CLR = 0x00b4af;
-let _background = BACKGROUNDS.DARK;
-let _color$3 = DEFAULT_CLR;
-let _tint = 0.0;
-let _saturation = 0.0;
-class ColorScheme {
-    static changeBackground(background) {
-        if (background === undefined || background === null) return;
-        _background = background;
-        ColorScheme.updateCSS();
-    }
-    static changeColor(color, tint, saturation) {
-        if (color === undefined || color === null) return;
-        _color$3 = _clr$5.set(color).hex();
-        _tint = (tint !== undefined) ? tint : _tint;
-        _saturation = (saturation !== undefined) ? saturation : _saturation;
-        _icon.set(color);
-        _icon_light.copy(_icon).brighten();
-        _icon_dark.copy(_icon).darken();
-        _complement.copy(_icon).rybRotateHue(180).brighten(0.2);
-        _triadic1.copy(_icon).rybRotateHue(120).brighten(0.2);
-        _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
-        _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
-        _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
-        _triadic5.copy(_icon).rybRotateHue(60).brighten(0.2);
-        _triadic6.copy(_complement).rybRotateHue(60).brighten(0.2);
-        ColorScheme.updateCSS();
-    }
-    static updateCSS() {
-        for (const key in TRAIT) {
-            const guiColor = TRAIT[key];
-            Css.setVariable(`--${guiColor}`, _clr$5.set(ColorScheme.color(guiColor)).rgbString());
-        }
-        Css.setVariable('--tint-icon', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.ICON)));
-        Css.setVariable('--tint-complement', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.COMPLEMENT)));
-        Css.setVariable('--tint-triadic1', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC1)));
-        Css.setVariable('--tint-triadic2', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC2)));
-        Css.setVariable('--tint-triadic3', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC3)));
-        Css.setVariable('--tint-triadic4', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC4)));
-        Css.setVariable('--tint-triadic5', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC5)));
-        Css.setVariable('--tint-triadic6', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC6)));
-        Css.setVariable('--tint-text', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TEXT)));
-        Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
-        const startHue = _clr$5.set(DEFAULT_CLR).hue();
-        const newHue = _clr$5.set(ColorScheme.color(TRAIT.ICON, true )).hue();
-        const diffHue = `${newHue - startHue}deg`;
-        Css.setVariable('--rotate-hue', diffHue);
-    }
-    static toString() {
-        const COLUMN_LENGTH = 20;
-        let output = '';
-        for (const key in TRAIT) {
-            const guiColor = TRAIT[key];
-            _clr$5.set(ColorScheme.color(guiColor));
-            output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$5.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
-            output += `${_clr$5.hexString()}\n`;
-        }
-        return output;
-    }
-    static color(guiColor, ignoreSaturation = false) {
-        _clr$5.set(0);
-        if (guiColor == null) return _clr$5.hex();
-        if (Object.values(TRAIT).includes(guiColor) === false) return _clr$5.set(guiColor).hex();
-        let tint = _tint;
-        let saturation = _saturation;
-        let darkness = 0;
-        let lightness = 0;
-        switch (_background) {
-            case BACKGROUNDS.DARK:      break;
-            case BACKGROUNDS.MID:       tint *= 0.2;    lightness = 0.2;    break;
-            case BACKGROUNDS.LIGHT:     break;
-            case BACKGROUNDS.FADED:     tint *= 0.1;    lightness = 0.4;    break;
-        }
-        if (_background == BACKGROUNDS.LIGHT) {
-            switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$5.set(140, 140, 140, 'rgb'); break;
-                case TRAIT.BACKGROUND_DARK:     _clr$5.set(180, 180, 180, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$5.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$5.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$5.set(210, 210, 210, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$5.set( 80,  80,  80, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$5.set( 50,  50,  50, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$5.set( 25,  25,  25, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$5.set(255, 255, 255, 'rgb'); break;
-                case TRAIT.DARKLIGHT:           _clr$5.set(200, 200, 200, 'rgb'); break;
-                case TRAIT.MIDLIGHT:            _clr$5.set(220, 220, 220, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$5.set(  0,   0,   0, 'rgb'); break;
-            }
-        } else {
-            switch (guiColor) {
-                case TRAIT.SHADOW:              _clr$5.set(  0,   0,   0, 'rgb'); tint = 0; break;
-                case TRAIT.BACKGROUND_DARK:     _clr$5.set( 24,  24,  24, 'rgb'); break;
-                case TRAIT.BACKGROUND_LIGHT:    _clr$5.set( 32,  32,  32, 'rgb'); break;
-                case TRAIT.BUTTON_DARK:         _clr$5.set( 40,  40,  40, 'rgb'); break;
-                case TRAIT.BUTTON_LIGHT:        _clr$5.set( 60,  60,  60, 'rgb'); break;
-                case TRAIT.TEXT_DARK:           _clr$5.set(100, 100, 100, 'rgb'); break;
-                case TRAIT.TEXT:                _clr$5.set(190, 190, 190, 'rgb'); break;
-                case TRAIT.TEXT_LIGHT:          _clr$5.set(225, 225, 225, 'rgb'); break;
-                case TRAIT.BLACKLIGHT:          _clr$5.set(  0,   0,   0, 'rgb'); lightness = 0; break;
-                case TRAIT.DARKLIGHT:           _clr$5.set(  8,   8,   8, 'rgb'); lightness = 0; break;
-                case TRAIT.MIDLIGHT:            _clr$5.set( 85,  85,  85, 'rgb'); break;
-                case TRAIT.HIGHLIGHT:           _clr$5.set(255, 255, 255, 'rgb'); break;
-            }
-            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
-                _clr$5.set( 64,  64,  64, 'rgb');
-            }
-        }
-        if (guiColor === TRAIT.DARKNESS) {
-            switch (_background) {
-                case BACKGROUNDS.DARK:      _clr$5.set(  0,   0,   0, 'rgb');     break;
-                case BACKGROUNDS.MID:       _clr$5.set( 64,  64,  64, 'rgb');     break;
-                case BACKGROUNDS.LIGHT:     _clr$5.set(128, 128, 128, 'rgb');     break;
-                case BACKGROUNDS.FADED:     _clr$5.set(  0,   0,   0, 'rgb');     break;
-            }
-        }
-        switch (guiColor) {
-            case TRAIT.ICON_DARK:   _clr$5.copy(_icon_dark);  break;
-            case TRAIT.ICON:        _clr$5.copy(_icon);       break;
-            case TRAIT.ICON_LIGHT:  _clr$5.copy(_icon_light); break;
-            case TRAIT.COMPLEMENT:  _clr$5.copy(_complement); break;
-            case TRAIT.TRIADIC1:    _clr$5.copy(_triadic1);   break;
-            case TRAIT.TRIADIC2:    _clr$5.copy(_triadic2);   break;
-            case TRAIT.TRIADIC3:    _clr$5.copy(_triadic3);   break;
-            case TRAIT.TRIADIC4:    _clr$5.copy(_triadic4);   break;
-            case TRAIT.TRIADIC5:    _clr$5.copy(_triadic5);   break;
-            case TRAIT.TRIADIC6:    _clr$5.copy(_triadic6);   break;
-        }
-        switch (guiColor) {
-            case TRAIT.COMPLEMENT:
-            case TRAIT.TRIADIC1:
-            case TRAIT.TRIADIC2:
-            case TRAIT.TRIADIC3:
-            case TRAIT.TRIADIC4:
-            case TRAIT.TRIADIC5:
-            case TRAIT.TRIADIC6:
-                saturation = 0.0;
-            case TRAIT.ICON_DARK:
-            case TRAIT.ICON:
-            case TRAIT.ICON_LIGHT:
-                tint = 0;
-                lightness = 0;
-                break;
-        }
-        if (tint !== 0) _clr$5.mix(_icon, tint);
-        if (lightness !== 0) _clr$5.brighten(lightness);
-        if (darkness !== 0) _clr$5.darken(darkness);
-        if (saturation !== 0 && !ignoreSaturation) _clr$5.hslOffset(0, saturation, 0);
-        return _clr$5.hex();
-    }
-}
-ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
-
-const _clr$4 = new Iris();
-class Button extends Element {
-    constructor(buttonText = ' ', closesMenus = true) {
-        super(document.createElement('button'));
-        const self = this;
-        this.setClass('suey-button');
-        this.allowMouseFocus();
-        this.dom.textContent = buttonText ?? ' ';
-        this.attachedMenu = undefined;
-        this.menuOffsetX = 0;
-        this.menuOffsetY = 0;
-        this.alignMenu = ALIGN.LEFT;
-        this.overflowMenu = OVERFLOW.RIGHT;
-        this.closesMenus = closesMenus;
-        Object.defineProperty(this, 'disabled', {
-            get: function() { return (this.dom) ? this.dom.disabled : true; },
-            set: function(isDisabled) { if (this.dom) this.dom.disabled = isDisabled; }
-        });
-        function onPointerDown(event) {
-            const hideEvent = new Event('hidetooltip', { bubbles: true });
-            self.dom.dispatchEvent(hideEvent);
-            event.preventDefault();
-        }
-        this.on('pointerdown', onPointerDown);
-        this.on('destroy', () => {
-            if (self.attachedMenu) self.detachMenu();
-        });
-    }
-    setColor(color) {
-        if (typeof color === 'string' && Object.values(TRAIT).includes(color)) color = `var(--${color})`;
-        else color = _clr$4.set(color).rgbString();
-        this.setStyle('background-image', `linear-gradient(to bottom, rgba(${color}, 0.9), rgba(${color}, 0.65))`);
-        return this;
-    }
-    attachMenu(menuElement, popupStyle = false) {
-        const self = this;
-        if (popupStyle) menuElement.addClass('suey-popup-menu');
-        function buttonPointerDown(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (self.hasClass('suey-selected') === false) {
-                self.addClass('suey-selected');
-                popMenu();
-                setTimeout(() => {
-                    if (!self.dom) return;
-                    menuElement.showMenu(self.dom, true );
-                }, 0);
-            }
-            document.dispatchEvent(new Event('closemenu'));
-        }
-        function popMenu() {
-            const popped = Popper.popUnder(menuElement.dom, self.dom, self.alignMenu, self.menuOffsetX, self.menuOffsetY, self.overflowMenu);
-            menuElement.removeClass('suey-slide-up');
-            menuElement.removeClass('suey-slide-down');
-            menuElement.addClass((popped === POSITION.UNDER) ? 'suey-slide-down' : 'suey-slide-up');
-        }
-        if (menuElement.hasClass('suey-menu') === false) return this;
-        this.addClass('suey-menu-button');
-        this.attachedMenu = menuElement;
-        document.body.appendChild(menuElement.dom);
-        this.on('pointerdown', buttonPointerDown);
-        const observer = new MutationObserver((mutations, observer) => {
-            if (document.contains(this.dom)) {
-                popMenu();
-                observer.disconnect();
-            }
-        });
-        observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
-        window.addEventListener('resize', popMenu);
-        this.detachMenu = function() {
-            if (self.hasClass('suey-menu-button') === false) return;
-            self.removeClass('suey-menu-button');
-            window.removeEventListener('resize', popMenu);
-            self.dom.removeEventListener('pointerdown', buttonPointerDown);
-            self.attachedMenu.destroy();
-            document.body.removeChild(self.attachedMenu.dom);
-            self.attachedMenu = undefined;
-        };
-    }
-    on(event, callback, options = {}) {
-        if (event === 'click' || event === 'select') {
-            console.warn('Button.on(): Click event for this Element is meant to be used with onPress()');
-        }
-        super.on(event, callback, options);
-        return this;
-    }
-    onPress(callback) {
-        if (typeof callback !== 'function') return;
-        const self = this;
-        callback = callback.bind(self);
-        const eventHandler = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (!self.hasClass('suey-disabled')) {
-                callback(event);
-                if (self.closesMenus) document.dispatchEvent(new Event('closemenu'));
-            }
-        };
-        super.on('click', eventHandler);
-        return self;
     }
 }
 
@@ -2492,370 +2244,253 @@ class Interaction {
     }
 }
 
-class Key {
-    static DOWN = -1;
-    static UP = 1;
-    static RESET = 0;
+class Strings {
+    static addSpaces(string) {
+        if (typeof string !== 'string') string = String(string);
+        string = string.replace(/([a-z])([A-Z])/g, '$1 $2');
+        string = string.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+        return string.trim();
+    }
+    static capitalize(string) {
+        const words = String(string).split(' ');
+        for (let i = 0; i < words.length; i++) {
+            words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+        }
+        return words.join(' ');
+    }
+    static countDigits(number) {
+        return parseFloat(number).toString().length;
+    }
+    static escapeHTML(html) {
+        if (html == undefined) return html;
+        return html
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+    static nameFromUrl(url, capitalize = true) {
+        let imageName = new String(url.replace(/^.*[\\\/]/, ''));
+        imageName = imageName.replace(/\.[^/.]+$/, "");
+        if (capitalize) imageName = Strings.capitalize(imageName);
+        return imageName;
+    }
+    static prettyTitle(string) {
+        return Strings.addSpaces(Strings.capitalize(string));
+    }
+}
+
+const DEVICE_TYPE = {
+    POINTER: 1,
+    TOUCH: 2,
+};
+let _showTimer;
+class Tooltipper {
     constructor() {
-        this.pressed = false;
-        this.justPressed = false;
-        this.justReleased = false;
-    }
-    update(action) {
-        this.justPressed = false;
-        this.justReleased = false;
-        if (action === Key.DOWN) {
-            if (this.pressed === false) this.justPressed = true;
-            this.pressed = true;
-        } else if(action === Key.UP) {
-            if (this.pressed) this.justReleased = true;
-            this.pressed = false;
-        } else if(action === Key.RESET) {
-            this.justReleased = false;
-            this.justPressed = false;
+        const tooltip = new Div().setClass('suey-tooltip');
+        tooltip.setInnerHtml('');
+        document.body.appendChild(tooltip.dom);
+        let deviceType = DEVICE_TYPE.POINTER;
+        document.addEventListener('touchstart', () => deviceType = DEVICE_TYPE.TOUCH, { capture: true, passive: true });
+        document.addEventListener('mousemove', () => deviceType = DEVICE_TYPE.POINTER, { capture: true, passive: true });
+        document.addEventListener('mouseenter', showTooltip, { capture: true, passive: true });
+        document.addEventListener('mouseleave', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('dragleave', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('blur', hideTooltip, { capture: true, passive: true });
+        document.addEventListener('hidetooltip', () => { hideTooltip(); }, { capture: true, passive: true });
+        function showTooltip(event) {
+            const element = event.target;
+            if (!element || !(element instanceof HTMLElement)) return;
+            if (!element.getAttribute('tooltip')) return;
+            if (event instanceof FocusEvent && deviceType !== DEVICE_TYPE.POINTER) return;
+            if (('TouchEvent' in window) && event instanceof TouchEvent) return;
+            let text = element.getAttribute('tooltip');
+            if (!text.length) return;
+            clearTimeout(_showTimer);
+            tooltip.removeClass('suey-updated');
+            _showTimer = setTimeout(() => {
+                tooltip.setInnerHtml(text);
+                Popper.popUnder(tooltip.dom, element, ALIGN.CENTER, null, TOOLTIP_Y_OFFSET);
+                tooltip.addClass('suey-updated');
+            }, parseInt(Css.getVariable('--tooltip-delay')));
         }
-    }
-    set(justPressed, pressed, justReleased) {
-        this.justPressed = justPressed;
-        this.pressed = pressed;
-        this.justReleased = justReleased;
-    }
-    reset() {
-        this.justPressed = false;
-        this.pressed = false;
-        this.justReleased = false;
-    }
-}
-
-class Vector2 {
-    constructor(x, y) {
-        if (typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-        } else {
-            this.x = x || 0;
-            this.y = y || 0;
-        }
-    }
-    set(x, y) {
-        if (typeof x === 'object') return this.copy(x);
-        this.x = x;
-        this.y = y;
-        return this;
-    }
-    setScalar(scalar) {
-        this.x = scalar;
-        this.y = scalar;
-        return this;
-    }
-    clone() {
-        return new Vector2(this.x, this.y);
-    }
-    copy(vec, y) {
-        if (typeof vec === 'object') {
-            this.x = vec.x;
-            this.y = vec.y;
-        } else {
-            this.x = vec;
-            this.y = y;
-        }
-        return this;
-    }
-    add(x, y) {
-        if (typeof x === 'object') {
-            this.x += x.x;
-            this.y += x.y;
-        } else {
-            this.x += x;
-            this.y += y;
-        }
-        return this;
-    }
-    addScalar(scalar) {
-        this.x += scalar;
-        this.y += scalar;
-        return this;
-    }
-    addVectors(a, b) {
-        this.x = a.x + b.x;
-        this.y = a.y + b.y;
-        return this;
-    }
-    addScaledVector(vec, scale) {
-        this.x += vec.x * scale;
-        this.y += vec.y * scale;
-        return this;
-    }
-    sub(x, y) {
-        if (typeof x === 'object') {
-            this.x -= x.x;
-            this.y -= x.y;
-        } else {
-            this.x -= x;
-            this.y -= y;
-        }
-        return this;
-    }
-    subScalar(scalar) {
-        this.x -= scalar;
-        this.y -= scalar;
-        return this;
-    }
-    subVectors(a, b) {
-        this.x = a.x - b.x;
-        this.y = a.y - b.y;
-        return this;
-    }
-    multiply(x, y) {
-        if (typeof x === 'object') {
-            this.x *= x.x;
-            this.y *= x.y;
-        } else {
-            this.x *= x;
-            this.y *= y;
-        }
-        return this;
-    }
-    multiplyScalar(scalar) {
-        this.x *= scalar;
-        this.y *= scalar;
-        return this;
-    }
-    divide(x, y) {
-        if (typeof x === 'object') {
-            this.x /= x.x;
-            this.y /= x.y;
-        } else {
-            this.x /= x;
-            this.y /= y;
-        }
-        return this;
-    }
-    divideScalar(scalar) {
-        return this.multiplyScalar(1 / scalar);
-    }
-    min(v) {
-        this.x = Math.min(this.x, v.x);
-        this.y = Math.min(this.y, v.y);
-        return this;
-    }
-    max(v) {
-        this.x = Math.max(this.x, v.x);
-        this.y = Math.max(this.y, v.y);
-        return this;
-    }
-    clamp(minv, maxv) {
-        this.x = Math.max(minv.x, Math.min(maxv.x, this.x));
-        this.y = Math.max(minv.y, Math.min(maxv.y, this.y));
-        return this;
-    }
-    clampScalar(minVal, maxVal) {
-        this.x = Math.max(minVal, Math.min(maxVal, this.x));
-        this.y = Math.max(minVal, Math.min(maxVal, this.y));
-        return this;
-    }
-    clampLength(min, max) {
-        const length = this.length();
-        return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
-    }
-    floor() {
-        this.x = Math.floor(this.x);
-        this.y = Math.floor(this.y);
-        return this;
-    }
-    ceil() {
-        this.x = Math.ceil(this.x);
-        this.y = Math.ceil(this.y);
-        return this;
-    }
-    round() {
-        this.x = Math.round(this.x);
-        this.y = Math.round(this.y);
-        return this;
-    }
-    negate() {
-        this.x = -this.x;
-        this.y = -this.y;
-        return this;
-    }
-    dot(v) {
-        return this.x * v.x + this.y * v.y;
-    }
-    cross(v) {
-        return this.x * v.y - this.y * v.x;
-    }
-    lengthSq() {
-        return this.x * this.x + this.y * this.y;
-    }
-    length() {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
-    }
-    manhattanLength() {
-        return Math.abs(this.x) + Math.abs(this.y);
-    }
-    normalize() {
-        return this.divideScalar(this.length() || 1);
-    }
-    angle(forcePositive) {
-        let angle = Math.atan2(this.y, this.x);
-        if (forcePositive && angle < 0) angle += 2 * Math.PI;
-        return angle;
-    }
-    angleBetween(v) {
-        const dot = this.dot(v);
-        const magnitudes = this.length() * v.length();
-        const clampedDot = Math.min(Math.max(dot / magnitudes, -1), 1);
-        return Math.acos(clampedDot);
-    }
-    rotateAround(center, angle) {
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        const x = this.x - center.x;
-        const y = this.y - center.y;
-        this.x = x * c - y * s + center.x;
-        this.y = x * s + y * c + center.y;
-    }
-    distanceTo(v) {
-        return Math.sqrt(this.distanceToSquared(v));
-    }
-    distanceToSquared(v) {
-        const dx = this.x - v.x;
-        const dy = this.y - v.y;
-        return dx * dx + dy * dy;
-    }
-    manhattanDistanceTo(v) {
-        return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
-    }
-    setLength(length) {
-        return this.normalize().multiplyScalar(length);
-    }
-    lerp(v, alpha) {
-        this.x += (v.x - this.x) * alpha;
-        this.y += (v.y - this.y) * alpha;
-        return this;
-    }
-    equals(v) {
-        return ((v.x === this.x) && (v.y === this.y));
-    }
-    toArray() {
-        return [ this.x, this.y ];
-    }
-    fromArray(array) {
-        this.set(array[0], array[1]);
-        return this;
-    }
-}
-
-class Pointer {
-    static LEFT = 0;
-    static MIDDLE = 1;
-    static RIGHT = 2;
-    static BACK = 3;
-    static FORWARD = 4;
-    constructor(element, disableContextMenu = true) {
-        if (!element || !element.isElement) {
-            console.error(`Pointer: No Suey Element was provided`);
-            return;
-        }
-        const self = this;
-        this._keys = new Array(5);
-        this._position = new Vector2(0, 0);
-        this._positionUpdated = false;
-        this._delta = new Vector2(0, 0);
-        this._wheel = 0;
-        this._wheelUpdated = false;
-        this._doubleClicked = new Array(5);
-        this.keys = new Array(5);
-        this.position = new Vector2(0, 0);
-        this.delta = new Vector2(0, 0);
-        this.wheel = 0;
-        this.doubleClicked = new Array(5);
-        this.pointerInside = false;
-        for (let i = 0; i < 5; i++) {
-            this._doubleClicked[i] = false;
-            this.doubleClicked[i] = false;
-            this._keys[i] = new Key();
-            this.keys[i] = new Key();
-        }
-        function updatePosition(x, y, xDiff, yDiff) {
-            if (element && element.dom) {
-                const rect = element.dom.getBoundingClientRect();
-                x -= rect.left;
-                y -= rect.top;
+        function hideTooltip(event) {
+            if (event) {
+                const element = event.target;
+                if (!element || !(element instanceof HTMLElement)) return;
+                if (!element.getAttribute('tooltip')) return;
             }
-            self._position.set(x, y);
-            self._delta.x += xDiff;
-            self._delta.y += yDiff;
-            self._positionUpdated = true;
+            clearTimeout(_showTimer);
+            tooltip.removeClass('suey-updated');
         }
-        function updateKey(button, action) {
-            if (button >= 0) self._keys[button].update(action);
-        }
-        if (disableContextMenu) {
-            element.on('contextmenu', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        }
-        element.on('pointermove', (event) => {
-            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
-        });
-        element.on('pointerdown',  (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            element.dom.setPointerCapture(event.pointerId);
-            updateKey(event.button, Key.DOWN);
-        });
-        element.on('pointerup', (event) => {
-            element.dom.releasePointerCapture(event.pointerId);
-            updateKey(event.button, Key.UP);
-        });
-        element.on('pointerenter', () => { self.pointerInside = true; });
-        element.on('pointerleave', () => { self.pointerInside = false; });
-        element.on('wheel', (event) => {
-            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
-            self._wheel = event.deltaY;
-            self._wheelUpdated = true;
-        });
-        element.on('dragstart', (event) => { updateKey(event.button, Key.UP); });
-        element.on('dblclick', (event) => { self._doubleClicked[event.button] = true; });
     }
-    buttonPressed(button)       { return this.keys[button].pressed; }
-    buttonDoubleClicked(button) { return this.doubleClicked[button] }
-    buttonJustPressed(button)   { return this.keys[button].justPressed; }
-    buttonJustReleased(button)  { return this.keys[button].justReleased; }
-    insideDom() {
-        return this.pointerInside;
+}
+const tooltipper = new Tooltipper();
+
+const _clr$4 = new Iris();
+const _icon = new Iris();
+const _icon_light = new Iris();
+const _icon_dark = new Iris();
+const _complement = new Iris();
+const _triadic1 = new Iris();
+const _triadic2 = new Iris();
+const _triadic3 = new Iris();
+const _triadic4 = new Iris();
+const _triadic5 = new Iris();
+const _triadic6 = new Iris();
+const DEFAULT_CLR = 0x00b4af;
+let _background = BACKGROUNDS.DARK;
+let _color$3 = DEFAULT_CLR;
+let _tint = 0.0;
+let _saturation = 0.0;
+class ColorScheme {
+    static changeBackground(background) {
+        if (background === undefined || background === null) return;
+        _background = background;
+        ColorScheme.updateCSS();
     }
-    update() {
-        for (let i = 0; i < 5; i++) {
-            if (this._keys[i].justPressed && this.keys[i].justPressed) this._keys[i].justPressed = false;
-            if (this._keys[i].justReleased && this.keys[i].justReleased) this._keys[i].justReleased = false;
-            this.keys[i].set(this._keys[i].justPressed, this._keys[i].pressed, this._keys[i].justReleased);
-            if (this._doubleClicked[i] === true) {
-                this.doubleClicked[i] = true;
-                this._doubleClicked[i] = false;
-            } else {
-                this.doubleClicked[i] = false;
+    static changeColor(color, tint, saturation) {
+        if (color === undefined || color === null) return;
+        _color$3 = _clr$4.set(color).hex();
+        _tint = (tint !== undefined) ? tint : _tint;
+        _saturation = (saturation !== undefined) ? saturation : _saturation;
+        _icon.set(color);
+        _icon_light.copy(_icon).brighten();
+        _icon_dark.copy(_icon).darken();
+        _complement.copy(_icon).rybRotateHue(180).brighten(0.2);
+        _triadic1.copy(_icon).rybRotateHue(120).brighten(0.2);
+        _triadic2.copy(_complement).rybRotateHue(120).brighten(0.2);
+        _triadic3.copy(_icon).rybRotateHue(90).brighten(0.2);
+        _triadic4.copy(_complement).rybRotateHue(90).brighten(0.2);
+        _triadic5.copy(_icon).rybRotateHue(60).brighten(0.2);
+        _triadic6.copy(_complement).rybRotateHue(60).brighten(0.2);
+        ColorScheme.updateCSS();
+    }
+    static updateCSS() {
+        for (const key in TRAIT) {
+            const guiColor = TRAIT[key];
+            Css.setVariable(`--${guiColor}`, _clr$4.set(ColorScheme.color(guiColor)).rgbString());
+        }
+        Css.setVariable('--tint-icon', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.ICON)));
+        Css.setVariable('--tint-complement', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.COMPLEMENT)));
+        Css.setVariable('--tint-triadic1', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC1)));
+        Css.setVariable('--tint-triadic2', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC2)));
+        Css.setVariable('--tint-triadic3', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC3)));
+        Css.setVariable('--tint-triadic4', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC4)));
+        Css.setVariable('--tint-triadic5', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC5)));
+        Css.setVariable('--tint-triadic6', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TRIADIC6)));
+        Css.setVariable('--tint-text', ColorizeFilter.fromColor(ColorScheme.color(TRAIT.TEXT)));
+        Css.setVariable('--bright', (_background == BACKGROUNDS.LIGHT) ? '0' : '1');
+        const startHue = _clr$4.set(DEFAULT_CLR).hue();
+        const newHue = _clr$4.set(ColorScheme.color(TRAIT.ICON, true )).hue();
+        const diffHue = `${newHue - startHue}deg`;
+        Css.setVariable('--rotate-hue', diffHue);
+    }
+    static toString() {
+        const COLUMN_LENGTH = 20;
+        let output = '';
+        for (const key in TRAIT) {
+            const guiColor = TRAIT[key];
+            _clr$4.set(ColorScheme.color(guiColor));
+            output += `${guiColor}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr$4.rgbString()}`.padEnd(COLUMN_LENGTH, ' ');
+            output += `${_clr$4.hexString()}\n`;
+        }
+        return output;
+    }
+    static color(guiColor, ignoreSaturation = false) {
+        _clr$4.set(0);
+        if (guiColor == null) return _clr$4.hex();
+        if (Object.values(TRAIT).includes(guiColor) === false) return _clr$4.set(guiColor).hex();
+        let tint = _tint;
+        let saturation = _saturation;
+        let darkness = 0;
+        let lightness = 0;
+        switch (_background) {
+            case BACKGROUNDS.DARK:      break;
+            case BACKGROUNDS.MID:       tint *= 0.2;    lightness = 0.2;    break;
+            case BACKGROUNDS.LIGHT:     break;
+            case BACKGROUNDS.FADED:     tint *= 0.1;    lightness = 0.4;    break;
+        }
+        if (_background == BACKGROUNDS.LIGHT) {
+            switch (guiColor) {
+                case TRAIT.SHADOW:              _clr$4.set(140, 140, 140, 'rgb'); break;
+                case TRAIT.BACKGROUND_DARK:     _clr$4.set(180, 180, 180, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$4.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$4.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$4.set(210, 210, 210, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$4.set( 80,  80,  80, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$4.set( 50,  50,  50, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$4.set( 25,  25,  25, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$4.set(255, 255, 255, 'rgb'); break;
+                case TRAIT.DARKLIGHT:           _clr$4.set(200, 200, 200, 'rgb'); break;
+                case TRAIT.MIDLIGHT:            _clr$4.set(220, 220, 220, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$4.set(  0,   0,   0, 'rgb'); break;
+            }
+        } else {
+            switch (guiColor) {
+                case TRAIT.SHADOW:              _clr$4.set(  0,   0,   0, 'rgb'); tint = 0; break;
+                case TRAIT.BACKGROUND_DARK:     _clr$4.set( 24,  24,  24, 'rgb'); break;
+                case TRAIT.BACKGROUND_LIGHT:    _clr$4.set( 32,  32,  32, 'rgb'); break;
+                case TRAIT.BUTTON_DARK:         _clr$4.set( 40,  40,  40, 'rgb'); break;
+                case TRAIT.BUTTON_LIGHT:        _clr$4.set( 60,  60,  60, 'rgb'); break;
+                case TRAIT.TEXT_DARK:           _clr$4.set(100, 100, 100, 'rgb'); break;
+                case TRAIT.TEXT:                _clr$4.set(190, 190, 190, 'rgb'); break;
+                case TRAIT.TEXT_LIGHT:          _clr$4.set(225, 225, 225, 'rgb'); break;
+                case TRAIT.BLACKLIGHT:          _clr$4.set(  0,   0,   0, 'rgb'); lightness = 0; break;
+                case TRAIT.DARKLIGHT:           _clr$4.set(  8,   8,   8, 'rgb'); lightness = 0; break;
+                case TRAIT.MIDLIGHT:            _clr$4.set( 85,  85,  85, 'rgb'); break;
+                case TRAIT.HIGHLIGHT:           _clr$4.set(255, 255, 255, 'rgb'); break;
+            }
+            if (_background == BACKGROUNDS.MID && guiColor == TRAIT.DARKLIGHT) {
+                _clr$4.set( 64,  64,  64, 'rgb');
             }
         }
-        if (this._wheelUpdated) {
-            this.wheel = this._wheel;
-            this._wheelUpdated = false;
-        } else {
-            this.wheel = 0;
+        if (guiColor === TRAIT.DARKNESS) {
+            switch (_background) {
+                case BACKGROUNDS.DARK:      _clr$4.set(  0,   0,   0, 'rgb');     break;
+                case BACKGROUNDS.MID:       _clr$4.set( 64,  64,  64, 'rgb');     break;
+                case BACKGROUNDS.LIGHT:     _clr$4.set(128, 128, 128, 'rgb');     break;
+                case BACKGROUNDS.FADED:     _clr$4.set(  0,   0,   0, 'rgb');     break;
+            }
         }
-        if (this._positionUpdated) {
-            this.delta.copy(this._delta);
-            this.position.copy(this._position);
-            this._delta.set(0,0);
-            this._positionUpdated = false;
-        } else {
-            this.delta.x = 0;
-            this.delta.y = 0;
+        switch (guiColor) {
+            case TRAIT.ICON_DARK:   _clr$4.copy(_icon_dark);  break;
+            case TRAIT.ICON:        _clr$4.copy(_icon);       break;
+            case TRAIT.ICON_LIGHT:  _clr$4.copy(_icon_light); break;
+            case TRAIT.COMPLEMENT:  _clr$4.copy(_complement); break;
+            case TRAIT.TRIADIC1:    _clr$4.copy(_triadic1);   break;
+            case TRAIT.TRIADIC2:    _clr$4.copy(_triadic2);   break;
+            case TRAIT.TRIADIC3:    _clr$4.copy(_triadic3);   break;
+            case TRAIT.TRIADIC4:    _clr$4.copy(_triadic4);   break;
+            case TRAIT.TRIADIC5:    _clr$4.copy(_triadic5);   break;
+            case TRAIT.TRIADIC6:    _clr$4.copy(_triadic6);   break;
         }
+        switch (guiColor) {
+            case TRAIT.COMPLEMENT:
+            case TRAIT.TRIADIC1:
+            case TRAIT.TRIADIC2:
+            case TRAIT.TRIADIC3:
+            case TRAIT.TRIADIC4:
+            case TRAIT.TRIADIC5:
+            case TRAIT.TRIADIC6:
+                saturation = 0.0;
+            case TRAIT.ICON_DARK:
+            case TRAIT.ICON:
+            case TRAIT.ICON_LIGHT:
+                tint = 0;
+                lightness = 0;
+                break;
+        }
+        if (tint !== 0) _clr$4.mix(_icon, tint);
+        if (lightness !== 0) _clr$4.brighten(lightness);
+        if (darkness !== 0) _clr$4.darken(darkness);
+        if (saturation !== 0 && !ignoreSaturation) _clr$4.hslOffset(0, saturation, 0);
+        return _clr$4.hex();
     }
 }
+ColorScheme.changeColor(THEMES.CLASSIC, 0, 0);
 
 class Span extends Element {
     constructor(innerHtml) {
@@ -7253,6 +6888,225 @@ class Scrollable extends Panel {
     }
 }
 
+class Vector2 {
+    constructor(x, y) {
+        if (typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+        }
+    }
+    set(x, y) {
+        if (typeof x === 'object') return this.copy(x);
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+    setScalar(scalar) {
+        this.x = scalar;
+        this.y = scalar;
+        return this;
+    }
+    clone() {
+        return new Vector2(this.x, this.y);
+    }
+    copy(vec, y) {
+        if (typeof vec === 'object') {
+            this.x = vec.x;
+            this.y = vec.y;
+        } else {
+            this.x = vec;
+            this.y = y;
+        }
+        return this;
+    }
+    add(x, y) {
+        if (typeof x === 'object') {
+            this.x += x.x;
+            this.y += x.y;
+        } else {
+            this.x += x;
+            this.y += y;
+        }
+        return this;
+    }
+    addScalar(scalar) {
+        this.x += scalar;
+        this.y += scalar;
+        return this;
+    }
+    addVectors(a, b) {
+        this.x = a.x + b.x;
+        this.y = a.y + b.y;
+        return this;
+    }
+    addScaledVector(vec, scale) {
+        this.x += vec.x * scale;
+        this.y += vec.y * scale;
+        return this;
+    }
+    sub(x, y) {
+        if (typeof x === 'object') {
+            this.x -= x.x;
+            this.y -= x.y;
+        } else {
+            this.x -= x;
+            this.y -= y;
+        }
+        return this;
+    }
+    subScalar(scalar) {
+        this.x -= scalar;
+        this.y -= scalar;
+        return this;
+    }
+    subVectors(a, b) {
+        this.x = a.x - b.x;
+        this.y = a.y - b.y;
+        return this;
+    }
+    multiply(x, y) {
+        if (typeof x === 'object') {
+            this.x *= x.x;
+            this.y *= x.y;
+        } else {
+            this.x *= x;
+            this.y *= y;
+        }
+        return this;
+    }
+    multiplyScalar(scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
+        return this;
+    }
+    divide(x, y) {
+        if (typeof x === 'object') {
+            this.x /= x.x;
+            this.y /= x.y;
+        } else {
+            this.x /= x;
+            this.y /= y;
+        }
+        return this;
+    }
+    divideScalar(scalar) {
+        return this.multiplyScalar(1 / scalar);
+    }
+    min(v) {
+        this.x = Math.min(this.x, v.x);
+        this.y = Math.min(this.y, v.y);
+        return this;
+    }
+    max(v) {
+        this.x = Math.max(this.x, v.x);
+        this.y = Math.max(this.y, v.y);
+        return this;
+    }
+    clamp(minv, maxv) {
+        this.x = Math.max(minv.x, Math.min(maxv.x, this.x));
+        this.y = Math.max(minv.y, Math.min(maxv.y, this.y));
+        return this;
+    }
+    clampScalar(minVal, maxVal) {
+        this.x = Math.max(minVal, Math.min(maxVal, this.x));
+        this.y = Math.max(minVal, Math.min(maxVal, this.y));
+        return this;
+    }
+    clampLength(min, max) {
+        const length = this.length();
+        return this.divideScalar(length || 1).multiplyScalar(Math.max(min, Math.min(max, length)));
+    }
+    floor() {
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        return this;
+    }
+    ceil() {
+        this.x = Math.ceil(this.x);
+        this.y = Math.ceil(this.y);
+        return this;
+    }
+    round() {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        return this;
+    }
+    negate() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }
+    dot(v) {
+        return this.x * v.x + this.y * v.y;
+    }
+    cross(v) {
+        return this.x * v.y - this.y * v.x;
+    }
+    lengthSq() {
+        return this.x * this.x + this.y * this.y;
+    }
+    length() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+    manhattanLength() {
+        return Math.abs(this.x) + Math.abs(this.y);
+    }
+    normalize() {
+        return this.divideScalar(this.length() || 1);
+    }
+    angle(forcePositive) {
+        let angle = Math.atan2(this.y, this.x);
+        if (forcePositive && angle < 0) angle += 2 * Math.PI;
+        return angle;
+    }
+    angleBetween(v) {
+        const dot = this.dot(v);
+        const magnitudes = this.length() * v.length();
+        const clampedDot = Math.min(Math.max(dot / magnitudes, -1), 1);
+        return Math.acos(clampedDot);
+    }
+    rotateAround(center, angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        const x = this.x - center.x;
+        const y = this.y - center.y;
+        this.x = x * c - y * s + center.x;
+        this.y = x * s + y * c + center.y;
+    }
+    distanceTo(v) {
+        return Math.sqrt(this.distanceToSquared(v));
+    }
+    distanceToSquared(v) {
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
+        return dx * dx + dy * dy;
+    }
+    manhattanDistanceTo(v) {
+        return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
+    }
+    setLength(length) {
+        return this.normalize().multiplyScalar(length);
+    }
+    lerp(v, alpha) {
+        this.x += (v.x - this.x) * alpha;
+        this.y += (v.y - this.y) * alpha;
+        return this;
+    }
+    equals(v) {
+        return ((v.x === this.x) && (v.y === this.y));
+    }
+    toArray() {
+        return [ this.x, this.y ];
+    }
+    fromArray(array) {
+        this.set(array[0], array[1]);
+        return this;
+    }
+}
+
 class Matrix2 {
     constructor(values) {
         if (Array.isArray(values)) this.m = [ ...values ];
@@ -7373,8 +7227,8 @@ class Matrix2 {
 }
 
 const _lut = [ '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '1a', '1b', '1c', '1d', '1e', '1f', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '2a', '2b', '2c', '2d', '2e', '2f', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '3a', '3b', '3c', '3d', '3e', '3f', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '4a', '4b', '4c', '4d', '4e', '4f', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '5a', '5b', '5c', '5d', '5e', '5f', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '6a', '6b', '6c', '6d', '6e', '6f', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '7a', '7b', '7c', '7d', '7e', '7f', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '8a', '8b', '8c', '8d', '8e', '8f', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '9a', '9b', '9c', '9d', '9e', '9f', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'ba', 'bb', 'bc', 'bd', 'be', 'bf', 'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'ca', 'cb', 'cc', 'cd', 'ce', 'cf', 'd0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'da', 'db', 'dc', 'dd', 'de', 'df', 'e0', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6', 'e7', 'e8', 'e9', 'ea', 'eb', 'ec', 'ed', 'ee', 'ef', 'f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'fa', 'fb', 'fc', 'fd', 'fe', 'ff' ];
-class UUID {
-    static generate() {
+class MathUtils {
+    static generateUUID() {
         if (window.crypto && window.crypto.randomUUID) return crypto.randomUUID();
         const d0 = Math.random() * 0xffffffff | 0;
         const d1 = Math.random() * 0xffffffff | 0;
@@ -7390,55 +7244,22 @@ class UUID {
 
 class Camera2D {
     constructor() {
-        this.uuid = UUID.generate();
+        this.uuid = MathUtils.generateUUID();
         this.position = new Vector2(0, 0);
         this.scale = 1.0;
         this.rotation = 0.0;
         this.matrix = new Matrix2();
         this.inverseMatrix = new Matrix2();
         this.matrixNeedsUpdate = true;
-        this.dragButton = Pointer.RIGHT;
-        this.rotateButton = Pointer.MIDDLE;
-        this.allowDrag = true;
-        this.allowScale = true;
-        this.allowRotation = true;
-        this.rotationPoint = new Vector2(0, 0);
-        this.rotationInitial = 0;
     }
-    update(pointer) {
-        if (this.allowScale && pointer.wheel !== 0) {
-            const scaleFactor = pointer.wheel * 0.001 * this.scale;
-            const pointerPos = this.inverseMatrix.transformPoint(pointer.position);
-            this.scale -= scaleFactor;
-            this.position.add(pointerPos.multiplyScalar(scaleFactor));
-            this.matrixNeedsUpdate = true;
-        }
-        if (this.allowRotation) {
-            if (pointer.buttonJustPressed(this.rotateButton)) {
-                this.rotationPoint.copy(pointer.position);
-                this.rotationInitial = this.rotation;
-            } else if (pointer.buttonPressed(this.rotateButton)) {
-                const point = pointer.position.clone().sub(this.rotationPoint);
-                this.rotation = this.rotationInitial + (point.x * 0.01);
-                this.matrixNeedsUpdate = true;
-            }
-        }
-        if (this.allowDrag && pointer.buttonPressed(this.dragButton)) {
-            const currentPointerPos = this.inverseMatrix.transformPoint(pointer.position.clone());
-            const lastPointerPos = this.inverseMatrix.transformPoint(pointer.position.clone().sub(pointer.delta));
-            const delta = currentPointerPos.clone().sub(lastPointerPos).multiplyScalar(this.scale);
-            this.position.add(delta);
-            this.matrixNeedsUpdate = true;
-        }
-    }
-    updateMatrix(centerX, centerY) {
+    updateMatrix(offsetX, offsetY) {
         if (!this.matrixNeedsUpdate) return;
         this.matrix.identity();
-        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, centerX, centerY ]));
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, +offsetX, +offsetY ]));
         const c = Math.cos(this.rotation);
         const s = Math.sin(this.rotation);
         this.matrix.multiply(new Matrix2([ c, s, -s, c, 0, 0 ]));
-        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, -centerX, -centerY ]));
+        this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, -offsetX, -offsetY ]));
         this.matrix.multiply(new Matrix2([ 1, 0, 0, 1, this.position.x, this.position.y ]));
         this.matrix.multiply(new Matrix2([ this.scale, 0, 0, this.scale, 0, 0 ]));
         this.inverseMatrix = this.matrix.getInverse();
@@ -7556,49 +7377,156 @@ class Box2 {
     }
 }
 
-class Style {
-    static extractColor(color, context) {
-        function extractCSSVariableName(str) {
-            const regex = /--[a-zA-Z0-9-_]+/;
-            const match = str.match(regex);
-            return match ? match[0] : null;
-        }
-        if (typeof color === 'string' && context) {
-            const cssVariable = extractCSSVariableName(color, context);
-            if (cssVariable) {
-                const canvas = context.canvas;
-                const computedStyle = getComputedStyle(canvas);
-                const computedColor = computedStyle.getPropertyValue(cssVariable);
-                return `rgb(${computedColor})`;
-            }
-        }
-        return color;
-    }
+class Key {
+    static DOWN = -1;
+    static UP = 1;
+    static RESET = 0;
     constructor() {
-        this.cache = null;
-        this.needsUpdate = true;
+        this.pressed = false;
+        this.justPressed = false;
+        this.justReleased = false;
     }
-    get(context) {}
+    update(action) {
+        this.justPressed = false;
+        this.justReleased = false;
+        if (action === Key.DOWN) {
+            if (this.pressed === false) this.justPressed = true;
+            this.pressed = true;
+        } else if(action === Key.UP) {
+            if (this.pressed) this.justReleased = true;
+            this.pressed = false;
+        } else if(action === Key.RESET) {
+            this.justReleased = false;
+            this.justPressed = false;
+        }
+    }
+    set(justPressed, pressed, justReleased) {
+        this.justPressed = justPressed;
+        this.pressed = pressed;
+        this.justReleased = justReleased;
+    }
+    reset() {
+        this.justPressed = false;
+        this.pressed = false;
+        this.justReleased = false;
+    }
 }
 
-class ColorStyle extends Style {
-    constructor(color = '#000000') {
-        super();
-        this.color = color;
-    }
-    get(context) {
-        if (this.needsUpdate || this.cache == null) {
-            this.cache = Style.extractColor(this.color, context);
-            this.needsUpdate = false;
+class Pointer {
+    static LEFT = 0;
+    static MIDDLE = 1;
+    static RIGHT = 2;
+    static BACK = 3;
+    static FORWARD = 4;
+    constructor(element, disableContextMenu = true) {
+        if (!element || !element.isElement) {
+            console.error(`Pointer: No Suey Element was provided`);
+            return;
         }
-        return this.cache;
+        const self = this;
+        this._keys = new Array(5);
+        this._position = new Vector2(0, 0);
+        this._positionUpdated = false;
+        this._delta = new Vector2(0, 0);
+        this._wheel = 0;
+        this._wheelUpdated = false;
+        this._doubleClicked = new Array(5);
+        this.keys = new Array(5);
+        this.position = new Vector2(0, 0);
+        this.delta = new Vector2(0, 0);
+        this.wheel = 0;
+        this.doubleClicked = new Array(5);
+        this.pointerInside = false;
+        for (let i = 0; i < 5; i++) {
+            this._doubleClicked[i] = false;
+            this.doubleClicked[i] = false;
+            this._keys[i] = new Key();
+            this.keys[i] = new Key();
+        }
+        function updatePosition(x, y, xDiff, yDiff) {
+            if (element && element.dom) {
+                const rect = element.dom.getBoundingClientRect();
+                x -= rect.left;
+                y -= rect.top;
+            }
+            self._position.set(x, y);
+            self._delta.x += xDiff;
+            self._delta.y += yDiff;
+            self._positionUpdated = true;
+        }
+        function updateKey(button, action) {
+            if (button >= 0) self._keys[button].update(action);
+        }
+        if (disableContextMenu) {
+            element.on('contextmenu', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
+        element.on('pointermove', (event) => {
+            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
+        });
+        element.on('pointerdown',  (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            element.dom.setPointerCapture(event.pointerId);
+            updateKey(event.button, Key.DOWN);
+        });
+        element.on('pointerup', (event) => {
+            element.dom.releasePointerCapture(event.pointerId);
+            updateKey(event.button, Key.UP);
+        });
+        element.on('pointerenter', () => { self.pointerInside = true; });
+        element.on('pointerleave', () => { self.pointerInside = false; });
+        element.on('wheel', (event) => {
+            updatePosition(event.clientX, event.clientY, event.movementX, event.movementY);
+            self._wheel = event.deltaY;
+            self._wheelUpdated = true;
+        });
+        element.on('dragstart', (event) => { updateKey(event.button, Key.UP); });
+        element.on('dblclick', (event) => { self._doubleClicked[event.button] = true; });
+    }
+    buttonPressed(button)       { return this.keys[button].pressed; }
+    buttonDoubleClicked(button) { return this.doubleClicked[button] }
+    buttonJustPressed(button)   { return this.keys[button].justPressed; }
+    buttonJustReleased(button)  { return this.keys[button].justReleased; }
+    insideDom() {
+        return this.pointerInside;
+    }
+    update() {
+        for (let i = 0; i < 5; i++) {
+            if (this._keys[i].justPressed && this.keys[i].justPressed) this._keys[i].justPressed = false;
+            if (this._keys[i].justReleased && this.keys[i].justReleased) this._keys[i].justReleased = false;
+            this.keys[i].set(this._keys[i].justPressed, this._keys[i].pressed, this._keys[i].justReleased);
+            if (this._doubleClicked[i] === true) {
+                this.doubleClicked[i] = true;
+                this._doubleClicked[i] = false;
+            } else {
+                this.doubleClicked[i] = false;
+            }
+        }
+        if (this._wheelUpdated) {
+            this.wheel = this._wheel;
+            this._wheelUpdated = false;
+        } else {
+            this.wheel = 0;
+        }
+        if (this._positionUpdated) {
+            this.delta.copy(this._delta);
+            this.position.copy(this._position);
+            this._delta.set(0,0);
+            this._positionUpdated = false;
+        } else {
+            this.delta.x = 0;
+            this.delta.y = 0;
+        }
     }
 }
 
 class Object2D {
     constructor() {
         this.type = 'Object2D';
-        this.uuid = UUID.generate();
+        this.uuid = MathUtils.generateUUID();
         this.children = [];
         this.parent = null;
         this.visible = true;
@@ -7621,10 +7549,9 @@ class Object2D {
         this.draggable = false;
         this.focusable = true;
         this.selectable = true;
-        this.selected = false;
         this.pointerInside = false;
-        this.saveContextState = true;
-        this.restoreContextState = true;
+        this.inViewport = true;
+        this.isSelected = false;
     }
     add(...objects) {
         if (objects.length > 0 && Array.isArray(objects[0])) objects = objects[0];
@@ -7742,6 +7669,392 @@ class Object2D {
                 this.matrixNeedsUpdate = true;
             }
         }
+    }
+}
+
+class Keyboard {
+    constructor(element) {
+        if (!element || !element.isElement) {
+            console.error(`Keyboard: No Suey Element was provided`);
+            return;
+        }
+        const self = this;
+        this._keys = {};
+        this.keys = {};
+        function updateKey(keyCode, action) {
+            if (!(keyCode in self._keys)) {
+            self._keys[keyCode] = new Key();
+            self.keys[keyCode] = new Key();
+            }
+            self._keys[keyCode].update(action);
+        }
+        element.on('keydown', (event) => { updateKey(event.keyCode, Key.DOWN); });
+        element.on('keyup', (event) => { updateKey(event.keyCode, Key.UP); });
+    }
+    keyPressed(keyCode) {
+        return keyCode in this.keys && this.keys[keyCode].pressed;
+    }
+    keyJustPressed(keyCode) {
+        return keyCode in this.keys && this.keys[keyCode].justPressed;
+    }
+    keyJustReleased(keyCode) {
+        return keyCode in this.keys && this.keys[keyCode].justReleased;
+    }
+    update() {
+        for (const keyCode in this._keys) {
+            if (this._keys[keyCode].justPressed && this.keys[keyCode].justPressed) {
+                this._keys[keyCode].justPressed = false;
+            }
+            if (this._keys[keyCode].justReleased && this.keys[keyCode].justReleased) {
+                this._keys[keyCode].justReleased = false;
+            }
+            this.keys[keyCode].set(
+                this._keys[keyCode].justPressed,
+                this._keys[keyCode].pressed,
+                this._keys[keyCode].justReleased
+            );
+        }
+    }
+}
+
+class Viewport {
+    constructor(context, camera) {
+        const canvas = context.canvas;
+        const topLeft = new Vector2(0, 0);
+        const bottomRight = new Vector2(canvas.width, canvas.height);
+        this.box = new Box2(topLeft, bottomRight);
+    }
+    intersectsBox(camera, box) {
+        const topLeft = camera.matrix.transformPoint(box.min);
+        const topRight = camera.matrix.transformPoint(new Vector2(box.max.x, box.min.y));
+        const bottomLeft = camera.matrix.transformPoint(new Vector2(box.min.x, box.max.y));
+        const bottomRight = camera.matrix.transformPoint(box.max);
+        const actualBox = new Box2().setFromPoints(topLeft, topRight, bottomLeft, bottomRight);
+        return this.box.intersectsBox(actualBox);
+    }
+}
+
+class Renderer extends Element {
+    constructor({
+        alpha = true,
+        disableContextMenu = true,
+        imageSmoothingEnabled = true,
+        imageSmoothingQuality = 'medium',
+        globalCompositeOperation = 'source-over',
+        width = 1000,
+        height = 1000,
+    } = {}) {
+        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        super(canvas);
+        const self = this;
+        this.context = this.dom.getContext('2d', { alpha });
+        this.context.imageSmoothingEnabled = imageSmoothingEnabled;
+        this.context.imageSmoothingQuality = imageSmoothingQuality;
+        this.context.globalCompositeOperation = globalCompositeOperation;
+        this.pointer = new Pointer(this, disableContextMenu);
+        this.keyboard = new Keyboard(this);
+        this.autoClear = true;
+        this.updatable = [ this.pointer, this.keyboard ];
+        this.selection = [];
+        this.running = false;
+        this.frame = -1;
+        this.scene = null;
+        this.camera = null;
+        const resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                canvas.width = entry.contentRect.width;
+                canvas.height = entry.contentRect.height;
+                if (self.running && self.scene && self.camera) {
+                    self.update(self.scene, self.camera);
+                }
+            }
+        });
+        resizeObserver.observe(canvas);
+        this.on('destroy', () => {
+            resizeObserver.unobserve(canvas);
+        });
+        this.on('dblclick', (event) => {
+            if (!self.scene || !self.camera) return;
+            const point = new Vector2(event.clientX, event.clientY);
+            const worldPoint = self.camera.inverseMatrix.transformPoint(point);
+            const objects = self.scene.getWorldPointIntersections(worldPoint);
+            for (const object of objects) if (object.focusable) return self.focusCamera(object);
+            return self.focusCamera(null);
+        });
+        this.beingDragged = null;
+    }
+    get width() { return this.dom.width; }
+    set width(x) { this.dom.width = x; }
+    get height() { return this.dom.height; }
+    set height(y) { this.dom.height = y; }
+    ratio() {
+        const rect = this.dom.getBoundingClientRect();
+        return ((this.width / this.height) / (rect.width / rect.height));
+    }
+    onUpdate(object) {
+        if (this.updatable.includes(object) === false) {
+            this.updatable.push(object);
+        }
+    }
+    start(scene, camera) {
+        if (this.running) return;
+        this.running = true;
+        this.scene = scene;
+        this.camera = camera;
+        const self = this;
+        function loop() {
+            for (const object of self.updatable) {
+                object.update();
+            }
+            camera.updateMatrix(self.width / 2.0, self.height / 2.0);
+            self.update(scene, camera);
+            if (self.running) self.frame = requestAnimationFrame(loop);
+        }
+        loop();
+    }
+    stop() {
+        this.running = false;
+        cancelAnimationFrame(this.frame);
+    }
+    update(scene, camera) {
+        const pointer = this.pointer;
+        const context = this.context;
+        const objects = [];
+        scene.traverse(function(child) { if (child.visible) objects.push(child); });
+        objects.sort(function(a, b) {
+            if (b.layer === a.layer) return b.level - a.level;
+            return b.layer - a.layer;
+        });
+        const viewport = new Viewport(context, camera);
+        const isVisible = {};
+        for (const object of objects) {
+            isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
+        }
+        const cameraPoint = camera.inverseMatrix.transformPoint(pointer.position);
+        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+            for (const object of this.selection) object.isSelected = false;
+            this.selection = [];
+            const selectedObjects = scene.getWorldPointIntersections(cameraPoint);
+            if (selectedObjects.length > 0) {
+                for (const object of selectedObjects) {
+                    if (object.selectable) {
+                        object.isSelected = true;
+                        this.selection.push(object);
+                    }
+                }
+            }
+        }
+        let currentCursor = null;
+        for (const object of objects) {
+            if (object.pointerEvents && isVisible[object.uuid]) {
+                const localPoint = object.inverseGlobalMatrix.transformPoint(cameraPoint);
+                const isInside = object.isInside(localPoint);
+                if (!currentCursor && (isInside || this.beingDragged === object) && object.cursor) {
+                    if (typeof object.cursor === 'function') currentCursor = object.cursor(camera);
+                    else currentCursor = object.cursor;
+                }
+                if (isInside) {
+                    if (this.beingDragged == null) {
+                        if (!object.pointerInside && typeof object.onPointerEnter === 'function') object.onPointerEnter(pointer, camera);
+                        if (typeof object.onPointerOver === 'function') object.onPointerOver(pointer, camera);
+                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof object.onDoubleClick === 'function') object.onDoubleClick(pointer, camera);
+                        if (pointer.buttonPressed(Pointer.LEFT) && typeof object.onButtonPressed === 'function') object.onButtonPressed(pointer, camera);
+                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof object.onButtonUp === 'function') object.onButtonUp(pointer, camera);
+                        if (pointer.buttonJustPressed(Pointer.LEFT)) {
+                            if (typeof object.onButtonDown === 'function') object.onButtonDown(pointer, camera);
+                            if (object.draggable) {
+                                this.beingDragged = object;
+                                if (typeof object.onPointerDragStart === 'function') object.onPointerDragStart(pointer, camera);
+                            }
+                        }
+                    }
+                    object.pointerInside = true;
+                } else if (this.beingDragged !== object && object.pointerInside) {
+                    if (typeof object.onPointerLeave === 'function') object.onPointerLeave(pointer, camera);
+                    object.pointerInside = false;
+                }
+            }
+            if (this.beingDragged === object) {
+                if (pointer.buttonJustReleased(Pointer.LEFT)) {
+                    if (object.pointerEvents && typeof object.onPointerDragEnd === 'function') {
+                        object.onPointerDragEnd(pointer, camera);
+                    }
+                    this.beingDragged = null;
+                } else if (object.pointerEvents && typeof object.onPointerDrag === 'function') {
+                    object.onPointerDrag(pointer, camera);
+                }
+            }
+        }
+        document.body.style.cursor = currentCursor ?? 'default';
+        scene.traverse(function(child) {
+            child.updateMatrix();
+            if (typeof child.onUpdate === 'function') child.onUpdate(context, camera);
+        });
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        if (this.autoClear) context.clearRect(0, 0, this.width, this.height);
+        for (let i = objects.length - 1; i >= 0; i--) {
+            const object = objects[i];
+            if (object.isMask) continue;
+            if (isVisible[object.uuid] !== true) {
+                continue;
+            }
+            for (const mask of object.masks) {
+                camera.matrix.setContextTransform(context);
+                mask.transform(context, camera, this.dom, this);
+                mask.clip(context, camera, this.dom);
+            }
+            camera.matrix.setContextTransform(context);
+            object.transform(context, camera, this.dom, this);
+            context.globalAlpha = object.globalOpacity;
+            if (typeof object.style === 'function') object.style(context, camera, this.dom, this);
+            if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
+            if (object.isSelected) {
+                camera.matrix.setContextTransform(context);
+                context.globalAlpha = 1;
+                context.strokeStyle = '#00aacc';
+                context.lineWidth = 2 / camera.scale;
+                const box = object.boundingBox;
+                const topLeft = object.globalMatrix.transformPoint(box.min);
+                const topRight = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
+                const bottomLeft = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
+                const bottomRight = object.globalMatrix.transformPoint(box.max);
+                context.beginPath();
+                context.moveTo(topLeft.x, topLeft.y);
+                context.lineTo(topRight.x, topRight.y);
+                context.lineTo(bottomRight.x, bottomRight.y);
+                context.lineTo(bottomLeft.x, bottomLeft.y);
+                context.closePath();
+                context.stroke();
+            }
+        }
+    }
+    focusCamera(object, animationDuration = 200 ) {
+        let targetScale, targetPosition;
+        if (object) {
+            const worldBox = object.getWorldBoundingBox();
+            const worldSize = worldBox.getSize();
+            const worldCenter = worldBox.getCenter();
+            targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
+            targetPosition = worldCenter;
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        } else if (this.scene) {
+            const sceneBounds = new Box2();
+            this.scene.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
+            targetScale = 0.5 * Math.min(this.width / sceneBounds.getSize().x, this.height / sceneBounds.getSize().y);
+            targetPosition = sceneBounds.getCenter();
+            targetPosition.multiplyScalar(-targetScale);
+            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
+        } else {
+            return;
+        }
+        targetScale = Math.abs(targetScale);
+        const camera = this.camera;
+        const startTime = performance.now();
+        const startPosition = camera.position.clone();
+        const startScale = camera.scale;
+        const animate = () => {
+            const elapsedTime = performance.now() - startTime;
+            const t = Math.min(elapsedTime / animationDuration, 1);
+            camera.lerpPosition(startPosition, targetPosition, t);
+            camera.scale = startScale + (targetScale - startScale) * t;
+            if (t < 1) requestAnimationFrame(animate);
+        };
+        animate();
+    }
+}
+
+class CameraControls {
+    constructor(renderer, camera) {
+        this.renderer = renderer;
+        this.camera = camera;
+        this.allowDrag = true;
+        this.allowScale = true;
+        this.allowRotation = true;
+        this.dragButton = Pointer.RIGHT;
+        this.rotateButton = Pointer.MIDDLE;
+        this.rotationPoint = new Vector2(0, 0);
+        this.rotationInitial = 0;
+    }
+    update() {
+        const camera = this.camera;
+        const pointer = this.renderer.pointer;
+        if (this.allowScale && pointer.wheel !== 0) {
+            const scaleFactor = pointer.wheel * 0.001 * camera.scale;
+            const pointerPos = camera.inverseMatrix.transformPoint(pointer.position);
+            camera.scale -= scaleFactor;
+            camera.position.add(pointerPos.multiplyScalar(scaleFactor));
+            camera.matrixNeedsUpdate = true;
+        }
+        if (this.allowRotation) {
+            if (pointer.buttonJustPressed(this.rotateButton)) {
+                this.rotationPoint.copy(pointer.position);
+                this.rotationInitial = camera.rotation;
+            } else if (pointer.buttonPressed(this.rotateButton)) {
+                const point = pointer.position.clone().sub(this.rotationPoint);
+                camera.rotation = this.rotationInitial + (point.x * 0.01);
+                camera.matrixNeedsUpdate = true;
+            }
+        }
+        if (this.allowDrag && pointer.buttonPressed(this.dragButton)) {
+            const currentPointerPos = camera.inverseMatrix.transformPoint(pointer.position.clone());
+            const lastPointerPos = camera.inverseMatrix.transformPoint(pointer.position.clone().sub(pointer.delta));
+            const delta = currentPointerPos.clone().sub(lastPointerPos).multiplyScalar(camera.scale);
+            camera.position.add(delta);
+            camera.matrixNeedsUpdate = true;
+        }
+    }
+}
+
+class EditorControls {
+    constructor(renderer) {
+        this.pointer = renderer.pointer;
+        this.keyboard = renderer.keyboard;
+    }
+    update() {
+    }
+}
+
+class Style {
+    static extractColor(color, context) {
+        function extractCSSVariableName(str) {
+            const regex = /--[a-zA-Z0-9-_]+/;
+            const match = str.match(regex);
+            return match ? match[0] : null;
+        }
+        if (typeof color === 'string' && context) {
+            const cssVariable = extractCSSVariableName(color, context);
+            if (cssVariable) {
+                const canvas = context.canvas;
+                const computedStyle = getComputedStyle(canvas);
+                const computedColor = computedStyle.getPropertyValue(cssVariable);
+                return `rgb(${computedColor})`;
+            }
+        }
+        return color;
+    }
+    constructor() {
+        this.cache = null;
+        this.needsUpdate = true;
+    }
+    get(context) {}
+}
+
+class ColorStyle extends Style {
+    constructor(color = '#000000') {
+        super();
+        this.color = color;
+    }
+    get(context) {
+        if (this.needsUpdate || this.cache == null) {
+            this.cache = Style.extractColor(this.color, context);
+            this.needsUpdate = false;
+        }
+        return this.cache;
     }
 }
 
@@ -7949,13 +8262,13 @@ class LinearGradientStyle extends GradientStyle {
     }
 }
 
-class Helpers {
+class ResizeTool {
     static ALL = 0;
     static RESIZE = 1;
     static ROTATE = 2;
-    static resizeTool(object, scene, tools = Helpers.ALL, radius = 5) {
-        if (!object || !scene) return console.warn(`Helpers.boxResizeTool(): Object or scene missing from argument list`);
-        if (!object.boundingBox) return console.warn(`Helpers.boxResizeTool(): Object missing 'boundingBox' property`);
+    constructor(object, scene, tools = ResizeTool.ALL, radius = 5) {
+        if (!object || !scene) return console.warn(`ResizeTool(): Object or scene missing from argument list`);
+        if (!object.boundingBox) return console.warn(`ResizeTool(): Object missing 'boundingBox' property`);
         function localDelta(pointer, camera) {
             const pointerStart = pointer.position.clone();
             const pointerEnd = pointer.position.clone().sub(pointer.delta);
@@ -7976,7 +8289,7 @@ class Helpers {
         let topLeft, topRight, bottomLeft, bottomRight;
         let topResizer, rightResizer, bottomResizer, leftResizer;
         let rotater, rotateLine;
-        if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
+        if (tools === ResizeTool.ALL || tools === ResizeTool.RESIZE) {
             function createResizer(x, y, type = 'box', addRotation, alpha) {
                 let resizer;
                 switch (type) {
@@ -8074,7 +8387,7 @@ class Helpers {
             leftResizer = createResizer(1, 0, 'line', 180, 1);
             topResizer = createResizer(0, 1, 'line', 270, 1);
         }
-        if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
+        if (tools === ResizeTool.ALL || tools === ResizeTool.ROTATE) {
             rotater = new Circle();
             rotater.draggable = true;
             rotater.focusable = false;
@@ -8211,255 +8524,6 @@ class Helpers {
     }
 }
 
-class Viewport {
-    constructor(context, camera) {
-        const canvas = context.canvas;
-        const topLeft = new Vector2(0, 0);
-        const bottomRight = new Vector2(canvas.width, canvas.height);
-        this.box = new Box2(topLeft, bottomRight);
-    }
-    intersectsBox(camera, box) {
-        const topLeft = camera.matrix.transformPoint(box.min);
-        const topRight = camera.matrix.transformPoint(new Vector2(box.max.x, box.min.y));
-        const bottomLeft = camera.matrix.transformPoint(new Vector2(box.min.x, box.max.y));
-        const bottomRight = camera.matrix.transformPoint(box.max);
-        const actualBox = new Box2().setFromPoints(topLeft, topRight, bottomLeft, bottomRight);
-        return this.box.intersectsBox(actualBox);
-    }
-}
-
-class Renderer extends Element {
-    constructor(options = {}) {
-        if (options === undefined) options = {};
-        function defaultOption(key, value) {
-            if (!(key in options)) options[key] = value;
-        }
-        defaultOption('alpha', true);
-        defaultOption('disableContextMenu', true);
-        defaultOption('imageSmoothingEnabled', true);
-        defaultOption('imageSmoothingQuality', 'medium');
-        defaultOption('globalCompositeOperation', 'source-over');
-        defaultOption('width', 1000);
-        defaultOption('height', 1000);
-        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
-        canvas.width = options.width;
-        canvas.height = options.height;
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
-        super(canvas);
-        this.context = this.dom.getContext('2d', { alpha: options.alpha });
-        this.context.imageSmoothingEnabled = options.imageSmoothingEnabled;
-        this.context.imageSmoothingQuality = options.imageSmoothingQuality;
-        this.context.globalCompositeOperation = options.globalCompositeOperation;
-        this.pointer = new Pointer(this, options.disableContextMenu);
-        this.autoClear = true;
-        this.selection = [];
-        this.running = false;
-        this.frame = -1;
-        this.scene = null;
-        this.camera = null;
-        const self = this;
-        const resizeObserver = new ResizeObserver(entries => {
-            for (const entry of entries) {
-                canvas.width = entry.contentRect.width;
-                canvas.height = entry.contentRect.height;
-                if (self.running && self.scene && self.camera) {
-                    self.update(self.scene, self.camera);
-                }
-            }
-        });
-        resizeObserver.observe(canvas);
-        this.on('destroy', () => {
-            resizeObserver.unobserve(canvas);
-        });
-        this.on('dblclick', (event) => {
-            if (!self.scene || !self.camera) return;
-            const point = new Vector2(event.clientX, event.clientY);
-            const worldPoint = self.camera.inverseMatrix.transformPoint(point);
-            const objects = self.scene.getWorldPointIntersections(worldPoint);
-            for (const object of objects) if (object.focusable) return self.focusCamera(object);
-            return self.focusCamera(null);
-        });
-        this.beingDragged = null;
-    }
-    get width() { return this.dom.width; }
-    set width(x) { this.dom.width = x; }
-    get height() { return this.dom.height; }
-    set height(y) { this.dom.height = y; }
-    ratio() {
-        const rect = this.dom.getBoundingClientRect();
-        return ((this.width / this.height) / (rect.width / rect.height));
-    }
-    start(scene, camera, onUpdate) {
-        if (this.running) return;
-        this.running = true;
-        this.scene = scene;
-        this.camera = camera;
-        const self = this;
-        function loop() {
-            if (typeof onUpdate === 'function') onUpdate();
-            self.update(scene, camera);
-            if (self.running) self.frame = requestAnimationFrame(loop);
-        }
-        loop();
-    }
-    stop() {
-        this.running = false;
-        cancelAnimationFrame(this.frame);
-    }
-    update(scene, camera) {
-        const pointer = this.pointer;
-        const context = this.context;
-        pointer.update();
-        camera.update(pointer);
-        camera.updateMatrix(this.width / 2.0, this.height / 2.0);
-        const cameraPoint = camera.inverseMatrix.transformPoint(pointer.position);
-        const objects = [];
-        scene.traverse(function(child) { if (child.visible) objects.push(child); });
-        objects.sort(function(a, b) {
-            if (b.layer === a.layer) return b.level - a.level;
-            return b.layer - a.layer;
-        });
-        const viewport = new Viewport(context, camera);
-        const isVisible = {};
-        for (const object of objects) {
-            isVisible[object.uuid] = viewport.intersectsBox(camera, object.getWorldBoundingBox());
-        }
-        if (pointer.buttonJustPressed(Pointer.LEFT)) {
-            for (const object of this.selection) object.selected = false;
-            this.selection = [];
-            const selectedObjects = scene.getWorldPointIntersections(cameraPoint);
-            if (selectedObjects.length > 0) {
-                for (const object of selectedObjects) {
-                    if (object.selectable) {
-                        object.selected = true;
-                        this.selection.push(object);
-                    }
-                }
-            }
-        }
-        let currentCursor = null;
-        for (const object of objects) {
-            if (object.pointerEvents && isVisible[object.uuid]) {
-                const localPoint = object.inverseGlobalMatrix.transformPoint(cameraPoint);
-                const isInside = object.isInside(localPoint);
-                if (!currentCursor && (isInside || this.beingDragged === object) && object.cursor) {
-                    if (typeof object.cursor === 'function') currentCursor = object.cursor(camera);
-                    else currentCursor = object.cursor;
-                }
-                if (isInside) {
-                    if (this.beingDragged == null) {
-                        if (!object.pointerInside && typeof object.onPointerEnter === 'function') object.onPointerEnter(pointer, camera);
-                        if (typeof object.onPointerOver === 'function') object.onPointerOver(pointer, camera);
-                        if (pointer.buttonDoubleClicked(Pointer.LEFT) && typeof object.onDoubleClick === 'function') object.onDoubleClick(pointer, camera);
-                        if (pointer.buttonPressed(Pointer.LEFT) && typeof object.onButtonPressed === 'function') object.onButtonPressed(pointer, camera);
-                        if (pointer.buttonJustReleased(Pointer.LEFT) && typeof object.onButtonUp === 'function') object.onButtonUp(pointer, camera);
-                        if (pointer.buttonJustPressed(Pointer.LEFT)) {
-                            if (typeof object.onButtonDown === 'function') object.onButtonDown(pointer, camera);
-                            if (object.draggable) {
-                                this.beingDragged = object;
-                                if (typeof object.onPointerDragStart === 'function') object.onPointerDragStart(pointer, camera);
-                            }
-                        }
-                    }
-                    object.pointerInside = true;
-                } else if (this.beingDragged !== object && object.pointerInside) {
-                    if (typeof object.onPointerLeave === 'function') object.onPointerLeave(pointer, camera);
-                    object.pointerInside = false;
-                }
-            }
-            if (this.beingDragged === object) {
-                if (pointer.buttonJustReleased(Pointer.LEFT)) {
-                    if (object.pointerEvents && typeof object.onPointerDragEnd === 'function') {
-                        object.onPointerDragEnd(pointer, camera);
-                    }
-                    this.beingDragged = null;
-                } else if (object.pointerEvents && typeof object.onPointerDrag === 'function') {
-                    object.onPointerDrag(pointer, camera);
-                }
-            }
-        }
-        document.body.style.cursor = currentCursor ?? 'default';
-        scene.traverse(function(child) {
-            child.updateMatrix();
-            if (typeof child.onUpdate === 'function') child.onUpdate(context, camera);
-        });
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        if (this.autoClear) context.clearRect(0, 0, this.width, this.height);
-        for (let i = objects.length - 1; i >= 0; i--) {
-            const object = objects[i];
-            if (object.isMask) continue;
-            if (isVisible[object.uuid] !== true) {
-                continue;
-            }
-            if (object.saveContextState) context.save();
-            for (const mask of object.masks) {
-                camera.matrix.setContextTransform(context);
-                mask.transform(context, camera, this.dom, this);
-                mask.clip(context, camera, this.dom);
-            }
-            camera.matrix.setContextTransform(context);
-            object.transform(context, camera, this.dom, this);
-            context.globalAlpha = object.globalOpacity;
-            if (typeof object.style === 'function') object.style(context, camera, this.dom, this);
-            if (typeof object.draw === 'function') object.draw(context, camera, this.dom, this);
-            if (object.selected) {
-                camera.matrix.setContextTransform(context);
-                context.globalAlpha = 1;
-                context.strokeStyle = '#00aacc';
-                context.lineWidth = 2 / camera.scale;
-                const box = object.boundingBox;
-                const topLeft = object.globalMatrix.transformPoint(box.min);
-                const topRight = object.globalMatrix.transformPoint(new Vector2(box.max.x, box.min.y));
-                const bottomLeft = object.globalMatrix.transformPoint(new Vector2(box.min.x, box.max.y));
-                const bottomRight = object.globalMatrix.transformPoint(box.max);
-                context.beginPath();
-                context.moveTo(topLeft.x, topLeft.y);
-                context.lineTo(topRight.x, topRight.y);
-                context.lineTo(bottomRight.x, bottomRight.y);
-                context.lineTo(bottomLeft.x, bottomLeft.y);
-                context.closePath();
-                context.stroke();
-            }
-            if (object.restoreContextState) context.restore();
-        }
-    }
-    focusCamera(object, animationDuration = 200 ) {
-        let targetScale, targetPosition;
-        if (object) {
-            const worldBox = object.getWorldBoundingBox();
-            const worldSize = worldBox.getSize();
-            const worldCenter = worldBox.getCenter();
-            targetScale = 0.1 * Math.min(this.width / worldSize.x, this.height / worldSize.y);
-            targetPosition = worldCenter;
-            targetPosition.multiplyScalar(-targetScale);
-            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
-        } else if (this.scene) {
-            const sceneBounds = new Box2();
-            this.scene.traverse((child) => { sceneBounds.union(child.getWorldBoundingBox()); });
-            targetScale = 0.5 * Math.min(this.width / sceneBounds.getSize().x, this.height / sceneBounds.getSize().y);
-            targetPosition = sceneBounds.getCenter();
-            targetPosition.multiplyScalar(-targetScale);
-            targetPosition.add(new Vector2(this.width / 2.0, this.height / 2.0));
-        } else {
-            return;
-        }
-        targetScale = Math.abs(targetScale);
-        const camera = this.camera;
-        const startTime = performance.now();
-        const startPosition = camera.position.clone();
-        const startScale = camera.scale;
-        const animate = () => {
-            const elapsedTime = performance.now() - startTime;
-            const t = Math.min(elapsedTime / animationDuration, 1);
-            camera.lerpPosition(startPosition, targetPosition, t);
-            camera.scale = startScale + (targetScale - startScale) * t;
-            if (t < 1) requestAnimationFrame(animate);
-        };
-        animate();
-    }
-}
-
 class Text extends Object2D {
     constructor(text = '', font = '16px Arial') {
         super();
@@ -8571,13 +8635,18 @@ class RadialGradientStyle extends GradientStyle {
 var Scene$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   Camera2D: Camera2D,
-  Helpers: Helpers,
   Object2D: Object2D,
   Renderer: Renderer,
   Viewport: Viewport,
+  CameraControls: CameraControls,
+  EditorControls: EditorControls,
+  ResizeTool: ResizeTool,
+  Key: Key,
+  Keyboard: Keyboard,
+  Pointer: Pointer,
   Box2: Box2,
+  MathUtils: MathUtils,
   Matrix2: Matrix2,
-  UUID: UUID,
   Vector2: Vector2,
   Box: Box,
   Circle: Circle,
@@ -8672,4 +8741,4 @@ var css_248z = "/********** Disabled **********/\n\n.suey-hidden {\n    display:
 var stylesheet="/********** Disabled **********/\n\n.suey-hidden {\n    display: none !important;\n    pointer-events: none !important;\n}\n\n/** Grayscale filter for disabled items */\n.suey-disabled {\n    filter: contrast(75%) grayscale(100%) !important;\n    opacity: 0.7 !important;\n    cursor: default !important;\n    /* pointer-events: none !important; */\n}\n\n/** Element becomes 'unselectable', https://developer.mozilla.org/en-US/docs/Web/CSS/user-select */\n.suey-unselectable {\n    user-select: none;\n}\n\n/********** Coloring **********/\n\n.suey-icon-colorize /* aqua */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 160deg));\n}\n\n.suey-complement-colorize /* orange */ {\n    filter: brightness(65%) sepia(1000%) saturate(1000%) hue-rotate(calc(var(--rotate-hue) + 0deg));\n}\n\n.suey-match-scheme {\n    filter: saturate(125%) hue-rotate(var(--rotate-hue));\n}\n\n.suey-match-complement {\n    filter: saturate(125%) hue-rotate(calc(var(--rotate-hue) + 180deg));\n}\n\n.suey-black-or-white {\n    filter: brightness(calc(1 * var(--bright)));\n}\n\n.suey-black-or-white.suey-highlight {\n    filter: brightness(calc((2 * var(--bright)) + 0.35));\n}\n\n.suey-black-or-white.suey-drop-shadow {\n    filter: brightness(calc(10 * var(--bright))) var(--drop-shadow);\n}\n\n/********** Menu **********/\n\n.suey-keep-open {\n    /* keeps menu open on click, handled in Menu */\n}\n\n/********** Mouse Cursor **********/\n\n.suey-cursor-override {\n    /** global cursor override */\n}\n\n.suey-cursor-override * {\n    cursor: inherit !important;\n}\n\n/********** Tree List **********/\n\n.suey-no-select {\n    /* disables tree list option, handled in Tree List */\n}\n";
 styleInject(css_248z);
 
-export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, CURSOR_ROTATE, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, Key, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Pointer, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scene$1 as Scene, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text$1 as Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };
+export { ALIGN, AbsoluteBox, AssetBox, BACKGROUNDS, BUTTON_TYPES, Break, Button, CLOSE_SIDES, CORNER_BUTTONS, CURSOR_ROTATE, Canvas, Checkbox, Color, ColorScheme, ColorizeFilter, Css, DOCK_SIDES, Div, Docker, Dom, Dropdown, Element, FlexBox, FlexSpacer, Floater, GRAPH_GRID_TYPES, GRAPH_LINE_TYPES, GRID_SIZE, Gooey, Graph, IMAGE_ADD, IMAGE_CHECK, IMAGE_CLOSE, IMAGE_EMPTY, IMAGE_ERROR, IMAGE_EXPAND, IMAGE_INFO, IMAGE_QUESTION, IMAGE_WARNING, Image, Interaction, Iris, LEFT_SPACING, MOUSE_CLICK, MOUSE_SLOP_LARGE, MOUSE_SLOP_SMALL, MainWindow, Menu, MenuItem, MenuSeparator, MenuShortcut, NODE_TYPES, Node, NodeItem, NumberBox, NumberScroll, OVERFLOW, PANEL_STYLES$1 as PANEL_STYLES, POSITION, Panel, Popper, PropertyList, QUESTION_COLORS, QUESTION_ICONS, Question, RESIZERS, Resizeable, Row, Scene$1 as Scene, Scrollable, ShadowBox, Shrinkable, Signal, SignalBinding, Slider, Span, Strings, TAB_SIDES, THEMES, TOOLTIP_Y_OFFSET, TRAIT, Tabbed, Text$1 as Text, TextArea, TextBox, Titled, ToolbarButton, ToolbarSeparator, ToolbarSpacer, TreeList, VectorBox, Window, tooltipper };

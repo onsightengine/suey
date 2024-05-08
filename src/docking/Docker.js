@@ -11,7 +11,6 @@ import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
 import { FlexSpacer } from '../layout/FlexSpacer.js';
-import { Interaction } from '../utils/input/Interaction.js';
 import { Panel } from '../panels/Panel.js';
 import { ShadowBox } from '../layout/ShadowBox.js';
 import { Tabbed } from './Tabbed.js';

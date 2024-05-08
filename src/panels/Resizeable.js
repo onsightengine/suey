@@ -3,7 +3,7 @@ import {
 } from '../constants.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
-import { Interaction } from '../utils/input/Interaction.js';
+import { Interaction } from '../utils/Interaction.js';
 import { Panel } from './Panel.js';
 
 class Resizeable extends Panel {

@@ -88,6 +88,7 @@ export {
 // Utils
 export { Css } from './utils/Css.js';
 export { Dom } from './utils/Dom.js';
+export { Interaction } from './utils/Interaction.js';
 export { Popper } from './utils/Popper.js';
 export { Signal, SignalBinding } from './utils/Signal.js';
 export { Strings } from './utils/Strings.js';
@@ -97,11 +98,6 @@ export { tooltipper } from './utils/Tooltipper.js';
 export { ColorizeFilter } from './utils/color/ColorizeFilter.js';
 export { ColorScheme } from './utils/color/ColorScheme.js';
 export { Iris } from './utils/color/Iris.js';
-
-// Utils, Input
-export { Interaction } from './utils/input/Interaction.js';
-export { Key } from './utils/input/Key.js';
-export { Pointer } from './utils/input/Pointer.js';
 
 /***** WIDGETS *****/
 

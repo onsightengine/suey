@@ -1,23 +1,23 @@
 import {
     CURSOR_ROTATE,
-} from '../constants.js';
-import { Box } from './objects/Box.js';
-import { Circle } from './objects/Circle.js';
-import { Line } from './objects/Line.js';
-import { LinearGradientStyle } from './objects/style/LinearGradientStyle.js';
-import { Matrix2 } from './math/Matrix2.js';
-import { Object2D } from './Object2D.js';
-import { Vector2 } from './math/Vector2.js';
+} from '../../constants.js';
+import { Box } from '../objects/Box.js';
+import { Circle } from '../objects/Circle.js';
+import { Line } from '../objects/Line.js';
+import { LinearGradientStyle } from '../objects/style/LinearGradientStyle.js';
+import { Matrix2 } from '../math/Matrix2.js';
+import { Object2D } from '../Object2D.js';
+import { Vector2 } from '../math/Vector2.js';
 
-class Helpers {
+class ResizeTool {
 
     static ALL = 0;
     static RESIZE = 1;
     static ROTATE = 2;
 
-    static resizeTool(object, scene, tools = Helpers.ALL, radius = 5) {
-        if (!object || !scene) return console.warn(`Helpers.boxResizeTool(): Object or scene missing from argument list`);
-        if (!object.boundingBox) return console.warn(`Helpers.boxResizeTool(): Object missing 'boundingBox' property`);
+    constructor(object, scene, tools = ResizeTool.ALL, radius = 5) {
+        if (!object || !scene) return console.warn(`ResizeTool(): Object or scene missing from argument list`);
+        if (!object.boundingBox) return console.warn(`ResizeTool(): Object missing 'boundingBox' property`);
 
         function localDelta(pointer, camera) {
             const pointerStart = pointer.position.clone();
@@ -43,7 +43,7 @@ class Helpers {
         let rotater, rotateLine;
 
         // Add Resizers
-        if (tools === Helpers.ALL || tools === Helpers.RESIZE) {
+        if (tools === ResizeTool.ALL || tools === ResizeTool.RESIZE) {
             function createResizer(x, y, type = 'box', addRotation, alpha) {
                 let resizer;
                 switch (type) {
@@ -143,7 +143,7 @@ class Helpers {
         }
 
         // Add Rotate Tool
-        if (tools === Helpers.ALL || tools === Helpers.ROTATE) {
+        if (tools === ResizeTool.ALL || tools === ResizeTool.ROTATE) {
             // Circle
             rotater = new Circle();
             rotater.draggable = true;
@@ -291,4 +291,4 @@ class Helpers {
 
 }
 
-export { Helpers };
+export { ResizeTool };

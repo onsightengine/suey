@@ -8,7 +8,7 @@ import { AbstractDock } from './AbstractDock.js';
 import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Dom } from '../utils/Dom.js';
-import { Interaction } from '../utils/input/Interaction.js';
+import { Interaction } from '../utils/Interaction.js';
 import { Span } from '../core/Span.js';
 import { Strings } from '../utils/Strings.js';
 

@@ -6,17 +6,8 @@
  * @source      https://github.com/salinityengine/suey
  */
 
-/***** CONSTANTS *****/
-
+// Constants
 export * from './constants.js';
-
-/***** UTILS *****/
-
-// Utils, Input
-export { Key } from './utils/input/Key.js';
-export { Pointer } from './utils/input/Pointer.js';
-
-/***** WIDGETS *****/
 
 // Core
 export { Element } from './core/Element.js';
