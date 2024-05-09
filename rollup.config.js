@@ -51,28 +51,28 @@ const builds = [
         }],
     },
 
-    // { // Minified
-    //     input: './src/Suey.js',
-    //     treeshake: false,
+    { // Minified
+        input: './src/Suey.js',
+        treeshake: false,
 
-    //     plugins: [
-    //         json(),
-    //         postcss({
-    //             extensions: [ '.css' ],
-    //         }),
-    //         image(),
-    //     ],
+        plugins: [
+            json(),
+            postcss({
+                extensions: [ '.css' ],
+            }),
+            image(),
+        ],
 
-    //     output: [{
-    //         format: 'esm',
-    //         file: './dist/suey.min.js',
-    //         sourcemap: false,
-    //         plugins: [
-    //             terser({ format: { comments: false } }),
-    //             header(),
-    //         ],
-    //     }],
-    // },
+        output: [{
+            format: 'esm',
+            file: './dist/suey.min.js',
+            sourcemap: false,
+            plugins: [
+                terser({ format: { comments: false } }),
+                header(),
+            ],
+        }],
+    },
 
 ];
 
