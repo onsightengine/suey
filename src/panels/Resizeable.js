@@ -60,7 +60,7 @@ class Resizeable extends Panel {
     /******************** RESIZE */
 
     changeWidth(width) {
-        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
+        if (typeof width !== 'number' || !Number.isFinite(width)) width = this.#startWidth;
         if (width == null) {
             this.dom.style.removeProperty('width');
             return null;
@@ -74,7 +74,7 @@ class Resizeable extends Panel {
     }
 
     changeHeight(height) {
-        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = this.#startHeight;
+        if (typeof height !== 'number' || !Number.isFinite(height)) height = this.#startHeight;
         if (height == null) {
             this.dom.style.removeProperty('height');
             return null;

@@ -32,7 +32,7 @@ class PropertyList extends Div {
         } else if (typeof this.leftPropertyWidth === 'number') {
             width = parseFloat(this.leftPropertyWidth) * 100;
         }
-        if (Number.isNaN(width) || !Number.isFinite(width)) width = 50;
+        if (!Number.isFinite(width)) width = 50;
         width = Math.max(width, 0);
         width = Math.min(width, 100);
         return width;

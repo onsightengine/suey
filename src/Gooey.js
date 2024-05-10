@@ -107,7 +107,7 @@ class Gooey extends Resizeable {
     }
 
     opacity(opacity) {
-        if (opacity == null || Number.isNaN(opacity)) return;
+        if (opacity == null || isNaN(opacity)) return;
         opacity = Math.min(Math.max(opacity, 0.0), 1.0);
         Css.setVariable('--panel-transparency', opacity);
         return this;

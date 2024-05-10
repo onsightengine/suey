@@ -10,7 +10,7 @@ var img$8 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standal
 
 var img$7 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M373.189%2c648.684c-0%2c-0 -237.09%2c-138.996 -258.087%2c-117.999c-20.997%2c20.997 212.331%2c288.419 212.331%2c288.419c1.975%2c3.009 4.284%2c5.857 6.926%2c8.499c10.698%2c10.698 24.796%2c15.945 38.83%2c15.71c14.035%2c0.235 28.132%2c-5.012 38.831%2c-15.71c2.641%2c-2.642 4.95%2c-5.49 6.926%2c-8.499c-0%2c-0 423.255%2c-489.7 496.91%2c-611.246c9.004%2c-14.859 -15.991%2c-40.415 -34.446%2c-27.458c-108.024%2c75.837 -508.221%2c468.284 -508.221%2c468.284Z' style='fill:%23ebebeb%3b'/%3e%3c/svg%3e";
 
-var img$6 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' xmlns:serif='http://www.serif.com/' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.576%2c386.574c-12.567%2c12.568 -33.514%2c12.568 -46.08%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c-0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c-0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c-0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.498%2c84.498c12.565%2c12.566 12.565%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
+var img$6 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M386.576%2c386.574c-12.567%2c12.568 -33.514%2c12.568 -46.08%2c0.002l-84.496%2c-84.498l-84.497%2c84.498c-12.566%2c12.566 -33.512%2c12.566 -46.079%2c-0c-12.566%2c-12.568 -12.566%2c-33.513 0%2c-46.079l84.497%2c-84.496l-84.497%2c-84.498c-12.566%2c-12.566 -12.566%2c-33.511 0%2c-46.079c12.567%2c-12.565 33.513%2c-12.565 46.079%2c-0l84.496%2c84.498l84.497%2c-84.498c12.566%2c-12.565 33.512%2c-12.565 46.079%2c-0c12.566%2c12.568 12.566%2c33.513 0%2c46.079l-84.497%2c84.496l84.498%2c84.498c12.565%2c12.566 12.565%2c33.51 0%2c46.077Z' style='fill:white%3b'/%3e%3c/svg%3e";
 
 var img$5 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3c/svg%3e";
 
@@ -186,7 +186,7 @@ class Css {
     static fontSize(element = document.body) {
         if (element && element.isElement) element = element.dom;
         let size = getComputedStyle(element).fontSize;
-        if (size == null || Number.isNaN(size) || !Number.isFinite(size)) size = getComputedStyle(document.body).fontSize;
+        if (size == null || !Number.isFinite(size)) size = getComputedStyle(document.body).fontSize;
         return parseFloat(size);
     }
     static guiScale(element = document.body) {
@@ -245,10 +245,10 @@ class Css {
             } else {
                 return parseFloat(size).toFixed(2) + 'px';
             }
-        } else if (Number.isNaN(size)) {
-            return '0';
-        } else {
+        } else if (typeof size === 'number' && Number.isFinite(size)) {
             return parseFloat(size).toFixed(2) + 'px';
+        } else {
+            return '0';
         }
     }
     static toEm(pixels, element = document.body) {
@@ -980,7 +980,7 @@ class Iris {
     set(r = 0, g, b, format = '') {
         if (arguments.length === 0) {
             return this.set(0);
-        } else if (r == undefined || Number.isNaN(r)) {
+        } else if (r == undefined || (typeof r === 'number' && !Number.isFinite(r))) {
             if (g || b) console.warn(`Iris.set(): Invalid 'r' value ${r}`);
         } else if (g === undefined && b === undefined) {
             let value = r;
@@ -989,7 +989,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                const offset = (g != null && !Number.isNaN(g) && g > 0) ? g : 0;
+                const offset = (g != null && typeof g === 'number' && Number.isFinite(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
@@ -2539,7 +2539,7 @@ class PropertyList extends Div {
         } else if (typeof this.leftPropertyWidth === 'number') {
             width = parseFloat(this.leftPropertyWidth) * 100;
         }
-        if (Number.isNaN(width) || !Number.isFinite(width)) width = 50;
+        if (!Number.isFinite(width)) width = 50;
         width = Math.max(width, 0);
         width = Math.min(width, 100);
         return width;
@@ -2690,7 +2690,7 @@ class Resizeable extends Panel {
         if (startHeight != null) this.changeHeight(startHeight);
     }
     changeWidth(width) {
-        if (typeof width !== 'number' || Number.isNaN(width) || !Number.isFinite(width)) width = this.#startWidth;
+        if (typeof width !== 'number' || !Number.isFinite(width)) width = this.#startWidth;
         if (width == null) {
             this.dom.style.removeProperty('width');
             return null;
@@ -2703,7 +2703,7 @@ class Resizeable extends Panel {
         return width;
     }
     changeHeight(height) {
-        if (typeof height !== 'number' || Number.isNaN(height) || !Number.isFinite(height)) height = this.#startHeight;
+        if (typeof height !== 'number' || !Number.isFinite(height)) height = this.#startHeight;
         if (height == null) {
             this.dom.style.removeProperty('height');
             return null;
@@ -3716,7 +3716,7 @@ class Gooey extends Resizeable {
         return this;
     }
     opacity(opacity) {
-        if (opacity == null || Number.isNaN(opacity)) return;
+        if (opacity == null || isNaN(opacity)) return;
         opacity = Math.min(Math.max(opacity, 0.0), 1.0);
         Css.setVariable('--panel-transparency', opacity);
         return this;

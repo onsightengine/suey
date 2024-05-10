@@ -56,7 +56,7 @@ class Css {
     static fontSize(element = document.body) {
         if (element && element.isElement) element = element.dom;
         let size = getComputedStyle(element).fontSize;
-        if (size == null || Number.isNaN(size) || !Number.isFinite(size)) size = getComputedStyle(document.body).fontSize;
+        if (size == null || !Number.isFinite(size)) size = getComputedStyle(document.body).fontSize;
         return parseFloat(size);
     }
 
@@ -132,10 +132,10 @@ class Css {
             } else {
                 return parseFloat(size).toFixed(2) + 'px';
             }
-        } else if (Number.isNaN(size)) {
-            return '0';
-        } else {
+        } else if (typeof size === 'number' && Number.isFinite(size)) {
             return parseFloat(size).toFixed(2) + 'px';
+        } else {
+            return '0';
         }
     }
 

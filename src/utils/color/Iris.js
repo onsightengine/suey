@@ -102,7 +102,7 @@ class Iris {
         if (arguments.length === 0) {
             return this.set(0);
         // No valid arguments passed
-        } else if (r == undefined || Number.isNaN(r)) {
+        } else if (r == undefined || (typeof r === 'number' && !Number.isFinite(r))) {
             if (g || b) console.warn(`Iris.set(): Invalid 'r' value ${r}`);
             // nothing to do
         // r is Object, Hexidecimal, or String
@@ -113,7 +113,7 @@ class Iris {
             } else if (value && isHSL(value)) { return this.setHSL(value.h * 360, value.s, value.l);
             } else if (value && isRYB(value)) { return this.setRYB(value.r * 255, value.y * 255, value.b * 255);
             } else if (Array.isArray(value) && value.length > 2) {
-                const offset = (g != null && !Number.isNaN(g) && g > 0) ? g : 0;
+                const offset = (g != null && typeof g === 'number' && Number.isFinite(g) && g > 0) ? g : 0;
                 return this.setRGBF(value[offset], value[offset + 1], value[offset + 2])
             } else if (typeof value === 'string') {
                 return this.setStyle(value);
