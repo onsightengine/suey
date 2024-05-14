@@ -2600,7 +2600,9 @@ class PropertyList extends Div {
             const argument = args[i];
             if (argument instanceof Element && argument.isElement) {
                 rightRow.add(argument);
-                if (i < args.length - 1) rightRow.add(new Span().addClass('suey-property-space'));
+                if ((i < args.length - 1) && argument.dom.style.display !== 'none') {
+                    rightRow.add(new Span().addClass('suey-property-space'));
+                }
             } else {
                 console.error('PropertyList.createControls(): ', argument, ' is not an instance of Element');
             }
@@ -2792,8 +2794,9 @@ class Titled extends Panel {
         this.addClass('suey-titled');
         this.addClass('suey-expanded');
         this.isExpanded = true;
+        title = (title && typeof title === 'string' && title !== '') ? Strings.capitalize(title) : '';
         const tabTitle = new Div().addClass('suey-tab-title');
-        tabTitle.add(new Text(Strings.capitalize(title)).addClass('suey-tab-title-text'));
+        tabTitle.add(new Text(title).addClass('suey-tab-title-text'));
         this.add(tabTitle);
         this.tabTitle = tabTitle;
         if (collapsible) {
@@ -2818,10 +2821,11 @@ class Titled extends Panel {
         }
     }
     setTitle(title = '') {
-        title = Strings.capitalize(title);
+        title = (title && typeof title === 'string' && title !== '') ? Strings.capitalize(title) : '';
         const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
         if (titleTextElement) {
             titleTextElement.textContent = title;
+            this.tabTitle.setStyle('display', '');
         }
     }
     toggle() {
@@ -3691,7 +3695,7 @@ class TextBox extends Element {
 
 const _clr$2 = new Iris();
 class Gooey extends Resizeable {
-    constructor(title, opacity) {
+    constructor(title = '') {
         super({
             style: PANEL_STYLES$1.FANCY,
             resizers: [ RESIZERS.LEFT ],
@@ -3699,10 +3703,11 @@ class Gooey extends Resizeable {
         });
         this.addClass('suey-gooey');
         this.minWidth = 180;
-        this.opacity(opacity);
-        const titlePanel = new Titled({ title: title, collapsible: true });
+        if (!title || typeof title !== 'string') title = '';
+        const titlePanel = new Titled({ title, collapsible: true });
         this.add(titlePanel);
         this.contents = function() { return titlePanel.scroller; };
+        if (title === '') titlePanel.tabTitle.setStyle('display', 'none');
         document.body.appendChild(this.dom);
     }
     addFolder(folderName = '', icon = '') {
@@ -3889,14 +3894,15 @@ class Folder extends Shrinkable {
         setStep(step);
         const digits = Strings.countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
-        slideBox.setStyle('marginLeft', '0.14286em');
         function checkForMinMax() {
             if (Number.isFinite(Number(slider.slider.dom.min)) && Number.isFinite(Number(slider.slider.dom.max))) {
                 slideBox.addClass('suey-property-tiny-row');
                 slider.setStyle('display', '');
+                slideBox.setStyle('marginLeft', '0.14286em');
             } else {
                 slideBox.removeClass('suey-property-tiny-row');
                 slider.setStyle('display', 'none');
+                slideBox.setStyle('marginLeft', '0');
             }
         }
         checkForMinMax();

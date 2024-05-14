@@ -16,8 +16,9 @@ class Titled extends Panel {
         this.isExpanded = true;
 
         // Title
+        title = (title && typeof title === 'string' && title !== '') ? Strings.capitalize(title) : '';
         const tabTitle = new Div().addClass('suey-tab-title');
-        tabTitle.add(new Text(Strings.capitalize(title)).addClass('suey-tab-title-text'));
+        tabTitle.add(new Text(title).addClass('suey-tab-title-text'));
         this.add(tabTitle);
         this.tabTitle = tabTitle;
 
@@ -50,10 +51,11 @@ class Titled extends Panel {
     }
 
     setTitle(title = '') {
-        title = Strings.capitalize(title);
+        title = (title && typeof title === 'string' && title !== '') ? Strings.capitalize(title) : '';
         const titleTextElement = this.dom.querySelector('.suey-tab-title-text');
         if (titleTextElement) {
             titleTextElement.textContent = title;
+            this.tabTitle.setStyle('display', '');
         }
     }
 

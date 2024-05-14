@@ -77,7 +77,7 @@ const _clr = new Iris();
  */
 class Gooey extends Resizeable {
 
-    constructor(title, opacity) {
+    constructor(title = '') {
         super({
             style: PANEL_STYLES.FANCY,
             resizers: [ RESIZERS.LEFT ],
@@ -85,11 +85,13 @@ class Gooey extends Resizeable {
         });
         this.addClass('suey-gooey');
         this.minWidth = 180;
-        this.opacity(opacity);
 
-        const titlePanel = new Titled({ title: title, collapsible: true });
+        if (!title || typeof title !== 'string') title = '';
+        const titlePanel = new Titled({ title, collapsible: true });
         this.add(titlePanel);
         this.contents = function() { return titlePanel.scroller; };
+
+        if (title === '') titlePanel.tabTitle.setStyle('display', 'none');
 
         document.body.appendChild(this.dom);
     }
@@ -304,15 +306,16 @@ class Folder extends Shrinkable {
 
         const digits = Strings.countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
         slideBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
-        slideBox.setStyle('marginLeft', '0.14286em');
 
         function checkForMinMax() {
             if (Number.isFinite(Number(slider.slider.dom.min)) && Number.isFinite(Number(slider.slider.dom.max))) {
                 slideBox.addClass('suey-property-tiny-row');
                 slider.setStyle('display', '');
+                slideBox.setStyle('marginLeft', '0.14286em');
             } else {
                 slideBox.removeClass('suey-property-tiny-row');
                 slider.setStyle('display', 'none');
+                slideBox.setStyle('marginLeft', '0');
             }
         }
         checkForMinMax();

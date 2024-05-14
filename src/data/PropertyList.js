@@ -110,7 +110,9 @@ class PropertyList extends Div {
             const argument = args[i];
             if (argument instanceof Element && argument.isElement) {
                 rightRow.add(argument);
-                if (i < args.length - 1) rightRow.add(new Span().addClass('suey-property-space'));
+                if ((i < args.length - 1) && argument.dom.style.display !== 'none') {
+                    rightRow.add(new Span().addClass('suey-property-space'));
+                }
             } else {
                 console.error('PropertyList.createControls(): ', argument, ' is not an instance of Element');
             }
