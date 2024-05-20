@@ -71,9 +71,9 @@ class Css {
     /* Gets the width of a string in pixels, use with getFontCssFromElement() */
     static getTextWidth(text, font) {
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.font = font;
-        return ctx.measureText(text).width;
+        const context = canvas.getContext('2d');
+        context.font = font;
+        return context.measureText(text).width;
     }
 
     static getFontCssFromElement(element = document.body) {

@@ -381,38 +381,38 @@ class Graph extends Panel {
         this.gridType = type;
         if (type === GRAPH_GRID_TYPES.LINES) {
             const squares = new Canvas(SIZE, SIZE);
-            const ctx = squares.context;
-            ctx.clearRect(0, 0, squares.width, squares.height); /* background: darkness */
-            ctx.globalAlpha = 0.55;
-            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-            ctx.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
-            ctx.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-            ctx.globalAlpha = 0.45;
-            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-            ctx.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
-            ctx.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
-            ctx.globalAlpha = 1;
-            ctx.lineWidth = 0;
-            ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).cssString();
-            ctx.strokeRect(0, 0, HALF, HALF);
-            ctx.strokeRect(HALF, HALF, HALF, HALF);
-            ctx.strokeRect(HALF, 0, HALF, HALF);
-            ctx.strokeRect(0, HALF, HALF, HALF);
+            const context = squares.context;
+            context.clearRect(0, 0, squares.width, squares.height); /* background: darkness */
+            context.globalAlpha = 0.55;
+            context.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            context.fillRect(0 + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+            context.fillRect(HALF + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+            context.globalAlpha = 0.45;
+            context.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            context.fillRect(HALF + BORDER, 0 + BORDER, HALF - B2, HALF - B2);
+            context.fillRect(0 + BORDER, HALF + BORDER, HALF - B2, HALF - B2);
+            context.globalAlpha = 1;
+            context.lineWidth = 0;
+            context.strokeStyle = _color.set(ColorScheme.color(TRAIT.BACKGROUND_LIGHT)).cssString();
+            context.strokeRect(0, 0, HALF, HALF);
+            context.strokeRect(HALF, HALF, HALF, HALF);
+            context.strokeRect(HALF, 0, HALF, HALF);
+            context.strokeRect(0, HALF, HALF, HALF);
             this.grid.setStyle('background-image', `url('${squares.dom.toDataURL()}')`);
             this.grid.setStyle('background-size', `${(GRID_SIZE * this.#scale * 2)}px`);
         } else if (type === GRAPH_GRID_TYPES.DOTS) {
             const radius = SIZE / 25;
             const dots = new Canvas(SIZE, SIZE);
-            const ctx = dots.context;
-            ctx.globalAlpha = 0.5;
-            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-            ctx.fillRect(0, 0, dots.width, dots.height);
-            ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            const context = dots.context;
+            context.globalAlpha = 0.5;
+            context.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+            context.fillRect(0, 0, dots.width, dots.height);
+            context.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
-                    ctx.beginPath();
-                    ctx.ellipse(HALF * i, HALF * j, radius, radius, 0, 0, Math.PI * 2);
-                    ctx.fill();
+                    context.beginPath();
+                    context.ellipse(HALF * i, HALF * j, radius, radius, 0, 0, Math.PI * 2);
+                    context.fill();
                 }
             }
             this.grid.setStyle('background-image', `url('${dots.dom.toDataURL()}')`);
@@ -466,8 +466,8 @@ class Graph extends Panel {
         const xMax = linesRect.right;
         const yMin = linesRect.top;
         const yMax = linesRect.bottom;
-        const ctx = lines.context;
-        ctx.clearRect(0, 0, lines.width, lines.height);
+        const context = lines.context;
+        context.clearRect(0, 0, lines.width, lines.height);
 
         function scaleX(x) { return (x / linesRect.width) * lines.width; }
         function scaleY(y) { return (y / linesRect.height) * lines.height; }
@@ -477,33 +477,33 @@ class Graph extends Panel {
             if (!Number.isFinite(x2) || Number.isNaN(x2)) return;
             if (!Number.isFinite(y1) || Number.isNaN(y1)) return;
             if (!Number.isFinite(y2) || Number.isNaN(y2)) return;
-            ctx.strokeStyle = color1;
+            context.strokeStyle = color1;
             if (color2 != null && color1 !== color2) {
-                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                const gradient = context.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, color1);
                 gradient.addColorStop(1, color2);
-                ctx.strokeStyle = gradient;
+                context.strokeStyle = gradient;
             }
-            ctx.lineWidth = LINE_THICKNESS * self.#scale;
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
+            context.lineWidth = LINE_THICKNESS * self.#scale;
+            context.beginPath();
+            context.moveTo(x1, y1);
             switch (self.curveType) {
                 case GRAPH_LINE_TYPES.STRAIGHT:
-                    ctx.lineTo(x2, y2);
+                    context.lineTo(x2, y2);
                     break;
                 case GRAPH_LINE_TYPES.ZIGZAG:
                     const xOffset = Math.abs((x2 - x1) * 0.25);
-                    ctx.lineTo(x1 + xOffset, y1);
-                    ctx.lineTo(x2 - xOffset, y2);
-                    ctx.lineTo(x2, y2);
+                    context.lineTo(x1 + xOffset, y1);
+                    context.lineTo(x2 - xOffset, y2);
+                    context.lineTo(x2, y2);
                     break;
                 case GRAPH_LINE_TYPES.CURVE:
                 default:
                     const curveOffset = Math.abs((x2 - x1) * 0.5);
-                    ctx.bezierCurveTo(x1 + curveOffset, y1, x2 - curveOffset, y2, x2, y2);
+                    context.bezierCurveTo(x1 + curveOffset, y1, x2 - curveOffset, y2, x2, y2);
                     break;
             }
-            ctx.stroke();
+            context.stroke();
         }
 
         function drawConnection(x1, y1, x2, y2, radius = 10, color1 = '#ffffff', color2 = color1, drawPoints = false) {
@@ -519,18 +519,18 @@ class Graph extends Panel {
             x2 = scaleX(x2);
             y2 = scaleY(y2);
             // Draw
-            ctx.globalAlpha = 1.0;
+            context.globalAlpha = 1.0;
             if (drawPoints) {
                 const radiusX = scaleX(radius);
                 const radiusY = scaleY(radius);
-                ctx.fillStyle = color1;
-                ctx.beginPath();
-                ctx.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.fillStyle = color2;
-                ctx.beginPath();
-                ctx.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
-                ctx.fill();
+                context.fillStyle = color1;
+                context.beginPath();
+                context.ellipse(x1, y1, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+                context.fill();
+                context.fillStyle = color2;
+                context.beginPath();
+                context.ellipse(x2, y2, radiusX, radiusY, 0 /* rotation */, 0, 2 * Math.PI);
+                context.fill();
             }
             drawLine(x1, y1, x2, y2, color1, color2);
         }
@@ -580,8 +580,8 @@ class Graph extends Panel {
 
         // Clear
         const map = this.mapCanvas;
-        const ctx = map.context;
-        ctx.clearRect(0, 0, map.width, map.height);
+        const context = map.context;
+        context.clearRect(0, 0, map.width, map.height);
 
         // Bounds
         const bounds = this.nodeBounds(MAP_BUFFER, this.nodes.children, MIN_MAP_SIZE);
@@ -614,32 +614,32 @@ class Graph extends Panel {
         const y = (this.#drawHeight * ((scaled.top - bounds.y.min) / bounds.height())) - adjustY;
         const w = this.#drawWidth * (scaled.width / bounds.width());
         const h = this.#drawHeight * (scaled.height / bounds.height());
-        ctx.globalAlpha = 0.5;
-        ctx.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
-        ctx.fillRect(x, y, w, h);
+        context.globalAlpha = 0.5;
+        context.fillStyle = _color.set(ColorScheme.color(TRAIT.BUTTON_LIGHT)).cssString();
+        context.fillRect(x, y, w, h);
         const widthScale = this.minimap.getWidth() / this.mapCanvas.width;
         const heightScale = this.minimap.getHeight() / this.mapCanvas.height;
-        ctx.globalAlpha = 0.75;
-        ctx.strokeStyle = _color.set(ColorScheme.color(TRAIT.TEXT)).cssString();
-        ctx.lineWidth = 2 / widthScale;
-        ctx.beginPath(); ctx.moveTo(x + 0, y); ctx.lineTo(x + 0, y + h); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x + w, y); ctx.lineTo(x + w, y + h); ctx.stroke();
-        ctx.lineWidth = 2 / heightScale;
-        ctx.beginPath(); ctx.moveTo(x, y + 0); ctx.lineTo(x + w, y + 0); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.stroke();
-        ctx.globalAlpha = 0.5;
+        context.globalAlpha = 0.75;
+        context.strokeStyle = _color.set(ColorScheme.color(TRAIT.TEXT)).cssString();
+        context.lineWidth = 2 / widthScale;
+        context.beginPath(); context.moveTo(x + 0, y); context.lineTo(x + 0, y + h); context.stroke();
+        context.beginPath(); context.moveTo(x + w, y); context.lineTo(x + w, y + h); context.stroke();
+        context.lineWidth = 2 / heightScale;
+        context.beginPath(); context.moveTo(x, y + 0); context.lineTo(x + w, y + 0); context.stroke();
+        context.beginPath(); context.moveTo(x, y + h); context.lineTo(x + w, y + h); context.stroke();
+        context.globalAlpha = 0.5;
 
         // Draw Nodes
-        ctx.globalAlpha = 0.75;
+        context.globalAlpha = 0.75;
         this.traverseNodes((node) => {
-            ctx.fillStyle = node.colorString();
+            context.fillStyle = node.colorString();
             const x = this.#drawWidth * ((node.left - bounds.x.min) / bounds.width());
             const w = this.#drawWidth * (node.width / bounds.width());
             const y = this.#drawHeight * ((node.top - bounds.y.min) / bounds.height());
             const h = this.#drawHeight * (node.height / bounds.height());
-            ctx.beginPath();
-            ctx.roundRect(x - adjustX, y - adjustY, w, h, 0);
-            ctx.fill();
+            context.beginPath();
+            context.roundRect(x - adjustX, y - adjustY, w, h, 0);
+            context.fill();
         });
     }
 
