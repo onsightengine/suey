@@ -158,6 +158,9 @@ class Folder extends Shrinkable {
 
         // Add function (replaces Element.add() functionality)
         this.add = function(params, variable, a, b, c, d) {
+            if (!params || typeof params !== 'object')  return console.warn(`Folder.add(): Params object missing or invalid`);
+            if (typeof variable !== 'string') return console.warn(`Folder.add(): Variable name is expected to be a string`);
+            if ((variable in params) !== true) return console.warn(`Folder.add(): Variable '${variable}' not found in params object`);
             const value = params[variable];
             if (value == undefined) {
                 return null;
