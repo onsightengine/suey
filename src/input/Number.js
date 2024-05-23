@@ -107,7 +107,7 @@ class NumberBox extends Element {
         if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
             this.value = valueAsFloat;
             if (this.dom) this.dom.value = valueAsFloat;
-            if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + ' ' + this.unit;
+            if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + this.unit;
         }
         return this;
     }

@@ -3418,7 +3418,7 @@ class NumberBox extends Element {
         if (valueAsFloat !== undefined && !isNaN(valueAsFloat) && isFinite(valueAsFloat)) {
             this.value = valueAsFloat;
             if (this.dom) this.dom.value = valueAsFloat;
-            if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + ' ' + this.unit;
+            if (this.dom && this.unit !== '') this.dom.value = valueAsFloat + this.unit;
         }
         return this;
     }
@@ -3752,7 +3752,7 @@ class Folder extends Shrinkable {
         if (!hasTitle) this.titleDiv.setStyle('display', 'none');
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);
         this.add(this.props);
-        this.add = function(params, variable, a, b, c, d) {
+        this.add = function(params, variable, a, b, c, d, e) {
             if (!params || typeof params !== 'object')  return console.warn(`Folder.add(): Params object missing or invalid`);
             if (typeof variable !== 'string') return console.warn(`Folder.add(): Variable name is expected to be a string`);
             if ((variable in params) !== true) return console.warn(`Folder.add(): Variable '${variable}' not found in params object`);
@@ -3765,7 +3765,7 @@ class Folder extends Shrinkable {
                 if (Array.isArray(a) && a.length > 0) {
                     return this.addList(params, variable, a);
                 } else {
-                    return this.addNumber(params, variable, a, b, c, d);
+                    return this.addNumber(params, variable, a, b, c, d, e);
                 }
             } else if (typeof value === 'string') {
                 if (Array.isArray(a) && a.length > 0) {
@@ -3864,7 +3864,7 @@ class Folder extends Shrinkable {
         prop.updateDisplay();
         return prop;
     }
-    addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
+    addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2, unit = '') {
         const prop = new Property();
         const slider = new Slider();
         const slideBox = new NumberBox();
@@ -3890,6 +3890,7 @@ class Folder extends Shrinkable {
         slideBox.on('wheel', (event) => event.stopPropagation());
         slider.setRange(min, max).setPrecision(precision);
         slideBox.setRange(min, max).setPrecision(precision);
+        if (unit && unit !== '') slideBox.setUnit(unit);
         function setStep(newStep) {
             let min = slideBox.min, max = slideBox.max;
             slider.setStep(newStep);
@@ -3917,6 +3918,7 @@ class Folder extends Shrinkable {
         prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return prop; };
         prop.step = function(step) { setStep(step); return prop; };
         prop.precision = function(precision) { slider.setPrecision(precision); slideBox.setPrecision(precision); return prop; };
+        prop.unit = function(unit = '') { slideBox.setUnit(unit); return prop; };
         prop.updateDisplay = function() {
             slider.setValue(params[variable]);
             slideBox.setValue(params[variable]);

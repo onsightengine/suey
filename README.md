@@ -83,7 +83,7 @@ folder.addColor(params, 'myColor______');                   // string / int / ob
 - Property functions can be chained together
 
 ```javascript
-folder.add(params, 'myNumber').name('Width').min(0).max(100).step(5).precision(1);
+folder.add(params, 'myNumber').name('Width').min(0).max(90).step(5).precision(1).unit('°');
 ```
 
 <br>
