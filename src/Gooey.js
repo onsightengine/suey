@@ -144,7 +144,13 @@ class Folder extends Shrinkable {
         title,
         icon,
     } = {}) {
-        super({ title, icon });
+        const hasTitle = title && typeof title === 'string' && title !== '';
+
+        // Base
+        super({ title, icon, border: hasTitle ? true : false });
+
+        // Hide Title?
+        if (!hasTitle) this.titleDiv.setStyle('display', 'none');
 
         // Build
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);
