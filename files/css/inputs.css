@@ -424,6 +424,12 @@
 }
 .suey-slider::-moz-range-thumb:active { cursor: ew-resize; }
 
+/********** ELEMENT: <div> SliderBox **********/
+
+.suey-slider-box {
+    display: flex;
+}
+
 /********** ELEMENT: <textarea> Text Area **********/
 
 .suey-text-area {

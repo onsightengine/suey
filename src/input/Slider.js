@@ -138,6 +138,7 @@ class Slider extends Div {
         const min = parseFloat(this.slider.dom.min);
         const max = parseFloat(this.slider.dom.max);
         const step = this.slider.dom.step;
+
         if (step !== 'any' && Number.isFinite(min) && Number.isFinite(max)) {
             // Calculate Steps
             const totalSteps = parseFloat((max - min) / step);
@@ -153,6 +154,7 @@ class Slider extends Div {
 
             // Set Tick Gradient
             ticks.dom.style.setProperty('--divides', `${tickSteps}`);
+            ticks.setStyle('display', '');
         } else {
             ticks.setStyle('display', 'none');
         }
