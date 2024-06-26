@@ -48,8 +48,8 @@ class PropertyList extends Div {
 
     /******************** ADD WIDGETS ********************/
 
-    addHeader(text = '', iconUrl) {
-        const header = this.createHeader(text, iconUrl);
+    addHeader(text = '', iconUrl, arrow = 'left') {
+        const header = this.createHeader(text, iconUrl, arrow);
         this.add(header);
         return header;
     }
@@ -69,11 +69,15 @@ class PropertyList extends Div {
     /******************** CREATE WIDGETS ********************/
 
     /** Separating category header title */
-    createHeader(text = '', iconUrl) {
+    createHeader(text = '', iconUrl, arrow = 'left') {
         const header = new Div().setClass('suey-property-header-title');
         const icon = new VectorBox(iconUrl);
         const iconHolder = new Span().setClass('suey-property-header-icon').add(icon);
         const textHolder = new Span().setClass('suey-property-header-text').setTextContent(text);
+        if (arrow === 'left') {
+            const arrowSpacer = new Span().setStyle('width', '1.35em');
+            header.add(arrowSpacer);
+        }
         header.add(iconHolder, textHolder);
         return header;
     }

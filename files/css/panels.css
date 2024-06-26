@@ -90,6 +90,7 @@
     border: solid var(--border-small) transparent;
     border-top: none;
     margin-bottom: 0;
+    padding-top: 0.1em;
     box-shadow: none;
 }
 
