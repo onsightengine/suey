@@ -2727,6 +2727,7 @@ class Shrinkable extends Panel {
         border = true,
         expanded = true,
         shrink = false,
+        radius = 0,
     } = {}) {
         super();
         const self = this;
@@ -2756,6 +2757,9 @@ class Shrinkable extends Panel {
             iconBox.img.setStyle('margin', 'auto');
             iconBox.img.setStyle('width', `${shrink * 100}%`);
             iconBox.img.setStyle('height', `${shrink * 100}%`);
+        }
+        if (radius !== 0 && iconBox.img) {
+            iconBox.img.setStyle('border-radius', Css.parseSize(radius));
         }
         if (arrow === 'right') {
             titleDiv.add(titleIcon, titleText, titleArrow);

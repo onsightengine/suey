@@ -1,4 +1,5 @@
 import { Button } from '../input/Button.js';
+import { Css } from '../utils/Css.js';
 import { Div } from '../core/Div.js';
 import { Span } from '../core/Span.js';
 import { Panel } from './Panel.js';
@@ -13,7 +14,8 @@ class Shrinkable extends Panel {
         arrow = 'left',
         border = true,
         expanded = true,
-        shrink = false,
+        shrink = false,     // icon shrink?
+        radius = 0,         // icon radius?
     } = {}) {
         super();
         const self = this;
@@ -57,6 +59,11 @@ class Shrinkable extends Panel {
             iconBox.img.setStyle('margin', 'auto');
             iconBox.img.setStyle('width', `${shrink * 100}%`);
             iconBox.img.setStyle('height', `${shrink * 100}%`);
+        }
+
+        // Radius
+        if (radius !== 0 && iconBox.img) {
+            iconBox.img.setStyle('border-radius', Css.parseSize(radius));
         }
 
         // Add Title Elements
