@@ -13,6 +13,7 @@ class Shrinkable extends Panel {
         arrow = 'left',
         border = true,
         expanded = true,
+        shrink = false,
     } = {}) {
         super();
         const self = this;
@@ -43,6 +44,20 @@ class Shrinkable extends Panel {
         if (icon) titleIcon.addClass('suey-has-icon');
         const iconBox = new VectorBox(icon);
         titleIcon.add(iconBox);
+
+        // Shrink
+        if (shrink === true) {
+            shrink = 0.7;
+        } else if (typeof shrink === 'string') {
+            shrink = parseFloat(shrink) / (shrink.includes('%') ? 100 : 1);
+        }
+        if (shrink && iconBox.img && typeof shrink === 'number' && !isNaN(parseFloat(shrink))) {
+            iconBox.img.setStyle('position', 'absolute');
+            iconBox.img.setStyle('left', '0', 'right', '0', 'top', '0', 'bottom', '0');
+            iconBox.img.setStyle('margin', 'auto');
+            iconBox.img.setStyle('width', `${shrink * 100}%`);
+            iconBox.img.setStyle('height', `${shrink * 100}%`);
+        }
 
         // Add Title Elements
         if (arrow === 'right') {
