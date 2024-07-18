@@ -1,6 +1,6 @@
 {
   "name": "@salinity/suey",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "description": "Lightweight JavaScript UI library.",
   "module": "src/Suey.js",
   "main": "dist/suey.module.js",
