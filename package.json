@@ -1,6 +1,6 @@
 {
-  "name": "@salinity/suey",
-  "version": "0.1.31",
+  "name": "suey",
+  "version": "0.1.32",
   "description": "Lightweight JavaScript UI library.",
   "module": "src/Suey.js",
   "main": "dist/suey.module.js",
@@ -17,7 +17,7 @@
   ],
   "keywords": [
     "suey",
-    "salinity",
+    "onsight",
     "engine",
     "widget",
     "gui",
@@ -30,14 +30,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/salinityengine/suey.git"
+    "url": "git+https://github.com/onsightengine/suey.git"
   },
   "author": "Stephens Nunnally <stephens@scidian.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/salinityengine/suey/issues"
+    "url": "https://github.com/onsightengine/suey/issues"
   },
-  "homepage": "https://github.com/salinityengine/suey",
+  "homepage": "https://github.com/onsightengine/suey",
   "private": false,
   "devDependencies": {
     "@rollup/plugin-image": "^3.0.2",

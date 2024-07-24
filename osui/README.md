@@ -10,6 +10,6 @@ The Onsight UI Library. A lightweight, customizable, modular UI library based on
 
 # Status
 
-Project has been superseded, further development is focused on the [Suey JavaScript UI Library](https://github.com/salinityengine/suey).
+Project has been superseded, further development is focused on the [Suey JavaScript UI Library](https://github.com/onsightengine/suey).
 
 <br />

@@ -4,7 +4,7 @@
 
 # Suey
 
-The Salinity UI Library. A lightweight, customizable, modular UI library based on native HTML5 components.
+The onSight UI Library. A lightweight, customizable, modular UI library based on native HTML5 components.
 
 <br />
 
@@ -36,7 +36,7 @@ import * as SUEY from 'suey';
 
 - Option 3: Import directly from CDN...
 ```javascript
-import * as SUEY from 'https://unpkg.com/@salinity/suey/dist/suey.module.js';
+import * as SUEY from 'https://unpkg.com/suey/dist/suey.module.js';
 ```
 
 <br>

@@ -3,7 +3,7 @@
  * @about       Lightweight JavaScript UI library.
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2024 Stephens Nunnally
- * @source      https://github.com/salinityengine/suey
+ * @source      https://github.com/onsightengine/suey
  */
 
 //  ---CATEGORY---              ---NODE TYPE---         ---CLASS NAME---

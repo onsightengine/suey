@@ -1,7 +1,7 @@
 import { SignalBinding } from '../utils/Signal.js';
 
 /**
- * Base Class of the Suey (Salinity Gui) Library
+ * Base Class of the Suey (onSight Gui) Library
  * @class Element
  */
 class Element {

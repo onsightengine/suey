@@ -11,11 +11,8 @@
 .history/
 
 # Build Files
-<<<<<<< HEAD
-=======
 dist/suey.min.js
 docs/
->>>>>>> c434a3c
 node_modules/
 out/
 stats.html
