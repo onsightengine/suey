@@ -97,6 +97,7 @@ class Shrinkable extends Panel {
         this.isExpanded = expand;
         this.wantsClass('suey-expanded', expand);
         if (dispatchEvent) this.dom.dispatchEvent(new Event('expand'));
+        return this;
     }
 
     sort() {
@@ -108,14 +109,15 @@ class Shrinkable extends Panel {
             if (nameA > nameB) return  1;
             return 0;
         });
-
         for (let i = 0; i < items.length; i++) {
             items[i].setStyle('order', i);
         }
+        return this;
     }
 
     toggle() {
         this.setExpanded(!this.isExpanded);
+        return this;
     }
 
 }
