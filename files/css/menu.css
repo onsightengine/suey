@@ -1,0 +1,328 @@
+/********** Menu Show (Show menu that was previously hidden) **********/
+
+.suey-menu.suey-menu-show {
+    pointer-events: auto;
+    opacity: 1.0;
+    transform: translate(0, 0) scale(1.0, 1.0);
+}
+
+.suey-menu.suey-menu-show.suey-menu-under {
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0) scale(1.0, 1.0);
+}
+
+/********** Menu **********/
+
+/* Normal Menu Styling */
+.suey-menu {
+    position: absolute;
+    display: block;
+    align-items: center;
+    justify-content: center;
+
+    color: rgba(var(--text), 1.0);
+    background-color: rgba(var(--background-light), 1);
+    box-shadow:
+        inset 0px 1px 2px 0px rgba(var(--midlight), 1.0),
+             -2px 2px 2px 0px rgba(var(--shadow), 0.5),
+              2px 0px 2px 0px rgba(var(--shadow), 0.5);
+    /* border: 1px solid rgba(var(--shadow), 1.0); */
+    border: 2px solid rgba(var(--icon), 1.0);
+    border-radius: var(--radius-large);
+    /* outline: 1px solid rgba(var(--background-light), calc(var(--panel-transparency) * 0.5)); */
+    outline: none;
+
+    min-width: 1.0em;
+    z-index: 1000; /* Menu */
+    opacity: 0;
+    padding: var(--pad-x-small);
+    margin: 0;
+    pointer-events: none;
+
+    transform: translate(0, 0) scale(1.0, 0.0);
+
+    /* To enable menu transitions use menu timing variable */
+    transition: all 0s; /* var(--menu-timing) */
+}
+
+.suey-border-icon {
+    border: 2px solid rgba(var(--complement), 1.0);
+}
+
+.suey-menu-under {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.suey-menu:not(.suey-menu-show).suey-slide-down {
+    transform: translate(0, -50%) scale(1.0, 0.0);
+}
+
+.suey-menu:not(.suey-menu-show).suey-slide-up {
+    transform: translate(0, 50%) scale(1.0, 0.0);
+}
+
+/* Dropdown Menu Styling */
+.suey-select-menu, .suey-popup-menu {
+    box-shadow: none;
+    color: rgba(var(--highlight), 1);
+    background: rgba(var(--darklight), 1);
+    border: 1px solid rgb(var(--icon));
+    border-radius: 0px;
+    outline: 2px solid rgb(var(--darklight));
+    z-index: 1000; /* Select Menu */
+}
+
+/* Menu Item */
+.suey-menu-item {
+    position: relative;
+    display: block;
+
+    color: rgba(var(--text), 1);
+    cursor: pointer;
+
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius-small) * 0.75);
+
+    margin: var(--pad-x-small);
+    white-space: nowrap;
+}
+
+/* Hover Item */
+.suey-menu:not(.suey-invisible-menu) .suey-menu-item:not(.suey-disabled):hover {
+    color: rgba(var(--highlight), 1);
+    background-color: rgba(var(--icon-light), 0.1);
+    border: 1px solid rgba(var(--icon-light), 0.3);
+    border-radius: calc(var(--radius-small) * 0.75);
+}
+
+/* Image */
+.suey-menu-icon {
+    --menu-icon-size:   1.45em;
+
+    position: relative;
+    flex: 0 0 auto;
+    height: var(--menu-icon-size);
+    width: var(--menu-icon-size);
+    filter: var(--drop-shadow);
+    overflow: hidden;
+}
+
+/* Text */
+.suey-menu-text {
+    user-select: none;
+    margin-left: 7px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Shortcut Key */
+.suey-menu-shortcut {
+    /*
+    System Font Info:
+    https://stackoverflow.com/questions/32660748/how-to-use-apples-new-san-francisco-font-on-a-webpage
+    https://furbo.org/2018/03/28/system-fonts-in-css/
+    https://css-tricks.com/snippets/css/system-font-stack/
+    */
+    display: flex;
+    filter: contrast(75%) grayscale(100%);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    opacity: 0.5;
+    padding-left: 2.0em;
+}
+
+.suey-menu-shortcut-character {
+    /* background-color: blueviolet; */
+    /* border: solid 1px; */
+    text-align: center;
+    margin: auto;
+}
+
+/* Separator */
+.suey-menu-separator {
+    pointer-events: none;
+    border-top: 1px solid rgba(var(--midlight), 0.5);
+    border-radius: 1px;
+    height: 1px;
+    margin: var(--pad-medium) var(--pad-large);
+}
+
+/* Little Arrow */
+.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item::after {
+    content: '';
+    position: absolute;
+    right: 0.50em;
+    top: 50%;
+    transform: translateY(-50%);
+    border: var(--arrow-size) solid transparent;
+    border-left-color: rgba(var(--text), 1.0);
+}
+
+.suey-menu:not(.suey-invisible-menu) .suey-sub-menu-item:hover::after {
+    border-left-color: rgba(var(--highlight), 1.0);
+}
+
+/* Sub Menu */
+.suey-menu-item .suey-menu {
+    top:  0px;
+    left: 101%;
+}
+
+/* Sub Menu Mouse Triangle */
+.suey-menu-mouse-triangle {
+    position: absolute;
+}
+
+/***** Invisible Hover Menu *****/
+
+.suey-invisible-menu, .suey-invisible-menu-item {
+    color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+
+.suey-invisible-menu-item {
+    margin: 0;
+}
+
+/************ Toolbar Button **********/
+
+.suey-toolbar-button {
+    display: flex;
+    cursor: pointer;
+    background-color: transparent !important;
+    border: none;
+    border-radius: var(--radius-large);
+    outline: none;
+    position: relative;
+    height: var(--button-size);
+    width: var(--button-size);
+    min-height: var(--button-size);
+    min-width: var(--button-size);
+    margin-left: var(--pad-x-small);
+    margin-right: var(--pad-x-small);
+    opacity: 1.0;
+    overflow: hidden;
+}
+
+/* Background */
+.suey-button-background {
+    pointer-events: none;
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    margin: 0;
+    background-color: rgb(var(--darkness));
+    background-image: linear-gradient(to bottom, rgba(var(--icon-light), 0.6), rgba(var(--icon), 0.6));
+    border-radius: var(--radius-large);
+    border: none;
+    outline: none;
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),
+        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);
+    z-index: -1;
+}
+
+/* Hover */
+.suey-toolbar-button:not(.suey-selected):enabled:hover > .suey-button-background {
+    filter: brightness(125%);
+    box-shadow: /* pop-out-shadow */
+        inset var(--pixel) 0 var(--pixel) 0 rgba(var(--black), 0.25),
+        inset var(--minus) 0 var(--pixel) 0 rgba(var(--black), 0.25),
+        inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.15),
+        inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.15);
+}
+
+/* Active / Selected */
+.suey-toolbar-button:not(.suey-selected):enabled:active,
+.suey-toolbar-button.suey-selected:enabled {
+    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5); /* sunk-in-shadow */
+}
+.suey-toolbar-button:not(.suey-selected):enabled:active > .suey-button-background,
+.suey-toolbar-button.suey-selected:enabled > .suey-button-background {
+    filter: brightness(50%) grayscale(20%);
+}
+
+/* Hover Active */
+.suey-hover-active {
+    overflow: visible;
+}
+.suey-hover-active:hover, .suey-hover-active:active {
+    box-shadow: inset var(--minus) var(--pixel) var(--pad-small) rgba(0, 0, 0, 0.5) !important; /* sunk-in-shadow */
+}
+.suey-hover-active:hover > .suey-button-background,
+.suey-hover-active:active > .suey-button-background {
+    filter: brightness(50%) grayscale(20%) !important;
+}
+
+/* Disabled Button */
+.suey-toolbar-button:disabled {
+    background-color: rgba(var(--button-dark), var(--panel-transparency));
+    box-shadow: none;
+}
+.suey-toolbar-button:disabled {
+    filter: none;
+}
+.suey-toolbar-button:disabled > * {
+    filter: contrast(75%) grayscale(100%) brightness(50%);
+}
+
+/* Left / Middle / Right */
+.suey-button-left, .suey-button-left > .suey-button-background {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: 0;
+}
+.suey-button-middle, .suey-button-middle > .suey-button-background {
+    border-radius: 0;
+    margin-right: 0;
+    margin-left: 0;
+}
+.suey-button-right, .suey-button-right > .suey-button-background {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: 0;
+}
+
+.suey-button-left > .suey-button-background {
+    box-shadow: /* pop-out-shadow */
+        inset            0 var(--pixel) rgba(var(--white), 0.25),
+        inset var(--pixel) var(--minus) var(--pixel) rgba(var(--black), 0.25);
+}
+.suey-button-middle > .suey-button-background {
+    box-shadow: /* pop-out-shadow */
+        inset            0 var(--pixel) rgba(var(--white), 0.25),
+        inset            0 var(--minus) rgba(var(--black), 0.25);
+}
+.suey-button-right > .suey-button-background {
+    box-shadow: /* pop-out-shadow */
+        inset var(--minus) var(--pixel) var(--pixel) rgba(var(--white), 0.25),
+        inset            0 var(--minus) rgba(var(--black), 0.25);
+}
+
+/********** Toolbar Separator / Toolbar Spacer **********/
+
+.suey-toolbar-separator {
+    border-left: solid var(--border-micro) rgba(var(--shadow), 0.50);
+    border-right: solid var(--border-micro) rgba(var(--shadow), 0.15);
+    border-top: 0;
+    border-bottom: 0;
+    width: var(--pad-micro);
+    height: calc(var(--button-size) - 1.25ch);
+    margin-left: var(--pad-medium);
+    margin-right: var(--pad-medium);
+    margin-top: var(--pad-small);
+}
+
+.suey-toolbar-spacer {
+    pointer-events: none;
+    border: none;
+    margin: none;
+    width: 1em;
+    height: var(--button-size);
+}

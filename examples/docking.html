@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Suey • Docking</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+    <link rel="icon" type="image/png" href="../files/logo/suey256.png" />
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+
+    <script src="./imports.js"></script>
+
+    <img id="backgroundImage" src="../files/logo/suey256.png" style="position: absolute; margin: auto; left: 0; top: 0; right: 0; bottom: 0;">
+
+    <script type="module">
+
+        import {
+            ColorScheme,
+            Css,
+            Div,
+            Docker,
+            Floater,
+            Iris,
+            Tabbed,
+            Titled,
+        } from 'suey';
+
+        import {
+            DOCK_SIDES,
+            RESIZERS,
+            TAB_SIDES,
+        } from 'suey';
+
+        const docker = new Docker();
+        document.body.appendChild(docker.dom);
+
+        /***** Helper Functions *****/
+
+        function fontSizeChange(fontSize) {
+            if (fontSize === 'up' || fontSize === 'increase') {
+                let addSize = Math.floor((Css.fontSize() + 10.0) / 10.0);
+                fontSize = Math.min(30, Css.fontSize() + addSize);
+            } else if (fontSize === 'down' || fontSize === 'decrease') {
+                let addSize = Math.floor((Css.fontSize() + 10.0) / 10.0);
+                addSize = Math.floor((Css.fontSize() - addSize + 10.0) / 10.0);
+                fontSize = Math.max(10, Css.fontSize() - addSize);
+            } else {
+                fontSize = parseInt(fontSize);
+            }
+            Css.setVariable('--font-size', Css.toPx(fontSize));
+        }
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'c') docker.collapseTabs();
+            if (event.key === 'e') docker.expandTabs();
+            if (event.key === '-') fontSizeChange('down');
+            if (event.key === '=') fontSizeChange('up');
+        });
+
+        function isZero(odds) {
+            return (Math.floor(Math.random() * odds) === 0);
+        }
+        function randInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+        function randomChars(min = 8, max = 2000) {
+            // const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const CHARACTERS = '.';
+            const CHANCE_ENTER = 10;
+            const length = randInt(max - min + 1) + min;
+            let word = '';
+            for (let i = 0; i < length; i++) {
+                if (isZero(CHANCE_ENTER)) word += '\n';
+                else word += CHARACTERS.charAt(randInt(CHARACTERS.length));
+            }
+            return word;
+        }
+
+        /***** Docks *****/
+
+        const dockLeft = docker.addDock(DOCK_SIDES.LEFT, '20%');
+        const dockRight = docker.addDock(DOCK_SIDES.RIGHT, '20%');
+        const dockBottom = docker.addDock(DOCK_SIDES.BOTTOM, '35%');
+        const dockTop = docker.addDock(DOCK_SIDES.TOP, '20%');
+
+        const tabby1 = dockLeft.enableTabs();
+        const howdy = new Floater('howdy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        const doody = new Floater('doody', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        tabby1.addFloater(howdy, doody);
+
+        const tabby2 = dockRight.enableTabs();
+        const handy = new Floater('handy', { icon: `../files/logo/suey.svg`, color: '#773399', shrink: 0.5 }).add(new Div(randomChars()));
+        const dandy = new Floater('dandy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        tabby2.addFloater(handy, dandy);
+
+        const tabby3 = dockBottom.enableTabs();
+        const hippy = new Floater('hippy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        const dippy = new Floater('dippy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        tabby3.addFloater(hippy, dippy);
+
+        const tabby4 = dockTop.enableTabs();
+        const hoopy = new Floater('hoopy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        const doopy = new Floater('doopy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        tabby4.addFloater(hoopy, doopy);
+
+        const miniDock = dockLeft.addDock(DOCK_SIDES.BOTTOM, '30%');
+        const tabby5 = miniDock.enableTabs();
+        const huppy = new Floater('huppy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        const duppy = new Floater('duppy', { color: new Iris().setRandom().hexString() }).add(new Div(randomChars()));
+        tabby5.addFloater(huppy, duppy);
+
+        // Force initial resizing
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 0);
+
+    </script>
+
+</body>
+</html>

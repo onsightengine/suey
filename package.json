@@ -1,0 +1,49 @@
+{
+  "name": "@salinity/suey",
+  "version": "0.1.31",
+  "description": "Lightweight JavaScript UI library.",
+  "module": "src/Suey.js",
+  "main": "dist/suey.module.js",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist/*",
+    "examples/*",
+    "files/*",
+    "src/*"
+  ],
+  "keywords": [
+    "suey",
+    "salinity",
+    "engine",
+    "widget",
+    "gui",
+    "library",
+    "module",
+    "javascript",
+    "ui",
+    "es6",
+    "component"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salinityengine/suey.git"
+  },
+  "author": "Stephens Nunnally <stephens@scidian.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/salinityengine/suey/issues"
+  },
+  "homepage": "https://github.com/salinityengine/suey",
+  "private": false,
+  "devDependencies": {
+    "@rollup/plugin-image": "^3.0.2",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-postcss": "^4.0.2"
+  }
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Suey • Gooey</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+    <link rel="icon" type="image/png" href="../files/logo/suey256.png" />
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+
+    <script src="./imports.js"></script>
+
+    <img id="backgroundImage" src="../files/logo/suey256.png" style="position: absolute; margin: auto; left: 0; top: 0; right: 0; bottom: 0;">
+
+    <script type="module">
+
+        import {
+            Gooey,
+            Question,
+        } from 'suey';
+
+        const params = {
+            color: '#00b4af',
+            opacity: 1.0,
+            scale: 1.0,
+            width: 200,
+
+            boolean: false,
+            function: () => { new Question('Clicked!').alert(); },
+            list: 0,
+            array: [ 0, 0, 0, 0 ],
+            string: 'Suey is great!',
+        };
+
+        const myList = [ 'Aqua', 'Carrot', 'Coffee', 'Emerald', 'Golden', 'Grape', 'Flamingo', 'Navy', 'Rust' ];
+
+        const gui = new Gooey('Gooey Demo');
+
+        const folder1 = gui.addFolder('Style');
+        const colorController = folder1.addColor(params, 'color').onChange(() => gui.color(params.color));
+        folder1.add(params, 'opacity', 0, 1.0, 0.1, 2).onChange(() => gui.opacity(params.opacity));
+        folder1.add(params, 'scale', 0.5, 3.0, 0.25, 2).onFinishChange(() => gui.scale(params.scale));
+        const widthController = folder1.add(params, 'width').precision(0).onFinishChange(() => gui.width(params.width));
+
+        const folder2 = gui.addFolder('Types');
+        folder2.add(params, 'boolean').onChange(() => {
+            const image = document.getElementById('backgroundImage');
+            if (params.boolean) {
+                image.style.filter = 'brightness(1.5)';
+                image.style.transform = 'scale(1.5)';
+            } else {
+                image.style.filter = 'brightness(1.0)';
+                image.style.transform = 'scale(1.0)';
+            }
+        });
+        folder2.add(params, 'function').name('Function', 'Click Me');
+        folder2.add(params, 'list', myList).onChange(() => {
+            switch (params.list) {
+                case 0: params.color = '#00b4af'; break; // aqua
+                case 1: params.color = '#fe7700'; break; // carrot
+                case 2: params.color = '#b16f1b'; break; // coffee
+                case 3: params.color = '#1aca22'; break; // emerald
+                case 4: params.color = '#d1d855'; break; // golden
+                case 5: params.color = '#960ef4'; break; // grape
+                case 6: params.color = '#ff13ed'; break; // flamingo
+                case 7: params.color = '#1a48cf'; break; // navy
+                case 8: params.color = '#af1c19'; break; // rust
+            }
+            gui.color(params.color)
+            colorController.updateDisplay();
+        });
+        folder2.add(params, 'array').step(1).precision(0).onChange(() => {
+            const image = document.getElementById('backgroundImage');
+            image.style.left = `${params.array[0] * 10}px`;
+            image.style.top = `${params.array[1] * 10}px`;
+            image.style.right = `${params.array[2] * 10}px`;
+            image.style.bottom = `${params.array[3] * 10}px`;
+        });
+        folder2.add(params, 'string');
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.target === gui.dom) {
+                    params.width = gui.dom.getBoundingClientRect().width;
+                    widthController.updateDisplay();
+                }
+            }
+        });
+        resizeObserver.observe(gui.dom);
+
+    </script>
+
+</body>
+</html>

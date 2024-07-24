@@ -1,0 +1,149 @@
+/********** Absolute Box **********/
+
+.suey-absolute-box {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    vertical-align: middle;
+    justify-content: center;
+    text-align: center;
+}
+
+/********** Asset Box / Asset Box Icon Only **********/
+
+.suey-asset-box {
+    position: relative;
+    display: flex;
+    cursor: pointer;
+
+    border: var(--border-small) solid transparent;
+    border-radius: var(--radius-large);
+    margin: var(--pad-x-small);
+    vertical-align: middle;
+
+    outline: none; /* for macos */
+}
+
+.suey-asset-box-selectable:hover {
+    background-color: rgba(var(--highlight), 0.15);
+    border: var(--border-small) solid rgba(var(--shadow), 0.5);
+    border-radius: var(--radius-large);
+}
+
+.suey-asset-box-selectable:active, .suey-asset-box-selectable:focus {
+    background-color: rgba(var(--shadow), 1.0);
+    border: var(--border-small) solid rgba(var(--icon-light), 1);
+    border-radius: 0;
+}
+
+.suey-asset-box-selectable:focus > *, .suey-asset-box-selectable:active > * {
+    filter: brightness(100%);
+}
+
+.suey-asset-box-selectable:hover > * {
+    filter: brightness(150%);
+}
+
+.suey-asset-box-mini {
+    /* Minimum Icon Size: */
+    min-width: var(--asset-size);
+    min-height: var(--asset-size);
+}
+
+.suey-asset-box-row {
+    width: 100%;
+    min-height: 2em;
+    padding: var(--pad-x-small);
+}
+
+.suey-asset-box-icon {
+    position: relative;
+    min-width: var(--row-height);
+    height: 100%;
+}
+
+.suey-asset-box-text {
+    position: relative;
+    width: calc(100% - var(--row-height));
+    margin: auto;
+    margin-left: 0.25em;
+    white-space: nowrap;
+}
+
+.suey-asset-box-combo {
+    overflow: hidden;
+    position: relative;
+}
+.suey-asset-box-combo:hover {
+    overflow: visible;
+}
+.suey-asset-box-label {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(75%);
+}
+
+/********** Flex Box **********/
+
+.suey-flex-box {
+    display: flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+/********** Row **********/
+
+.suey-row {
+    padding: var(--pad-micro) var(--border-small);
+    margin: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    vertical-align: middle;
+}
+
+/********** Shadow Box **********/
+
+.suey-shadow-box { /* affects Toolbar icons! */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+}
+
+.suey-shadow-box.suey-full-size {
+    width: 100%;
+    height: 100%;
+}
+
+.suey-shadow-box.suey-drop-shadow > * {
+    filter: var(--drop-shadow);
+}
+
+.suey-shadow-box.suey-even-shadow > * {
+    filter: var(--drop-shadow);
+}
+
+/********** Vector Box **********/
+
+.suey-vector-box {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+}

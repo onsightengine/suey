@@ -1,0 +1,65 @@
+/********** Base Styling **********/
+
+*:not(.suey-custom-font *) {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+}
+
+html {
+    box-sizing: border-box;
+}
+
+html *, html *::before, html *::after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    /* Color main text and background */
+    color: rgba(var(--text-light), 0.75);
+    background-color: rgb(var(--background-dark));
+}
+
+image {
+    image-rendering: smooth;
+}
+
+.suey-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--pad-micro);
+}
+
+/********** Scrollbars **********/
+
+div::-webkit-scrollbar {
+    height: var(--scroll-size);
+    width: var(--scroll-size);
+    background: rgba(var(--shadow), 0.35);
+    border-radius: calc(var(--scroll-size) / 2.0);
+}
+
+div::-webkit-scrollbar-thumb:horizontal {
+    background: linear-gradient(to left, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));
+    border-radius: calc(var(--scroll-size) / 2.0);
+}
+
+div::-webkit-scrollbar-thumb:vertical {
+    background: linear-gradient(to bottom, rgba(var(--icon), 1), rgba(var(--icon-dark), 1));
+    border-radius: calc(var(--scroll-size) / 2.0);
+}
+
+div::-webkit-scrollbar-corner {
+    background: rgba(var(--background-dark), 1);
+}
+
+/********** SVG **********/
+
+@media all {
+    svg {
+        shape-rendering: auto;
+    }
+}
