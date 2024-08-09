@@ -201,7 +201,7 @@ class Folder extends Shrinkable {
         return prop;
     }
 
-    addColor(params, variable) {
+    addColor(params, variable, opacity = undefined) {
         let type;
         let value = params[variable];
         if (value == undefined) { return null; }
@@ -210,6 +210,7 @@ class Folder extends Shrinkable {
         else if (typeof value === 'object') { type = 'object'; }
         else { type = 'number'; }
         const prop = new Property();
+        // COLOR
         const colorButton = new Color();
         function setVariable(newValue) {
             _clr.set(newValue);
@@ -230,9 +231,32 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(Strings.prettyTitle(variable), colorButton);
+        // OPACITY
+        let opacityBox = null;
+        if (opacity != null && params[opacity] != null) {
+            opacityBox = new NumberBox();
+            opacityBox.on('change', () => {
+                params[opacity] = opacityBox.getValue();
+                if (typeof prop.change === 'function') prop.change();
+                if (typeof prop.finishChange === 'function') prop.finishChange();
+            });
+            opacityBox.addClass('suey-property-tiny-row');
+            opacityBox.setStyle('marginLeft', '0.14286em');
+            opacityBox.setStyle('flex', '0 0 var(--min-width)');
+            opacityBox.dom.style.setProperty('--min-width', `5ch`);
+            opacityBox.on('wheel', (event) => event.stopPropagation());
+            opacityBox.setMin(0).setMax(1).setStep(0.05).setPrecision(2);
+        }
+        // ROW
+        const widgets = [ Strings.prettyTitle(variable), colorButton ];
+        if (opacityBox) widgets.push(opacityBox);
+        const row = this.props.addRow(...widgets);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setValue(_clr.set(params[variable]).hex()); return prop; };
+        prop.updateDisplay = function() {
+            colorButton.setValue(_clr.set(params[variable]).hex());
+            if (opacityBox) opacityBox.setValue(params[opacity]);
+            return prop;
+        };
         prop.updateDisplay();
         return prop;
     }

@@ -22,8 +22,10 @@
         } from 'suey';
 
         const params = {
-            color: '#00b4af',
+            color: '#00aacc',
             opacity: 1.0,
+            transparentColor: '#ff840a',
+            transparentOpacity: 1.0,
             scale: 1.0,
             width: 200,
 
@@ -40,10 +42,11 @@
 
         const folder1 = gui.addFolder('Style');
         const colorController = folder1.addColor(params, 'color').onChange(() => gui.color(params.color));
+        const color2Controller = folder1.addColor(params, 'transparentColor', 'transparentOpacity');
+        color2Controller.name('Transparent');
         folder1.add(params, 'opacity', 0, 1.0, 0.1, 2).onChange(() => gui.opacity(params.opacity));
         folder1.add(params, 'scale', 0.5, 3.0, 0.25, 2).onFinishChange(() => gui.scale(params.scale));
         const widthController = folder1.add(params, 'width').precision(0).onFinishChange(() => gui.width(params.width));
-
         const folder2 = gui.addFolder('Types');
         folder2.add(params, 'boolean').onChange(() => {
             const image = document.getElementById('backgroundImage');

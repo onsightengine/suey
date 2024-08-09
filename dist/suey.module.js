@@ -4,7 +4,7 @@
  * @author      Stephens Nunnally <@stevinz>
  * @license     MIT - Copyright (c) 2024 Stephens Nunnally
  * @source      https://github.com/onsightengine/suey
- * @version     v0.1.32
+ * @version     v0.1.33
  */
 var img$8 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg width='100%25' height='100%25' viewBox='0 0 512 512' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' style='fill-rule:evenodd%3bclip-rule:evenodd%3bstroke-linejoin:round%3bstroke-miterlimit:2%3b'%3e%3cpath d='M184.001%2c292.65l-119.111%2c-0c-13.193%2c-0 -23.889%2c-10.695 -23.889%2c-23.889l-0%2c-26.85c-0%2c-13.194 10.696%2c-23.889 23.889%2c-23.889l46.704%2c-0.001l31.681%2c0l74.967%2c0l0%2c-78.878l-0%2c-71.489c-0%2c-7.129 2.832%2c-13.965 7.872%2c-19.004c5.038%2c-5.041 11.875%2c-7.873 19.002%2c-7.873l21.767%2c0c7.127%2c0 13.964%2c2.832 19.003%2c7.873c5.04%2c5.039 7.873%2c11.875 7.873%2c19.004l0%2c150.364l150.365%2c0c7.127%2c0 13.964%2c2.833 19.004%2c7.873c5.04%2c5.041 7.872%2c11.876 7.872%2c19.002l-0%2c20.88c-0%2c7.127 -2.832%2c13.963 -7.872%2c19.003c-5.041%2c5.04 -11.877%2c7.87 -19.004%2c7.87l-72.38%2c0l0.003%2c0.003l-77.988%2c0l0%2c154.707c0%2c6.33 -2.514%2c12.4 -6.99%2c16.876c-4.476%2c4.476 -10.546%2c6.99 -16.877%2c6.99l-27.761%2c0c-6.336%2c0 -12.411%2c-2.516 -16.892%2c-6.996c-4.48%2c-4.48 -6.996%2c-10.556 -6.996%2c-16.892l-0%2c-118.1l-0%2c-36.247l-0.001%2c-0.338l-0.339%2c0.001l-33.902%2c-0Z' style='fill:%23e6e6e6%3b'/%3e%3c/svg%3e";
 
@@ -2608,7 +2608,7 @@ class PropertyList extends Div {
                     rightRow.add(new Span().addClass('suey-property-space'));
                 }
             } else {
-                console.error('PropertyList.createControls(): ', argument, ' is not an instance of Element');
+                console.warn('PropertyList.createControls(): ', argument, ' is not an instance of Element');
             }
         }
         return rightRow;
@@ -3819,7 +3819,7 @@ class Folder extends Shrinkable {
         prop.updateDisplay();
         return prop;
     }
-    addColor(params, variable) {
+    addColor(params, variable, opacity = undefined) {
         let type;
         let value = params[variable];
         if (value == undefined) { return null; }
@@ -3848,9 +3848,30 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(Strings.prettyTitle(variable), colorButton);
+        let opacityBox = null;
+        if (opacity != null && params[opacity] != null) {
+            opacityBox = new NumberBox();
+            opacityBox.on('change', () => {
+                params[opacity] = opacityBox.getValue();
+                if (typeof prop.change === 'function') prop.change();
+                if (typeof prop.finishChange === 'function') prop.finishChange();
+            });
+            opacityBox.addClass('suey-property-tiny-row');
+            opacityBox.setStyle('marginLeft', '0.14286em');
+            opacityBox.setStyle('flex', '0 0 var(--min-width)');
+            opacityBox.dom.style.setProperty('--min-width', `5ch`);
+            opacityBox.on('wheel', (event) => event.stopPropagation());
+            opacityBox.setMin(0).setMax(1).setStep(0.05).setPrecision(2);
+        }
+        const widgets = [ Strings.prettyTitle(variable), colorButton ];
+        if (opacityBox) widgets.push(opacityBox);
+        const row = this.props.addRow(...widgets);
         prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
-        prop.updateDisplay = function() { colorButton.setValue(_clr$2.set(params[variable]).hex()); return prop; };
+        prop.updateDisplay = function() {
+            colorButton.setValue(_clr$2.set(params[variable]).hex());
+            if (opacityBox) opacityBox.setValue(params[opacity]);
+            return prop;
+        };
         prop.updateDisplay();
         return prop;
     }
