@@ -58,6 +58,7 @@ const params = {
     myColorInt: 0xffffff,
     myColorObject: { r: 1, g: 1, b: 1 },
     myColorArray: [ 1, 1, 1 ],
+    myColorAlpha: 1.0,
 };
 
 const myList = [ 'a', 'b', 'c', 'd', 'e' ];
@@ -74,6 +75,10 @@ folder.add(params, 'myNumber2');                            // if no min / max, 
 folder.add(params, 'myString');                             // text box
 folder.add(params, 'myVector');                             // any length array of numbers
 folder.addColor(params, 'myColor______');                   // string / int / object / array
+folder.addColor(params, 'myColor______', 'myColorAlpha');   // color with transparency
+
+// Manually expand/collapse folder
+folder.toggle();
 ```
 
 <br>
@@ -83,7 +88,12 @@ folder.addColor(params, 'myColor______');                   // string / int / ob
 - Property functions can be chained together
 
 ```javascript
+// Add property
 folder.add(params, 'myNumber').name('Width').min(0).max(90).step(5).precision(1).unit('°');
+
+// Set custom property title
+const controller = folder.add(params, 'myNumber');
+controller.name('Custom Title');
 ```
 
 <br>
