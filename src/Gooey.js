@@ -168,20 +168,20 @@ class Folder extends Shrinkable {
                 return this.addBoolean(params, variable);
             } else if (typeof value === 'number') {
                 if (Array.isArray(a) && a.length > 0) {
-                    return this.addList(params, variable, a);
+                    return this.addList(params, variable, a); // (a) options
                 } else {
-                    return this.addNumber(params, variable, a, b, c, d, e);
+                    return this.addNumber(params, variable, a, b, c, d, e); // (a) min, (b) max, (c) step, (d) precision, (e) unit
                 }
             } else if (typeof value === 'string') {
                 if (Array.isArray(a) && a.length > 0) {
-                    return this.addList(params, variable, a);
+                    return this.addList(params, variable, a); // (a) options
                 } else {
                     return this.addString(params, variable);
                 }
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
-                return this.addVector(params, variable);
+                return this.addVector(params, variable, a, b, c, d); // (a) min, (b) max, (c) step, (d) precision
             }
         };
     }

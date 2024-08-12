@@ -66,6 +66,7 @@ const myList = [ 'a', 'b', 'c', 'd', 'e' ];
 const gui = new SUEY.Gooey('Title');
 const folder = gui.addFolder('Folder Name');
 
+// Add Property
 folder.add(params, 'myBoolean');                            // checkbox
 folder.add(params, 'myFunction');                           // button
 folder.add(params, 'myListInt', myList);                    // list by number
@@ -77,7 +78,7 @@ folder.add(params, 'myVector');                             // any length array 
 folder.addColor(params, 'myColor______');                   // string / int / object / array
 folder.addColor(params, 'myColor______', 'myColorAlpha');   // color with transparency
 
-// Manually expand/collapse folder
+// Expand / Collapse Folder
 folder.toggle();
 ```
 
@@ -91,11 +92,11 @@ folder.toggle();
 // Add Property
 folder.add(params, 'myNumber').name('Width').min(0).max(90).step(5).precision(1).unit('°');
 
-// Set custom property title
+// Custom Property Title
 const controller = folder.add(params, 'myNumber');
 controller.name('Custom Title');
 
-// Hide/Show Property
+// Hide / Show Property
 controller.hide();
 controller.show();
 ```
@@ -108,7 +109,7 @@ controller.show();
 // Fires constantly when slider is being changed
 folder.add(params, 'myNumber').onChange(() => width = params.myNumber);
 
-// Fire when slider is done being changed
+// Fires only when slider is done being changed
 folder.add(params, 'myNumber').onFinishChange(() => width = params.myNumber);
 ```
 
@@ -125,7 +126,7 @@ const gui = new SUEY.Gooey();
 const folder = gui.addFolder('Folder Name');
 const controller = folder.add(params, 'myNumber');
 
-// ...somwhere later, params changes...
+// ...somwhere later params changes...
 params.myNumber += 2.0;
 
 // ...tells element to update itself from new value
