@@ -4,7 +4,7 @@
 
 # Suey
 
-The onSight UI Library. A lightweight, customizable, modular UI library based on native HTML5 components.
+The Onsight UI Library. A lightweight, customizable, modular UI library based on native HTML5 components.
 
 <br />
 
@@ -88,12 +88,16 @@ folder.toggle();
 - Property functions can be chained together
 
 ```javascript
-// Add property
+// Add Property
 folder.add(params, 'myNumber').name('Width').min(0).max(90).step(5).precision(1).unit('°');
 
 // Set custom property title
 const controller = folder.add(params, 'myNumber');
 controller.name('Custom Title');
+
+// Hide/Show Property
+controller.hide();
+controller.show();
 ```
 
 <br>

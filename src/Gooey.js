@@ -194,8 +194,8 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(Strings.prettyTitle(variable), boolBox, new FlexSpacer());
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), boolBox, new FlexSpacer());
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { boolBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
         return prop;
@@ -250,8 +250,8 @@ class Folder extends Shrinkable {
         // ROW
         const widgets = [ Strings.prettyTitle(variable), colorButton ];
         if (opacityBox) widgets.push(opacityBox);
-        const row = this.props.addRow(...widgets);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.row = this.props.addRow(...widgets);
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() {
             colorButton.setValue(_clr.set(params[variable]).hex());
             if (opacityBox) opacityBox.setValue(params[opacity]);
@@ -265,11 +265,9 @@ class Folder extends Shrinkable {
         const prop = new Property();
         const button = new Button(Strings.prettyTitle(variable));
         button.onPress(() => params[variable]());
-        // this.props.addRowWithoutTitle(button);
-        // prop.name = function(name) { button.setInnerHtml(name); return self; };
-        const row = this.props.addRow(Strings.prettyTitle(variable), button);
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), button);
         prop.name = function(name, buttonText) {
-            row.leftWidget.setInnerHtml(name);
+            prop.row.leftWidget.setInnerHtml(name);
             if (buttonText) button.setInnerHtml(buttonText);
             return prop;
         };
@@ -291,8 +289,8 @@ class Folder extends Shrinkable {
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
 
-        const row = this.props.addRow(Strings.prettyTitle(variable), selectDropDown);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), selectDropDown);
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() {
             if (type === 'string') selectDropDown.setValue(params[variable]);
             else selectDropDown.setIndex(params[variable]);
@@ -354,8 +352,8 @@ class Folder extends Shrinkable {
         }
         checkForMinMax();
 
-        const row = this.props.addRow(Strings.prettyTitle(variable), slider, slideBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), slider, slideBox);
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
         prop.min = function(min) { slider.setMin(min); slideBox.setMin(min); checkForMinMax(); return prop; };
         prop.max = function(max) { slider.setMax(max); slideBox.setMax(max); checkForMinMax(); return prop; };
         prop.step = function(step) { setStep(step); return prop; };
@@ -379,8 +377,8 @@ class Folder extends Shrinkable {
             if (typeof prop.change === 'function') prop.change();
             if (typeof prop.finishChange === 'function') prop.finishChange();
         });
-        const row = this.props.addRow(Strings.prettyTitle(variable), textBox);
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), textBox);
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
         prop.updateDisplay = function() { textBox.setValue(params[variable]); return prop; };
         prop.updateDisplay();
         return prop;
@@ -389,7 +387,7 @@ class Folder extends Shrinkable {
     addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
         const prop = new Property();
         const vector = params[variable];
-        const row = this.props.addRow(Strings.prettyTitle(variable));
+        prop.row = this.props.addRow(Strings.prettyTitle(variable));
 
         const boxes = [];
         for (let i = 0; i < vector.length; i++) {
@@ -404,8 +402,8 @@ class Folder extends Shrinkable {
             box.on('wheel', (event) => event.stopPropagation());
             box.setRange(min, max).setPrecision(precision);
 
-            row.rightWidget.add(box);
-            if (i < vector.length - 1) row.rightWidget.add(new Div().setStyle('min-width', '3px'));
+            prop.row.rightWidget.add(box);
+            if (i < vector.length - 1) prop.row.rightWidget.add(new Div().setStyle('min-width', '3px'));
         }
 
         function setStep(newStep) {
@@ -417,7 +415,7 @@ class Folder extends Shrinkable {
         }
         setStep(step);
 
-        prop.name = function(name) { row.leftWidget.setInnerHtml(name); return prop; };
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
         prop.min = function(min) { for (let i = 0; i < boxes.length; i++) { boxes[i].setMin(min); } return prop; };
         prop.max = function(max) { for (let i = 0; i < boxes.length; i++) { boxes[i].setMax(max); } return prop; };
         prop.step = function(step) { for (let i = 0; i < boxes.length; i++) { boxes[i].setStep(step); } return prop; };
@@ -453,6 +451,9 @@ class Property {
         this.max = function() { return self; };             // to be overwritten in 'addNumber'
         this.step = function() { return self; };            // to be overwritten in 'addNumber'
         this.precision = function() { return self; };       // to be overwritten in 'addNumber'
+
+        // Reference
+        this.row = null;
     }
 
     onChange(callback) {
@@ -463,6 +464,14 @@ class Property {
     onFinishChange(callback) {
         this.finishChange = callback;
         return this;
+    }
+
+    hide() {
+        if (this.row) this.row.setStyle('display', 'none');
+    }
+
+    show() {
+        if (this.row) this.row.setStyle('display', '');
     }
 
 }
