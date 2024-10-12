@@ -182,9 +182,6 @@ class Folder extends Shrinkable {
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
-
-                console.log(a, b, c, d, e);
-
                 if (value.length === 2 && a === 'range') {
                     return this.addRange(params, variable, b, c, d, e); // (b) min, (c) max, (d) step, (e) precision
                 } else {
