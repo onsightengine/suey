@@ -405,8 +405,8 @@ class Folder extends Shrinkable {
         });
 
         dual.setMinMax(min, max).setStep(step).setPrecision(precision);
-        minBox.setRange(min, max).setPrecision(precision);
-        maxBox.setRange(min, max).setPrecision(precision);
+        minBox.setRange(min, max).setStep(step).setPrecision(precision);
+        maxBox.setRange(min, max).setStep(step).setPrecision(precision);
 
         const digits = Strings.countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
         minBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
