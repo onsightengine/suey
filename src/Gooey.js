@@ -380,11 +380,53 @@ class Folder extends Shrinkable {
     addRange(params, variable, min = -Infinity, max = Infinity, step = 1, precision = 2) {
         const prop = new Property();
         const dual = new DualSlider({ min, max, initialMin: params[variable][0], initialMax: params[variable][1], step, precision });
+        const minBox = new NumberBox().addClass('suey-property-tiny-row');
+        const maxBox = new NumberBox().addClass('suey-property-tiny-row');
+        dual.on('change', () => {
+            params[variable][0] = dual.currentMin;
+            params[variable][1] = dual.currentMax;
+            minBox.setValue(dual.currentMin);
+            maxBox.setValue(dual.currentMax);
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
+        minBox.on('change', () => {
+            const minValue = Math.min(minBox.getValue(), params[variable][1]);
+            minBox.setValue(minValue);
+            params[variable][0] = minValue;
+            dual.setRange({ min: params[variable][0], max: params[variable][1] }, false /* events */);
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
+        maxBox.on('change', () => {
+            const maxValue = Math.max(maxBox.getValue(), params[variable][0]);
+            maxBox.setValue(maxValue);
+            params[variable][1] = maxValue;
+            dual.setRange({ min: params[variable][0], max: params[variable][1] }, false /* events */);
+            if (typeof prop.change === 'function') prop.change();
+            if (typeof prop.finishChange === 'function') prop.finishChange();
+        });
 
-        prop.row = this.props.addRow(Strings.prettyTitle(variable), dual);
+        dual.setMinMax(min, max).setStep(step).setPrecision(precision);
+        minBox.setRange(min, max).setPrecision(precision);
+        maxBox.setRange(min, max).setPrecision(precision);
+
+        const digits = Strings.countDigits(parseInt(max)) + ((precision > 0) ? precision + 0.5 : 0);
+        minBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
+        maxBox.dom.style.setProperty('--min-width', `${digits + 1.5}ch`);
+
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), dual, minBox, maxBox);
         prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
 
-
+        prop.updateDisplay = function() {
+            dual.setRange({ min: params[variable][0], max: params[variable][1] }, false /* events */);
+            minBox.setValue(params[variable][0]);
+            maxBox.setValue(params[variable][1]);
+            params[variable][0] = dual.currentMin;
+            params[variable][1] = dual.currentMax;
+            return prop;
+        };
+        prop.updateDisplay();
         return prop;
     }
 

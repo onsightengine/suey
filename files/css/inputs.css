@@ -469,7 +469,17 @@
     outline: none;
 }
 
-/* Slider Knob */
+/* Slider Knobs */
+.suey-dual-slider-knob-holder {
+    position: absolute;
+    left: calc(var(--pixel) * 8);
+    width: calc(100% - (var(--pixel) * 16));
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    user-select: none;
+}
 .suey-dual-slider-knob {
     position: absolute;
     top: 50%;
@@ -484,13 +494,17 @@
     box-shadow: /* pop-out-shadow */
         inset var(--minus) var(--pixel) var(--pixel) var(--pixel) rgba(var(--white), 0.1),
         inset var(--pixel) var(--minus) var(--pixel) var(--pixel) rgba(var(--black), 0.1);
+    z-index: 1;
 }
-
 .suey-dual-slider-knob:hover,
 .suey-dual-slider-knob:focus {
     background-color: rgba(var(--shadow), 1.0);
     background-image: linear-gradient(to bottom, rgba(var(--icon-light), 1.0), rgba(var(--icon-dark), 1.0));
     border-color: rgba(var(--shadow), 1.0);
+    z-index: 2;
+}
+.suey-dual-slider-knob:active {
+    z-index: 3;
 }
 
 /********** ELEMENT: <textarea> Text Area **********/

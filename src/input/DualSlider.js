@@ -33,14 +33,13 @@ class DualSlider extends Div {
         this.track = new Div().addClass('suey-dual-slider-track');
         this.add(this.track);
 
-        // Create Range Highlight
-        this.range = new Div().addClass('suey-dual-slider-range');
-        this.add(this.range);
-
         // Create Knobs
+        this.knobs = new Div().addClass('suey-dual-slider-knob-holder');
+        this.range = new Div().addClass('suey-dual-slider-range');
         this.knobMin = new Div().addClass('suey-dual-slider-knob');
         this.knobMax = new Div().addClass('suey-dual-slider-knob');
-        this.add(this.knobMin, this.knobMax);
+        this.knobs.add(this.range, this.knobMin, this.knobMax);
+        this.add(this.knobs);
 
         // Bind event handlers
         this._bindEvents();
@@ -91,13 +90,13 @@ class DualSlider extends Div {
 
         if (this.dragging === 'min') {
             if (steppedValue > this.currentMax - this.step) {
-                this.currentMin = this.currentMax - this.step;
+                this.currentMin = this.currentMax;
             } else {
                 this.currentMin = Math.max(this.min, steppedValue);
             }
         } else if (this.dragging === 'max') {
             if (steppedValue < this.currentMin + this.step) {
-                this.currentMax = this.currentMin + this.step;
+                this.currentMax = this.currentMin;
             } else {
                 this.currentMax = Math.min(this.max, steppedValue);
             }
@@ -145,33 +144,34 @@ class DualSlider extends Div {
     }
 
     // Set Current Range
-    setRange({ min, max }) {
-        if (min != undefined) this.currentMin = Math.max(this.min, Math.min(min, this.currentMax - this.step));
-        if (max != undefined) this.currentMax = Math.min(this.max, Math.max(max, this.currentMin + this.step));
+    setRange({ min, max }, events = true) {
+        if (min != undefined) this.currentMin = Math.max(this.min, Math.min(min, this.currentMax));
+        if (max != undefined) this.currentMax = Math.min(this.max, Math.max(max, this.currentMin));
         this.updatePositions();
-        this.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+        if (events) this.dom.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
         return this;
     }
 
     // Set Step
     setStep(step) {
         step = Number(step);
-        if (isNaN(step)) step = 1;
-        if (!isFinite(step)) step = 1;
+        if (isNaN(step) || !isFinite(step)) step = 1;
         this.step = step;
-        this.setRange({ min: this.currentMin, max: this.currentMax });
+        this.setRange({ min: this.currentMin, max: this.currentMax }, false /* events */);
         return this;
     }
 
     // Set Precision
     setPrecision(precision) {
         this.precision = precision;
-        this.setRange({ min: this.currentMin, max: this.currentMax });
+        this.setRange({ min: this.currentMin, max: this.currentMax }, false /* events */);
         return this;
     }
 
     // Set Min and Max Range
     setMinMax(min, max) {
+        if (isNaN(min) || !isFinite(min)) min = 0;
+        if (isNaN(max) || !isFinite(max)) max = 0;
         this.min = min;
         this.max = max;
         // Adjust current values if out of new bounds
@@ -180,6 +180,7 @@ class DualSlider extends Div {
         this.updatePositions();
         return this;
     }
+
 }
 
 export { DualSlider };
