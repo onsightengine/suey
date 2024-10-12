@@ -37,10 +37,11 @@
 //      Checkbox                input['checkbox']       .suey-checkbox
 //      Color                   input['color']          .suey-color-button
 //      Dropdown                button                  .suey-dropdown, .suey-drop-arrow
+//      DualSlider              div                     .suey-dual-slider
 //      NumberBox               input['number']         .suey-number
 //      NumberScroll            input['number']         .suey-number-scroll
 //      Slider                  input['range']          .suey-slider
-//      SliderBox               div (numbner + slider)  .suey-slider-box
+//      SliderBox               div (number + slider)   .suey-slider-box
 //      TextArea                textarea                .suey-text-area
 //      TextBox                 input['text']           .suey-text-box
 //
@@ -133,6 +134,7 @@ export { Button } from './input/Button.js';
 export { Checkbox } from './input/Checkbox.js';
 export { Color } from './input/Color.js';
 export { Dropdown } from './input/Dropdown.js';
+export { DualSlider } from './input/DualSlider.js';
 export { NumberBox } from './input/Number.js';
 export { NumberScroll } from './input/Number.js';
 export { Slider } from './input/Slider.js';

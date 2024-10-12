@@ -3,8 +3,6 @@ import { Div } from '../core/Div.js';
 
 const MAX_SLIDER_TICKS = 10;              // Maximum number of ticks to show on Slider with 'step'
 
-const _changeEvent = new Event('change', { 'bubbles': true, 'cancelable': true });
-
 class Slider extends Div {
 
     constructor(number = 0, min = 0, max = 100) {
@@ -55,7 +53,7 @@ class Slider extends Div {
 
             const newValue = self.getValue() - (upOrDown * step);
             self.setValue(newValue);
-            slider.dom.dispatchEvent(_changeEvent);
+            slider.dom.dispatchEvent(new Event('change', { 'bubbles': true, 'cancelable': true }));
         }
 
         slider.on('input', sliderInput);

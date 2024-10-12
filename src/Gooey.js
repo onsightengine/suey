@@ -64,6 +64,7 @@ import { Button } from './input/Button.js';
 import { Checkbox } from './input/Checkbox.js';
 import { Color } from './input/Color.js';
 import { Dropdown } from './input/Dropdown.js';
+import { DualSlider } from './input/DualSlider.js';
 import { NumberBox } from './input/Number.js';
 import { Slider } from './input/Slider.js';
 import { TextBox } from './input/TextBox.js';
@@ -181,7 +182,14 @@ class Folder extends Shrinkable {
             } else if (typeof value === 'function') {
                 return this.addFunction(params, variable);
             } else if (Array.isArray(value) && value.length > 0) {
-                return this.addVector(params, variable, a, b, c, d); // (a) min, (b) max, (c) step, (d) precision
+
+                console.log(a, b, c, d, e);
+
+                if (value.length === 2 && a === 'range') {
+                    return this.addRange(params, variable, b, c, d, e); // (b) min, (c) max, (d) step, (e) precision
+                } else {
+                    return this.addVector(params, variable, a, b, c, d); // (a) min, (b) max, (c) step, (d) precision
+                }
             }
         };
     }
@@ -366,6 +374,17 @@ class Folder extends Shrinkable {
             return prop;
         };
         prop.updateDisplay();
+        return prop;
+    }
+
+    addRange(params, variable, min = -Infinity, max = Infinity, step = 1, precision = 2) {
+        const prop = new Property();
+        const dual = new DualSlider({ min, max, initialMin: params[variable][0], initialMax: params[variable][1], step, precision });
+
+        prop.row = this.props.addRow(Strings.prettyTitle(variable), dual);
+        prop.name = function(name) { prop.row.leftWidget.setInnerHtml(name); return prop; };
+
+
         return prop;
     }
 
