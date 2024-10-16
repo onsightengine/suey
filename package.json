@@ -1,6 +1,6 @@
 {
   "name": "suey",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "description": "Lightweight JavaScript UI library.",
   "module": "src/Suey.js",
   "main": "dist/suey.module.js",

@@ -125,6 +125,12 @@ class Gooey extends Resizeable {
         return this;
     }
 
+    updateDisplays() {
+        this.traverse((child) => {
+            if (child instanceof Folder) child.updateDisplays();
+        }, false /* applyToSelf */);
+    }
+
     width(width) {
         if (width == null) return;
         if (width < this.minWidth * Css.guiScale(this.dom)) width = this.minWidth * Css.guiScale(this.dom);
@@ -154,6 +160,7 @@ class Folder extends Shrinkable {
         if (!hasTitle) this.titleDiv.setStyle('display', 'none');
 
         // Build
+        this.controllers = [];
         this.props = new PropertyList('45%', LEFT_SPACING.NORMAL);
         this.add(this.props);
 
@@ -193,6 +200,7 @@ class Folder extends Shrinkable {
 
     addBoolean(params, variable) {
         const prop = new Property();
+        this.controllers.push(prop);
         const boolBox = new Checkbox();
         boolBox.on('change', () => {
             params[variable] = boolBox.getValue();
@@ -215,6 +223,7 @@ class Folder extends Shrinkable {
         else if (typeof value === 'object') { type = 'object'; }
         else { type = 'number'; }
         const prop = new Property();
+        this.controllers.push(prop);
         // COLOR
         const colorButton = new Color();
         function setVariable(newValue) {
@@ -268,6 +277,7 @@ class Folder extends Shrinkable {
 
     addFunction(params, variable) {
         const prop = new Property();
+        this.controllers.push(prop);
         const button = new Button(Strings.prettyTitle(variable));
         button.onPress(() => params[variable]());
         prop.row = this.props.addRow(Strings.prettyTitle(variable), button);
@@ -281,6 +291,7 @@ class Folder extends Shrinkable {
 
     addList(params, variable, options) {
         const prop = new Property();
+        this.controllers.push(prop);
         const type = (typeof params[variable] === 'string') ? 'string' : 'number';
         const selectOptions = {};
         for (let option of options) selectOptions[option] = option;
@@ -307,6 +318,7 @@ class Folder extends Shrinkable {
 
     addNumber(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2, unit = '') {
         const prop = new Property();
+        this.controllers.push(prop);
         const slider = new Slider();
         const slideBox = new NumberBox();
         slider.on('input', () => {
@@ -376,6 +388,7 @@ class Folder extends Shrinkable {
 
     addRange(params, variable, min = -Infinity, max = Infinity, step = 1, precision = 2) {
         const prop = new Property();
+        this.controllers.push(prop);
         const dual = new DualSlider({ min, max, initialMin: params[variable][0], initialMax: params[variable][1], step, precision });
         const minBox = new NumberBox().addClass('suey-property-tiny-row');
         const maxBox = new NumberBox().addClass('suey-property-tiny-row');
@@ -429,6 +442,7 @@ class Folder extends Shrinkable {
 
     addString(params, variable) {
         const prop = new Property();
+        this.controllers.push(prop);
         const textBox = new TextBox();
         textBox.on('change', () => {
             params[variable] = textBox.getValue();
@@ -444,6 +458,7 @@ class Folder extends Shrinkable {
 
     addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
         const prop = new Property();
+        this.controllers.push(prop);
         const vector = params[variable];
         prop.row = this.props.addRow(Strings.prettyTitle(variable));
 
@@ -487,6 +502,14 @@ class Folder extends Shrinkable {
         };
         prop.updateDisplay();
         return prop;
+    }
+
+    updateDisplays() {
+        for (const controller of this.controllers) {
+            if (controller && typeof controller.updateDisplay === 'function') {
+                controller.updateDisplay();
+            }
+        }
     }
 
 }
