@@ -57,6 +57,7 @@ import { Div } from './core/Div.js';
 import { FlexSpacer } from './layout/FlexSpacer.js';
 import { PropertyList } from './data/PropertyList.js';
 import { Resizeable } from './panels/Resizeable.js';
+import { Row } from './layout/Row.js';
 import { Shrinkable } from './panels/Shrinkable.js';
 import { Titled } from './panels/Titled.js';
 
@@ -196,6 +197,12 @@ class Folder extends Shrinkable {
                 }
             }
         };
+
+        this.addDivider = function() {
+            const divider = new Row().setStyle('background', 'rgb(var(--background-dark))', 'margin', '0.5em 0');
+            this.props.add(divider);
+            return divider;
+        }
     }
 
     addBoolean(params, variable) {
