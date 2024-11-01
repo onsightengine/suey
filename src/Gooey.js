@@ -201,8 +201,12 @@ class Folder extends Shrinkable {
         this.addDivider = function() {
             const prop = new Property();
             this.controllers.push(prop);
-            const divider = new Row().setStyle('background', 'rgb(var(--background-dark))', 'margin', '0.5em 0');
-            prop.row = this.props.add(divider);
+            const divider = new Row();
+            divider.setStyle('background', 'rgb(var(--background-dark))');
+            divider.setStyle('margin', '0.5em 0');
+            divider.setStyle('min-height', '0.1em', 'height', '0.1em');
+            this.props.add(divider);
+            prop.row = divider;
             prop.updateDisplay = function() { };
             return prop;
         }
