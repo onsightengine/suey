@@ -322,10 +322,11 @@ class Element {
      * @memberof Element
      */
     hide(dispatchEvent = true) {
-        if (this.isHidden()) return;
+        if (this.isHidden()) return this;
         if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
         this.addClass('suey-hidden');
         this.setStyle('display', 'none');
+        return this;
     }
 
     /**
@@ -334,10 +335,11 @@ class Element {
      * @memberof Element
      */
     display(dispatchEvent = true) {
-        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
+        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return this;
         this.removeClass('suey-hidden');
         this.setStyle('display', '');
         if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
+        return this;
     }
 
     /**

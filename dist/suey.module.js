@@ -765,16 +765,18 @@ class Element {
         return this;
     }
     hide(dispatchEvent = true) {
-        if (this.isHidden()) return;
+        if (this.isHidden()) return this;
         if (dispatchEvent) this.dom.dispatchEvent(new Event('hidden'));
         this.addClass('suey-hidden');
         this.setStyle('display', 'none');
+        return this;
     }
     display(dispatchEvent = true) {
-        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return;
+        if (this.isDisplayed() && this.hasClass('suey-hidden') === false) return this;
         this.removeClass('suey-hidden');
         this.setStyle('display', '');
         if (dispatchEvent) this.dom.dispatchEvent(new Event('displayed'));
+        return this;
     }
     isDisplayed() {
         return getComputedStyle(this.dom).display != 'none';
@@ -3946,9 +3948,12 @@ class Folder extends Shrinkable {
             }
         };
         this.addDivider = function() {
+            const prop = new Property();
+            this.controllers.push(prop);
             const divider = new Row().setStyle('background', 'rgb(var(--background-dark))', 'margin', '0.5em 0');
-            this.props.add(divider);
-            return divider;
+            prop.row = this.props.add(divider);
+            prop.updateDisplay = function() { };
+            return prop;
         };
     }
     addBoolean(params, variable) {
@@ -4262,9 +4267,11 @@ class Property {
     }
     hide() {
         if (this.row) this.row.setStyle('display', 'none');
+        return this;
     }
     show() {
         if (this.row) this.row.setStyle('display', '');
+        return this;
     }
 }
 

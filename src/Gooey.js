@@ -199,9 +199,12 @@ class Folder extends Shrinkable {
         };
 
         this.addDivider = function() {
+            const prop = new Property();
+            this.controllers.push(prop);
             const divider = new Row().setStyle('background', 'rgb(var(--background-dark))', 'margin', '0.5em 0');
-            this.props.add(divider);
-            return divider;
+            prop.row = this.props.add(divider);
+            prop.updateDisplay = function() { };
+            return prop;
         }
     }
 
@@ -556,10 +559,12 @@ class Property {
 
     hide() {
         if (this.row) this.row.setStyle('display', 'none');
+        return this;
     }
 
     show() {
         if (this.row) this.row.setStyle('display', '');
+        return this;
     }
 
 }
