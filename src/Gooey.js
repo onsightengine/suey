@@ -473,16 +473,15 @@ class Folder extends Shrinkable {
     addVector(params, variable, min = -Infinity, max = Infinity, step = 'any', precision = 2) {
         const prop = new Property();
         this.controllers.push(prop);
-        const vector = params[variable];
         prop.row = this.props.addRow(Strings.prettyTitle(variable));
 
         const boxes = [];
-        for (let i = 0; i < vector.length; i++) {
+        for (let i = 0; i < params[variable].length; i++) {
             const box = new NumberBox();
             boxes.push(box);
 
             box.on('change', () => {
-                vector[i] = box.getValue();
+                params[variable][i] = box.getValue();
                 if (typeof prop.change === 'function') prop.change();
                 if (typeof prop.finishChange === 'function') prop.finishChange();
             });
@@ -490,13 +489,13 @@ class Folder extends Shrinkable {
             box.setRange(min, max).setPrecision(precision);
 
             prop.row.rightWidget.add(box);
-            if (i < vector.length - 1) prop.row.rightWidget.add(new Div().setStyle('min-width', '3px'));
+            if (i < params[variable].length - 1) prop.row.rightWidget.add(new Div().setStyle('min-width', '3px'));
         }
 
         function setStep(newStep) {
             let min = boxes[0].min, max = boxes[0].max;
             if (newStep === 'any') newStep = (Number.isFinite(max) && Number.isFinite(min)) ? (max - min) / 20 : 1;
-            for (let i = 0; i < vector.length; i++) {
+            for (let i = 0; i < params[variable].length; i++) {
                 boxes[i].setStep(newStep);
             }
         }
@@ -508,7 +507,7 @@ class Folder extends Shrinkable {
         prop.step = function(step) { for (let i = 0; i < boxes.length; i++) { boxes[i].setStep(step); } return prop; };
         prop.precision = function(precision) { for (let i = 0; i < boxes.length; i++) { boxes[i].setPrecision(precision); } return prop; };
         prop.updateDisplay = function() {
-            for (let i = 0; i < vector.length; i++) {
+            for (let i = 0; i < params[variable].length; i++) {
                 boxes[i].setValue(params[variable][i]);
                 params[variable][i] = boxes[i].getValue(); /* to apply min / max */
             }
