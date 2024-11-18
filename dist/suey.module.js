@@ -3341,12 +3341,19 @@ class Dropdown extends Button {
         }
         return this;
     }
-    setOptions(options) {
+    setOptions(options, uniformCapitalize = false) {
         const self = this;
         if (this.detachMenu) this.detachMenu();
         this.items.length = 0;
         for (const key in options) {
-            const item = new MenuItem(options[key]);
+            function capitalizeWords(input) {
+                return input
+                    .split(/[\s_]+/)
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+            const itemTitle = uniformCapitalize ? capitalizeWords(options[key]) : options[key];
+            const item = new MenuItem(itemTitle);
             item.value = key;
             item.onSelect(() => {
                 self.setValue(item.value);
@@ -4050,10 +4057,10 @@ class Folder extends Shrinkable {
         this.controllers.push(prop);
         const type = (typeof params[variable] === 'string') ? 'string' : 'number';
         const selectOptions = {};
-        for (let option of options) selectOptions[option] = option;
+        for (const option of options) selectOptions[option] = option;
         const selectDropDown = new Dropdown();
         selectDropDown.overflowMenu = OVERFLOW.LEFT;
-        selectDropDown.setOptions(selectOptions);
+        selectDropDown.setOptions(selectOptions, true );
         selectDropDown.on('change', () => {
             params[variable] = (type === 'string') ? selectDropDown.getValue() : selectDropDown.getIndex();
             if (typeof prop.change === 'function') prop.change();

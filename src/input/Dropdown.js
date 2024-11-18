@@ -98,7 +98,7 @@ class Dropdown extends Button {
     }
 
     /** Build sub menu from option list */
-    setOptions(options) {
+    setOptions(options, uniformCapitalize = false) {
         const self = this;
 
         if (this.detachMenu) this.detachMenu();
@@ -106,7 +106,14 @@ class Dropdown extends Button {
 
         // Add sub items for 'options'
         for (const key in options) {
-            const item = new MenuItem(options[key]);
+            function capitalizeWords(input) {
+                return input
+                    .split(/[\s_]+/)                                                            // split on spaces or underscores
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())    // capitalize first letter
+                    .join(' ');                                                                 // join back with a space
+            }
+            const itemTitle = uniformCapitalize ? capitalizeWords(options[key]) : options[key];
+            const item = new MenuItem(itemTitle);
             item.value = key;
             item.onSelect(() => {
                 self.setValue(item.value);

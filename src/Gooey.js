@@ -308,11 +308,11 @@ class Folder extends Shrinkable {
         this.controllers.push(prop);
         const type = (typeof params[variable] === 'string') ? 'string' : 'number';
         const selectOptions = {};
-        for (let option of options) selectOptions[option] = option;
+        for (const option of options) selectOptions[option] = option;
 
         const selectDropDown = new Dropdown();
         selectDropDown.overflowMenu = OVERFLOW.LEFT;
-        selectDropDown.setOptions(selectOptions);
+        selectDropDown.setOptions(selectOptions, true /* uniformCapitalize */);
         selectDropDown.on('change', () => {
             params[variable] = (type === 'string') ? selectDropDown.getValue() : selectDropDown.getIndex();
             if (typeof prop.change === 'function') prop.change();
